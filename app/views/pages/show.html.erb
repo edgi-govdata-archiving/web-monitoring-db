@@ -1,0 +1,26 @@
+<header>
+  <h1><%= @page.title %></h1>
+  <p><a href="<%= @page.url %>">Live page</a> <a href="<%= @page.versionista_url %>">Versionista</a></p>
+</header>
+
+<h2>Versions</h2>
+<table class="full-listing">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Compare with Previous</th>
+      <th>Compare with Original</th>
+      <th>Hash</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @page.versions.each do |version| %>
+      <tr>
+        <td><a href="<%= version.view_url %>"><%= version.created_at %></a></td>
+        <td><a href="<%= version.diff_with_previous_url %>">Compare with Previous</a></td>
+        <td><a href="<%= version.diff_with_first_url %>">Compare with Original</a></td>
+        <td><%= version.diff_hash %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,26 @@
+<table class="full-listing">
+  <thead>
+    <tr>
+      <th>URL</th>
+      <th>Title</th>
+      <th>Agency</th>
+      <th>Site</th>
+      <th>Added</th>
+      <th>Last Updated</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @pages.each do |page| %>
+      <tr>
+        <td class="collapsible-column"><a href="<%= page_path(page) %>"><%= page.url[0, 100] %></a></td>
+        <td><%= page.title %></td>
+        <td><%= page.agency %></td>
+        <td><%= page.site %></td>
+        <td><%= page.created_at %></td>
+        <td><%= page.updated_at %></td>
+        <td><a href="<%= page.versionista_url %>">View in Versionista</a></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
