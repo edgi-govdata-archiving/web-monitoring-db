@@ -243,6 +243,7 @@ module VersionistaService
     def parse_all_comparison_data(comparison_links)
       versions = []
       oldest_link = comparison_links.last
+      pervious_link = nil
       
       if !oldest_link.nil?
         comparison_links.reverse_each do |link|
@@ -250,10 +251,13 @@ module VersionistaService
           total_comparison_url = nil
           
           version_date = DateTime.parse(Chronic.parse(link.text).to_s)
-          next if version_date < cutoff_time || version_date > until_time
+          if version_date < cutoff_time || version_date > until_time
+            previous_link = link
+            next
+          end
           
           if link != oldest_link
-            latest_comparison_url = generated_latest_comparison_url(link)
+            latest_comparison_url = generated_latest_comparison_url(link, previous_link)
             total_comparison_url = generated_total_comparison_url(link, oldest_link)
           end
           
@@ -263,14 +267,20 @@ module VersionistaService
             latest_comparison_url: latest_comparison_url,
             total_comparison_url: total_comparison_url,
           })
+          previous_link = link
         end
       end
       
       versions
     end
 
-    def generated_latest_comparison_url(latest_link)
-      latest_link[:href].sub(/\/?$/, ":0/")
+    def generated_latest_comparison_url(latest_link, previous_link = nil)
+      previous_id = '0'
+      if previous_link
+        previous_id_match = previous_link[:href].match(/\/(\w+)\/?$/)
+        previous_id = previous_id_match && previous_id_match[1] || previous_id
+      end
+      latest_link[:href].sub(/\/?$/, ":#{previous_id}/")
     end
 
     def generated_total_comparison_url(latest_link, oldest_link)
