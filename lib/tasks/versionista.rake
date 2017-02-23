@@ -67,7 +67,7 @@ def scrape_versionista(email, password, from_date, to_date)
   
   result = scraper.scrape_each_page_version
   
-  duration = (DateTime.now - start_time).minutes.to_f.round 3
+  duration = ((DateTime.now - start_time) * 24 * 60).to_f.round 3
   puts "Completed scraping in #{duration} minutes"
   
   result
