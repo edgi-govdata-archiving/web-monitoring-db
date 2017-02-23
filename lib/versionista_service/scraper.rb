@@ -75,14 +75,14 @@ module VersionistaService
     def scrape_each_page_version
       website_rows = scrape_website_hrefs
 
-      first_site = true
+      site_index = 1
       website_rows.map do |name, href, change_time|
         next if change_time < cutoff_time
         
-        unless first_site || chill_between_sites == 0
+        unless site_index % 5 == 0 || chill_between_sites == 0
           sleep(chill_between_sites)
         end
-        first_site = false
+        site_index += 1
         
         [name, scrape_archived_page_data(href)]
       end.compact
@@ -176,12 +176,12 @@ module VersionistaService
         page_hrefs.concat(recent_page_hrefs)
       end
 
-      first_page = true
+      page_index = 1
       page_hrefs.flat_map do |href|
-        unless first_page || chill_between_pages == 0
+        unless page_index % 10 == 0 || chill_between_pages == 0
           sleep(chill_between_pages)
         end
-        first_page = false
+        page_index += 1
         
         puts "Visiting #{href}"
         unless navigate_to(href)
