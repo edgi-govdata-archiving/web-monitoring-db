@@ -58,3 +58,4 @@ VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake
 ```
 
 The argument in square brackets should be the path to your JSON file.
+
