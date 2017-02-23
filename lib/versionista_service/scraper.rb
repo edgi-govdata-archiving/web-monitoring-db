@@ -204,6 +204,7 @@ module VersionistaService
           # The original version will not have a total_comparison_url
           # (why yes, this a crappy hack on top of something not designed for this)
           latest_diff = if version_data[:total_comparison_url]
+            # TODO: don't bother trying to get diffs for PDF pages since Versionista can't diff those anyway
             comparison_diff(version_data[:latest_comparison_url])
           else
             PageDiff.new

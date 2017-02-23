@@ -24,3 +24,16 @@
     <% end %>
   </tbody>
 </table>
+
+<footer>
+  <p><%= @total_pages %> web pages are tracked.</p>
+  <p>
+    <% if @page_group_number > 1 %>
+      <%= link_to '< Previous', pages_path(nil, page: @page_group_number - 1) %>
+    <% end %>
+    Page <%= @page_group_number %> of <%= @total_page_groups %>
+    <% if @page_group_number < @total_page_groups %>
+      <%= link_to 'Next >', pages_path(nil, page: @page_group_number + 1) %>
+    <% end %>
+  </p>
+</footer>
