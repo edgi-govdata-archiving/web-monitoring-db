@@ -57,6 +57,7 @@ def get_credentials(args)
 end
 
 def scrape_versionista(email, password, from_date, to_date)
+  start_time = DateTime.now
   puts "Scraping Versionista data from #{from_date} through #{to_date}"
   
   scraper = VersionistaService::Scraper.new(from_date, to_date)
@@ -64,7 +65,12 @@ def scrape_versionista(email, password, from_date, to_date)
     fail 'Could not log in; stopping Versionista update.'
   end
   
-  scraper.scrape_each_page_version
+  result = scraper.scrape_each_page_version
+  
+  duration = (DateTime.now - start_time).minutes.to_f.round 3
+  puts "Completed scraping in #{duration} minutes"
+  
+  result
 end
 
 def update_db_from_data(websites_data)
