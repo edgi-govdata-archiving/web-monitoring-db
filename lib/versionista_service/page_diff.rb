@@ -1,6 +1,6 @@
 # From https://github.com/edgi-govdata-archiving/versionista-outputter
 
-require 'zlib'
+require 'digest'
 
 module VersionistaService
   class PageDiff
@@ -18,7 +18,7 @@ module VersionistaService
       if diff_text.nil?
         -1
       else
-        Zlib.crc32(diff_text)
+        Digest::SHA256.hexdigest(diff_text)
       end
     end
   end
