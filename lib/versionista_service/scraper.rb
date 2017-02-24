@@ -21,8 +21,8 @@ module VersionistaService
 
     def initialize(cutoff_time, until_time = nil, get_all_versions = true, chill_between_sites = 5, chill_between_pages = 5)
       @session = Browser.new_session
-      @cutoff_time = cutoff_time
-      @until_time = until_time || DateTime.now
+      @cutoff_time = cutoff_time.new_offset(0)
+      @until_time = (until_time || DateTime.now).new_offset(0)
       @should_get_all_versions = get_all_versions
       @chill_between_sites = chill_between_sites
       @chill_between_pages = chill_between_pages
@@ -127,7 +127,7 @@ module VersionistaService
     end
 
     def parsed_website_change_time(time_ago)
-      DateTime.parse(Chronic.parse("#{time_ago} ago").to_s)
+      DateTime.parse(Chronic.parse("#{time_ago} ago").to_s).new_offset(0)
     end
 
     def recent_page_hrefs
@@ -142,10 +142,8 @@ module VersionistaService
       if last_new_time_cell.nil?
         false
       else
-        # Need to better determine when to add the TZ adjustment here
-        est_adjustment = 0 #(5.0/24)
         begin
-          version_time = DateTime.strptime(last_new_time_cell.text, "%b %d %Y %I:%M %p") + est_adjustment
+          version_time = DateTime.parse(Chronic.parse(last_new_time_cell.text).to_s).new_offset(0)
           version_time >= cutoff_time
         rescue ArgumentError #invalid date
           false
@@ -251,7 +249,7 @@ module VersionistaService
           latest_comparison_url = link[:href]
           total_comparison_url = nil
           
-          version_date = DateTime.parse(Chronic.parse(link.text).to_s)
+          version_date = DateTime.parse(Chronic.parse(link.text).to_s).new_offset(0)
           if version_date < cutoff_time || version_date > until_time
             previous_link = link
             next
