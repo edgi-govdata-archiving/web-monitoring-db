@@ -12,11 +12,10 @@ module VersionistaService
   class Scraper
     attr_reader :session, :cutoff_time, :until_time, :should_get_all_versions, :chill_between_sites, :chill_between_pages
     
-    def self.from_hours(cutoff_hours, until_hours = 0, chill_between_sites = 5, chill_between_pages = 5)
+    def self.from_hours(cutoff_hours, until_hours = 0)
       self.new(
-        DateTime.now - (cutoff_hours.to_i / 24.0),
-        DateTime.now - (until_hours.to_i / 24.0),
-        chill_seconds)
+        DateTime.now - (cutoff_hours.to_f / 24.0),
+        DateTime.now - (until_hours.to_f / 24.0))
     end
 
     def initialize(cutoff_time, until_time = nil, get_all_versions = true, chill_between_sites = 5, chill_between_pages = 5)
@@ -190,7 +189,13 @@ module VersionistaService
 
         page_name = session.all(:xpath, "//div[@class='panel-heading']//h3").first.text
         page_url = session.all(:xpath, "//div[@class='panel-heading']//h3/following-sibling::a[1]").first.text
-        comparison_links = session.all(:xpath, "//*[@id='pageTableBody']/tr/td[1]/a")
+        
+        # TODO: more change-proof to get all the links in a row and find the one whose text parses as a date?
+        comparison_links = session.all(:xpath, "//*[@id='pageTableBody']/tr/td[2]/a")
+        
+        if comparison_links.length == 0
+          raise "No versions found for page #{page_url}"
+        end
         
         versions_data = if should_get_all_versions
           parse_all_comparison_data(comparison_links)
@@ -242,7 +247,7 @@ module VersionistaService
     def parse_all_comparison_data(comparison_links)
       versions = []
       oldest_link = comparison_links.last
-      pervious_link = nil
+      previous_link = nil
       
       if !oldest_link.nil?
         comparison_links.reverse_each do |link|

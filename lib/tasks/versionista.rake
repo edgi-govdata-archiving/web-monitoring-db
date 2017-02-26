@@ -5,8 +5,8 @@ require_relative '../versionista_service/scraper.rb'
 desc 'Update database entries by scraping Versionista'
 task :update_from_versionista, [:from, :to, :email, :password] => [:environment] do |t, args|
   args.with_defaults(:from => '6', :to => '0')
-  from_date = DateTime.now - (args.from.to_i / 24.0)
-  to_date = DateTime.now - (args.to.to_i / 24.0)
+  from_date = DateTime.now - (args.from.to_f / 24.0)
+  to_date = DateTime.now - (args.to.to_f / 24.0)
   email, password = get_credentials(args)
   
   websites_data = scrape_versionista(email, password, from_date, to_date)
@@ -17,8 +17,8 @@ end
 desc 'Scraping Versionista for new revisions'
 task :scrape_from_versionista, [:from, :to, :output_path, :email, :password] => [:environment] do |t, args|
   args.with_defaults(:from => '6', :to => '0')
-  from_date = DateTime.now - (args.from.to_i / 24.0)
-  to_date = DateTime.now - (args.to.to_i / 24.0)
+  from_date = DateTime.now - (args.from.to_f / 24.0)
+  to_date = DateTime.now - (args.to.to_f / 24.0)
   email, password = get_credentials(args)
   
   websites_data = scrape_versionista(email, password, from_date, to_date)
