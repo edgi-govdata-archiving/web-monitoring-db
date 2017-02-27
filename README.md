@@ -10,6 +10,7 @@ It’s a Rails app that:
 - Can automatically update itself from Versionista
 - [Not yet done] Provides an API to get revision data and allow analysts to update metadata about the revision
 
+
 ## Installation
 
 1. Ensure you have Ruby 2.4.0+
@@ -59,3 +60,9 @@ VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake
 
 The argument in square brackets should be the path to your JSON file.
 
+
+## License & Copyright
+
+All source code in this repository is copyright (c) 2017 The Environmental Data and Governance Initiative.
+
+It is licensed under the GPL v3 source code license, found in the [`LICENSE`](https://github.com/edgi-govdata-archiving/webpage-versions-db/blob/master/LICENSE) file.
