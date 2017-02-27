@@ -4,9 +4,7 @@ require_relative '../versionista_service/scraper.rb'
 
 desc 'Update database entries by scraping Versionista'
 task :update_from_versionista, [:from, :to, :email, :password] => [:environment] do |t, args|
-  args.with_defaults(:from => '6', :to => '0')
-  from_date = DateTime.now - (args.from.to_f / 24.0)
-  to_date = DateTime.now - (args.to.to_f / 24.0)
+  from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
   
   websites_data = scrape_versionista(email, password, from_date, to_date)
@@ -16,9 +14,7 @@ end
 
 desc 'Scraping Versionista for new revisions'
 task :scrape_from_versionista, [:from, :to, :output_path, :email, :password] => [:environment] do |t, args|
-  args.with_defaults(:from => '6', :to => '0')
-  from_date = DateTime.now - (args.from.to_f / 24.0)
-  to_date = DateTime.now - (args.to.to_f / 24.0)
+  from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
   
   websites_data = scrape_versionista(email, password, from_date, to_date)
@@ -38,6 +34,28 @@ end
 
 # Actual implementations
 
+# Get intended timeframe based on args. Throw if from/to args are not either ISO 8601 dates or floats.
+def get_timeframe(args)
+  from_date = nil
+  to_date = nil
+  args.with_defaults(:from => '6', :to => '0')
+  
+  begin
+    from_date = DateTime.iso8601(args.from)
+  rescue
+    from_date = DateTime.now - (Float(args.from) / 24.0)
+  end
+  
+  begin
+    to_date = DateTime.iso8601(args.to)
+  rescue
+    to_date = DateTime.now - (Float(args.to) / 24.0)
+  end
+  
+  [from_date, to_date]
+end
+
+# Get versionista credentials based on args/env
 def get_credentials(args)
   email = args.email
   if email.blank?
