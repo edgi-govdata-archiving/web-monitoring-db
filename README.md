@@ -33,7 +33,7 @@ It’s a Rails app that:
 To actually pull down new revisions in the last 24 hours from Versionista:
 
 ```sh
-VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake update_from_versionista[24]
+$ VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake update_from_versionista[24]
 ```
 
 Just be sure to replace `login-email-here` and `login-password-here` with the appropriate values :)
@@ -41,13 +41,13 @@ Just be sure to replace `login-email-here` and `login-password-here` with the ap
 The `[24]` at the end is how many hours before now to start. You can add a second argument to tell it not to include revisions newer than so many hours ago. For example, to only retrieve revisions created between 24 and 12 hours ago:
 
 ```sh
-rake update_from_versionista[24,12]
+$ rake update_from_versionista[24,12]
 ```
 
 If you just want to scrape the info from Versionista and store it in a JSON file for later use without updating the DB:
 
 ```
-VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake scrape_from_versionista[24]
+$ VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake scrape_from_versionista[24]
 ```
 
 This will create a JSON file named `scraped_data-[from hours]-[until hours].json` (e.g. `scraped_data-24-0.json` in the example above) and put it in the `tmp` directory. You can specify a different file path to use as a third argument in square brackets.
@@ -55,7 +55,7 @@ This will create a JSON file named `scraped_data-[from hours]-[until hours].json
 And to update the DB from that scraped data:
 
 ```
-VERSIONISTA_EMAIL=login-email-here VERSIONISTA_PASSWORD=login-password-here rake update_from_json['./tmp/scraped_data-24-0.json']
+$ rake update_from_json['./tmp/scraped_data-24-0.json']
 ```
 
 The argument in square brackets should be the path to your JSON file.
