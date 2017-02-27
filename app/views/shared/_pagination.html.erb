@@ -1,0 +1,10 @@
+<p><%= @paging[:total_items] %> web pages are tracked.</p>
+<p>
+  <% if @paging[:links][:prev] %>
+    <%= link_to '< Previous', @paging[:links][:prev] %>
+  <% end %>
+  Page <%= @paging[:page_number] %> of <%= @paging[:pages] %>
+  <% if @paging[:links][:next] %>
+    <%= link_to 'Next >', @paging[:links][:next] %>
+  <% end %>
+</p>
