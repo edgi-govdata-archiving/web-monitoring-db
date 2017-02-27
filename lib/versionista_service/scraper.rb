@@ -193,8 +193,13 @@ module VersionistaService
         # TODO: more change-proof to get all the links in a row and find the one whose text parses as a date?
         comparison_links = session.all(:xpath, "//*[@id='pageTableBody']/tr/td[2]/a")
         
+        # TODO: better detect when this should be OK and when it should be an
+        # error. Large files e.g. video https://versionista.com/74235/6248989/
+        # aren't stored with diffs on Versionista, but we *would* like to know
+        # in other cases if the scraper failed to find diffs where it should
+        # have (i.e. the UI changed and the scraper is broken)
         if comparison_links.length == 0
-          raise "No versions found for page #{page_url}"
+          puts "-- Warning: No versions difs found for page #{page_url}"
         end
         
         versions_data = if should_get_all_versions
