@@ -1,8 +1,8 @@
-# webpage-versions-db
+# web-monitoring-db
 
 **Still just a proof-of-concept at the moment!**
 
-This is essentially a more automated version of the page monitoring workflow currently managed through a combination of [versionista-outputter](https://github.com/edgi-govdata-archiving/versionista-outputter/), Google spreadsheets, and *lots* of manual work.
+This is essentially a more automated version of the page monitoring workflow currently managed through a combination of [versionista-outputter](https://github.com/edgi-govdata-archiving/versionista-outputter/), Google spreadsheets, and *lots* of manual work. This repository is part of the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring).
 
 It’s a Rails app that:
 
@@ -19,7 +19,7 @@ It’s a Rails app that:
   ```sh
   $ gem install bundler
   ```
-  
+
 3. Clone this repo
 4. Wherever you cloned the repo, go to that directory and:
 
