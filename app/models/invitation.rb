@@ -7,7 +7,7 @@ class Invitation < ApplicationRecord
 
   before_create :assign_code, :ensure_expiration
   validate :not_for_existing_user, on: :create
-  validates :email, format: { with: /\A[^@\s]+@([^@.\s]+\.)+[^@.\s]+\z/ }
+  validates :email, format: { with: /\A[^@\s]+@([^@.\s]+\.)+[^@.\s]+\z/ }, allow_blank: true
 
   def self.expired
     self.where('expires_on < ?', DateTime.now)

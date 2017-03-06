@@ -4,12 +4,12 @@ one:
   diff_with_previous_url: MyString
   diff_with_first_url: MyString
   diff_length: 1
-  hash: MyString
-  metadata: 
+  diff_hash: MyString
+  metadata:
 
 two:
   diff_with_previous_url: MyString
   diff_with_first_url: MyString
   diff_length: 1
-  hash: MyString
-  metadata: 
+  diff_hash: MyString
+  metadata:

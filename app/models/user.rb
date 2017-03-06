@@ -21,6 +21,7 @@ class User < ApplicationRecord
   def after_confirmation
     if self.invitation
       self.invitation.destroy
+      self.invitation = nil
     end
   end
 end
