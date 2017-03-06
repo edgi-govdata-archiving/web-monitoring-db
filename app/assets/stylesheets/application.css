@@ -13,3 +13,40 @@
  *= require_tree .
  *= require_self
  */
+
+html, body {
+  margin: 0;
+  font-family: "Helvetica Neue", helvetica, arial, sans-serif;
+}
+
+.page-header {
+}
+
+.page-header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  background: #ddd;
+  border-bottom: 1px solid #bbb;
+}
+
+.page-header-main > * {
+  margin: 0;
+  padding: 0.5em;
+}
+
+.flash .notice {
+  padding: 0.5em;
+  background: #dff0d8;
+  border-bottom: 1px solid #b2d2a5;
+}
+
+.flash .alert {
+  padding: 0.5em;
+  background: #f2dede;
+  border-bottom: 1px solid #a94442;
+}
+
+.page-content {
+  padding: 1em;
+}

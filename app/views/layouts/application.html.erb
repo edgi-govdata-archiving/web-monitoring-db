@@ -9,18 +9,28 @@
   </head>
 
   <body>
-    <% if user_signed_in? %>
-      <%= link_to('Logout', destroy_user_session_path, :method => :delete) %>
-    <% else %>
-      <%= link_to('Login', new_user_session_path)  %>
-    <% end %>
+    <header class="page-header">
+      <div class="page-header-main">
+        <p class="page-header-title">EDGI Web-Monitoring Database</p>
 
-    <div class="flash">
-      <% flash.each do |name, msg| %>
-        <%= content_tag :div, msg, class: name %>
-      <% end %>
+        <div class="page-header-user">
+          <% if user_signed_in? %>
+            <%= link_to('Logout', destroy_user_session_path, :method => :delete) %>
+          <% else %>
+            <%= link_to('Login', new_user_session_path)  %>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flash">
+        <% flash.each do |name, msg| %>
+          <%= content_tag :div, msg, class: name %>
+        <% end %>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <%= yield %>
     </div>
-
-    <%= yield %>
   </body>
 </html>
