@@ -10,10 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170302233652) do
+ActiveRecord::Schema.define(version: 20170303213937) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "invitations", force: :cascade do |t|
+    t.integer  "issuer_id"
+    t.integer  "redeemer_id"
+    t.string   "code"
+    t.string   "email"
+    t.datetime "expires_on"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.index ["code"], name: "index_invitations_on_code", using: :btree
+    t.index ["issuer_id"], name: "index_invitations_on_issuer_id", using: :btree
+    t.index ["redeemer_id"], name: "index_invitations_on_redeemer_id", using: :btree
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "",    null: false
@@ -66,5 +79,7 @@ ActiveRecord::Schema.define(version: 20170302233652) do
     t.index ["versionista_version_id"], name: "index_versionista_versions_on_versionista_version_id", using: :btree
   end
 
+  add_foreign_key "invitations", "users", column: "issuer_id"
+  add_foreign_key "invitations", "users", column: "redeemer_id"
   add_foreign_key "versionista_versions", "versionista_pages", column: "page_id"
 end

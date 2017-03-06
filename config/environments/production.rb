@@ -56,9 +56,20 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "webpage-versions-db_#{Rails.env}"
   config.action_mailer.perform_caching = false
-  
+
   # Action Mailer host default
   config.action_mailer.default_url_options = { :host => ENV.fetch('HOST_URL', 'web-monitoring-db.herokuapp.com') }
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch('MAIL_SMTP_ADDRESS'),
+    port: ENV.fetch('MAIL_SMTP_PORT', 587).to_i,
+    domain: ENV.fetch('MAIL_SMTP_DOMAIN', 'gmail.com'),
+    user_name: ENV.fetch('MAIL_SMTP_USER'),
+    password: ENV.fetch('MAIL_SMTP_PASSWORD'),
+    authentication: ENV.fetch('MAIL_SMTP_AUTH', 'plain'),
+    enable_starttls_auto: ENV.fetch('MAIL_SMTP_ADDRESS', 'true') == 'true'
+  }
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.perform_caching = false
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

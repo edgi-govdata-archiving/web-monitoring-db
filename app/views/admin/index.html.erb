@@ -1,0 +1,77 @@
+<table class="full-listing">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>E-mail</th>
+      <th>Confirmed</th>
+      <th>Added</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= user.id %></td>
+        <td><%= user.email %></td>
+        <td><% if user.confirmed? %>✔︎<% end %></td>
+        <td><%= user.created_at %></td>
+        <td>
+          <%= form_tag(controller: "admin", action: "destroy_user", method: "delete") do %>
+            <input type="hidden" name="id" value="<%= user.id %>">
+            <input type="submit" value="Delete Account">
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2>Invite a new user</h2>
+
+<%= form_for(@invitation, url: {action: 'invite'}) do |form| %>
+  <% if @invitation.errors.any? %>
+    <% if @invitation.errors.count == 1 %>
+      <p><%= @invitation.errors.full_messages.first %></p>
+    <% else %>
+      <ul>
+        <% @invitation.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  <% end %>
+
+  <label>
+    E-mail:
+    <%= form.email_field :email, size: 50, placeholder: 'Leave blank for just an invite code' %>
+  </label>
+  <input type="submit" value="Generate Invitation" />
+<% end %>
+
+<table class="full-listing">
+  <thead>
+    <tr>
+      <th>Invitation Code</th>
+      <th>Sent to</th>
+      <th>Expires</th>
+      <th>Created by</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @invitations.each do |invitation| %>
+      <tr>
+        <td><%= link_to invitation.code, new_user_registration_path(nil, invitation: invitation.code)%></td>
+        <td><%= invitation.email %></td>
+        <td><span title="<%= invitation.expires_on.to_s %>"><%= time_ago_in_words invitation.expires_on %></span></td>
+        <td><%= invitation.issuer && invitation.issuer.email %></td>
+        <td>
+          <%= form_tag(controller: "admin", action: "cancel_invitation", method: "delete") do %>
+            <input type="hidden" name="id" value="<%= invitation.id %>">
+            <input type="submit" value="Cancel Invitation">
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
