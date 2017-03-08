@@ -8,10 +8,10 @@ require_relative 'page_diff.rb'
 
 module VersionistaService
   RETRY_WAIT_TIME = 30
-  
+
   class Scraper
     attr_reader :session, :cutoff_time, :until_time, :should_get_all_versions, :chill_between_sites, :chill_between_pages
-    
+
     def self.from_hours(cutoff_hours, until_hours = 0)
       self.new(
         DateTime.now - (cutoff_hours.to_f / 24.0),
@@ -27,7 +27,7 @@ module VersionistaService
       @chill_between_pages = chill_between_pages
       @retry_count = 0
     end
-    
+
     def navigate_to!(url)
       begin
         session.visit(url)
@@ -44,7 +44,7 @@ module VersionistaService
         @retry_count = 0
       end
     end
-    
+
     def navigate_to(url)
       begin
         navigate_to! url
@@ -61,7 +61,7 @@ module VersionistaService
       session.fill_in("E-mail", with: email)
       session.fill_in("Password", with: password)
       session.click_button("Log in")
-      
+
       if session.has_xpath?("//a[contains(text(), 'Log out')]")
         puts "-- Logging in complete!"
         true
@@ -77,12 +77,12 @@ module VersionistaService
       site_index = 1
       website_rows.map do |name, href, change_time|
         next if change_time < cutoff_time
-        
+
         unless site_index % 5 == 0 || chill_between_sites == 0
           sleep(chill_between_sites)
         end
         site_index += 1
-        
+
         [name, scrape_archived_page_data(href)]
       end.compact
     end
@@ -179,7 +179,7 @@ module VersionistaService
           sleep(chill_between_pages)
         end
         page_index += 1
-        
+
         puts "Visiting #{href}"
         unless navigate_to(href)
           puts "-- FAILED VISIT"
@@ -189,10 +189,10 @@ module VersionistaService
 
         page_name = session.all(:xpath, "//div[@class='panel-heading']//h3").first.text
         page_url = session.all(:xpath, "//div[@class='panel-heading']//h3/following-sibling::a[1]").first.text
-        
+
         # TODO: more change-proof to get all the links in a row and find the one whose text parses as a date?
         comparison_links = session.all(:xpath, "//*[@id='pageTableBody']/tr/td[2]/a")
-        
+
         # TODO: better detect when this should be OK and when it should be an
         # error. Large files e.g. video https://versionista.com/74235/6248989/
         # aren't stored with diffs on Versionista, but we *would* like to know
@@ -201,13 +201,13 @@ module VersionistaService
         if comparison_links.length == 0
           puts "-- Warning: No versions difs found for page #{page_url}"
         end
-        
+
         versions_data = if should_get_all_versions
           parse_all_comparison_data(comparison_links)
         else
           parse_comparison_data(comparison_links)
         end
-        
+
         versions_data.map do |version_data|
           # The original version will not have a total_comparison_url
           # (why yes, this a crappy hack on top of something not designed for this)
@@ -217,7 +217,7 @@ module VersionistaService
           else
             PageDiff.new
           end
-          
+
           [
             href,
             data_row(
@@ -241,45 +241,49 @@ module VersionistaService
       oldest_link = comparison_links.last
       return [] if latest_link.nil? || oldest_link.nil?
 
+      oldest_date = DateTime.parse(Chronic.parse(oldest_link.text).to_s).new_offset(0)
+      latest_date = DateTime.parse(Chronic.parse(latest_link.text).to_s).new_offset(0)
+
       [{
-        latest_comparison_date: latest_link.text,
-        oldest_comparison_date: oldest_link.text,
+        latest_comparison_date: latest_date.iso8601,
+        oldest_comparison_date: oldest_date.iso8601,
         latest_comparison_url: generated_latest_comparison_url(latest_link),
         total_comparison_url: generated_total_comparison_url(latest_link, oldest_link),
       }]
     end
-    
+
     def parse_all_comparison_data(comparison_links)
       versions = []
       oldest_link = comparison_links.last
+      oldest_date = DateTime.parse(Chronic.parse(oldest_link.text).to_s).new_offset(0)
       previous_link = nil
-      
+
       if !oldest_link.nil?
         comparison_links.reverse_each do |link|
           latest_comparison_url = link[:href]
           total_comparison_url = nil
-          
+
           version_date = DateTime.parse(Chronic.parse(link.text).to_s).new_offset(0)
           if version_date < cutoff_time || version_date > until_time
             previous_link = link
             next
           end
-          
+
           if link != oldest_link
             latest_comparison_url = generated_latest_comparison_url(link, previous_link)
             total_comparison_url = generated_total_comparison_url(link, oldest_link)
           end
-          
+
           versions.push({
-            latest_comparison_date: link.text,
-            oldest_comparison_date: oldest_link.text,
+            latest_comparison_date: version_date.iso8601,
+            oldest_comparison_date: oldest_date.iso8601,
             latest_comparison_url: latest_comparison_url,
             total_comparison_url: total_comparison_url,
           })
           previous_link = link
         end
       end
-      
+
       versions
     end
 
@@ -332,7 +336,7 @@ module VersionistaService
     def data_row(page_view_url:, site_name:, page_name:,
                  page_url:, latest_comparison_url:, total_comparison_url:,
                  latest_comparison_date:, oldest_comparison_date:, latest_diff:)
-    
+
       headers.zip([
         nil,                         #'Index' - to be filled in later
         SecureRandom.uuid,           # UUID
