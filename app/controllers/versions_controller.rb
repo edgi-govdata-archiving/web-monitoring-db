@@ -36,7 +36,7 @@ class VersionsController < ApplicationController
     @version = page.versions.find(params[:id])
 
     annotation = JSON.parse(request.body.read)
-    @version.annotate(annotation)
+    @version.annotate(annotation, current_user)
     @version.save
 
     self.show

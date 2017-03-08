@@ -14,7 +14,7 @@ class VersionistaVersion < ApplicationRecord
     super || {}
   end
 
-  def annotate(annotation)
+  def annotate(annotation, author = nil)
     if annotation.blank?
       return
     end
@@ -29,6 +29,11 @@ class VersionistaVersion < ApplicationRecord
       created_at: DateTime.now.utc.iso8601,
       annotation: annotation
     }
+
+    if author
+      envelope[:author] = author.email
+    end
+
     annotations = self.annotations
     annotations << envelope
     self.annotations = annotations
