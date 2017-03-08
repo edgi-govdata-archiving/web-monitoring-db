@@ -14,7 +14,7 @@
     </tr>
   </thead>
   <tbody>
-    <% @page.versions.each do |version| %>
+    <% @versions.each do |version| %>
       <tr>
         <td><a href="<%= version.view_url %>"><%= version.created_at %></a></td>
         <td><a href="<%= version.diff_with_previous_url %>">Compare with Previous</a></td>
@@ -24,3 +24,7 @@
     <% end %>
   </tbody>
 </table>
+
+<footer>
+  <%= render "shared/pagination" %>
+</footer>
