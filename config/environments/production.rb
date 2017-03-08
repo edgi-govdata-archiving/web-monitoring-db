@@ -66,7 +66,7 @@ Rails.application.configure do
     user_name: ENV.fetch('MAIL_SMTP_USER'),
     password: ENV.fetch('MAIL_SMTP_PASSWORD'),
     authentication: ENV.fetch('MAIL_SMTP_AUTH', 'plain'),
-    enable_starttls_auto: ENV.fetch('MAIL_SMTP_ADDRESS', 'true') == 'true'
+    enable_starttls_auto: ENV.fetch('MAIL_SMTP_TLS', 'true') == 'true'
   }
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
