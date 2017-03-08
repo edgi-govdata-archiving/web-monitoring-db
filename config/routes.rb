@@ -5,7 +5,14 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  resources :pages, path: '/pages'
+  resources :pages, path: '/pages', only: [:index, :show] do
+    resources :versions, only: [:index, :show] do
+      member do
+        get 'annotations'
+        post 'annotations', action: 'annotate'
+      end
+    end
+  end
 
   get 'admin', to: 'admin#index'
   post 'admin/invite'

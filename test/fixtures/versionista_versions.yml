@@ -5,11 +5,11 @@ one:
   diff_with_first_url: MyString
   diff_length: 1
   diff_hash: MyString
-  metadata:
+  annotations: []
 
 two:
   diff_with_previous_url: MyString
   diff_with_first_url: MyString
   diff_length: 1
   diff_hash: MyString
-  metadata:
+  annotations: []

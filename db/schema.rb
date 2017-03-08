@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170303213937) do
+ActiveRecord::Schema.define(version: 20170307220127) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,9 +70,10 @@ ActiveRecord::Schema.define(version: 20170303213937) do
     t.string   "diff_hash"
     t.boolean  "relevant",               default: true
     t.string   "versionista_version_id"
-    t.jsonb    "metadata"
+    t.jsonb    "current_annotation"
     t.datetime "created_at",                            null: false
     t.datetime "updated_at",                            null: false
+    t.jsonb    "annotations"
     t.index ["diff_hash"], name: "index_versionista_versions_on_diff_hash", using: :btree
     t.index ["page_id"], name: "index_versionista_versions_on_page_id", using: :btree
     t.index ["previous_id"], name: "index_versionista_versions_on_previous_id", using: :btree
