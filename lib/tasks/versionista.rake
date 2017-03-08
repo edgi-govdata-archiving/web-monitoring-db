@@ -6,7 +6,7 @@ desc 'Update database entries by scraping Versionista'
 task :update_from_versionista, [:from, :to, :email, :password] => [:environment] do |t, args|
   from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
-  
+
   websites_data = scrape_versionista(email, password, from_date, to_date)
   update_db_from_data(websites_data)
 end
@@ -16,10 +16,10 @@ desc 'Scraping Versionista for new revisions'
 task :scrape_from_versionista, [:from, :to, :output_path, :email, :password] => [:environment] do |t, args|
   from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
-  
+
   websites_data = scrape_versionista(email, password, from_date, to_date)
   data_path = args.output_path || "./tmp/scraped_data-#{args.from}-#{args.to}.json"
-  
+
   File.write(data_path, websites_data.to_json)
 end
 
@@ -31,6 +31,20 @@ task :update_from_json, [:data_path] => [:environment] do |t, args|
   update_db_from_data(data)
 end
 
+desc 'Update database entries from a directory of pre-scraped Versionista data'
+task :update_from_json_directory, [:data_path] => [:environment] do |t, args|
+  Dir.entries(args.data_path).each do |entry|
+    if entry =~ /^page/
+      data = JSON.parse(File.read(File.join(args.data_path, entry)))
+      begin
+        update_db_from_data([[entry, data]])
+      ensure
+        puts data.length
+      end
+    end
+  end
+end
+
 
 # Actual implementations
 
@@ -39,19 +53,19 @@ def get_timeframe(args)
   from_date = nil
   to_date = nil
   args.with_defaults(:from => '6', :to => '0')
-  
+
   begin
     from_date = DateTime.iso8601(args.from)
   rescue
     from_date = DateTime.now - (Float(args.from) / 24.0)
   end
-  
+
   begin
     to_date = DateTime.iso8601(args.to)
   rescue
     to_date = DateTime.now - (Float(args.to) / 24.0)
   end
-  
+
   [from_date, to_date]
 end
 
@@ -61,33 +75,33 @@ def get_credentials(args)
   if email.blank?
     email = ENV.fetch('VERSIONISTA_EMAIL', nil)
   end
-  
+
   password = args.password
   if password.blank?
     password = ENV.fetch('VERSIONISTA_PASSWORD', nil)
   end
-  
+
   if email.blank? || password.blank?
     fail "You must provide an e-mail and password for Versionista, either as arguments or as environment variables: VERSIONISTA_EMAIL and VERSIONISTA_PASSWORD"
   end
-  
+
   [email, password]
 end
 
 def scrape_versionista(email, password, from_date, to_date)
   start_time = DateTime.now
   puts "Scraping Versionista data from #{from_date} through #{to_date}"
-  
+
   scraper = VersionistaService::Scraper.new(from_date, to_date)
   unless scraper.log_in(email: email, password: password)
     fail 'Could not log in; stopping Versionista update.'
   end
-  
+
   result = scraper.scrape_each_page_version
-  
+
   duration = ((DateTime.now - start_time) * 24 * 60).to_f.round 3
   puts "Completed scraping in #{duration} minutes"
-  
+
   result
 end
 
@@ -99,7 +113,7 @@ def update_db_from_data(websites_data)
       nil
     end
   end
-  
+
   websites_data.each do |website_name, data|
     # Make dates actual DateTime objects; sort by update date ascending
     sorted = data.map do |item|
@@ -109,7 +123,7 @@ def update_db_from_data(websites_data)
     end.sort do |version1, version2|
       version1[1]['Date Found - Latest'] <=> version2[1]['Date Found - Latest']
     end
-    
+
     data.each do |versionista_url, diff_data|
       page_url = diff_data['URL']
       # Turns out Versionista is currently scraping the same page under multiple scraping routines, resulting in
@@ -126,19 +140,19 @@ def update_db_from_data(websites_data)
           created_at: diff_data['Date Found - Base'])
         puts "Tracking new page: '#{page.title}' (#{page.url})"
       end
-      
+
       updated_at = diff_data['Date Found - Latest']
       if !page.updated_at || (updated_at && page.updated_at < updated_at)
         page.updated_at = updated_at
       end
-      
+
       page.save
-      
-      diff_with_previous_url = diff_data['Latest to Base - Side by Side']
+
+      diff_with_previous_url = diff_data['Last Two - Side by Side']
       version_id_match = diff_with_previous_url.match(/versionista\.com\/\w+\/\w+\/(\w+)(?:\:(\w+))?/)
       versionista_version_id = version_id_match ? version_id_match[1] : nil
       versionista_previous_id = version_id_match ? version_id_match[2] : nil
-      
+
       version = VersionistaVersion.find_by(page_id: page.id, versionista_version_id: versionista_version_id)
       previous = VersionistaVersion.find_by(page_id: page.id, versionista_version_id: versionista_previous_id)
       unless version
