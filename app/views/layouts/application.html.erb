@@ -11,10 +11,16 @@
   <body>
     <header class="page-header">
       <div class="page-header-main">
-        <p class="page-header-title">EDGI Web-Monitoring Database</p>
+        <p class="page-header-title"><%= link_to('EDGI Web-Monitoring Database', '/') %></p>
+
+        <% if user_signed_in? && current_user.admin? %>
+          <p><%= link_to('Admin', admin_path) %></p>
+        <% end %>
 
         <div class="page-header-user">
           <% if user_signed_in? %>
+            Logged in as <%= link_to(current_user.email, edit_user_registration_path) %>
+            •
             <%= link_to('Logout', destroy_user_session_path, :method => :delete) %>
           <% else %>
             <%= link_to('Login', new_user_session_path)  %>
