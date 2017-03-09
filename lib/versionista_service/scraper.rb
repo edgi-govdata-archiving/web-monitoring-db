@@ -63,6 +63,7 @@ module VersionistaService
       session.click_button("Log in")
 
       if session.has_xpath?("//a[contains(text(), 'Log out')]")
+        @session_account = email
         puts "-- Logging in complete!"
         true
       else
@@ -103,6 +104,7 @@ module VersionistaService
         "Date Found - Base",
         "Diff Length",
         "Diff Hash",
+        "versionista_account"
       ]
     end
 
@@ -230,6 +232,7 @@ module VersionistaService
               latest_comparison_url: version_data[:latest_comparison_url],
               total_comparison_url: version_data[:total_comparison_url],
               latest_diff: latest_diff,
+              versionista_account: @session_account
             )
           ]
         end
@@ -335,7 +338,8 @@ module VersionistaService
 
     def data_row(page_view_url:, site_name:, page_name:,
                  page_url:, latest_comparison_url:, total_comparison_url:,
-                 latest_comparison_date:, oldest_comparison_date:, latest_diff:)
+                 latest_comparison_date:, oldest_comparison_date:,
+                 latest_diff:, versionista_account:)
 
       headers.zip([
         nil,                         #'Index' - to be filled in later
@@ -352,6 +356,7 @@ module VersionistaService
         oldest_comparison_date,      #"Date Found - Base"
         latest_diff.length,          # Diff length
         latest_diff.hash,            # Diff hash
+        versionista_account,         # Versionista account e-mail that this page was scraped from
       ]).to_h
     end
 

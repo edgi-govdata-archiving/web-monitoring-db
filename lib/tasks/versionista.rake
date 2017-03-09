@@ -141,6 +141,10 @@ def update_db_from_data(websites_data)
         puts "Tracking new page: '#{page.title}' (#{page.url})"
       end
 
+      if page.versionista_account.nil?
+        page.versionista_account = diff_data['versionista_account']
+      end
+
       updated_at = diff_data['Date Found - Latest']
       if !page.updated_at || (updated_at && page.updated_at < updated_at)
         page.updated_at = updated_at
