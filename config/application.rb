@@ -20,5 +20,6 @@ module WebpageVersionsDb
         resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
       end
     end
+    config.web_console.whitelisted_ips = '192.168.0.0/16'
   end
 end
