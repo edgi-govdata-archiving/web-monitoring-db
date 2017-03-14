@@ -1,32 +1,37 @@
 PAGE_SIZE = 500
 
 class PagesController < ApplicationController
+  include DeprecatedApiResources
+
   def index
-    @paging = pagination(VersionistaPage.all)
-    @pages = VersionistaPage.order(updated_at: :desc).limit(PAGE_SIZE).offset(@paging[:offset])
+    @paging = pagination(Page.all)
+    @pages = Page.order(updated_at: :desc).limit(PAGE_SIZE).offset(@paging[:offset])
 
     respond_to do |format|
       format.html
+
+      # DEPRECATED
       format.json do
         render json: {
           links: @paging[:links],
-          data: @pages
+          data: @pages.map {|page| page_resource_json(page)}
         }
       end
     end
   end
 
   def show
-    @page = VersionistaPage.find(params[:id])
+    @page = Page.find(params[:id])
     respond_to do |format|
       format.html do
         @paging = pagination(@page.versions, :pages_page_path)
         @versions = @page.versions.limit(PAGE_SIZE).offset(@paging[:offset])
       end
 
+      # DEPRECATED
       format.json do
         render json: {
-          data: @page.as_json(include: :versions)
+          data: page_resource_json(@page, true)
         }
       end
     end

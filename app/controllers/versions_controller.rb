@@ -1,4 +1,6 @@
 class VersionsController < ApplicationController
+  include DeprecatedApiResources
+
   # For API requirements, we want a different response
   before_action :require_authentication!, only: [:annotate]
 
@@ -7,7 +9,7 @@ class VersionsController < ApplicationController
     @versions = page.versions
 
     render json: {
-      data: @versions
+      data: @versions.map {|version| version_resource_json(version)}
     }
   end
 
@@ -17,7 +19,7 @@ class VersionsController < ApplicationController
       links: {
         page: page_url(@version.page, format: :json)
       },
-      data: @version
+      data: version_resource_json(@version)
     }
   end
 
@@ -28,16 +30,19 @@ class VersionsController < ApplicationController
         page: page_url(@version.page, format: :json),
         version: page_version_url(@version, format: :json)
       },
-      data: @version.annotations
+      data: @version.change_from_previous.annotations.map do |annotation|
+        annotation_resource_json(annotation)
+      end
     }
   end
 
   def annotate
     @version = page.versions.find(params[:id])
+    @change = @version.change_from_previous
 
     annotation = JSON.parse(request.body.read)
-    @version.annotate(annotation, current_user)
-    @version.save
+    @change.annotate(annotation, current_user)
+    @change.save
 
     self.show
   end
@@ -45,7 +50,7 @@ class VersionsController < ApplicationController
   protected
 
   def page
-    VersionistaPage.find(params[:page_id])
+    Page.find(params[:page_id])
   end
 
   def require_authentication!
