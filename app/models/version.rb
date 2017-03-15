@@ -11,4 +11,8 @@ class Version < ApplicationRecord
   def change_from_previous
     Change.between(to: self)
   end
+
+  def current_annotation
+    self.change_from_previous.current_annotation;
+  end
 end
