@@ -22,14 +22,7 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     # Postgres needs this for proper UUID support
     enable_extension 'uuid-ossp'
 
-    # db_connection = ActiveRecord::Base.connection
-    # uuid_type = db_connection.valid_type?(:uuid) ? :uuid : :string
-    # json_type = db_connection.valid_type?(:jsonb) ? :jsonb : :json
-
-
-
     create_table :pages, id: false do |t|
-      # t.primary_key :uuid, uuid_type, limit: 36
       add_uuid t, :primary_key
       t.string :url, null: false
       t.string :title
@@ -41,10 +34,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :versions, id: false do |t|
-      # t.primary_key :uuid, uuid_type, limit: 36
       add_uuid t, :primary_key
       # No way to use `belongs_to/references` to make a column named `*_uuid`
-      # t.send uuid_type, :page_uuid, null: false, limit: 36
       add_uuid t, :page_uuid, null: false
       t.datetime :capture_time, null: false
       t.string :uri
@@ -59,11 +50,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :changes, id: false do |t|
-      # t.primary_key :uuid, uuid_type, limit: 36
       add_uuid t, :primary_key
-      # t.send uuid_type, :uuid_from, null: false, limit: 36
       add_uuid t, :uuid_from, null: false
-      # t.send uuid_type, :uuid_to, null: false, limit: 36
       add_uuid t, :uuid_to, null: false
       t.float :priority, default: 0.5
       t.send @json_type, :current_annotation
@@ -76,10 +64,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :annotations, id: false do |t|
-      # t.primary_key :uuid, uuid_type, limit: 36
       add_uuid t, :primary_key
       # No way to use `belongs_to/references` to make a column named `*_uuid`
-      # t.send uuid_type, :change_uuid, null: false, limit: 36
       add_uuid t, :change_uuid, null: false
       t.belongs_to :author, foreign_key: {to_table: :users}
       t.send @json_type, :annotation, null: false
