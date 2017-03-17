@@ -9,8 +9,12 @@ module PagingConcern
     self.send "paging_path_for_#{model_type}", *args
   end
 
+  def paging_url_format
+    request.format.to_sym
+  end
+
   # Undoubtedly there is a gem that makes this nicer
-  def pagination(collection=nil, path_resolver=:paging_path_for)
+  def pagination(collection, path_resolver: :paging_path_for, url_format: nil)
     unless collection
       collection = @collection
     end
@@ -22,7 +26,7 @@ module PagingConcern
       path_resolver = lambda {|*args| self.send resolver_symbol, *args}
     end
 
-    format_type = request.format.to_sym
+    format_type = url_format || self.paging_url_format
     total_items = collection.count
     total_pages = total_items == 0 ? 1 : (total_items / PAGE_SIZE.to_f).ceil
     page_number = (params[:page] || 1).to_i.clamp(1, total_pages)

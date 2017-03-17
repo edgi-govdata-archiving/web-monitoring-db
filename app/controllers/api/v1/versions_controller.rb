@@ -1,6 +1,4 @@
-class Api::V1::VersionsController < ApplicationController
-  include PagingConcern
-
+class Api::V1::VersionsController < Api::V1::ApiController
   def index
     page = Page.find(params[:page_id])
     paging = pagination(page.versions)

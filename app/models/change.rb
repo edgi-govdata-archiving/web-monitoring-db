@@ -44,6 +44,8 @@ class Change < ApplicationRecord
     if annotation.valid?
       update_current_annotation(annotation.annotation)
     end
+
+    annotation
   end
 
   def regenerate_current_annotation
