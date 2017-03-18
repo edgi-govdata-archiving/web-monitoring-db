@@ -12,7 +12,12 @@ class Api::V1::AnnotationsController < Api::V1::ApiController
   end
 
   def show
+    version = @annotation.change.version
+    page = version.page
     render json: {
+      links: {
+        change: api_v1_page_version_change_url(page, version, @annotation.change)
+      },
       data: @annotation.as_json(include: {author: {only: [:id, :email]}})
     }
   end

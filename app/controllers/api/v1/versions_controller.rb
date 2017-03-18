@@ -14,6 +14,9 @@ class Api::V1::VersionsController < Api::V1::ApiController
     page = Page.find(params[:page_id])
     version = page.versions.find(params[:id])
     render json: {
+      links: {
+        page: api_v1_page_url(version.page)
+      },
       data: version.as_json(methods: :current_annotation)
     }
   end

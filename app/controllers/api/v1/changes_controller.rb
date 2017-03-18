@@ -12,6 +12,10 @@ class Api::V1::ChangesController < Api::V1::ApiController
   def show
     change = version.tracked_changes.find(params[:id])
     render json: {
+      links: {
+        version: api_v1_page_version_url(version.page, version),
+        version_from: api_v1_page_version_url(version.page, change.uuid_from)
+      },
       data: change.as_json
     }
   end
