@@ -5,13 +5,16 @@ class Api::V1::ApiController < ApplicationController
   protected
 
   def paging_url_format
-    :json
+    ''
   end
 
   def require_authentication!
     unless user_signed_in?
       render status: 401, json: {
-        errors: [{status: 401, title: 'You must be logged in to perform this action.'}]
+        errors: [{
+          status: 401,
+          title: 'You must be logged in to perform this action.'
+        }]
       }
     end
   end
