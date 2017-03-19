@@ -25,10 +25,23 @@ It’s a Rails app that:
 
    ```sh
    $ bundle install
+   ```
+
+5. Create development database 
+
+   ```sh
+   $ createdb webpage-versions-db_development
+   ```
+
+6. Edit the file ~\web-monitoring-db\config\database.yml. Uncomment line 35 and append your postgres database role password	
+
+7. Run the following in the repo directory:
+
+   ```sh
    $ rails server
    ```
 
-5. You should now have a server running and can visit it at http://localhost:3000/
+8. You should now have a server running and can visit it at http://localhost:3000/
 
 To actually pull down new revisions in the last 24 hours from Versionista:
 
