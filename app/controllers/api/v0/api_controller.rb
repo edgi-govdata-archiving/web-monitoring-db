@@ -1,4 +1,4 @@
-class Api::V1::ApiController < ApplicationController
+class Api::V0::ApiController < ApplicationController
   include PagingConcern
   before_action :require_authentication!, only: [:create]
 

@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   end
 
   namespace :api do
-    namespace :v1 do
+    namespace :v0 do
       resources :pages, only: [:index, :show], format: :json do
         resources :versions, only: [:index, :show] do
           resources :changes, only: [:index, :show] do

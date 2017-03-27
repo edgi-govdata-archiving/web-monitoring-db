@@ -1,4 +1,4 @@
-class Api::V1::ChangesController < Api::V1::ApiController
+class Api::V0::ChangesController < Api::V0::ApiController
   def index
     paging = pagination(version.tracked_changes)
     changes = version.tracked_changes.limit(paging[:page_items]).offset(paging[:offset])

@@ -1,4 +1,4 @@
-class Api::V1::PagesController < Api::V1::ApiController
+class Api::V0::PagesController < Api::V0::ApiController
   def index
     paging = pagination(Page.all)
     pages = Page.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
