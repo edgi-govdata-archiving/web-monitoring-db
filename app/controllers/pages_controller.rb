@@ -42,7 +42,7 @@ class PagesController < ApplicationController
   # Undoubtedly there is a gem that makes this nicer
   def pagination(collection=nil, path_resolver=nil)
     unless collection
-      collection = @collection || VersionistaPage.all
+      collection = @collection || Page.all
     end
 
     unless path_resolver
