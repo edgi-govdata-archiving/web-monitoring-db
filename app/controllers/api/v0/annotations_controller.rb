@@ -16,7 +16,8 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
     page = version.page
     render json: {
       links: {
-        change: api_v1_page_version_change_url(page, version, @annotation.change)
+        version: api_v0_page_version_url(page, version),
+        from_version: api_v0_page_version_url(page, @annotation.change.from_version)
       },
       data: @annotation.as_json(include: {author: {only: [:id, :email]}})
     }
@@ -45,8 +46,11 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   protected
 
   def paging_path_for_annotation(*args)
-    args.last.merge!({change_id: parent_change.id})
-    api_v1_page_version_change_annotations_path(*args)
+    args.last.merge!({
+      from_uuid: parent_change.from_version.id,
+      to_uuid: parent_change.version.id
+    })
+    api_v0_page_annotations_path(*args)
   end
 
   def set_annotation
@@ -55,10 +59,11 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
   def parent_change
     unless @change
-      if params.has_key? :change_id
-        @change = Change.find(params[:change_id])
+      to_version = Version.find(params[:to_uuid] || params[:version_id])
+      @change = if params[:from_uuid].present?
+        Change.between(from: Version.find(params[:from_uuid]), to: to_version)
       else
-        @change = Version.find_by(uuid: params[:version_id], page_uuid: params[:page_id]).change_from_previous
+        to_version.change_from_previous
       end
     end
     @change

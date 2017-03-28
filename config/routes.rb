@@ -18,11 +18,13 @@ Rails.application.routes.draw do
     namespace :v0 do
       resources :pages, only: [:index, :show], format: :json do
         resources :versions, only: [:index, :show] do
-          resources :changes, only: [:index, :show] do
-            resources :annotations, only: [:index, :show, :create]
-          end
           resources :annotations, only: [:index, :show, :create]
         end
+
+        resources :annotations,
+          path: 'changes/:from_uuid..:to_uuid/annotations',
+          from_uuid: /[^.\/]*/, # allow :from_uuid to be an empty string
+          only: [:index, :show, :create]
       end
     end
   end
