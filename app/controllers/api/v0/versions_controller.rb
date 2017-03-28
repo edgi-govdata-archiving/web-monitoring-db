@@ -15,8 +15,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     version = page.versions.find(params[:id])
     render json: {
       links: {
-        page: api_v1_page_url(version.page),
-        previous: api_v1_page_version_url(version.previous)
+        page: api_v0_page_url(version.page),
+        previous: api_v0_page_version_url(version.previous)
       },
       data: version.as_json(methods: :current_annotation)
     }
@@ -25,6 +25,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
   protected
 
   def paging_path_for_version(*args)
-    api_v1_page_versions_path(*args)
+    api_v0_page_versions_path(*args)
   end
 end
