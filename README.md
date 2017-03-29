@@ -27,13 +27,13 @@ It’s a Rails app that:
    $ bundle install
    ```
 
-5. Create development database 
+5. Create development database
 
    ```sh
    $ createdb webpage-versions-db_development
    ```
 
-6. Edit the file ~\web-monitoring-db\config\database.yml. Uncomment line 35 and append your postgres database role password	
+6. Edit the file ~\web-monitoring-db\config\application.yml. replace '*****' with your login role password to connect with postgresql
 
 7. Run the following in the repo directory:
 
