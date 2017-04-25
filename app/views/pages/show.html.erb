@@ -1,6 +1,6 @@
 <header>
   <h1><%= @page.title %></h1>
-  <p><a href="<%= @page.url %>">Live page</a> <a href="<%= @page.versionista_url %>">Versionista</a></p>
+  <p><a href="<%= @page.url %>">Live page</a> <a href="<%= versionista_info(@page, 'page_url') %>">Versionista</a></p>
 </header>
 
 <h2>Versions</h2>
@@ -16,10 +16,22 @@
   <tbody>
     <% @versions.each do |version| %>
       <tr>
-        <td><a href="<%= version.view_url %>"><%= version.created_at %></a></td>
-        <td><a href="<%= version.diff_with_previous_url %>">Compare with Previous</a></td>
-        <td><a href="<%= version.diff_with_first_url %>">Compare with Original</a></td>
-        <td><%= version.diff_hash %></td>
+        <td><a href="<%= versionista_version_url(version) %>"><%= version.created_at %></a></td>
+        <td>
+          <% if comparable?(version) %>
+            <a href="<%= versionista_info(version, 'diff_with_previous_url') %>">Compare with Previous</a>
+          <% end %>
+        </td>
+        <td>
+          <% if comparable?(version) %>
+            <a href="<%= versionista_info(version, 'diff_with_first_url') %>">Compare with Original</a>
+          <% end %>
+        </td>
+        <td>
+          <% if comparable?(version) %>
+            <%= versionista_info(version, 'diff_hash') %>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>
