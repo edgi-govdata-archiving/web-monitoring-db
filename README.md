@@ -63,6 +63,10 @@ The argument in square brackets should be the path to your JSON file.
 
 ## License & Copyright
 
-All source code in this repository is copyright (c) 2017 The Environmental Data and Governance Initiative.
+Copyright (C) 2017 Environmental Data and Governance Initiative (EDGI)
 
-It is licensed under the GPL v3 source code license, found in the [`LICENSE`](https://github.com/edgi-govdata-archiving/webpage-versions-db/blob/master/LICENSE) file.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.0.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the [`LICENSE`](https://github.com/edgi-govdata-archiving/webpage-versions-db/blob/master/LICENSE) file for details.
