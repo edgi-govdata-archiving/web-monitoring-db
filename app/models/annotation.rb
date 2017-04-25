@@ -20,7 +20,7 @@ class Annotation < ApplicationRecord
   protected
 
   def annotation_must_be_an_object
-    if annotation.nil? || !annotation.kind_of?(Hash)
+    if annotation.nil? || !annotation.is_a?(Hash)
       errors.add(:annotation, "must be an object, not a #{annotation.class.name}")
     end
   end

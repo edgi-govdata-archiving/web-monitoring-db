@@ -6,42 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: Include, TreatCommentsAsGroupSeparators.
-# Include: **/Gemfile, **/gems.rb
-Bundler/OrderedGems:
-  Exclude:
-    - 'Gemfile'
-
-# Offense count: 1
-Lint/AmbiguousRegexpLiteral:
-  Exclude:
-    - 'test/models/user_test.rb'
-
-# Offense count: 1
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'lib/versionista_service/browser.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, SupportedStylesAlignWith, AutoCorrect.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Lint/EndAlignment:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/users/registrations_controller.rb'
-    - 'app/models/change.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 1
-Lint/Loop:
-  Exclude:
-    - 'app/models/invitation.rb'
-
 # Offense count: 1
 Lint/NestedMethodDefinition:
   Exclude:
@@ -52,42 +16,6 @@ Lint/ParenthesesAsGroupedExpression:
   Exclude:
     - 'lib/tasks/versionista.rake'
 
-# Offense count: 2
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
-    - 'test-multi-scrape.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoreEmptyBlocks, AllowUnusedKeywordArguments.
-Lint/UnusedBlockArgument:
-  Exclude:
-    - 'app/models/change.rb'
-    - 'lib/tasks/invitations.rake'
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowUnusedKeywordArguments, IgnoreEmptyMethods.
-Lint/UnusedMethodArgument:
-  Exclude:
-    - 'app/controllers/pages_controller.rb'
-
-# Offense count: 7
-Lint/UselessAssignment:
-  Exclude:
-    - 'app/controllers/concerns/deprecated_api_resources.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
-    - 'test-multi-scrape.rb'
-    - 'test/models/user_test.rb'
-
-# Offense count: 3
-Lint/Void:
-  Exclude:
-    - 'test-multi-scrape.rb'
-
 # Offense count: 16
 Metrics/AbcSize:
   Max: 77
@@ -96,11 +24,6 @@ Metrics/AbcSize:
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/BlockLength:
   Max: 69
-
-# Offense count: 1
-# Configuration parameters: CountComments.
-Metrics/ClassLength:
-  Max: 290
 
 # Offense count: 4
 Metrics/CyclomaticComplexity:
@@ -117,41 +40,9 @@ Metrics/LineLength:
 Metrics/MethodLength:
   Max: 78
 
-# Offense count: 1
-# Configuration parameters: CountKeywordArgs.
-Metrics/ParameterLists:
-  Max: 10
-
 # Offense count: 4
 Metrics/PerceivedComplexity:
   Max: 12
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Performance/RegexpMatch:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
-    - 'load-em.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/AlignArray:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: with_first_parameter, with_fixed_indentation
-Style/AlignParameters:
-  Exclude:
-    - 'app/models/version.rb'
-    - 'test/models/user_test.rb'
-
-# Offense count: 1
-Style/AsciiComments:
-  Exclude:
-    - 'app/models/page.rb'
 
 # Offense count: 7
 # Cop supports --auto-correct.
@@ -160,7 +51,6 @@ Style/AsciiComments:
 Style/BracesAroundHashParameters:
   Exclude:
     - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'lib/versionista_service/scraper.rb'
     - 'test/models/change_test.rb'
 
 # Offense count: 7
@@ -176,74 +66,9 @@ Style/ClassAndModuleChildren:
     - 'test/controllers/api/pages_controller_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/controllers/pages_controller.rb'
-    - 'app/helpers/pages_helper.rb'
-    - 'app/models/annotation.rb'
-    - 'app/models/change.rb'
-
 # Offense count: 37
 Style/Documentation:
   Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/ElseAlignment:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/users/registrations_controller.rb'
-    - 'app/models/change.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'app/controllers/concerns/deprecated_api_resources.rb'
-
-# Offense count: 14
-# Cop supports --auto-correct.
-Style/EmptyLines:
-  Exclude:
-    - 'app/controllers/admin_controller.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'test-multi-scrape.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Style/EmptyLinesAroundClassBody:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'test/mailers/previews/invitation_mailer_preview.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
-Style/EmptyLinesAroundModuleBody:
-  Exclude:
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/helpers/pages_helper.rb'
-
-# Offense count: 3
-# Configuration parameters: ExpectMatchingDefinition, Regex, IgnoreExecutableScripts, AllowedAcronyms.
-# AllowedAcronyms: CLI, DSL, ACL, API, ASCII, CPU, CSS, DNS, EOF, GUID, HTML, HTTP, HTTPS, ID, IP, JSON, LHS, QPS, RAM, RHS, RPC, SLA, SMTP, SQL, SSH, TCP, TLS, TTL, UDP, UI, UID, UUID, URI, URL, UTF8, VM, XML, XMPP, XSRF, XSS
-Style/FileName:
-  Exclude:
-    - 'Gemfile'
-    - 'load-em.rb'
-    - 'test-multi-scrape.rb'
 
 # Offense count: 67
 # Cop supports --auto-correct.
@@ -265,7 +90,6 @@ Style/GuardClause:
     - 'app/models/concerns/uuid_primary_key.rb'
     - 'app/models/invitation.rb'
     - 'app/models/user.rb'
-    - 'lib/versionista_service/scraper.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
@@ -282,10 +106,8 @@ Style/HashSyntax:
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
   Exclude:
-    - 'app/controllers/admin_controller.rb'
     - 'app/controllers/concerns/paging_concern.rb'
     - 'app/controllers/pages_controller.rb'
-    - 'app/controllers/users/registrations_controller.rb'
     - 'app/helpers/pages_helper.rb'
     - 'app/models/change.rb'
     - 'app/models/concerns/uuid_primary_key.rb'
@@ -296,44 +118,12 @@ Style/IfUnlessModifier:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_brackets
-Style/IndentArray:
-  EnforcedStyle: consistent
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles, IndentationWidth.
-# SupportedStyles: special_inside_parentheses, consistent, align_braces
-Style/IndentHash:
-  EnforcedStyle: consistent
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: Width, IgnoredPatterns.
-Style/IndentationWidth:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/users/registrations_controller.rb'
-    - 'app/models/change.rb'
-    - 'app/models/invitation.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: line_count_dependent, lambda, literal
 Style/Lambda:
   Exclude:
     - 'app/controllers/concerns/paging_concern.rb'
     - 'app/controllers/pages_controller.rb'
-
-# Offense count: 12
-# Cop supports --auto-correct.
-Style/LeadingCommentSpace:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
 
 # Offense count: 1
 Style/MultilineBlockChain:
@@ -347,7 +137,6 @@ Style/MultilineBlockChain:
 Style/MultilineMethodCallBraceLayout:
   Exclude:
     - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -364,7 +153,6 @@ Style/MultilineMethodCallIndentation:
 Style/NegatedIf:
   Exclude:
     - 'app/models/change.rb'
-    - 'lib/versionista_service/scraper.rb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -375,23 +163,11 @@ Style/Next:
     - 'db/migrate/20170314195641_populate_generic_models_from_versionista_models.rb'
     - 'lib/tasks/versionista.rake'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: AutoCorrect, EnforcedStyle, SupportedStyles.
-# SupportedStyles: predicate, comparison
-Style/NumericPredicate:
-  Exclude:
-    - 'spec/**/*'
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/controllers/pages_controller.rb'
-    - 'lib/versionista_service/scraper.rb'
-
 # Offense count: 3
 # Cop supports --auto-correct.
 Style/RedundantBegin:
   Exclude:
     - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
 
 # Offense count: 33
 # Cop supports --auto-correct.
@@ -408,108 +184,6 @@ Style/RedundantSelf:
     - 'app/models/page.rb'
     - 'app/models/user.rb'
     - 'app/models/version.rb'
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'db/migrate/20170314195641_populate_generic_models_from_versionista_models.rb'
-    - 'lib/tasks/versionista.rake'
-    - 'lib/versionista_service/scraper.rb'
-    - 'test-multi-scrape.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: ConvertCodeThatCanStartToReturnNil.
-Style/SafeNavigation:
-  Exclude:
-    - 'app/models/user.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Exclude:
-    - 'app/models/version.rb'
-    - 'test-multi-scrape.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: only_raise, only_fail, semantic
-Style/SignalException:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: space, no_space
-Style/SpaceAroundEqualsInParameterDefault:
-  Exclude:
-    - 'app/controllers/pages_controller.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SpaceAroundKeyword:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment.
-Style/SpaceAroundOperators:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 16
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, EnforcedStyleForEmptyBraces, SupportedStylesForEmptyBraces, SpaceBeforeBlockParameters.
-# SupportedStyles: space, no_space
-# SupportedStylesForEmptyBraces: space, no_space
-Style/SpaceInsideBlockBraces:
-  Exclude:
-    - 'app/controllers/concerns/deprecated_api_resources.rb'
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/controllers/pages_controller.rb'
-    - 'app/controllers/versions_controller.rb'
-    - 'app/models/change.rb'
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 44
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, EnforcedStyleForEmptyBraces, SupportedStylesForEmptyBraces.
-# SupportedStyles: space, no_space, compact
-# SupportedStylesForEmptyBraces: space, no_space
-Style/SpaceInsideHashLiteralBraces:
-  Exclude:
-    - 'app/controllers/admin_controller.rb'
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/api/v0/pages_controller.rb'
-    - 'app/controllers/versions_controller.rb'
-    - 'app/models/change.rb'
-    - 'db/migrate/20170221071740_create_versionista_versions.rb'
-    - 'db/migrate/20170303213937_create_invitations.rb'
-    - 'db/migrate/20170313192244_create_new_db_schema_with_generic_page_version_change_annotation.rb'
-    - 'test/models/annotation_test.rb'
-    - 'test/models/change_test.rb'
-
-# Offense count: 77
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: SupportedStyles.
-# SupportedStyles: percent, brackets
-Style/SymbolArray:
-  EnforcedStyle: brackets
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -518,24 +192,3 @@ Style/SymbolArray:
 Style/SymbolProc:
   Exclude:
     - 'lib/tasks/invitations.rake'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleForMultiline, SupportedStylesForMultiline.
-# SupportedStylesForMultiline: comma, consistent_comma, no_comma
-Style/TrailingCommaInLiteral:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/TrailingWhitespace:
-  Exclude:
-    - 'db/migrate/20170221061825_create_versionista_pages.rb'
-    - 'db/migrate/20170221071740_create_versionista_versions.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/ZeroLengthPredicate:
-  Exclude:
-    - 'lib/versionista_service/scraper.rb'

@@ -6,20 +6,19 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def new
     @invitation = current_invitation
     super do |user|
-      if @invitation.email.present?
-        user.email = @invitation.email
-      end
+      user.email = @invitation.email if @invitation.email.present?
     end
   end
 
   # POST /resource
   def create
     @invitation = current_invitation
-    @invitation_error = if params[:invitation].present?
-      "The invitation code you used is not valid." unless @invitation.present?
-    else
-      "You must provide an invitation code."
-    end
+    @invitation_error =
+      if params[:invitation].present?
+        'The invitation code you used is not valid.' unless @invitation.present?
+      else
+        'You must provide an invitation code.'
+      end
 
     if current_invitation
       super do |user|

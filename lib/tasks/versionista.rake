@@ -3,7 +3,7 @@ require 'json'
 require_relative '../versionista_service/scraper.rb'
 
 desc 'Update database entries by scraping Versionista'
-task :update_from_versionista, [:from, :to, :email, :password] => [:environment] do |t, args|
+task :update_from_versionista, [:from, :to, :email, :password] => [:environment] do |_, args|
   from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
 
@@ -13,7 +13,7 @@ end
 
 
 desc 'Scraping Versionista for new revisions'
-task :scrape_from_versionista, [:from, :to, :output_path, :email, :password] => [:environment] do |t, args|
+task :scrape_from_versionista, [:from, :to, :output_path, :email, :password] => [:environment] do |_, args|
   from_date, to_date = get_timeframe(args)
   email, password = get_credentials(args)
 
@@ -25,16 +25,16 @@ end
 
 
 desc 'Update database entries from pre-scraped Versionista data'
-task :update_from_json, [:data_path] => [:environment] do |t, args|
+task :update_from_json, [:data_path] => [:environment] do |_, args|
   raw_data = File.read(args.data_path)
   data = JSON.parse(raw_data)
   update_db_from_data(data)
 end
 
 desc 'Update database entries from a directory of pre-scraped Versionista data'
-task :update_from_json_directory, [:data_path] => [:environment] do |t, args|
+task :update_from_json_directory, [:data_path] => [:environment] do |_, args|
   Dir.entries(args.data_path).each do |entry|
-    if entry =~ /^page/
+    if entry.match?(/^page/)
       data = JSON.parse(File.read(File.join(args.data_path, entry)))
       begin
         update_db_from_data([[entry, data]])
@@ -82,7 +82,7 @@ def get_credentials(args)
   end
 
   if email.blank? || password.blank?
-    fail "You must provide an e-mail and password for Versionista, either as arguments or as environment variables: VERSIONISTA_EMAIL and VERSIONISTA_PASSWORD"
+    raise 'You must provide an e-mail and password for Versionista, either as arguments or as environment variables: VERSIONISTA_EMAIL and VERSIONISTA_PASSWORD'
   end
 
   [email, password]
@@ -94,7 +94,7 @@ def scrape_versionista(email, password, from_date, to_date)
 
   scraper = VersionistaService::Scraper.new(from_date, to_date)
   unless scraper.log_in(email: email, password: password)
-    fail 'Could not log in; stopping Versionista update.'
+    raise 'Could not log in; stopping Versionista update.'
   end
 
   result = scraper.scrape_each_page_version
@@ -103,16 +103,6 @@ def scrape_versionista(email, password, from_date, to_date)
   puts "Completed scraping in #{duration} minutes"
 
   result
-end
-
-# Handle JSON queries across either Postgres or MySQL
-# This is kind of gross -- we probably just need to move to MySQL :(
-def source_metadata_column(field_name)
-  if ActiveRecord::Base.connection.valid_type? :jsonb
-    "source_metadata->>'#{field_name}'"
-  else
-    "source_metadata->>'$.#{field_name}'"
-  end
 end
 
 def update_db_from_data(websites_data)
@@ -124,7 +114,7 @@ def update_db_from_data(websites_data)
     end
   end
 
-  websites_data.each do |website_name, data|
+  websites_data.each do |_website_name, data|
     # Make dates actual DateTime objects; sort by update date ascending
     sorted = data.map do |item|
       item[1]['Date Found - Base'] = parse_date(item[1]['Date Found - Base'])
@@ -134,7 +124,7 @@ def update_db_from_data(websites_data)
       version1[1]['Date Found - Latest'] <=> version2[1]['Date Found - Latest']
     end
 
-    data.each do |versionista_url, diff_data|
+    sorted.each do |versionista_url, diff_data|
       page_url = diff_data['URL']
       # Turns out Versionista is currently scraping the same page under multiple scraping routines, resulting in
       # multiple records for the the same page. Use the Versionista URL to keep them separate for now... >:(
@@ -142,18 +132,9 @@ def update_db_from_data(websites_data)
       # is tracking cleanup for this.
 
       pre_existing_version = Version.where(
-        "source_type = 'versionista' AND #{source_metadata_column('page_url')} = ?",
+        "source_type = 'versionista' AND source_metadata->>'page_url' = ?",
         versionista_url
       ).first
-      pre_existing_version = if ActiveRecord::Base.connection.valid_type? :jsonb
-        Version.where(
-          "source_type = 'versionista' AND source_metadata->>'page_url' = ?",
-          versionista_url).first
-      else
-        Version.where(
-          "source_type = 'versionista' AND source_metadata->>'$.page_url' = ?",
-          versionista_url).first
-      end
       page = pre_existing_version.try(:page)
       if page.nil?
         page = Page.create(
@@ -179,7 +160,7 @@ def update_db_from_data(websites_data)
       end
 
       version = Version.where(
-        "page_uuid = ? AND source_type = 'versionista' AND #{source_metadata_column('version_id')} = ?",
+        "page_uuid = ? AND source_type = 'versionista' AND source_metadata->>'version_id' = ?",
         page.id,
         versionista_version_id
       ).first

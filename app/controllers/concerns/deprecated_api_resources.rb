@@ -23,7 +23,6 @@ module DeprecatedApiResources
   end
 
   def version_resource_json(version)
-    previous = version.previous
     change = version.change_from_previous
     {
       id: version.id,
@@ -52,10 +51,6 @@ module DeprecatedApiResources
 
   def versionista_url_for(page)
     version = page.versions.first
-    if version.source_type == 'versionista'
-      version.source_metadata['page_url']
-    else
-      nil
-    end
+    version.source_metadata['page_url'] if version.source_type == 'versionista'
   end
 end

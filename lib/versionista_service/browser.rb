@@ -12,8 +12,8 @@ module VersionistaService
       # Configure Capybara to use Poltergeist as the driver
       Capybara.default_driver = :poltergeist
 
-      if wait_time = ENV["PAGE_WAIT_TIME"]
-        Capybara.default_max_wait_time = wait_time.to_f
+      if ENV['PAGE_WAIT_TIME']
+        Capybara.default_max_wait_time = ENV['PAGE_WAIT_TIME'].to_f
       end
 
       Capybara.current_session

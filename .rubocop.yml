@@ -5,6 +5,35 @@ AllCops:
     - config.ru
     - lib/**/*.rake
   Exclude:
+    - bin/**/*
     - db/schema.rb
     - config/**/*
-    - scratch.rb
+    - scratch*.rb
+    - Gemfile
+    - lib/versionista_service/scraper.rb # This is likely going away anyhow
+
+Metrics/ClassLength:
+  Exclude:
+    - 'lib/versionista_service/*'
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'lib/versionista_service/*'
+
+Style/EmptyLines:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/SpaceInsideBlockBraces:
+  Enabled: false
+
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+
+Style/SafeNavigation:
+  Enabled: false
+
+Layout/IndentHash:
+  EnforcedStyle: consistent

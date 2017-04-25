@@ -40,7 +40,7 @@ class PagesController < ApplicationController
   protected
 
   # Undoubtedly there is a gem that makes this nicer
-  def pagination(collection=nil, path_resolver=nil)
+  def pagination(collection = nil, path_resolver = nil)
     unless collection
       collection = @collection || Page.all
     end
@@ -49,14 +49,14 @@ class PagesController < ApplicationController
       path_resolver = :pages_path
     end
 
-    if path_resolver.kind_of? Symbol
+    if path_resolver.is_a? Symbol
       resolver_symbol = path_resolver
       path_resolver = lambda {|*args| self.send resolver_symbol, *args}
     end
 
     format_type = request.format.to_sym
     total_items = collection.count
-    total_pages = total_items == 0 ? 1 : (total_items / PAGE_SIZE.to_f).ceil
+    total_pages = total_items.zero? ? 1 : (total_items / PAGE_SIZE.to_f).ceil
     page_number = (params[:page] || 1).to_i.clamp(1, total_pages)
     page_offset = (page_number - 1) * PAGE_SIZE
 
@@ -83,7 +83,7 @@ class PagesController < ApplicationController
     }
   end
 
-  def pages_page_path(item, *args)
+  def pages_page_path(_item, *args)
     page_path(@page, *args)
   end
 end

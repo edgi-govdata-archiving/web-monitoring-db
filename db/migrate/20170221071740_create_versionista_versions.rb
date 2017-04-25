@@ -1,7 +1,7 @@
 class CreateVersionistaVersions < ActiveRecord::Migration[5.0]
   def change
     create_table :versionista_versions do |t|
-      t.belongs_to :page, foreign_key: {to_table: :versionista_pages}
+      t.belongs_to :page, foreign_key: { to_table: :versionista_pages }
       t.references :previous
       t.string :diff_with_previous_url
       t.string :diff_with_first_url
@@ -12,7 +12,7 @@ class CreateVersionistaVersions < ActiveRecord::Migration[5.0]
       t.jsonb :metadata
 
       t.timestamps
-      
+
       t.index :diff_hash
       t.index :versionista_version_id
     end

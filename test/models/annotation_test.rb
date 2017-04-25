@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class AnnotationTest < ActiveSupport::TestCase
-  test "annotations must be objects" do
+  test 'annotations must be objects' do
     created_with_nil = Annotation.create(
       change: changes(:page1_change_1_2),
       annotation: nil
@@ -16,7 +16,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
     created_with_an_object = Annotation.create(
       change: changes(:page1_change_1_2),
-      annotation: {a: 'b'}
+      annotation: { a: 'b' }
     )
     assert created_with_an_object.valid? 'An object annotation was not valid'
   end

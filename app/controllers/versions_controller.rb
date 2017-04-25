@@ -56,7 +56,7 @@ class VersionsController < ApplicationController
   def require_authentication!
     unless user_signed_in?
       render json: {
-        errors: [{status: 401, title: 'You must be logged in to perform this action.'}]
+        errors: [{ status: 401, title: 'You must be logged in to perform this action.' }]
       }
     end
   end
