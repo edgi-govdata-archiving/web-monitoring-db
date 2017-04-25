@@ -12,6 +12,11 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+/scratch*
 
 # Ignore Byebug command history file.
 .byebug_history
+
+# Configuration files
+.powenv
+.env
