@@ -1,0 +1,90 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the '{}' from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+page1_v1:
+  page: home_page
+  capture_time: '2017-03-01T00:00:00Z'
+  source_type: 'versionista'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 11,
+      version_id: 111,
+      page_url: 'http://versionista.com/1/11/',
+      diff_with_previous_url: 'http://versionista.com/1/11/111/',
+      diff_with_first_url: null,
+      diff_length: null,
+      diff_hash: null
+    }
+
+page2_v1:
+  page: sub_page
+  capture_time: '2017-03-01T00:00:00Z'
+  source_type: 'versionista'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 12,
+      version_id: 121,
+      page_url: 'http://versionista.com/1/12/',
+      diff_with_previous_url: 'http://versionista.com/1/12/121/',
+      diff_with_first_url: nil,
+      diff_length: nil,
+      diff_hash: nil
+    }
+
+page1_v2:
+  page: home_page
+  capture_time: '2017-03-02T00:00:00Z'
+  source_type: 'versionista'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 11,
+      version_id: 112,
+      page_url: 'http://versionista.com/1/11/',
+      diff_with_previous_url: 'http://versionista.com/1/11/112/',
+      diff_with_first_url: nil,
+      diff_length: 1234678,
+      diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+    }
+
+page2_v2:
+  page: sub_page
+  capture_time: '2017-03-02T00:00:00Z'
+  source_type: 'versionista'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 12,
+      version_id: 122,
+      page_url: 'http://versionista.com/1/12/',
+      diff_with_previous_url: 'http://versionista.com/1/12/122/',
+      diff_with_first_url: nil,
+      diff_length: 1234678,
+      diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+    }
+
+page1_v3:
+  page: home_page
+  capture_time: '2017-03-03T00:00:00Z'
+  source_type: 'versionista'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 11,
+      version_id: 113,
+      page_url: 'http://versionista.com/1/11/',
+      diff_with_previous_url: 'http://versionista.com/1/11/113/',
+      diff_with_first_url: nil,
+      diff_length: 1234672,
+      diff_hash: '749ab2c0d06c42ae3b841b79e79875f02b3a042e43c92378cd28bd444c04d284'
+    }

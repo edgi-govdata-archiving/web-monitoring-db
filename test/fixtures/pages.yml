@@ -1,0 +1,11 @@
+home_page:
+  url: 'http://example.com/'
+  title: 'Page One'
+  agency: 'Department of Examples'
+  site: 'http://example.com/'
+
+sub_page:
+  url: 'http://example.com/page2.html'
+  title: 'Page Two'
+  agency: 'Department of Examples'
+  site: 'http://example.com/'

@@ -105,6 +105,16 @@ def scrape_versionista(email, password, from_date, to_date)
   result
 end
 
+# Handle JSON queries across either Postgres or MySQL
+# This is kind of gross -- we probably just need to move to MySQL :(
+def source_metadata_column(field_name)
+  if ActiveRecord::Base.connection.valid_type? :jsonb
+    "source_metadata->>'#{field_name}'"
+  else
+    "source_metadata->>'$.#{field_name}'"
+  end
+end
+
 def update_db_from_data(websites_data)
   def parse_date(date)
     begin
@@ -128,48 +138,73 @@ def update_db_from_data(websites_data)
       page_url = diff_data['URL']
       # Turns out Versionista is currently scraping the same page under multiple scraping routines, resulting in
       # multiple records for the the same page. Use the Versionista URL to keep them separate for now... >:(
-      # page = VersionistaPage.find_by(url: page_url)
-      page = VersionistaPage.find_by(versionista_url: versionista_url)
+      # https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/24
+      # is tracking cleanup for this.
+
+      pre_existing_version = Version.where(
+        "source_type = 'versionista' AND #{source_metadata_column('page_url')} = ?",
+        versionista_url
+      ).first
+      pre_existing_version = if ActiveRecord::Base.connection.valid_type? :jsonb
+        Version.where(
+          "source_type = 'versionista' AND source_metadata->>'page_url' = ?",
+          versionista_url).first
+      else
+        Version.where(
+          "source_type = 'versionista' AND source_metadata->>'$.page_url' = ?",
+          versionista_url).first
+      end
+      page = pre_existing_version.try(:page)
       if page.nil?
-        page = VersionistaPage.new(
+        page = Page.create(
           url: page_url,
           title: diff_data['Page name'],
           agency: diff_data['Agency'],
-          site: diff_data['Site Name'],
-          versionista_url: versionista_url,
-          created_at: diff_data['Date Found - Base'])
+          site: diff_data['Site Name'])
+        unless page.valid?
+          puts "Error creating new page ('#{page.title}' - '#{page.url}'):"
+          puts (page.errors.full_messages.map {|error| "  #{error}"})
+          next
+        end
         puts "Tracking new page: '#{page.title}' (#{page.url})"
       end
 
-      if page.versionista_account.nil?
-        page.versionista_account = diff_data['versionista_account']
-      end
-
-      updated_at = diff_data['Date Found - Latest']
-      if !page.updated_at || (updated_at && page.updated_at < updated_at)
-        page.updated_at = updated_at
-      end
-
-      page.save
-
+      # Add the actual version if not already present
       diff_with_previous_url = diff_data['Last Two - Side by Side']
       version_id_match = diff_with_previous_url.match(/versionista\.com\/\w+\/\w+\/(\w+)(?:\:(\w+))?/)
       versionista_version_id = version_id_match ? version_id_match[1] : nil
-      versionista_previous_id = version_id_match ? version_id_match[2] : nil
 
-      version = VersionistaVersion.find_by(page_id: page.id, versionista_version_id: versionista_version_id)
-      previous = VersionistaVersion.find_by(page_id: page.id, versionista_version_id: versionista_previous_id)
-      unless version
-        version = VersionistaVersion.create(
-          versionista_version_id: versionista_version_id,
-          page: page,
-          previous: previous,
-          diff_with_previous_url: diff_data['Last Two - Side by Side'],
-          diff_with_first_url: diff_data['Latest to Base - Side by Side'],
-          diff_length: diff_data['Diff Length'],
-          diff_hash: diff_data['Diff Hash'],
-          created_at: updated_at)
-        puts "Found new version of '#{page.url}' - \##{version.versionista_version_id}"
+      if versionista_version_id.nil?
+        puts "!! Could not find Versionista version ID for #{diff_data}"
+      end
+
+      version = Version.where(
+        "page_uuid = ? AND source_type = 'versionista' AND #{source_metadata_column('version_id')} = ?",
+        page.id,
+        versionista_version_id
+      ).first
+
+      if version
+        puts "- Already have '#{page.url}' - \##{version.source_metadata['version_id']}"
+      else
+        versionista_url_parts = versionista_url.match(/versionista\.com\/([^\/]+)\/([^\/]+)/)
+        version = page.versions.create(
+          # NOTE: we do not yet have version content, so not recording `uri`, `version_hash`
+          capture_time: diff_data['Date Found - Latest'],
+          source_type: 'versionista',
+          source_metadata: {
+            account: diff_data['versionista_account'],
+            site_id: versionista_url_parts[1],
+            page_id: versionista_url_parts[2],
+            version_id: versionista_version_id,
+            page_url: versionista_url,
+            diff_with_previous_url: diff_data['Last Two - Side by Side'],
+            diff_with_first_url: diff_data['Latest to Base - Side by Side'],
+            diff_length: diff_data['Diff Length'],
+            diff_hash: diff_data['Diff Hash']
+          }
+        )
+        puts "+ Found new version of '#{page.url}' - \##{version.source_metadata['version_id']}"
       end
     end
   end

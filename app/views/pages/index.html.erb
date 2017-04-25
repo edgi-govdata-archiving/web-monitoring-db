@@ -19,7 +19,7 @@
         <td><%= page.site %></td>
         <td><%= page.created_at %></td>
         <td><%= page.updated_at %></td>
-        <td><a href="<%= page.versionista_url %>">View in Versionista</a></td>
+        <td><a href="<%= page.versions.first.source_metadata['page_url'] %>">View in Versionista</a></td>
       </tr>
     <% end %>
   </tbody>

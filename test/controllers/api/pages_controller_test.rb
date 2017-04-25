@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class VersionistaPageTest < ActiveSupport::TestCase
+class Api::PagesControllerTest < ActionDispatch::IntegrationTest
   # test "the truth" do
   #   assert true
   # end

@@ -1,0 +1,14 @@
+annotation1:
+  change: page1_change_1_2
+  author: alice
+  annotation:
+    field1: 'original value'
+    field2: 'original value'
+    field3: 'ok'
+
+annotation2:
+  change: page1_change_1_2
+  author: admin_user
+  annotation:
+    field2: 'second value'
+    field3: nil

@@ -14,6 +14,21 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :api do
+    namespace :v0 do
+      resources :pages, only: [:index, :show], format: :json do
+        resources :versions, only: [:index, :show] do
+          resources :annotations, only: [:index, :show, :create]
+        end
+
+        resources :annotations,
+          path: 'changes/:from_uuid..:to_uuid/annotations',
+          from_uuid: /[^.\/]*/, # allow :from_uuid to be an empty string
+          only: [:index, :show, :create]
+      end
+    end
+  end
+
   get 'admin', to: 'admin#index'
   post 'admin/invite'
   get 'admin/invite', to: redirect('admin')

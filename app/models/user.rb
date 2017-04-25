@@ -16,6 +16,15 @@ class User < ApplicationRecord
     super(invitation)
   end
 
+  # unless explicitly asked for, don't include `admin`
+  def serializable_hash(options = {})
+    exceptions = Array(options[:except])
+    unless exceptions.include? :admin
+      options[:except] = exceptions.push(:admin)
+    end
+    super(options)
+  end
+
   protected
 
   def after_confirmation
