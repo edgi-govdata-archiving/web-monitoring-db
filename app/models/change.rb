@@ -8,18 +8,19 @@ class Change < ApplicationRecord
 
   def self.between(to:, from: nil, create: false)
     from ||= to.previous
-    change_definition = {from_version: from, version: to}
+    change_definition = { from_version: from, version: to }
     instantiator = create ? :create : :new
     self.where(change_definition).first ||
       self.send(instantiator, change_definition)
   end
 
   def current_annotation
-    super || if persisted?
-      regenerate_current_annotation
-    else
-      {}
-    end
+    super ||
+      if persisted?
+        regenerate_current_annotation
+      else
+        {}
+      end
   end
 
   def annotate(data, author = nil)
@@ -27,7 +28,7 @@ class Change < ApplicationRecord
       return
     end
 
-    if !data.kind_of?(Hash)
+    if !data.is_a?(Hash)
       raise 'Annotations must be objects, not arrays or other data.'
     end
 
@@ -76,12 +77,12 @@ class Change < ApplicationRecord
   def merge_annotations(base, updates)
     base.with_indifferent_access
       .merge(updates.with_indifferent_access)
-      .delete_if {|key, value| value.nil?}
+      .delete_if {|_, value| value.nil?}
   end
 
   def from_must_be_before_to_version
     if from_version.capture_time >= version.capture_time
-      errors.add(:from_version, "must be an earlier version than the ending version")
+      errors.add(:from_version, 'must be an earlier version than the ending version')
     end
   end
 end

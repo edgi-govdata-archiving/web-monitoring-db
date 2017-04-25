@@ -8,7 +8,7 @@ class CreateVersionistaPages < ActiveRecord::Migration[5.0]
       t.string :versionista_url
 
       t.timestamps
-      
+
       t.index :url
     end
   end

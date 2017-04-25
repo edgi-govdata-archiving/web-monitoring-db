@@ -27,7 +27,7 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
 
       t.index :page_uuid
       t.index :version_hash
-      t.foreign_key :pages, column: :page_uuid, primary_key: "uuid"
+      t.foreign_key :pages, column: :page_uuid, primary_key: 'uuid'
     end
 
     create_table :changes, id: false do |t|
@@ -40,15 +40,15 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
 
       t.index :uuid_to
       t.index [:uuid_to, :uuid_from], unique: true
-      t.foreign_key :versions, column: :uuid_from, primary_key: "uuid"
-      t.foreign_key :versions, column: :uuid_to, primary_key: "uuid"
+      t.foreign_key :versions, column: :uuid_from, primary_key: 'uuid'
+      t.foreign_key :versions, column: :uuid_to, primary_key: 'uuid'
     end
 
     create_table :annotations, id: false do |t|
       table.primary_key :uuid, :uuid
       # No way to use `belongs_to/references` to make a column named `*_uuid`
       t.uuid :change_uuid, null: false
-      t.belongs_to :author, foreign_key: {to_table: :users}
+      t.belongs_to :author, foreign_key: { to_table: :users }
       t.jsonb :annotation, null: false
       t.timestamps
 

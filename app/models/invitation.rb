@@ -56,9 +56,7 @@ class Invitation < ApplicationRecord
   private
 
   def assign_code
-    begin
-        token = generate_code
-    end while Invitation.where(:code => token).exists?
+    token = generate_code while Invitation.where(:code => token).exists?
     self.code = token
   end
 
@@ -74,7 +72,7 @@ class Invitation < ApplicationRecord
 
   def not_for_existing_user
     if self.email.present? && User.find_by_email(self.email)
-      errors.add(:email, "is already a user")
+      errors.add(:email, 'is already a user')
     end
   end
 end

@@ -7,7 +7,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      data: annotations.as_json(include: {author: {only: [:id, :email]}})
+      data: annotations.as_json(include: { author: { only: [:id, :email] } })
     }
   end
 
@@ -19,7 +19,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         version: api_v0_page_version_url(page, version),
         from_version: api_v0_page_version_url(page, @annotation.change.from_version)
       },
-      data: @annotation.as_json(include: {author: {only: [:id, :email]}})
+      data: @annotation.as_json(include: { author: { only: [:id, :email] } })
     }
   end
 
@@ -60,11 +60,12 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   def parent_change
     unless @change
       to_version = Version.find(params[:to_uuid] || params[:version_id])
-      @change = if params[:from_uuid].present?
-        Change.between(from: Version.find(params[:from_uuid]), to: to_version)
-      else
-        to_version.change_from_previous
-      end
+      @change =
+        if params[:from_uuid].present?
+          Change.between(from: Version.find(params[:from_uuid]), to: to_version)
+        else
+          to_version.change_from_previous
+        end
     end
     @change
   end

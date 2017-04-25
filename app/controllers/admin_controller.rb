@@ -14,9 +14,7 @@ class AdminController < ApplicationController
     invitation_email = params[:invitation][:email]
     @invitation = Invitation.create(issuer: current_user, email: invitation_email)
 
-    if @invitation.persisted?
-      @invitation.send_email
-    end
+    @invitation.send_email if @invitation.persisted?
 
     respond_to do |format|
       format.html do
@@ -44,13 +42,13 @@ class AdminController < ApplicationController
 
     respond_to do |format|
       format.html do
-        email_addendum = @invitation.email.present? ? " (sent to #{@invitation.email})" : ""
+        email_addendum = @invitation.email.present? ? " (sent to #{@invitation.email})" : ''
         message = "The invitation code “#{@invitation.code}”#{email_addendum} was canceled."
         redirect_to admin_path, notice: message
       end
 
       format.json do
-        render json: { data: {success: true, code: @invitation.code} }
+        render json: { data: { success: true, code: @invitation.code } }
       end
     end
   end
@@ -58,21 +56,19 @@ class AdminController < ApplicationController
   def destroy_user
     @user = User.find(params[:id])
 
-    unless @user.id == current_user.id
-      @user.destroy
-    end
+    @user.destroy unless @user.id == current_user.id
 
     respond_to do |format|
       format.html do
         if @user.persisted?
-          redirect_to admin_path, alert: "You can not delete your own account"
+          redirect_to admin_path, alert: 'You can not delete your own account'
         else
           redirect_to admin_path, notice: "#{@user.email}’s account was deleted"
         end
       end
 
       format.json do
-        render json: { data: {success: !@user.persisted?} }
+        render json: { data: { success: !@user.persisted? } }
       end
     end
   end
@@ -81,8 +77,6 @@ class AdminController < ApplicationController
   protected
 
   def require_admin!
-    unless current_user.admin?
-      redirect_to '/'
-    end
+    redirect_to '/' unless current_user.admin?
   end
 end

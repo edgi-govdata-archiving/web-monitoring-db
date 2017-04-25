@@ -1,12 +1,12 @@
 require 'test_helper'
 
 class InvitationTest < ActiveSupport::TestCase
-  test "invitations get a code when created" do
+  test 'invitations get a code when created' do
     invitation = Invitation.create
     assert invitation.code.present?
   end
 
-  test "invitations validate e-mail addresses" do
+  test 'invitations validate e-mail addresses' do
     invitation = Invitation.create(email: 'test@example.com')
     assert invitation.valid?
 
@@ -14,7 +14,7 @@ class InvitationTest < ActiveSupport::TestCase
     assert !invitation.valid?
   end
 
-  test "invitations for existing users are invalid" do
+  test 'invitations for existing users are invalid' do
     invitation = Invitation.create(email: users(:alice).email)
     assert !invitation.valid?
   end

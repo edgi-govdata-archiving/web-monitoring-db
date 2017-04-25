@@ -21,14 +21,14 @@ module PagingConcern
 
     collection_type = collection.new.class.name.underscore.to_sym
 
-    if path_resolver.kind_of? Symbol
+    if path_resolver.is_a? Symbol
       resolver_symbol = path_resolver
       path_resolver = lambda {|*args| self.send resolver_symbol, *args}
     end
 
     format_type = url_format || self.paging_url_format
     total_items = collection.count
-    total_pages = total_items == 0 ? 1 : (total_items / PAGE_SIZE.to_f).ceil
+    total_pages = total_items.zero? ? 1 : (total_items / PAGE_SIZE.to_f).ceil
     page_number = (params[:page] || 1).to_i.clamp(1, total_pages)
     page_offset = (page_number - 1) * PAGE_SIZE
 
@@ -54,5 +54,4 @@ module PagingConcern
       links: links
     }
   end
-
 end

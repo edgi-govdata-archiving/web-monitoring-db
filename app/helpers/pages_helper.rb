@@ -1,7 +1,6 @@
 module PagesHelper
-
   def versionista_info(version, field)
-    if version.kind_of? Page
+    if version.is_a? Page
       version = version.versions.find_by(source_type: 'versionista')
       return if version.nil?
     end
@@ -20,5 +19,4 @@ module PagesHelper
   def comparable?(version)
     version.page.versions.last.id != version.id
   end
-
 end
