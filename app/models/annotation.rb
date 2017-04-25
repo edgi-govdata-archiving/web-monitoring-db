@@ -5,6 +5,18 @@ class Annotation < ApplicationRecord
   belongs_to :author, class_name: 'User', foreign_key: :author_id, required: false
   validate :annotation_must_be_an_object
 
+  def as_json(options = nil)
+    result = super(options)
+
+    if result['change_uuid']
+      result.delete('change_uuid')
+      result['from_version'] = self.change.from_version.uuid
+      result['to_version'] = self.change.version.uuid
+    end
+
+    result
+  end
+
   protected
 
   def annotation_must_be_an_object
