@@ -11,6 +11,8 @@ AllCops:
     - scratch*.rb
     - Gemfile
     - lib/versionista_service/scraper.rb # This is likely going away anyhow
+    # Don't attempt to lint third-party code
+    - vendor/**/*
 
 Metrics/ClassLength:
   Exclude:
