@@ -22,6 +22,12 @@ Metrics/ParameterLists:
   Exclude:
     - 'lib/versionista_service/*'
 
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/IndentHash:
+  EnforcedStyle: consistent
+
 Style/EmptyLines:
   Enabled: false
 
@@ -37,5 +43,5 @@ Style/RegexpLiteral:
 Style/SafeNavigation:
   Enabled: false
 
-Layout/IndentHash:
-  EnforcedStyle: consistent
+Style/GuardClause:
+  Enabled: false

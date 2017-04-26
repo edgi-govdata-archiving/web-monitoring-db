@@ -19,14 +19,14 @@ class Page < ApplicationRecord
   protected
 
   def normalize_url
-    unless self.url.match(/^[\w\+\-\.]+:\/\//)
+    unless self.url.match?(/^[\w\+\-\.]+:\/\//)
       self.url = "http://#{url}"
     end
   end
 
   def url_must_have_domain
-    unless url.match(/^([\w\+\-\.]+:\/\/)?[^\/]+\.[^\/]{2,}/)
-      errors.add(:url, "must have a domain")
+    unless url.match?(/^([\w\+\-\.]+:\/\/)?[^\/]+\.[^\/]{2,}/)
+      errors.add(:url, 'must have a domain')
     end
   end
 end
