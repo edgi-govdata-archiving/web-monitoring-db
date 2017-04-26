@@ -77,20 +77,6 @@ Style/Documentation:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 14
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'app/controllers/admin_controller.rb'
-    - 'app/controllers/api/v0/api_controller.rb'
-    - 'app/controllers/versions_controller.rb'
-    - 'app/helpers/pages_helper.rb'
-    - 'app/models/annotation.rb'
-    - 'app/models/change.rb'
-    - 'app/models/concerns/uuid_primary_key.rb'
-    - 'app/models/invitation.rb'
-    - 'app/models/user.rb'
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
