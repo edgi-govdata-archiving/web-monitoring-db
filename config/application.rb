@@ -20,5 +20,7 @@ module WebpageVersionsDb
         resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
       end
     end
+
+    config.eager_load_paths << "#{Rails.root}/lib/api"
   end
 end
