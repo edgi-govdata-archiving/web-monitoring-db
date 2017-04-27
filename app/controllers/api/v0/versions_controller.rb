@@ -10,19 +10,19 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def show
-    version = page.versions.find(params[:id])
+    @version ||= page.versions.find(params[:id])
     render json: {
       links: {
-        page: api_v0_page_url(version.page),
-        previous: api_v0_page_version_url(version.previous)
+        page: api_v0_page_url(@version.page),
+        previous: api_v0_page_version_url(@version.page, @version.previous)
       },
-      data: version.as_json(methods: :current_annotation)
+      data: @version.as_json(methods: :current_annotation)
     }
   end
 
   def create
     @version = page.versions.new(version_params)
-    Page.find('abcd')
+
     if @version.uri.nil?
       if params[:content]
         # TODO: upload content
@@ -46,13 +46,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       redirect_to api_v0_page_version_url(existing.page, existing)
     else
       @version.save
-      render json: {
-        links: {
-          page: api_v0_page_url(@version.page),
-          previous: api_v0_page_version_url(@version.page, @version.previous)
-        },
-        data: @version.as_json(methods: :current_annotation)
-      }
+      show
     end
   end
 
@@ -70,6 +64,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     # Use select instead of `permit` to get the metadata blob. (It's freeform,
     # so we don't know what keys will be in it.)
     params.require(:version).select do |key|
+      %w[uuid capture_time uri version_hash source_type source_metadata]
+        .include?(key)
       [
         'uuid',
         'capture_time',
