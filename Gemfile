@@ -7,6 +7,8 @@ end
 
 ruby '2.4.0'
 
+gem 'aws-sdk', '~> 2.9'
+gem 'httparty'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.1'
 # Use postgresql as the database for Active Record

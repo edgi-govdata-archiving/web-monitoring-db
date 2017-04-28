@@ -30,9 +30,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
       else
         raise Api::InputError, 'You must include raw version content in the `content` field if you do not provide a URI.'
       end
-    elsif !allowed_version_uri?(@version.uri)
-      # TODO: download and upload to S3
-      raise Api::NotImplementedError, 'Raw content retrieval not implemented yet.'
+    elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
+      result = Archiver.archive(@version.uri)
+      @version.version_hash = result[:hash]
+      @version.uri = result[:url]
     end
 
     @version.validate!
