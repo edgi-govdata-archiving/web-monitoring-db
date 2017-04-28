@@ -64,25 +64,17 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def version_params
     # Use select instead of `permit` to get the metadata blob. (It's freeform,
     # so we don't know what keys will be in it.)
-    params.require(:version).select do |key|
-      %w[uuid capture_time uri version_hash source_type source_metadata]
-        .include?(key)
-      [
-        'uuid',
-        'capture_time',
-        'uri',
-        'version_hash',
-        'source_type',
-        'source_metadata'
-      ].include?(key)
-    end.permit!
-  end
-
-  def allowed_version_uri?(uri)
-    return false if uri.nil?
-
-    # FIXME: this parsing should be in an initializer
-    allowed_hosts = ENV.fetch('ALLOWED_VERSION_HOSTS', '').split(' ')
-    allowed_hosts.any? {|base| uri.starts_with?(base)}
+    permitted_keys = [
+      'uuid',
+      'capture_time',
+      'uri',
+      'version_hash',
+      'source_type',
+      'source_metadata'
+    ]
+    params
+      .require(:version)
+      .select {|key| permitted_keys.include?(key)}
+      .permit!
   end
 end
