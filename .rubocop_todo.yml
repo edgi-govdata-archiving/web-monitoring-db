@@ -53,19 +53,6 @@ Style/BracesAroundHashParameters:
     - 'app/controllers/api/v0/annotations_controller.rb'
     - 'test/models/change_test.rb'
 
-# Offense count: 7
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: nested, compact
-Style/ClassAndModuleChildren:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/api/v0/api_controller.rb'
-    - 'app/controllers/api/v0/pages_controller.rb'
-    - 'app/controllers/api/v0/versions_controller.rb'
-    - 'app/controllers/users/registrations_controller.rb'
-    - 'test/controllers/api/pages_controller_test.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 37
 Style/Documentation:
   Enabled: false

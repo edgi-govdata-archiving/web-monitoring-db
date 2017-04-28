@@ -59,8 +59,6 @@ module Archiver
     Digest::SHA256.hexdigest(content)
   end
 
-  protected
-
   def self.external_archive_url?(url)
     allowed_hosts.any? {|base| url.starts_with?(base)}
   end

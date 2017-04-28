@@ -28,13 +28,13 @@ Layout/AlignParameters:
 Layout/IndentHash:
   EnforcedStyle: consistent
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Style/EmptyLines:
   Enabled: false
 
-Style/SymbolArray:
-  Enabled: false
-
-Style/SpaceInsideBlockBraces:
+Style/GuardClause:
   Enabled: false
 
 Style/RegexpLiteral:
@@ -43,5 +43,11 @@ Style/RegexpLiteral:
 Style/SafeNavigation:
   Enabled: false
 
-Style/GuardClause:
+Style/SpaceInsideBlockBraces:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/WordArray:
   Enabled: false
