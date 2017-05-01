@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170425211418) do
+ActiveRecord::Schema.define(version: 20170429002015) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,16 @@ ActiveRecord::Schema.define(version: 20170425211418) do
     t.datetime "updated_at",                       null: false
     t.index ["uuid_to", "uuid_from"], name: "index_changes_on_uuid_to_and_uuid_from", unique: true, using: :btree
     t.index ["uuid_to"], name: "index_changes_on_uuid_to", using: :btree
+  end
+
+  create_table "imports", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "status",            default: 0, null: false
+    t.string   "file"
+    t.jsonb    "processing_errors"
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["user_id"], name: "index_imports_on_user_id", using: :btree
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -98,6 +108,7 @@ ActiveRecord::Schema.define(version: 20170425211418) do
   add_foreign_key "annotations", "users", column: "author_id"
   add_foreign_key "changes", "versions", column: "uuid_from", primary_key: "uuid"
   add_foreign_key "changes", "versions", column: "uuid_to", primary_key: "uuid"
+  add_foreign_key "imports", "users"
   add_foreign_key "invitations", "users", column: "issuer_id"
   add_foreign_key "invitations", "users", column: "redeemer_id"
   add_foreign_key "versions", "pages", column: "page_uuid", primary_key: "uuid"

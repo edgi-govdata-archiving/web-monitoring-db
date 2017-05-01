@@ -26,6 +26,8 @@ Rails.application.routes.draw do
           from_uuid: /[^.\/]*/, # allow :from_uuid to be an empty string
           only: [:index, :show, :create]
       end
+
+      resources :imports, only: [:create, :show], format: :json
     end
   end
 

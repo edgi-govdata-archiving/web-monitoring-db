@@ -21,6 +21,7 @@ module WebpageVersionsDb
       end
     end
 
+    config.active_job.queue_adapter = :resque
     config.eager_load_paths << "#{Rails.root}/lib/api"
   end
 end

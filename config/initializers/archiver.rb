@@ -1,12 +1,22 @@
+# require_dependency Rails.root.join('lib/api/api')
 require_dependency Rails.root.join('lib/archiver/archiver')
 require_dependency Rails.root.join('lib/archiver/stores/s3')
 
-if ENV['AWS_S3_KEY'] && ENV['AWS_S3_SECRET'] && ENV['AWS_S3_BUCKET']
+if ENV['AWS_ARCHIVE_BUCKET']
+  aws_key = ENV['AWS_ARCHIVE_KEY'] || ENV['AWS_ACCESS_KEY_ID']
+  aws_secret = ENV['AWS_ARCHIVE_SECRET'] || ENV['AWS_SECRET_ACCESS_KEY']
+  aws_region = ENV['AWS_ARCHIVE_REGION'] || ENV['AWS_REGION']
+  aws_bucket = ENV['AWS_ARCHIVE_BUCKET']
+
+  raise StandardError, 'You must specify either an "AWS_ARCHIVE_KEY" and ' \
+    '"AWS_ARCHIVE_SECRET" or "AWS_ACCESS_KEY_ID" and "AWS_SECRET_ACCESS_KEY" ' \
+    'to go use an S3 bucket for archiving versions.' if !(aws_key && aws_secret)
+
   Archiver.store = Archiver::Stores::S3.new(
-    key: ENV['AWS_S3_KEY'],
-    secret: ENV['AWS_S3_SECRET'],
-    region: ENV['AWS_S3_REGION'],
-    bucket: ENV['AWS_S3_BUCKET']
+    key: aws_key,
+    secret: aws_secret,
+    region: aws_region,
+    bucket: aws_bucket
   )
 end
 
