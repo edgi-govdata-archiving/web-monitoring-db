@@ -21,6 +21,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def create
+    # TODO: unify this with import code in ImportVersionsJob#import_record
     @version = page.versions.new(version_params)
 
     if @version.uri.nil?

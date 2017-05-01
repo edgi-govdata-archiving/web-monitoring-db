@@ -6,6 +6,14 @@ class Page < ApplicationRecord
   before_save :normalize_url
   validate :url_must_have_domain
 
+  def self.normalize_url(url)
+    if url.match?(/^[\w\+\-\.]+:\/\//)
+      url
+    else
+      "http://#{url}"
+    end
+  end
+
   # A serialized page should always include some version info. If expanded
   # version objects weren't requested, it includes the latest version.
   def as_json(*args)
@@ -19,9 +27,7 @@ class Page < ApplicationRecord
   protected
 
   def normalize_url
-    unless self.url.match?(/^[\w\+\-\.]+:\/\//)
-      self.url = "http://#{url}"
-    end
+    self.url = self.class.normalize_url(self.url)
   end
 
   def url_must_have_domain
