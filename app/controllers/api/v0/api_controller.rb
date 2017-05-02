@@ -10,6 +10,10 @@ class Api::V0::ApiController < ApplicationController
     render_errors(error.model.errors.full_messages, 400)
   end
 
+  rescue_from ActiveModel::ValidationError do |error|
+    render_errors(error, 404)
+  end
+
 
   protected
 
