@@ -112,11 +112,8 @@ class ImportVersionsJob < ApplicationJob
 
     begin
       record_set = JSON.parse(raw_json)
-      unless record_set.is_a? Array
-        @import.processing_errors << 'Import data must be an array or ' \
-          'newline-delimited JSON document'
-        return
-      end
+      # If could have been a JSON stream with only a single record
+      record_set = [record_set] unless record_set.is_a?(Array)
     rescue JSON::ParserError
       record_set = raw_json.split("\n")
     end
