@@ -11,8 +11,7 @@ module PagesHelper
 
   def versionista_version_url(version)
     if version.source_type == 'versionista'
-      metadata = version.source_metadata
-      "#{metadata['page_url']}#{metadata['version_id']}"
+      version.source_metadata['url']
     end
   end
 
