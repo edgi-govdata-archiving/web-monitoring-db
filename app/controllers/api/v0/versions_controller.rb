@@ -28,8 +28,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
       if params[:content]
         # TODO: upload content
         raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
-      else
-        raise Api::InputError, 'You must include raw version content in the `content` field if you do not provide a URI.'
       end
     elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
       result = Archiver.archive(@version.uri)
