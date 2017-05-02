@@ -16,7 +16,7 @@
   <tbody>
     <% @versions.each do |version| %>
       <tr>
-        <td><a href="<%= versionista_version_url(version) %>"><%= version.created_at %></a></td>
+        <td><a href="<%= versionista_version_url(version) %>"><%= version.capture_time %></a></td>
         <td>
           <% if comparable?(version) %>
             <a href="<%= versionista_info(version, 'diff_with_previous_url') %>">Compare with Previous</a>
