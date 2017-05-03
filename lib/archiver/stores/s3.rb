@@ -3,8 +3,6 @@ require 'aws-sdk'
 module Archiver
   module Stores
     class S3
-      S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/
-
       def initialize(key:, secret:, bucket:, region: nil)
         @bucket = bucket
         @region = region || 'us-east-1'
@@ -19,6 +17,29 @@ module Archiver
         details = parse_s3_url(url_string)
         details && details[:bucket] == @bucket
       end
+
+      def get_file(path)
+        @client.get_object(bucket: @bucket, key: path).get.body
+      end
+
+      def save_file(path, content, options = nil)
+        options ||= {}
+        @client.put_object(
+          bucket: @bucket,
+          key: path,
+          body: content,
+          acl: options.fetch(:acl, 'public-read'),
+          content_type: options.fetch(:content_type, 'application/octet-stream')
+        )
+      end
+
+      def url_for_file(path)
+        "https://#{@bucket}.s3.amazonaws.com/#{path}"
+      end
+
+      private
+
+      S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/
 
       # Determine bucket, path, region info from URIs in the forms:
       # - s3://bucket/file/path.extension
@@ -39,25 +60,6 @@ module Archiver
             { bucket: paths[1], path: paths[2], region: aws_host[2] }
           end
         end
-      end
-
-      def get_file(path)
-        @client.get_object(bucket: @bucket, key: path).get.body
-      end
-
-      def save_file(path, content, options = nil)
-        options ||= {}
-        @client.put_object(
-          bucket: @bucket,
-          key: path,
-          body: content,
-          acl: options.fetch(:acl, 'public-read'),
-          content_type: options.fetch(:content_type, 'application/octet-stream')
-        )
-      end
-
-      def url_for_file(path)
-        "https://#{@bucket}.s3.amazonaws.com/#{path}"
       end
     end
   end
