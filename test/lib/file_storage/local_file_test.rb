@@ -1,6 +1,6 @@
 require_dependency Rails.root.join('lib/archiver/stores/local_file')
 
-class Archiver::Stores::LocalFileTest < ActiveSupport::TestCase
+class FileStorage::LocalFileTest < ActiveSupport::TestCase
   storage_path = Rails.root.join('tmp/test/storage')
 
   def setup
@@ -8,12 +8,12 @@ class Archiver::Stores::LocalFileTest < ActiveSupport::TestCase
   end
 
   def storage(options = {})
-    @storage ||= Archiver::Stores::LocalFile.new(options)
+    @storage ||= FileStorage::LocalFile.new(options)
   end
 
   test 'can save a file' do
-    Archiver::Stores::LocalFile.new.save_file 'abc', 'xyz'
-    Archiver::Stores::LocalFile.new(path: storage_path).save_file 'abc', 'xyz'
+    FileStorage::LocalFile.new.save_file 'abc', 'xyz'
+    FileStorage::LocalFile.new(path: storage_path).save_file 'abc', 'xyz'
   end
 
   test 'can get a file' do
