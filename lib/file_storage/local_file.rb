@@ -1,5 +1,5 @@
 # Store and retrieve files from the local filesystem.
-class Archiver::Stores::LocalFile
+class FileStorage::LocalFile
   # Creates a new LocalFile store.
   # +path+ Specifies the directory in which to store files. If not specified,
   #        files will be stored in a random-named temporary directory.

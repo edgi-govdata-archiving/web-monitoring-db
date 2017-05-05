@@ -1,9 +1,9 @@
 require 'test_helper'
 require_dependency Rails.root.join('lib/archiver/stores/s3')
 
-class Archiver::Stores::S3Test < ActiveSupport::TestCase
+class FileStorage::S3Test < ActiveSupport::TestCase
   def test_storage
-    Archiver::Stores::S3.new(
+    FileStorage::S3.new(
       key: 'whatever',
       secret: 'test',
       bucket: 'test-bucket',
