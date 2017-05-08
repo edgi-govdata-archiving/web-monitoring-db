@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170429002015) do
+ActiveRecord::Schema.define(version: 20170508221326) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20170429002015) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["url"], name: "index_pages_on_url", using: :btree
+    t.index ["uuid", "site"], name: "index_pages_on_uuid_and_site", using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -101,6 +102,7 @@ ActiveRecord::Schema.define(version: 20170429002015) do
     t.jsonb    "source_metadata"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
+    t.index ["capture_time"], name: "index_versions_on_capture_time", using: :btree
     t.index ["page_uuid"], name: "index_versions_on_page_uuid", using: :btree
     t.index ["version_hash"], name: "index_versions_on_version_hash", using: :btree
   end
