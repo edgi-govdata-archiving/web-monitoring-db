@@ -20,6 +20,4 @@ if ENV['AWS_ARCHIVE_BUCKET']
   )
 end
 
-if ENV['ALLOWED_ARCHIVE_HOSTS']
-  Archiver.allowed_hosts = ENV['ALLOWED_ARCHIVE_HOSTS']
-end
+Archiver.allowed_hosts = ENV['ALLOWED_ARCHIVE_HOSTS']
