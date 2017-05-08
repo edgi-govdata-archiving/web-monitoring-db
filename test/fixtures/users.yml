@@ -7,8 +7,10 @@
 alice:
   email: test1@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
+  confirmed_at: <%= Time.now %>
 
 admin_user:
   email: test2@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
+  confirmed_at: <%= Time.now %>
   admin: true
