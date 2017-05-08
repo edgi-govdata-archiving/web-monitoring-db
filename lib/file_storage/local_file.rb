@@ -22,7 +22,8 @@ module FileStorage
 
     def save_file(path, content, _ = nil)
       ensure_directory
-      File.write(full_path(path), content)
+      content_string = content.try(:read) || content
+      File.write(full_path(path), content_string)
     end
 
     def url_for_file(path)
