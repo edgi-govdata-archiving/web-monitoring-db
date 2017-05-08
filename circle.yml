@@ -1,6 +1,9 @@
 machine:
   ruby:
     version: 2.4.0
+  env:
+    HOST_URL: 'web-monitoring-db.test'
+    ALLOWED_ARCHIVE_HOSTS: 'https://edgi-versionista-archive.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
 
 test:
   post:
