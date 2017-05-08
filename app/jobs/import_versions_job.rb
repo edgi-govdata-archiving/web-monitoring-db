@@ -59,7 +59,10 @@ class ImportVersionsJob < ApplicationJob
     elsif !Archiver.already_archived?(version.uri) || !version.version_hash
       result = Archiver.archive(version.uri)
       version.version_hash = result[:hash]
-      version.uri = result[:url]
+      if result[:url] != version.uri
+        version.source_metadata['original_url'] = version.uri
+        version.uri = result[:url]
+      end
     end
 
     page = find_or_create_page_for_record(record)
