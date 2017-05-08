@@ -14,6 +14,7 @@ module Archiver
   end
 
   def self.allowed_hosts=(hosts)
+    hosts = [] if hosts.nil?
     hosts = hosts.split(' ') if hosts.is_a?(String)
     unless hosts.is_a?(Enumerable) && hosts.all? {|host| host.is_a?(String)}
       raise StandardError, 'Allowed hosts must be a string or enumerable of strings'
