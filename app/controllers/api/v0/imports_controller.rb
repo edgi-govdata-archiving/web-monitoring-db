@@ -9,16 +9,7 @@ class Api::V0::ImportsController < Api::V0::ApiController
 
   def create
     file_key = SecureRandom.uuid
-    # FIXME: storage should be encapsulated in a service; we shouldn't care here
-    # whether it is S3, the local filesystem, Google, or whatever
-    s3 = Aws::S3::Client.new
-    s3.put_object(
-      bucket: ENV['AWS_WORKING_BUCKET'],
-      key: file_key,
-      body: request.body,
-      acl: 'private',
-      content_type: 'application/json'
-    )
+    FileStorage.default.save_file(file_key, request.body)
 
     @import = Import.create(
       file: file_key,
