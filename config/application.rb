@@ -8,6 +8,10 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
+    config.eager_load_paths << "#{Rails.root}/lib/api"
+
+    config.active_job.queue_adapter = :resque
+
     # Support CORS requests for everything outside /admin
     # TODO: maybe better to have `/api/*` routes and turn CORS on only for those?
     config.middleware.insert_before 0, Rack::Cors do
@@ -20,8 +24,5 @@ module WebpageVersionsDb
         resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
       end
     end
-
-    config.active_job.queue_adapter = :resque
-    config.eager_load_paths << "#{Rails.root}/lib/api"
   end
 end

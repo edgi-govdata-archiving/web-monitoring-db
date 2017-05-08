@@ -1,5 +1,6 @@
-require_dependency Rails.root.join('lib/archiver/archiver')
-require_dependency Rails.root.join('lib/file_storage/s3')
+require_dependency 'archiver/archiver'
+require_dependency 'file_storage/file_storage'
+require_dependency 'file_storage/s3'
 
 if ENV['AWS_ARCHIVE_BUCKET']
   aws_key = ENV['AWS_ARCHIVE_KEY'] || ENV['AWS_ACCESS_KEY_ID']
