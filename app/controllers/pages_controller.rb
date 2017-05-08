@@ -1,4 +1,4 @@
-PAGE_SIZE = 500
+PAGE_SIZE = 100
 
 class PagesController < ApplicationController
   include DeprecatedApiResources
