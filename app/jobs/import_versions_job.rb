@@ -7,16 +7,10 @@ class ImportVersionsJob < ApplicationJob
     @import = import
     @import.update(status: :processing)
 
-    # FIXME: storage should be encapsulated in a service; we shouldn't care here
-    # whether it is S3, the local filesystem, Google, or whatever
-    s3 = Aws::S3::Client.new
-    response = s3.get_object(
-      bucket: ENV['AWS_WORKING_BUCKET'],
-      key: @import.file
-    )
+    data = FileStorage.default.get_file(@import.file)
 
     begin
-      import_raw_data(response.body.read)
+      import_raw_data(data)
     rescue
       @import.processing_errors << 'Unknown error occurred'
       raise
