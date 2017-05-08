@@ -19,7 +19,7 @@ module FileStorage
     end
 
     def get_file(path)
-      @client.get_object(bucket: @bucket, key: path).get.body
+      @client.get_object(bucket: @bucket, key: path).body.read
     end
 
     def save_file(path, content, options = nil)
