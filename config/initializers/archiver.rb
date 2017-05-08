@@ -18,6 +18,9 @@ if ENV['AWS_ARCHIVE_BUCKET']
     region: aws_region,
     bucket: aws_bucket
   )
+elsif !Rails.env.production?
+  storage_path = Rails.root.join 'tmp/storage/archive'
+  Archiver.store = FileStorage::LocalFile.new(path: storage_path)
 end
 
 Archiver.allowed_hosts = ENV['ALLOWED_ARCHIVE_HOSTS']
