@@ -2,7 +2,7 @@ class Api::V0::ApiController < ApplicationController
   include PagingConcern
   before_action :require_authentication!, only: [:create]
 
-  rescue_from StandardError, with: :render_errors unless Rails.env.development?
+  rescue_from StandardError, with: :render_errors if Rails.env.production?
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
 
@@ -37,9 +37,15 @@ class Api::V0::ApiController < ApplicationController
       errors: errors.collect do |error|
         {
           status: status_code,
-          title: error.try(:message) || error.try(:[], :message) || error.to_s
+          title: message_for(error)
         }
       end
     }
+  end
+
+  def message_for(error)
+    error.try(:message) ||
+      (error.try(:has_key?, :message) && error.send(:[], :message)) ||
+      error.to_s
   end
 end
