@@ -1,7 +1,7 @@
 module PagingConcern
   extend ActiveSupport::Concern
 
-  PAGE_SIZE = 500
+  PAGE_SIZE = 100
 
   protected
 
