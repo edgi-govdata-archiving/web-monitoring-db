@@ -1,4 +1,4 @@
-require_dependency Rails.root.join('lib/archiver/stores/local_file')
+require_dependency 'file_storage/local_file'
 
 class FileStorage::LocalFileTest < ActiveSupport::TestCase
   storage_path = Rails.root.join('tmp/test/storage')

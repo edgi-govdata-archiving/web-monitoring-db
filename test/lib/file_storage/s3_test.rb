@@ -1,5 +1,5 @@
 require 'test_helper'
-require_dependency Rails.root.join('lib/archiver/stores/s3')
+require_dependency 'file_storage/s3'
 
 class FileStorage::S3Test < ActiveSupport::TestCase
   def test_storage
@@ -50,5 +50,10 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     storage = test_storage
     assert storage.contains_url?('https://test-bucket.s3.amazonaws.com/something.txt')
     assert_not storage.contains_url?('https://other-bucket.s3.amazonaws.com/something.txt')
+  end
+
+  test 'can generate a URL' do
+    whatever_url = test_storage.url_for_file('whatever')
+    assert_equal 'https://test-bucket.s3.amazonaws.com/whatever', whatever_url
   end
 end
