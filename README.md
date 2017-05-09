@@ -14,22 +14,58 @@ It’s a Rails app that:
 1. Ensure you have Ruby 2.4.0+
 2. Ensure you have PostgreSQL 9.5+
 3. Ensure you have Redis
-4. If you don’t have the `bundler` Ruby gem, install it:
+4. Clone this repo
+5. If you don’t have the `bundler` Ruby gem, install it:
 
-  ```sh
-  $ gem install bundler
-  ```
+    ```sh
+    $ gem install bundler
+    ```
 
-3. Clone this repo
-4. Wherever you cloned the repo, go to that directory and:
+6. Wherever you cloned the repo, go to that directory and install dependencies:
 
-   ```sh
-   $ bundle install
-   $ bundle exec rake db:setup
-   $ bundle exec rails server
-   ```
+    ```sh
+    $ bundle install
+    ```
 
-5. You should now have a server running and can visit it at http://localhost:3000/. It will be populated with a few pages and versions a simple admin user (`seed-admin@example.com`), whose password will have been shown when you ran `rake db:setup`. Log in with that user account to create new users.
+7. Set up your database. The simple way to do this is:
+
+    ```sh
+    $ bundle exec rake db:setup
+    ```
+
+    That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
+
+    If you’d like to do the setup manually, see [advanced setup](#advanced-setup) below.
+
+8. Finally, start the server!
+
+    ```sh
+    $ bundle exec rails server
+    ```
+
+    You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
+
+
+## Advanced Setup
+
+If you don’t want to populate your DB with seed data, want to manage creation of the database yourself, or otherwise manually do database setup, run any of the following commands as desired instead of `rake db:setup`:
+
+```sh
+$ bundle exec rake db:create       # Connects to Postgres and creates a new database
+$ bundle exec rake db:schema:load  # Populates the database with the current schema
+$ bundle exec rake db:seed         # Adds an admin user and sample data
+```
+
+If you skip `rake db:seed`, you’ll still need to create an Admin user. You should not do this through the database since the password will need to be properly encrypted. Instead, open the rails console with `rails console` and run the following:
+
+```ruby
+User.create(
+  email: '[your email address]',
+  password: '[the password you want]',
+  admin: true,
+  confirmed_at: Time.now
+)
+```
 
 
 ## License & Copyright
