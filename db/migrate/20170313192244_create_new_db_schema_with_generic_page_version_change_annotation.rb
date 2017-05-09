@@ -4,7 +4,7 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     enable_extension 'uuid-ossp'
 
     create_table :pages, id: false do |t|
-      table.primary_key :uuid, :uuid
+      t.primary_key :uuid, :uuid
       t.string :url, null: false
       t.string :title
       t.string :agency
@@ -15,9 +15,9 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :versions, id: false do |t|
-      table.primary_key :uuid, :uuid
+      t.primary_key :uuid, :uuid
       # No way to use `belongs_to/references` to make a column named `*_uuid`
-      table.uuid :page_uuid, null: false
+      t.uuid :page_uuid, null: false
       t.datetime :capture_time, null: false
       t.string :uri
       t.string :version_hash
@@ -31,7 +31,7 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :changes, id: false do |t|
-      table.primary_key :uuid, :uuid
+      t.primary_key :uuid, :uuid
       t.uuid :uuid_from, null: false
       t.uuid :uuid_to, null: false
       t.float :priority, default: 0.5
@@ -45,7 +45,7 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
     end
 
     create_table :annotations, id: false do |t|
-      table.primary_key :uuid, :uuid
+      t.primary_key :uuid, :uuid
       # No way to use `belongs_to/references` to make a column named `*_uuid`
       t.uuid :change_uuid, null: false
       t.belongs_to :author, foreign_key: { to_table: :users }
