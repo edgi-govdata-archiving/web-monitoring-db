@@ -23,7 +23,7 @@ default: &default
 
 development:
   <<: *default
-  database: webpage-versions-db_development
+  database: web-monitoring-db_development
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -57,7 +57,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: webpage-versions-db_test
+  database: web-monitoring-db_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -80,6 +80,6 @@ test:
 #
 production:
   <<: *default
-  database: webpage-versions-db_production
-  username: webpage-versions-db
-  password: <%= ENV['WEBPAGE-VERSIONS-DB_DATABASE_PASSWORD'] %>
+  database: web-monitoring-db_production
+  username: web-monitoring-db
+  password: <%= ENV['WEB-MONITORING-DB_DATABASE_PASSWORD'] %>

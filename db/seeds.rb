@@ -1,7 +1,23 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rails db:seed command (or created alongside the database with db:setup).
-#
-# Examples:
-#
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
+# Seed the DB with an admin user and a few version records
+admin = User.find_or_create_by(admin: true) do |user|
+  password = SecureRandom.uuid
+  user.email = 'seed-admin@example.com'
+  user.password = password
+  user.confirmed_at = Time.now
+
+  edit_path = Rails.application.routes.url_helpers.edit_user_registration_path
+  puts "\n\n------------------------------------------------------------"
+  puts "Admin user created with e-mail: #{user.email} and password: #{password}"
+  puts "Point your browser to http://localhost:3000#{edit_path} to change it."
+  puts "------------------------------------------------------------\n\n"
+end
+
+import = Import.create(
+  user: admin,
+  file: 'seed_import.json'
+)
+
+fs_default = FileStorage.default
+FileStorage.default = FileStorage::LocalFile.new(path: Rails.root.join('db'))
+ImportVersionsJob.perform_now(import)
+FileStorage.default = fs_default
