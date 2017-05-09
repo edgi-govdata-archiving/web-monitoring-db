@@ -29,9 +29,7 @@ It’s a Rails app that:
    $ bundle exec rails server
    ```
 
-5. You should now have a server running and can visit it at http://localhost:3000/
-
-To populate it with data, you’ll need to use the import API at `/api/v0/imports`. You can also use the scripts in [`web-monitoring-versionista-scraper`](https://github.com/edgi-govdata-archiving/web-monitoring-versionista-scraper) to do this.
+5. You should now have a server running and can visit it at http://localhost:3000/. It will be populated with a few pages and versions a simple admin user (`seed-admin@example.com`), whose password will have been shown when you ran `rake db:setup`. Log in with that user account to create new users.
 
 
 ## License & Copyright
