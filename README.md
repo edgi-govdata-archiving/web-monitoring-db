@@ -60,6 +60,17 @@ $ rake update_from_json['./tmp/scraped_data-24-0.json']
 
 The argument in square brackets should be the path to your JSON file.
 
+## Docker Deployment
+
+We will use Docker containers to deploy this app and other related services.
+
+```
+docker-compose build
+docker-compose run web rake db:create
+docker-compose run web rake db:migrate
+docker-compose up
+```
+
 
 ## License & Copyright
 
