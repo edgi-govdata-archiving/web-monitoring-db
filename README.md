@@ -11,7 +11,7 @@ It’s a Rails app that:
 
 ## Installation
 
-1. Ensure you have Ruby 2.4.0+
+1. Ensure you have Ruby 2.4.1+
 2. Ensure you have PostgreSQL 9.5+
 3. Ensure you have Redis
 4. Clone this repo
