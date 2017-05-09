@@ -7,6 +7,7 @@ class Page < ApplicationRecord
   validate :url_must_have_domain
 
   def self.normalize_url(url)
+    return if url.nil?
     if url.match?(/^[\w\+\-\.]+:\/\//)
       url
     else
