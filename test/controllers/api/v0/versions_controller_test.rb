@@ -37,4 +37,14 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     #   }
     # })
   end
+
+  test 'can filter versions by hash' do
+    target = versions(:page1_v1)
+    get api_v0_page_versions_url(pages(:home_page), hash: target.version_hash)
+    body_json = JSON.parse @response.body
+    ids = body_json['data'].pluck 'uuid'
+
+    assert_includes ids, target.uuid,
+      'Results did not include pages for the filtered hash'
+  end
 end

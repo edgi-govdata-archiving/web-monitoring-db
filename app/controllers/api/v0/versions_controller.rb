@@ -1,7 +1,8 @@
 class Api::V0::VersionsController < Api::V0::ApiController
   def index
-    paging = pagination(page.versions)
-    versions = page.versions.limit(paging[:page_items]).offset(paging[:offset])
+    query = version_collection
+    paging = pagination(query)
+    versions = query.limit(paging[:page_items]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],
@@ -75,5 +76,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
       .require(:version)
       .select {|key| permitted_keys.include?(key)}
       .permit!
+  end
+
+  def version_collection
+    collection = page.versions
+    collection = collection.where(version_hash: params[:hash]) if params[:hash]
+    collection
   end
 end
