@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::PagesControllerTest < ActionDispatch::IntegrationTest
+class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'can list pages' do
     get '/api/v0/pages/'
     assert_response :success
