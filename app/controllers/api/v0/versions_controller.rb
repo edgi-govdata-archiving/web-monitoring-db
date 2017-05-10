@@ -81,6 +81,36 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def version_collection
     collection = page.versions
     collection = collection.where(version_hash: params[:hash]) if params[:hash]
+
+    capture_time = params[:capture_time]
+    if capture_time
+      if capture_time.include? '..'
+        from, to = capture_time.split(/\.\.\.?/)
+        if from.empty? && to.empty?
+          raise Api::InputError, "Invalid date range: '#{capture_time}'"
+        end
+        if from.present?
+          from = parse_date! from
+          collection = collection.where('capture_time >= ?', from)
+        end
+        if to.present?
+          to = parse_date! to
+          collection = collection.where('capture_time <= ?', to)
+        end
+      else
+        collection = collection.where(capture_time: parse_date!(capture_time))
+      end
+    end
+
     collection
+  end
+
+  def parse_date!(date)
+    begin
+      raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
+      DateTime.parse date
+    rescue
+      raise Api::InputError, "Invalid date: '#{date}'"
+    end
   end
 end
