@@ -9,3 +9,9 @@ sub_page:
   title: 'Page Two'
   agency: 'Department of Examples'
   site: 'http://example.com/'
+
+home_page_site2:
+  url: 'http://example2.com/index.html'
+  title: 'Site 2, yo!'
+  agency: 'Department of Examples'
+  site: 'http://example2.com/'

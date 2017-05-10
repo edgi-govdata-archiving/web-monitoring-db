@@ -1,7 +1,10 @@
 class Api::V0::PagesController < Api::V0::ApiController
   def index
-    paging = pagination(Page.all)
-    pages = Page.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
+    query = Page.all
+    query = query.where(site: params[:site]) if params[:site]
+
+    paging = pagination(query)
+    pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],
