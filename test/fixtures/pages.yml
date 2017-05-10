@@ -15,3 +15,9 @@ home_page_site2:
   title: 'Site 2, yo!'
   agency: 'Department of Examples'
   site: 'http://example2.com/'
+
+dot_home_page:
+  url: 'http://depart-of-testing.com/index.html'
+  title: 'Welcome to the Department of Testing'
+  agency: 'Department of Testing'
+  site: 'DOT - Home Site'

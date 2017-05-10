@@ -21,4 +21,16 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes ids, pages(:home_page_site2).uuid,
       'Results included pages not matching filtered site'
   end
+
+  test 'can filter pages by agency' do
+    agency = 'Department of Testing'
+    get "/api/v0/pages/?agency=#{URI.encode_www_form_component agency}"
+    body_json = JSON.parse @response.body
+    ids = body_json['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:dot_home_page).uuid,
+      'Results did not include pages for the filtered agency'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+      'Results included pages not matching filtered agency'
+  end
 end

@@ -2,6 +2,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   def index
     query = Page.all
     query = query.where(site: params[:site]) if params[:site]
+    query = query.where(agency: params[:agency]) if params[:agency]
 
     paging = pagination(query)
     pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
