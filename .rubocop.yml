@@ -18,6 +18,7 @@ Metrics/ClassLength:
   Exclude:
     - 'lib/versionista_service/*'
     - 'app/jobs/import_versions_job.rb'
+    - 'test/**/*.rb'
 
 Metrics/ParameterLists:
   Exclude:

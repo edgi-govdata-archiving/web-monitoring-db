@@ -8,7 +8,15 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse(@response.body)
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
-    assert(body_json['data'].is_a?(Array), 'Data shoudl be an array')
+    assert(body_json['data'].is_a?(Array), 'Data should be an array')
+  end
+
+  test 'can list versions independent of pages' do
+    get api_v0_versions_url
+    assert_response(:success)
+    body_json = JSON.parse(@response.body)
+    assert(body_json.key?('data'), 'Response should have a "data" property')
+    assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
   test 'can post a new version' do

@@ -11,7 +11,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def show
-    @version ||= page.versions.find(params[:id])
+    @version ||= version_collection.find(params[:id])
     render json: {
       links: {
         page: api_v0_page_url(@version.page),
@@ -54,10 +54,15 @@ class Api::V0::VersionsController < Api::V0::ApiController
   protected
 
   def paging_path_for_version(*args)
-    api_v0_page_versions_path(*args)
+    if page
+      api_v0_page_versions_url(*args)
+    else
+      api_v0_versions_url(*args)
+    end
   end
 
   def page
+    return nil unless params.key? :page_id
     @page ||= Page.find(params[:page_id])
   end
 
@@ -79,7 +84,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def version_collection
-    collection = page.versions
+    collection = page ? page.versions : Version.all
     collection = filter_param(collection, :hash, :version_hash)
     collection = filter_param(collection, :source_type)
 
