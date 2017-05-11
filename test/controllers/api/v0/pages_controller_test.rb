@@ -61,4 +61,17 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes ids, pages(:home_page_site2).uuid,
       'Results included pages not matching filtered URL'
   end
+
+  test 'can filter pages by version capture_time' do
+    get api_v0_pages_url(
+      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
+    )
+    body_json = JSON.parse @response.body
+    ids = body_json['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:home_page).uuid,
+      'Results did not include pages with versions captured in the filtered date range'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+      'Results included pages with versions not captured in the filtered date range'
+  end
 end

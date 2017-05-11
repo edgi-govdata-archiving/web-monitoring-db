@@ -48,4 +48,16 @@ class Api::V0::ApiController < ApplicationController
       (error.try(:has_key?, :message) && error.send(:[], :message)) ||
       error.to_s
   end
+
+  def filter_param(collection, name, attribute = nil)
+    attribute = name if attribute.nil?
+    params[name] ? collection.where(attribute => params[name]) : collection
+  end
+
+  def parse_date!(date)
+    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
+    DateTime.parse date
+  rescue
+    raise Api::InputError, "Invalid date: '#{date}'"
+  end
 end

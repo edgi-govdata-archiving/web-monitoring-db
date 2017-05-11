@@ -25,8 +25,9 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def page_collection
     collection = Page.all
-    collection = collection.where(site: params[:site]) if params[:site]
-    collection = collection.where(agency: params[:agency]) if params[:agency]
+    collection = filter_param(collection, :site)
+    collection = filter_param(collection, :agency)
+
     if params[:url]
       query = params[:url]
       if query.include? '*'
@@ -36,6 +37,31 @@ class Api::V0::PagesController < Api::V0::ApiController
         collection = collection.where(url: query)
       end
     end
+
+    capture_time = params[:capture_time]
+    if capture_time
+      if capture_time.include? '..'
+        from, to = capture_time.split(/\.\.\.?/)
+        if from.empty? && to.empty?
+          raise Api::InputError, "Invalid date range: '#{capture_time}'"
+        end
+
+        with_versions = collection.joins(:versions)
+        if from.present?
+          from = parse_date! from
+          collection = with_versions.where('versions.capture_time >= ?', from)
+        end
+        if to.present?
+          to = parse_date! to
+          collection = with_versions.where('versions.capture_time <= ?', to)
+        end
+      else
+        collection = with_versions.where(versions: {
+          capture_time: parse_date!(capture_time)
+        })
+      end
+    end
+
     collection
   end
 end
