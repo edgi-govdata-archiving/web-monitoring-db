@@ -129,4 +129,13 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/date/i, body_json['errors'][0]['title'],
       'Error does not mention date')
   end
+
+  test 'can filter versions by source_type' do
+    get api_v0_page_versions_url(pages(:home_page), source_type: 'pagefreezer')
+
+    body_json = JSON.parse @response.body
+    types = body_json['data'].collect {|v| v['source_type']}.uniq
+
+    assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
+  end
 end

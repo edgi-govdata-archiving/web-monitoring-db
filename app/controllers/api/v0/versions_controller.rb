@@ -80,7 +80,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   def version_collection
     collection = page.versions
-    collection = collection.where(version_hash: params[:hash]) if params[:hash]
+    collection = filter_param(collection, :hash, :version_hash)
+    collection = filter_param(collection, :source_type)
 
     capture_time = params[:capture_time]
     if capture_time
@@ -103,6 +104,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     collection
+  end
+
+  def filter_param(collection, name, attribute = nil)
+    attribute = name if attribute.nil?
+    params[name] ? collection.where(attribute => params[name]) : collection
   end
 
   def parse_date!(date)
