@@ -1,5 +1,4 @@
 require 'test_helper'
-require_dependency 'file_storage/s3'
 
 class FileStorage::S3Test < ActiveSupport::TestCase
   def test_storage
