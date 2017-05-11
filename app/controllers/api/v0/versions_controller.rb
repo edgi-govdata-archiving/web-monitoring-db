@@ -106,11 +106,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def parse_date!(date)
-    begin
-      raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
-      DateTime.parse date
-    rescue
-      raise Api::InputError, "Invalid date: '#{date}'"
-    end
+    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
+    DateTime.parse date
+  rescue
+    raise Api::InputError, "Invalid date: '#{date}'"
   end
 end
