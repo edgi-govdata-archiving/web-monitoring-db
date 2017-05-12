@@ -75,26 +75,11 @@ class Api::V0::ApiController < ApplicationController
     end
   end
 
-  def where_range_or_exact_param(collection, name, attribute = nil, &parse)
+  def where_in_range_param(collection, name, attribute = nil, &parse)
+    return collection unless params[name]
+
     attribute = name if attribute.nil?
     range = parse_unbounded_range!(params[name], name, &parse)
-    return collection unless range
-
-    if attribute.is_a?(String) && attribute.include?('.')
-      join_model = attribute.split('.')[0].to_sym
-      collection = collection.joins(join_model)
-    end
-
-    if range.is_a? Array
-      where_in_unbounded_range(collection, attribute, *range)
-    elsif range
-      collection.where("#{attribute} = ?", range)
-    end
-  end
-
-  def where_in_unbounded_range(collection, attribute, from, to)
-    collection = collection.where("#{attribute} >= ?", from) if from
-    collection = collection.where("#{attribute} <= ?", to) if to
-    collection
+    collection.where_in_unbounded_range(attribute, range)
   end
 end

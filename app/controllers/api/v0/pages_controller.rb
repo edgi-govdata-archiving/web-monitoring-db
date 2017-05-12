@@ -26,7 +26,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   def page_collection
     collection = Page.where(params.permit(:site, :agency))
 
-    collection = where_range_or_exact_param(
+    collection = where_in_range_param(
       collection,
       :capture_time,
       'versions.capture_time',

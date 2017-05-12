@@ -91,6 +91,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
       source_type: params[:source_type]
     }.compact)
 
-    where_range_or_exact_param(collection, :capture_time, &method(:parse_date!))
+    where_in_range_param(collection, :capture_time, &method(:parse_date!))
   end
 end
