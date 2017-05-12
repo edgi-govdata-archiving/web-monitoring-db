@@ -50,7 +50,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
       from_uuid: parent_change.from_version.id,
       to_uuid: parent_change.version.id
     })
-    api_v0_page_annotations_path(*args)
+    api_v0_page_annotations_url(*args)
   end
 
   def set_annotation

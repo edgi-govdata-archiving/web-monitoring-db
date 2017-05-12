@@ -33,16 +33,36 @@ module PagingConcern
     page_offset = (page_number - 1) * PAGE_SIZE
 
     links = {
-      first: path_resolver.call(collection_type, page: 1, format: format_type),
-      last: path_resolver.call(collection_type, page: total_pages, format: format_type),
+      first: path_resolver.call(
+        collection_type,
+        page: 1,
+        format: format_type,
+        params: request.query_parameters
+      ),
+      last: path_resolver.call(
+        collection_type,
+        page: total_pages,
+        format: format_type,
+        params: request.query_parameters
+      ),
       prev: nil,
       next: nil
     }
     if page_number > 1
-      links[:prev] = path_resolver.call(collection_type, page: page_number - 1, format: format_type)
+      links[:prev] = path_resolver.call(
+        collection_type,
+        page: page_number - 1,
+        format: format_type,
+        params: request.query_parameters
+      )
     end
     if page_number < total_pages
-      links[:next] = path_resolver.call(collection_type, page: page_number + 1, format: format_type)
+      links[:next] = path_resolver.call(
+        collection_type,
+        page: page_number + 1,
+        format: format_type,
+        params: request.query_parameters
+      )
     end
 
     {
