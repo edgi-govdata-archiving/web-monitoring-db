@@ -34,6 +34,18 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       'Results included pages not matching filtered agency'
   end
 
+  test 'can filter pages by title' do
+    title = 'Page One'
+    get api_v0_pages_path(title: title)
+    body_json = JSON.parse @response.body
+    ids = body_json['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:home_page).uuid,
+      'Results did not include pages for the filtered site'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+      'Results included pages not matching filtered site'
+  end
+
   test 'can filter pages by URL' do
     url = 'http://example.com/'
     get "/api/v0/pages/?url=#{URI.encode_www_form_component url}"

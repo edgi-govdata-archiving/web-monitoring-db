@@ -24,7 +24,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def page_collection
-    collection = Page.where(params.permit(:site, :agency))
+    collection = Page.where(params.permit(:agency, :site, :title))
 
     collection = where_in_range_param(
       collection,
