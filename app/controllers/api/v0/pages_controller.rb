@@ -4,9 +4,12 @@ class Api::V0::PagesController < Api::V0::ApiController
     paging = pagination(query)
     pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
 
+    json_options = {}
+    json_options[:include] = :versions if should_include_versions
+
     render json: {
       links: paging[:links],
-      data: pages
+      data: pages.as_json(json_options)
     }
   end
 
@@ -21,6 +24,10 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def paging_path_for_page(*args)
     api_v0_pages_url(*args)
+  end
+
+  def should_include_versions
+    'true'.casecmp?(params[:include_versions] || '')
   end
 
   def page_collection
@@ -42,6 +49,8 @@ class Api::V0::PagesController < Api::V0::ApiController
         collection = collection.where(url: query)
       end
     end
+
+    collection = collection.includes(:versions) if should_include_versions
 
     collection
   end

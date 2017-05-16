@@ -86,4 +86,32 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes ids, pages(:home_page_site2).uuid,
       'Results included pages with versions not captured in the filtered date range'
   end
+
+  test 'includes versions if include_versions = true' do
+    get api_v0_pages_path(include_versions: true)
+    body = JSON.parse @response.body
+    results = body['data']
+
+    # returned records should have "versions" instead of "latest"
+    with_latest = results.select {|page| page.key? 'latest'}
+    assert_empty with_latest, 'Results had objects with a "latest" property'
+
+    assert_kind_of Array, results[0]['versions'], '"versions" property was not an array'
+
+    home_page = results.find {|page| page['uuid'] == pages(:home_page).uuid}
+    assert_equal pages(:home_page).versions.count, home_page['versions'].length,
+      '"Home page" didn’t include all versions'
+  end
+
+  test 'Only includes versions that match query when include_versions = true' do
+    get api_v0_pages_path(
+      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z',
+      include_versions: true
+    )
+    body = JSON.parse @response.body
+    results = body['data']
+
+    home_page = results.find {|page| page['uuid'] == pages(:home_page).uuid}
+    assert_equal 1, home_page['versions'].length, '"Home page" included too many versions'
+  end
 end
