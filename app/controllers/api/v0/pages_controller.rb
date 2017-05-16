@@ -27,7 +27,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def should_include_versions
-    'true'.casecmp?(params[:include_versions] || '')
+    boolean_param :include_versions
   end
 
   def page_collection
