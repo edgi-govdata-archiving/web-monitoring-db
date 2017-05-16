@@ -8,9 +8,9 @@ end
 ruby '2.4.1'
 
 gem 'aws-sdk', '~> 2.9'
-gem 'devise'
+gem 'devise', '~> 4.2'
 gem 'httparty'
-gem 'rails', '~> 5.0.1'
+gem 'rails', '~> 5.0.2'
 gem 'pg', '~> 0.18'
 gem 'puma', '~> 3.0'
 gem 'rack-cors', :require => 'rack/cors'
