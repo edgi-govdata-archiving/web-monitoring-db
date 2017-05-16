@@ -49,6 +49,12 @@ class Api::V0::ApiController < ApplicationController
       error.to_s
   end
 
+  def boolean_param(param, presence_implies_true = true)
+    value = params[param]
+    return true if params.key?(param) && value.nil? && presence_implies_true
+    /^(true|t|1)$/i.match? value
+  end
+
   def parse_date!(date)
     raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
     DateTime.parse date

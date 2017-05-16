@@ -136,4 +136,32 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     home_page = results.find {|page| page['uuid'] == pages(:home_page).uuid}
     assert_equal 1, home_page['versions'].length, '"Home page" included too many versions'
   end
+
+  test 'include_versions can be "1"' do
+    get api_v0_pages_path(include_versions: 1)
+    body = JSON.parse @response.body
+    results = body['data']
+    assert results.all? {|p| p.key? 'versions'}, 'Some pages did not have a "versions" property'
+  end
+
+  test 'include_versions can be "t"' do
+    get api_v0_pages_path(include_versions: 't')
+    body = JSON.parse @response.body
+    results = body['data']
+    assert results.all? {|p| p.key? 'versions'}, 'Some pages did not have a "versions" property'
+  end
+
+  test 'include_versions can be value-less (e.g. "pages?include_versions")' do
+    get "#{api_v0_pages_path}?include_versions"
+    body = JSON.parse @response.body
+    results = body['data']
+    assert results.all? {|p| p.key? 'versions'}, 'Some pages did not have a "versions" property'
+  end
+
+  test 'include_versions cannot be an empty string (e.g. "pages?include_versions")' do
+    get "#{api_v0_pages_path}?include_versions="
+    body = JSON.parse @response.body
+    results = body['data']
+    assert_not results.any? {|p| p.key? 'versions'}, 'Some pages have a "versions" property'
+  end
 end
