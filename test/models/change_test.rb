@@ -31,4 +31,33 @@ class ChangeTest < ActiveSupport::TestCase
     change.annotate({ test_field: 'test_value' })
     assert change.persisted?, 'The change was not persisted'
   end
+
+  test 'subsequent annotations by the same user should replace the existing annotation' do
+    change = versions(:page2_v2).change_from_previous
+
+    change.annotate({ one: 'a', two: 'b', three: 'c' }, users(:alice))
+    change.annotate({ one: 'new!', three: nil }, users(:alice))
+
+    assert_equal 1, change.annotations.count, 'Multiple annotations were made'
+    # the second annotation replaces the first instead of combining with it
+    assert_equal({ 'one' => 'new!' }, change.current_annotation, 'Current annotation was not replaced')
+  end
+
+  test 'subsequent annotations with different users should create new annotations' do
+    change = versions(:page2_v2).change_from_previous
+
+    change.annotate({ one: 'a', two: 'b', three: 'c' }, users(:alice))
+    change.annotate({ one: 'new!', three: nil }, users(:admin_user))
+
+    assert_equal 2, change.annotations.count, 'The wrong number of annotations were made'
+  end
+
+  test 'subsequent annotations with no user should create new annotations' do
+    change = versions(:page2_v2).change_from_previous
+
+    change.annotate({ one: 'a', two: 'b', three: 'c' })
+    change.annotate({ one: 'new!', three: nil })
+
+    assert_equal 2, change.annotations.count, 'The wrong number of annotations were made'
+  end
 end

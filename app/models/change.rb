@@ -3,7 +3,7 @@ class Change < ApplicationRecord
 
   belongs_to :version, foreign_key: :uuid_to, required: true
   belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, required: true
-  has_many :annotations, foreign_key: 'change_uuid', inverse_of: :change
+  has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
 
   def self.between(to:, from: nil, create: false)
@@ -36,14 +36,19 @@ class Change < ApplicationRecord
       self.save
     end
 
-    annotation = Annotation.create(
-      change_uuid: self.uuid,
-      author: author,
-      annotation: data
-    )
+    annotation =
+      if author
+        annotations.find_or_initialize_by(author: author)
+      else
+        annotations.new
+      end
+
+    annotation.annotation = data
+    annotation.save
 
     if annotation.valid?
-      update_current_annotation(annotation.annotation)
+      annotations.reload
+      regenerate_current_annotation
     end
 
     annotation
