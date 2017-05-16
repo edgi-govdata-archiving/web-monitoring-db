@@ -7,6 +7,7 @@
 page1_v1:
   page: home_page
   capture_time: '2017-03-01T00:00:00Z'
+  version_hash: 'abc'
   source_type: 'versionista'
   source_metadata: >
     {
@@ -24,6 +25,7 @@ page1_v1:
 page2_v1:
   page: sub_page
   capture_time: '2017-03-01T00:00:00Z'
+  version_hash: 'def'
   source_type: 'versionista'
   source_metadata: >
     {
@@ -41,6 +43,7 @@ page2_v1:
 page1_v2:
   page: home_page
   capture_time: '2017-03-02T00:00:00Z'
+  version_hash: 'ghi'
   source_type: 'versionista'
   source_metadata: >
     {
@@ -58,6 +61,7 @@ page1_v2:
 page2_v2:
   page: sub_page
   capture_time: '2017-03-02T00:00:00Z'
+  version_hash: 'jkl'
   source_type: 'versionista'
   source_metadata: >
     {
@@ -75,6 +79,7 @@ page2_v2:
 page1_v3:
   page: home_page
   capture_time: '2017-03-03T00:00:00Z'
+  version_hash: 'mno'
   source_type: 'versionista'
   source_metadata: >
     {
@@ -87,4 +92,17 @@ page1_v3:
       diff_with_first_url: nil,
       diff_length: 1234672,
       diff_hash: '749ab2c0d06c42ae3b841b79e79875f02b3a042e43c92378cd28bd444c04d284'
+    }
+
+page1_v4:
+  page: home_page
+  capture_time: '2017-03-04T00:00:00Z'
+  version_hash: 'pqr'
+  source_type: 'pagefreezer'
+  source_metadata: >
+    {
+      account: 'test@example.com',
+      site_id: 1,
+      page_id: 11,
+      version_id: 114
     }

@@ -27,6 +27,7 @@ Rails.application.routes.draw do
           only: [:index, :show, :create]
       end
 
+      resources :versions, only: [:index, :show], format: :json
       resources :imports, only: [:create, :show], format: :json
     end
   end

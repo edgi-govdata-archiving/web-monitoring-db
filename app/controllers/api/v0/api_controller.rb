@@ -48,4 +48,38 @@ class Api::V0::ApiController < ApplicationController
       (error.try(:has_key?, :message) && error.send(:[], :message)) ||
       error.to_s
   end
+
+  def parse_date!(date)
+    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d{4})))?$/)
+    DateTime.parse date
+  rescue
+    raise Api::InputError, "Invalid date: '#{date}'"
+  end
+
+  def parse_unbounded_range!(string_range, param = nil)
+    return nil unless string_range
+
+    if string_range.include? '..'
+      from, to = string_range.split(/\.\.\.?/)
+      from = from.present? ? (yield from) : nil
+      to = to.present? ? (yield to) : nil
+
+      if from.nil? && to.nil?
+        name = param ? "#{param} range" : 'Range'
+        raise Api::InputError, "#{name} must have a start or end"
+      end
+
+      [from, to]
+    else
+      yield string_range
+    end
+  end
+
+  def where_in_range_param(collection, name, attribute = nil, &parse)
+    return collection unless params[name]
+
+    attribute = name if attribute.nil?
+    range = parse_unbounded_range!(params[name], name, &parse)
+    collection.where_in_unbounded_range(attribute, range)
+  end
 end

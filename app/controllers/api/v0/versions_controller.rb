@@ -1,7 +1,8 @@
 class Api::V0::VersionsController < Api::V0::ApiController
   def index
-    paging = pagination(page.versions)
-    versions = page.versions.limit(paging[:page_items]).offset(paging[:offset])
+    query = version_collection
+    paging = pagination(query)
+    versions = query.limit(paging[:page_items]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],
@@ -10,7 +11,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def show
-    @version ||= page.versions.find(params[:id])
+    @version ||= version_collection.find(params[:id])
     render json: {
       links: {
         page: api_v0_page_url(@version.page),
@@ -53,10 +54,15 @@ class Api::V0::VersionsController < Api::V0::ApiController
   protected
 
   def paging_path_for_version(*args)
-    api_v0_page_versions_path(*args)
+    if page
+      api_v0_page_versions_url(*args)
+    else
+      api_v0_versions_url(*args)
+    end
   end
 
   def page
+    return nil unless params.key? :page_id
     @page ||= Page.find(params[:page_id])
   end
 
@@ -75,5 +81,16 @@ class Api::V0::VersionsController < Api::V0::ApiController
       .require(:version)
       .select {|key| permitted_keys.include?(key)}
       .permit!
+  end
+
+  def version_collection
+    collection = page && page.versions || Version
+
+    collection = collection.where({
+      version_hash: params[:hash],
+      source_type: params[:source_type]
+    }.compact)
+
+    where_in_range_param(collection, :capture_time, &method(:parse_date!))
   end
 end
