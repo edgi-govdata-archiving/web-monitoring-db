@@ -74,6 +74,28 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       'Results included pages not matching filtered URL'
   end
 
+  test 'can filter pages by version source_type' do
+    get api_v0_pages_path(source_type: 'pagefreezer')
+    body = JSON.parse @response.body
+    ids = body['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:home_page).uuid,
+      'Results did not include pages with versions captured by pagefreezer'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+      'Results included pages with versions not captured by pagreezer'
+  end
+
+  test 'can filter pages by version hash' do
+    get api_v0_pages_path(hash: 'def')
+    body = JSON.parse @response.body
+    ids = body['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:sub_page).uuid,
+      'Results did not include pages with versions matching the given hash'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+      'Results included pages with versions not matching the given hash'
+  end
+
   test 'can filter pages by version capture_time' do
     get api_v0_pages_url(
       capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'

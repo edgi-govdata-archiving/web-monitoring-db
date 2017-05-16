@@ -36,6 +36,9 @@ Style/EmptyLines:
 Style/GuardClause:
   Enabled: false
 
+Style/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
 Style/RegexpLiteral:
   AllowInnerSlashes: true
 
