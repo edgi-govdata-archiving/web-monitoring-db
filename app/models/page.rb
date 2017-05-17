@@ -1,7 +1,7 @@
 class Page < ApplicationRecord
   include UuidPrimaryKey
 
-  has_many :versions, -> { order(created_at: :desc) }, foreign_key: 'page_uuid', inverse_of: :page
+  has_many :versions, -> { order(capture_time: :desc) }, foreign_key: 'page_uuid', inverse_of: :page
 
   before_save :normalize_url
   validate :url_must_have_domain

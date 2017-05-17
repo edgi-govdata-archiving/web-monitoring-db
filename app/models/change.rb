@@ -3,7 +3,7 @@ class Change < ApplicationRecord
 
   belongs_to :version, foreign_key: :uuid_to, required: true
   belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, required: true
-  has_many :annotations, foreign_key: 'change_uuid', inverse_of: :change
+  has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
 
   def self.between(to:, from: nil, create: false)
@@ -23,7 +23,7 @@ class Change < ApplicationRecord
       end
   end
 
-  def annotate(data, author = nil)
+  def annotate(data, author)
     if data.blank?
       return
     end
@@ -36,26 +36,17 @@ class Change < ApplicationRecord
       self.save
     end
 
-    annotation = Annotation.create(
-      change_uuid: self.uuid,
-      author: author,
-      annotation: data
-    )
+    annotation = annotations.find_or_initialize_by(author: author)
+    annotation.annotation = data
+    annotation.save
 
     if annotation.valid?
-      update_current_annotation(annotation.annotation)
+      annotations.reload
+      regenerate_current_annotation
     end
 
     annotation
   end
-
-  def regenerate_current_annotation
-    self.current_annotation = annotations.reduce({}) do |merged, annotation|
-      merge_annotations(merged, annotation.annotation)
-    end
-  end
-
-  protected
 
   # Update the `current_annotation property, which is a materialized view of
   # all annotations stacked together. If a property does not exist in the
@@ -70,9 +61,13 @@ class Change < ApplicationRecord
   # Result in this materialized annotation:
   #   {"a": "Not one anymore!", "c": "three"}
   #
-  def update_current_annotation(new_annotation)
-    self.current_annotation = merge_annotations(self.current_annotation, new_annotation)
+  def regenerate_current_annotation
+    self.current_annotation = annotations.reduce({}) do |merged, annotation|
+      merge_annotations(merged, annotation.annotation)
+    end
   end
+
+  protected
 
   def merge_annotations(base, updates)
     base.with_indifferent_access
