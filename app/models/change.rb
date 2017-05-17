@@ -48,14 +48,6 @@ class Change < ApplicationRecord
     annotation
   end
 
-  def regenerate_current_annotation
-    self.current_annotation = annotations.reduce({}) do |merged, annotation|
-      merge_annotations(merged, annotation.annotation)
-    end
-  end
-
-  protected
-
   # Update the `current_annotation property, which is a materialized view of
   # all annotations stacked together. If a property does not exist in the
   # the current annotation, it simply does not affect the materialized
@@ -69,9 +61,13 @@ class Change < ApplicationRecord
   # Result in this materialized annotation:
   #   {"a": "Not one anymore!", "c": "three"}
   #
-  def update_current_annotation(new_annotation)
-    self.current_annotation = merge_annotations(self.current_annotation, new_annotation)
+  def regenerate_current_annotation
+    self.current_annotation = annotations.reduce({}) do |merged, annotation|
+      merge_annotations(merged, annotation.annotation)
+    end
   end
+
+  protected
 
   def merge_annotations(base, updates)
     base.with_indifferent_access
