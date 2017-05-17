@@ -2,7 +2,7 @@ class Annotation < ApplicationRecord
   include UuidPrimaryKey
 
   belongs_to :change, foreign_key: :change_uuid, required: true, inverse_of: :annotations
-  belongs_to :author, class_name: 'User', foreign_key: :author_id, required: false
+  belongs_to :author, class_name: 'User', foreign_key: :author_id, required: true
   validate :annotation_must_be_an_object
 
   def as_json(options = nil)

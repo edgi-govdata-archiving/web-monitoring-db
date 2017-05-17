@@ -23,7 +23,7 @@ class Change < ApplicationRecord
       end
   end
 
-  def annotate(data, author = nil)
+  def annotate(data, author)
     if data.blank?
       return
     end
@@ -36,13 +36,7 @@ class Change < ApplicationRecord
       self.save
     end
 
-    annotation =
-      if author
-        annotations.find_or_initialize_by(author: author)
-      else
-        annotations.new
-      end
-
+    annotation = annotations.find_or_initialize_by(author: author)
     annotation.annotation = data
     annotation.save
 
