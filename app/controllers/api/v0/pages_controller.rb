@@ -4,8 +4,9 @@ class Api::V0::PagesController < Api::V0::ApiController
     paging = pagination(query)
     pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
 
-    json_options = {}
-    json_options[:include] = :versions if should_include_versions
+    json_options = {
+      include: should_include_versions ? :versions : :latest
+    }
 
     render json: {
       links: paging[:links],
@@ -58,7 +59,9 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     end
 
-    collection = collection.includes(:versions) if should_include_versions
+    collection = collection.includes(
+      should_include_versions ? :versions : :latest
+    )
 
     collection
   end
