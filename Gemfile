@@ -12,6 +12,8 @@ gem 'devise'
 gem 'httparty'
 gem 'rails', '~> 5.1.1'
 gem 'pg', '~> 0.18'
+# Send transactional e-mail with Postmark
+gem 'postmark-rails'
 gem 'puma', '~> 3.0'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
