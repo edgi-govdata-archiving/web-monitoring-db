@@ -91,6 +91,7 @@ GEM
     multi_json (1.12.1)
     multi_xml (0.6.0)
     mustermann (1.0.0)
+    newrelic_rpm (4.2.0.334)
     nio4r (2.0.0)
     nokogiri (1.7.2)
       mini_portile2 (~> 2.1.0)
@@ -223,6 +224,7 @@ DEPENDENCIES
   httparty
   jbuilder (~> 2.6)
   listen (~> 3.1)
+  newrelic_rpm
   pg (~> 0.18)
   postmark-rails
   pry-rails

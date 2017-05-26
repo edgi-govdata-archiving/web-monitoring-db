@@ -24,7 +24,7 @@ It’s a Rails app that:
 6. Wherever you cloned the repo, go to that directory and install dependencies:
 
     ```sh
-    $ bundle install
+    $ bundle install --without production
     ```
 
 7. Set up your database. The simple way to do this is:
