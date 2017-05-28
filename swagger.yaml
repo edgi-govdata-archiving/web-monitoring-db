@@ -41,6 +41,42 @@ paths:
           required: false
           type: integer
           default: 1
+        - name: site
+          in: query
+          description: Filter results by site.
+          required: false
+          type: string
+        - name: agency
+          in: query
+          description: Filter results by agency.
+          required: false
+          type: string
+        - name: url
+          in: query
+          description: Match Page url (may include wildcard *).
+          required: false
+          type: string
+        - name: title
+          in: query
+          description: Filter results by title. Exact matches only. Unoptimized performance.
+          required: false
+          type: string
+        - name: include_versions
+          in: query
+          description: If true, add a versions key to the each item with the output of /pages/{page_id}/versions inlined.
+          required: false
+          type: string
+          default: false
+        - name: source_type
+          in: query
+          description: Only relevant if include_versions=true. Filters versions by source_type.
+          required: false
+          type: string
+        - name: hash
+          in: query
+          description: Only relevant if include_versions=true. Filters versions by version_hash.
+          required: false
+          type: string
       responses:
         '200':
           description: successful operation
@@ -91,6 +127,11 @@ paths:
           required: false
           type: integer
           default: 1
+        - name: capture_time
+          in: query
+          description: filter by capture time; may also be specified as a range given as time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          required: false
+          type: string
       responses:
         '200':
           description: successful operation
