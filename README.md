@@ -13,7 +13,20 @@ It’s a Rails app that:
 
 1. Ensure you have Ruby 2.4.1+
 2. Ensure you have PostgreSQL 9.5+
-3. Ensure you have Redis
+3. Ensure you have [Redis](https://redis.io)
+
+    On OSX:
+
+    ```sh
+    $ brew install redis
+    ```
+
+    On Debian Linux:
+
+    ```sh
+    $ apt-get install redis
+    ```
+
 4. Clone this repo
 5. If you don’t have the `bundler` Ruby gem, install it:
 
@@ -37,7 +50,7 @@ It’s a Rails app that:
 
     If you’d like to do the setup manually, see [advanced setup](#advanced-setup) below.
 
-8. Finally, start the server!
+8. Start the server!
 
     ```sh
     $ bundle exec rails server
@@ -45,6 +58,21 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
+9. Bulk importing (and, in the future, potentially other features) make use of a
+   Redis queue. If you plan to use any of these features, you must also start a
+   Redis server and worker.
+
+   Start redis:
+
+   ```sh
+   $ redis-server
+   ```
+
+   Start a worker:
+
+   ```sh
+   $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
+   ```
 
 ## Advanced Setup
 
