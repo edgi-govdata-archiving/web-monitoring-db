@@ -13,7 +13,7 @@ host: web-monitoring-db.herokuapp.com
 basePath: /api/v0
 tags:
   - name: pages
-    description: Logical Pages (URLs) tracked
+    description: Logical Pages tracked and their Versions (snapshots)
   - name: store
     description: Access to Petstore orders
   - name: user
@@ -130,6 +130,43 @@ paths:
         - name: capture_time
           in: query
           description: filter by capture time; may also be specified as a range given as time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          required: false
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfVersions'
+  '/versions':
+    get:
+      tags:
+        - pages
+      summary: Get all the Versions
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: capture_time
+          in: query
+          description: filter by capture time; may also be specified as a range given as time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          required: false
+          type: string
+        - name: source_type
+          in: query
+          description: Filter by source_type.
+          required: false
+          type: string
+        - name: hash
+          in: query
+          description: Filter by version_hash.
           required: false
           type: string
       responses:
