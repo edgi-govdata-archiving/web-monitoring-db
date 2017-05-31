@@ -12,22 +12,19 @@ info:
 host: web-monitoring-db.herokuapp.com
 basePath: /api/v0
 tags:
-  - name: pages
+  - name: pages and versions
     description: Logical Pages tracked and their Versions (snapshots)
-  - name: store
-    description: Access to Petstore orders
-  - name: user
-    description: Operations about user
-    externalDocs:
-      description: Find out more about our store
-      url: 'http://swagger.io'
+  - name: changes
+    description: comparisons between two Versions
+  - name: imports
+    description: Bulk-importing Versions
 schemes:
   - https
 paths:
   /pages:
     get:
       tags:
-        - pages
+        - pages and versions
       summary: List tracked Pages
       description: ''
       consumes:
@@ -58,23 +55,31 @@ paths:
           type: string
         - name: title
           in: query
-          description: Filter results by title. Exact matches only. Unoptimized performance.
+          description: >-
+            Filter results by title. Exact matches only. Unoptimized
+            performance.
           required: false
           type: string
         - name: include_versions
           in: query
-          description: If true, add a versions key to the each item with the output of /pages/{page_id}/versions inlined.
+          description: >-
+            If true, add a versions key to the each item with the output of
+            /pages/{page_id}/versions inlined.
           required: false
           type: string
           default: false
         - name: source_type
           in: query
-          description: Only relevant if include_versions=true. Filters versions by source_type.
+          description: >-
+            Only relevant if include_versions=true. Filters versions by
+            source_type.
           required: false
           type: string
         - name: hash
           in: query
-          description: Only relevant if include_versions=true. Filters versions by version_hash.
+          description: >-
+            Only relevant if include_versions=true. Filters versions by
+            version_hash.
           required: false
           type: string
       responses:
@@ -85,7 +90,7 @@ paths:
   '/pages/{page_id}':
     get:
       tags:
-        - pages
+        - pages and versions
       summary: Get a specific Page
       description: ''
       consumes:
@@ -103,11 +108,11 @@ paths:
         '200':
           description: successful operation
           schema:
-            $ref: '#/definitions/Page'
+            $ref: '#/definitions/SinglePage'
   '/pages/{page_id}/versions':
     get:
       tags:
-        - pages
+        - pages and versions
       summary: Get all the Versions for a specific Page
       description: ''
       consumes:
@@ -129,7 +134,9 @@ paths:
           default: 1
         - name: capture_time
           in: query
-          description: filter by capture time; may also be specified as a range given as time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          description: >-
+            filter by capture time; may also be specified as a range given as
+            time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
           required: false
           type: string
       responses:
@@ -137,10 +144,118 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/PageOfVersions'
-  '/versions':
+    post:
+      tags:
+        - pages and versions
+      summary: Submit one new Version (see also imports)
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: uuid
+          in: query
+          description: uuid of new Version to store
+          required: true
+          type: string
+          format: uuid4
+        - name: capture_time
+          in: query
+          description: capture_time new Version to store
+          required: true
+          type: string
+          format: datetime
+        - name: uri
+          in: query
+          description: URI of content of new Version to store
+          required: true
+          type: string
+        - name: version_hash
+          in: query
+          description: sha256 hash of Version content
+          required: true
+          type: string
+        - name: source_type
+          in: query
+          description: 'source, such as internet_archive'
+          required: true
+          type: string
+        - name: source_metadata
+          in: query
+          description: '???'
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleVersion'
+  '/pages/{page_id}/versions/{version_id}':
     get:
       tags:
-        - pages
+        - pages and versions
+      summary: Get a specific Version
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Version this is
+          required: true
+          type: string
+          format: uuid4
+        - name: version_id
+          in: path
+          description: ID of the Version to show
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleVersion'
+  '/pages/{page_id}/changes/{from_version}{to_version}/annotations':
+    get:
+      tags:
+        - changes
+      summary: List Anonotations for a Change between two Versions
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Version this is
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: ID of the "before" Version
+          required: true
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfAnnotations'
+  /versions:
+    get:
+      tags:
+        - pages and versions
       summary: Get all the Versions
       description: ''
       consumes:
@@ -156,7 +271,9 @@ paths:
           default: 1
         - name: capture_time
           in: query
-          description: filter by capture time; may also be specified as a range given as time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          description: >-
+            filter by capture time; may also be specified as a range given as
+            time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
           required: false
           type: string
         - name: source_type
@@ -174,6 +291,65 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/PageOfVersions'
+  '/versions/{version_id}':
+    get:
+      tags:
+        - pages and versions
+      summary: Get a specific Version
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: version_id
+          in: path
+          description: ID of Version to return
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleVersion'
+  /imports/:
+    post:
+      tags:
+        - imports
+      summary: Submit a batch of Versions to create
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ImportStatus'
+  '/imports/{import_id}':
+    get:
+      tags:
+        - imports
+      summary: Query the status of a batch import job
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: import_id
+          in: path
+          description: 'ID of import job, from the response to the submission'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ImportStatus'
 definitions:
   Version:
     type: object
@@ -218,6 +394,11 @@ definitions:
         format: datetime
       latest:
         $ref: '#/definitions/Version'
+  SinglePage:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Page'
   PageOfPages:
     type: object
     properties:
@@ -240,6 +421,11 @@ definitions:
           next:
             type: string
             format: uri
+  SingleVersion:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Version'
   PageOfVersions:
     type: object
     properties:
@@ -262,6 +448,36 @@ definitions:
           next:
             type: string
             format: uri
+  ImportStatus:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          user_id:
+            type: number
+            format: int64
+          id:
+            type: number
+            format: int64
+          status:
+            type: string
+          processing_errors:
+            type: array
+            items:
+              type: string
+          file:
+            type: string
+            format: uuid4
+  Annotation:
+    type: object
+  PageOfAnnotations:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Annotation'
 externalDocs:
   description: Find out more about the web-monitoring project.
   url: 'https://github.com/edgi-govdata-archiving/web-monitoring'
