@@ -25,6 +25,12 @@ Rails.application.routes.draw do
           path: 'changes/:from_uuid..:to_uuid/annotations',
           from_uuid: /[^.\/]*/, # allow :from_uuid to be an empty string
           only: [:index, :show, :create]
+
+        member do
+          get 'changes/:from_uuid..:to_uuid/diff/:type',
+            to: 'diff#show',
+            from_uuid: /[^.\/]*/ # allow :from_uuid to be an empty string
+        end
       end
 
       resources :versions, only: [:index, :show], format: :json
