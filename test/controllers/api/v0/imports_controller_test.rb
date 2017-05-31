@@ -4,6 +4,15 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   include ActiveJob::TestHelper
 
+  # These tests get network privileges (for now)
+  def setup
+    WebMock.allow_net_connect!
+  end
+
+  def teardown
+    WebMock.disable_net_connect!
+  end
+
   test 'can import data' do
     import_data = [
       {

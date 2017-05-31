@@ -2,3 +2,8 @@ page1_change_1_2:
   from_version: page1_v1
   version: page1_v2
   priority: 0.5
+
+page1_change_2_3:
+  from_version: page1_v2
+  version: page1_v3
+  priority: 0.5
