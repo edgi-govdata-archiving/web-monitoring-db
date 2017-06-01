@@ -10,4 +10,6 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require_tree .
+//= require 'admin.js'
+//= require 'cable.js'
+//= require 'pages.js'

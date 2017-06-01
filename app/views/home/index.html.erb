@@ -1,0 +1,28 @@
+<% content_for(:extra_css) do %>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+  <%= stylesheet_link_tag('home', media: 'all') %>
+<% end %>
+
+<div id="swagger-ui"></div>
+
+<script src="<%= asset_path('home.js') %>"></script>
+<script>
+  window.onload = function() {
+    // Build a system
+    const ui = SwaggerUIBundle({
+      url: '<%= asset_path('swagger.yaml') %>',
+      validatorUrl: '',
+      dom_id: '#swagger-ui',
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      plugins: [
+        SwaggerUIBundle.plugins.DownloadUrl
+      ],
+      layout: "StandaloneLayout"
+    })
+
+    window.ui = ui
+  }
+</script>
