@@ -12,6 +12,10 @@ module WebpageVersionsDb
 
     config.active_job.queue_adapter = :resque
 
+    # Ideally this should be served off a static store, but we don’t have much
+    # in the way of asset needs since this is mainly an API.
+    config.serve_static_assets = true
+
     # Support CORS requests for everything outside /admin
     # TODO: maybe better to have `/api/*` routes and turn CORS on only for those?
     config.middleware.insert_before 0, Rack::Cors do
