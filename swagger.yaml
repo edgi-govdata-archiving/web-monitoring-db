@@ -3,7 +3,7 @@ info:
   description: >-
     The web application that brokers snapshots of webpages archived by various
     third parties and 'diffs' between these versions.
-  version: '0'
+  version: 'v0'
   title: web-monitoring-db
   license:
     name: GPL 3
@@ -148,7 +148,7 @@ paths:
       tags:
         - pages and versions
       summary: Submit one new Version (see also imports)
-      description: ''
+      description: 'Add a single new version of a page to the database. For importing multiple versions at a time, use the `/imports` API.'
       consumes:
         - application/json
       produces:
@@ -218,7 +218,7 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SingleVersion'
-  '/pages/{page_id}/changes/{from_version}{to_version}/annotations':
+  '/pages/{page_id}/changes/{from_version}..{to_version}/annotations':
     get:
       tags:
         - changes
@@ -237,8 +237,8 @@ paths:
           format: uuid4
         - name: from_version
           in: path
-          description: ID of the "before" Version
-          required: true
+          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          required: false
           type: string
           format: uuid4
         - name: to_version
@@ -252,6 +252,87 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/PageOfAnnotations'
+    post:
+      tags:
+        - changes
+      summary: Add/update an annotation on a Change between two versions
+      description: >-
+        The POST body should be a JSON object containing any data desired.
+
+        Users can only make one annotation per Change. If the currently signed-in user has not annotated the change between these two versions, a new annotation will be created, otherwise their previous annotation will be replaced.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Change this is
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          required: false
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+        - name: annotation
+          in: body
+          required: true
+          schema: {}
+          description: The body is the annotation you wish to add to the change. It is a JSON object with keys and values desired.
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Annotation'
+  '/pages/{page_id}/changes/{from_version}..{to_version}/annotations/{annotation_id}':
+    get:
+      tags:
+        - changes
+      summary: Single Anonotations for a Change between two Versions
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Version this is
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          required: false
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+        - name: annotation_id
+          in: path
+          description: ID of the annotation
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleAnnotation'
   /versions:
     get:
       tags:
@@ -394,6 +475,29 @@ definitions:
         format: datetime
       latest:
         $ref: '#/definitions/Version'
+  Annotation:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      author_id:
+        type: number
+        format: int64
+      annotation:
+        type: object
+      from_version:
+        type: string
+        format: uuid4
+      to_version:
+        type: string
+        format: uuid4
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
   SinglePage:
     type: object
     properties:
@@ -469,8 +573,11 @@ definitions:
           file:
             type: string
             format: uuid4
-  Annotation:
+  SingleAnnotation:
     type: object
+    properties:
+      data:
+        $ref: '#/definitions/Annotation'
   PageOfAnnotations:
     type: object
     properties:
