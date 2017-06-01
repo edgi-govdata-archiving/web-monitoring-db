@@ -1,12 +1,33 @@
 # web-monitoring-db
 
-This is essentially a more automated version of the page monitoring workflow currently managed through a combination of [versionista-outputter](https://github.com/edgi-govdata-archiving/versionista-outputter/), Google spreadsheets, and *lots* of manual work. This repository is part of the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring).
+---
+:information_source: **Welcome Mozilla Global Sprinters!** :wave: :tada: :confetti_ball:
+Thank you for helping out with our project, please take a moment to read our [Code of Conduct](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md) and project-specific [Contributing Guidelines](https://github.com/edgi-govdata-archiving/web-monitoring/blob/master/CONTRIBUTING.md).
+
+:globe_with_meridians: We will be sprinting in-person at the [Toronto Mozilla Offices](https://ti.to/Mozilla/global-sprint-toronto), but remote contributors are more than welcome! Most of our team is based in the [Eastern Time Zone (ET)](https://en.wikipedia.org/wiki/Eastern_Time_Zone) or [Pacific Time Zone (PT)](https://en.wikipedia.org/wiki/Pacific_Time_Zone).
+
+We are looking forward to working together! You can get started by:
+
+- :speech_balloon: Joining the [Archivers Slack](https://archivers-slack.herokuapp.com/) and join `#dev` and `#dev-webmonitoring`
+- :clipboard: Reviewing the [**web-monitoring**](https://github.com/edgi-govdata-archiving/web-monitoring) repo, in particular read about the [project architecture](https://github.com/edgi-govdata-archiving/web-monitoring#architecture)
+- :bookmark_tabs: Looking at our issue tracker, for the global sprint we are targeting `mozsprint` or `first-timer` issues:
+
+   | Repo | Issues |
+   |------|--------|
+   | [**web-monitoring**](https://github.com/edgi-govdata-archiving/web-monitoring) | [`mozsprint`](https://github.com/edgi-govdata-archiving/web-monitoring/issues?q=is%3Aissue+is%3Aopen+label%3Amozsprint), [`first-timer`](https://github.com/edgi-govdata-archiving/web-monitoring/issues?q=is%3Aissue+is%3Aopen+label%3Afirst-timer) |
+   | [**web-monitoring-processing**](https://github.com/edgi-govdata-archiving/web-monitoring-processing) | [`mozsprint`](https://github.com/edgi-govdata-archiving/web-monitoring-processing/issues?q=is%3Aissue+is%3Aopen+label%3Amozsprint), [`first-timer`](https://github.com/edgi-govdata-archiving/web-monitoring-processing/issues?q=is%3Aissue+is%3Aopen+label%3Afirst-timer) |
+   | [**web-monitoring-ui**](https://github.com/edgi-govdata-archiving/web-monitoring-ui) | [`mozsprint`](https://github.com/edgi-govdata-archiving/web-monitoring-ui/issues?q=is%3Aissue+is%3Aopen+label%3Amozsprint), [`first-timer`](https://github.com/edgi-govdata-archiving/web-monitoring-ui/issues?q=is%3Aissue+is%3Aopen+label%3Afirst-timer) |
+   | [**web-monitoring-db**](https://github.com/edgi-govdata-archiving/web-monitoring-db) | [`mozsprint`](https://github.com/edgi-govdata-archiving/web-monitoring-db/issues?q=is%3Aissue+is%3Aopen+label%3Amozsprint), [`first-timer`](https://github.com/edgi-govdata-archiving/web-monitoring-db/issues?q=is%3Aissue+is%3Aopen+label%3Afirst-timer) |
+
+---
+
+This repository is the database and API underlying the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring).
 
 It’s a Rails app that:
 
-- Acts as a database of tracked pages and revisions that have been made to them
-- Allows other services (not just Versionista) to add new tracked pages/versions
-- Provides an API to get version data and allow analysts to update metadata about the revision
+- Acts as a database of monitored pages and revisions that have been made to them
+- Allows other services to add new tracked pages/versions (we are currently focused on Versionista, but this database will soon host data from other sources, such as the Internet Archive)
+- Provides an API to get that version data and allow analysts or other automated tools to annotate those versions with metadata
 
 
 ## Installation
