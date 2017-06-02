@@ -137,6 +137,21 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, home_page['versions'].length, '"Home page" included too many versions'
   end
 
+  test 'Included versions should be in capture_time order' do
+    # Add a version whose natural order and capture_time order are different
+    latest_time = pages(:home_page).versions.first.capture_time
+    pages(:home_page).versions.create(capture_time: latest_time - 1.day)
+
+    get api_v0_pages_path(
+      include_versions: true,
+      capture_time: '2017-01-01..',
+      url: pages(:home_page).url
+    )
+    body = JSON.parse(@response.body)
+    times = body['data'][0]['versions'].pluck('capture_time')
+    assert_ordered(times, name: 'Versions')
+  end
+
   test 'include_versions can be "1"' do
     get api_v0_pages_path(include_versions: 1)
     body = JSON.parse @response.body
