@@ -59,9 +59,12 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     end
 
-    collection = collection.includes(
-      should_include_versions ? :versions : :latest
-    )
+    collection =
+      if should_include_versions
+        collection.includes(:versions).order('versions.capture_time')
+      else
+        collection.includes(:latest)
+      end
 
     collection
   end
