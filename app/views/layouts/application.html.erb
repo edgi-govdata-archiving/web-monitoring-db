@@ -12,13 +12,11 @@
 
   <body>
     <% unless @env == "production" %>
-      <header class="page-header">
-        <div class="page-header-environment">
-          <p class="page-header-title">
-            <%= "Environment is: " + @env %>
-          </p>
-        </div>
-      </header>
+      <div class="page-header-environment">
+        <p class="page-header-title">
+          <%= "Environment is: " + @env %>
+        </p>
+      </div>
     <% end %>
     <header class="page-header">
       <div class="page-header-main">
