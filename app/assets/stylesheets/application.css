@@ -31,6 +31,19 @@ html, body {
   border-bottom: 1px solid #bbb;
 }
 
+.page-header-environment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f2dede;
+  border-bottom: 1px solid #bbb;
+  color: #3b4151;
+}
+.page-header-environment > * {
+  margin: 0;
+  padding: 0.5em;
+}
+
 .page-header-main > * {
   margin: 0;
   padding: 0.5em;

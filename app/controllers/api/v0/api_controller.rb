@@ -1,6 +1,7 @@
 class Api::V0::ApiController < ApplicationController
   include PagingConcern
   before_action :require_authentication!, only: [:create]
+  before_action :set_environment_header
 
   rescue_from StandardError, with: :render_errors if Rails.env.production?
   rescue_from Api::NotImplementedError, with: :render_errors
@@ -87,5 +88,9 @@ class Api::V0::ApiController < ApplicationController
     attribute = name if attribute.nil?
     range = parse_unbounded_range!(params[name], name, &parse)
     collection.where_in_unbounded_range(attribute, range)
+  end
+  private
+  def set_environment_header
+    response["X-Environment"] = Rails.env 
   end
 end

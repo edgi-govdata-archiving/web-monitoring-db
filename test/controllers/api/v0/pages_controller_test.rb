@@ -164,4 +164,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     results = body['data']
     assert_not results.any? {|p| p.key? 'versions'}, 'Some pages have a "versions" property'
   end
+  test "includes environment in header of response" do
+    get '/api/v0/pages/'
+    assert_equal("test", @response.get_header("X-Environment") )
+  end
 end
