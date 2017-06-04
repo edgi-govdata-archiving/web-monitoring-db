@@ -89,8 +89,10 @@ class Api::V0::ApiController < ApplicationController
     range = parse_unbounded_range!(params[name], name, &parse)
     collection.where_in_unbounded_range(attribute, range)
   end
+
   private
+
   def set_environment_header
-    response["X-Environment"] = Rails.env 
+    response['X-Environment'] = Rails.env
   end
 end
