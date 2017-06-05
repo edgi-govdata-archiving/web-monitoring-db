@@ -11,10 +11,16 @@
   </head>
 
   <body>
+    <% unless @env == "production" %>
+      <div class="page-header-environment">
+        <p class="page-header-title">
+          <%= "Environment is: " + @env %>
+        </p>
+      </div>
+    <% end %>
     <header class="page-header">
       <div class="page-header-main">
         <p class="page-header-title"><%= link_to('EDGI Web-Monitoring Database', '/') %></p>
-
         <% if user_signed_in? && current_user.admin? %>
           <p><%= link_to('Admin', admin_path) %></p>
         <% end %>
@@ -36,7 +42,6 @@
         <% end %>
       </div>
     </header>
-
     <div class="page-content">
       <%= yield %>
     </div>
