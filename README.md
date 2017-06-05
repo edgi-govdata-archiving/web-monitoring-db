@@ -108,6 +108,8 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📖](# "Documentation") | [Patrick Connolly](https://github.com/patcon) |
+| [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
+| [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Andrew Bergman](https://github.com/ambergman) |
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
