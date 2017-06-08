@@ -17,3 +17,4 @@
 # Configuration files
 .powenv
 .env
+config/database.yml
