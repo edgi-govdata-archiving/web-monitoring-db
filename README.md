@@ -11,7 +11,10 @@ It’s a Rails app that:
 
 ## Installation
 
-1. Ensure you have Ruby 2.4.1+
+1. Ensure you have Ruby 2.4.1+. 
+    
+    You can user [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
+    
 2. Ensure you have PostgreSQL 9.5+
 3. Ensure you have [Redis](https://redis.io)
 
@@ -40,15 +43,36 @@ It’s a Rails app that:
     $ bundle install --without production
     ```
 
-7. Set up your database. The simple way to do this is:
+7. Set up your database
+
+    First create users, databases and configure extensions:
 
     ```sh
-    $ bundle exec rake db:setup
+    sudo -u postgres psql -c "CREATE USER wmdb_dev WITH PASSWORD 'wmdb_dev';"
+    sudo -u postgres createdb -O wmdb_dev wmdb_dev -E utf-8
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' wmdb_dev
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' wmdb_dev
+    ```
+
+    Then configure application's database and (optionally) import seed/sample data:
+
+    ```sh
+    $ bundle exec rake db:schema:load  # Populates the database with the current schema
+    $ bundle exec rake db:seed         # Adds an admin user and sample data
     ```
 
     That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
 
-    If you’d like to do the setup manually, see [advanced setup](#advanced-setup) below.
+    If you don’t want to populate your DB with seed data (you've skipped `rake db:seed`) then you’ll still need to create an Admin user. You should not do this through the database since the password will need to be properly encrypted. Instead, open the rails console with `bundle exec rails console` and run the following:
+    
+    ```ruby
+    User.create(
+      email: '[your email address]',
+      password: '[the password you want]',
+      admin: true,
+      confirmed_at: Time.now
+    )
+    ```
 
 8. Start the server!
 
@@ -73,28 +97,6 @@ It’s a Rails app that:
    ```sh
    $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
    ```
-
-## Advanced Setup
-
-If you don’t want to populate your DB with seed data, want to manage creation of the database yourself, or otherwise manually do database setup, run any of the following commands as desired instead of `rake db:setup`:
-
-```sh
-$ bundle exec rake db:create       # Connects to Postgres and creates a new database
-$ bundle exec rake db:schema:load  # Populates the database with the current schema
-$ bundle exec rake db:seed         # Adds an admin user and sample data
-```
-
-If you skip `rake db:seed`, you’ll still need to create an Admin user. You should not do this through the database since the password will need to be properly encrypted. Instead, open the rails console with `rails console` and run the following:
-
-```ruby
-User.create(
-  email: '[your email address]',
-  password: '[the password you want]',
-  admin: true,
-  confirmed_at: Time.now
-)
-```
-
 
 ## Contributors
 
