@@ -45,6 +45,12 @@ It’s a Rails app that:
 
 7. Set up your database
 
+    Make a local copy of the database configuration template file:
+    
+    ```sh
+    cp config/database.yml.example config/database.yml
+    ```
+
     First create users, databases and configure extensions:
 
     ```sh
