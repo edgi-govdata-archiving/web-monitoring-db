@@ -5,7 +5,6 @@ admin = User.find_or_create_by(admin: true) do |user|
   user.password = password
   user.confirmed_at = Time.now
 
-  edit_path = Rails.application.routes.url_helpers.edit_user_registration_path
   puts "\n\n------------------------------------------------------------"
   puts "Admin user created with e-mail: #{user.email} and password: #{password}"
   puts "------------------------------------------------------------\n\n"
