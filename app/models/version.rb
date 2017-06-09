@@ -13,14 +13,16 @@ class Version < ApplicationRecord
   end
 
   def change_from_previous
-    Change.between(to: self)
+    Change.between(from: previous, to: self)
   end
 
   def current_annotation
-    self.change_from_previous.current_annotation
+    change = self.change_from_previous
+    change && change.current_annotation
   end
 
   def annotations
-    self.change_from_previous.annotations
+    change = self.change_from_previous
+    change ? change.annotations : []
   end
 end

@@ -64,7 +64,8 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         if params[:from_uuid].present?
           Change.between(from: Version.find(params[:from_uuid]), to: to_version)
         else
-          to_version.change_from_previous
+          to_version.change_from_previous ||
+            (raise ActiveRecord::RecordNotFound, "There is no version prior to #{to_version.uuid}. Annotations describe the change between versions, so this this version cannot be annotated.")
         end
     end
     @change

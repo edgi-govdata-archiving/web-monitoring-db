@@ -6,8 +6,8 @@ class Change < ApplicationRecord
   has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
 
-  def self.between(to:, from: nil, create: false)
-    from ||= to.previous
+  def self.between(from:, to:, create: false)
+    return nil if from.nil? || to.nil?
     change_definition = { from_version: from, version: to }
     instantiator = create ? :create : :new
     self.where(change_definition).first ||
@@ -33,7 +33,7 @@ class Change < ApplicationRecord
     end
 
     if !self.persisted?
-      self.save
+      self.save!
     end
 
     annotation = annotations.find_or_initialize_by(author: author)
@@ -76,7 +76,7 @@ class Change < ApplicationRecord
   end
 
   def from_must_be_before_to_version
-    if from_version.capture_time >= version.capture_time
+    if from_version && version && from_version.capture_time >= version.capture_time
       errors.add(:from_version, 'must be an earlier version than the ending version')
     end
   end
