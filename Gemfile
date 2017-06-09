@@ -12,8 +12,6 @@ gem 'devise'
 gem 'httparty'
 gem 'rails', '~> 5.1.1'
 gem 'pg', '~> 0.18'
-# Send transactional e-mail with Postmark
-gem 'postmark-rails'
 gem 'puma', '~> 3.0'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
@@ -54,6 +52,9 @@ end
 
 group :production do
   gem 'newrelic_rpm'
+
+  # Send transactional e-mail with Postmark
+  gem 'postmark-rails', group: :postmark
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
