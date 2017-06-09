@@ -12,6 +12,9 @@ It’s a Rails app that:
 ## Installation
 
 1. Ensure you have Ruby 2.4.1+
+
+   You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
+
 2. Ensure you have PostgreSQL 9.5+
 3. Ensure you have [Redis](https://redis.io)
 
@@ -48,7 +51,9 @@ It’s a Rails app that:
 
     That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
 
-    If you’d like to do the setup manually, see [advanced setup](#advanced-setup) below.
+    If you’d like to do the setup manually see [manual postgres setup](#manual-postgres-setup) below.
+    
+    If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below. 
 
 8. Start the server!
 
@@ -74,7 +79,7 @@ It’s a Rails app that:
    $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
    ```
 
-## Advanced Setup
+## Manual Postgres Setup
 
 If you don’t want to populate your DB with seed data, want to manage creation of the database yourself, or otherwise manually do database setup, run any of the following commands as desired instead of `rake db:setup`:
 
@@ -94,6 +99,47 @@ User.create(
   confirmed_at: Time.now
 )
 ```
+
+## Troubleshooting
+
+If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't create database.` while running `rake db:setup` or `rake db:create` then it may mean that your database is password protected. There are two ways to setup required databases:
+  
+1. (Recommended) Loosen local Postgres database security to allow local users without password
+
+    You have to edit [pg_hba.conf](https://www.postgresql.org/docs/9.6/static/auth-pg-hba-conf.html) config file (`/etc/postgresql/9.6/main/pg_hba.conf` on Unix) and add or update authorization line for local logins from `md5` to `trust`:
+    
+    ```
+    # "local" is for Unix domain socket connections only
+    local   all             all                                     trust
+    # IPv4 local connections:
+    host    all             all             127.0.0.1/32            trust
+    ```   
+    
+    Create Postgres superuser that will link to your account:
+    ```
+    sudo -u postgres createuser `whoami` -ds
+    ```
+    
+    Now `bundle exec rake db:setup` command should work.
+    
+2. Create users and databases manually
+
+    ```sh
+    sudo -u postgres psql -c "CREATE USER wmdb_dev WITH PASSWORD 'wmdb_dev';"
+    sudo -u postgres createdb -O wmdb_dev wmdb_dev -E utf-8
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' wmdb_dev
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' wmdb_dev
+    ```
+    
+    and then set `DATABASE_URL` environment variable to point to the development database:
+     
+    ```sh
+    export DATABASE_URL=postgres://wmdb_dev:wmdb_dev@localhost/wmdb_dev
+    ```
+    
+    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal. 
+    
+    Required databases exist, now continue with loading schema.
 
 
 ## Contributors
