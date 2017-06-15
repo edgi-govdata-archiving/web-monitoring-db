@@ -6,7 +6,8 @@ class ApplicationRecord < ActiveRecord::Base
 
     if attribute.is_a?(String) && attribute.include?('.')
       join_model = attribute.split('.')[0].to_sym
-      result = result.joins(join_model)
+      # Use distinct to indicate that we only want one record per joined match
+      result = result.joins(join_model).distinct
     end
 
     if range.is_a? Array
