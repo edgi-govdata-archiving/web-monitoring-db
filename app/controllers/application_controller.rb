@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include SameOriginSessionsConcern
+
   before_action :set_environment
 
   private
