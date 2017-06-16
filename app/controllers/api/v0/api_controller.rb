@@ -3,16 +3,12 @@ class Api::V0::ApiController < ApplicationController
   before_action :require_authentication!, only: [:create]
   before_action :set_environment_header
 
-  rescue_from StandardError, with: :render_errors if Rails.env.production?
+  rescue_from StandardError, with: :render_errors if Rails.env.production? || Rails.env.test?
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
 
   rescue_from ActiveModel::ValidationError do |error|
     render_errors(error.model.errors.full_messages, 400)
-  end
-
-  rescue_from ActiveModel::ValidationError do |error|
-    render_errors(error, 404)
   end
 
 
@@ -32,7 +28,7 @@ class Api::V0::ApiController < ApplicationController
   # Render an error or errors as a proper API response
   def render_errors(errors, status_code = nil)
     errors = [errors] unless errors.is_a?(Array)
-    status_code ||= errors.first.try(:status_code) || 500
+    status_code ||= status_code_for(errors.first)
 
     render status: status_code, json: {
       errors: errors.collect do |error|
@@ -42,6 +38,17 @@ class Api::V0::ApiController < ApplicationController
         }
       end
     }
+  end
+
+  def status_code_for(error)
+    code = error.try(:status_code)
+
+    code || begin
+      error_name = error.class.name
+      ActionDispatch::ExceptionWrapper.status_code_for_exception(error_name)
+    rescue
+      500
+    end
   end
 
   def message_for(error)
