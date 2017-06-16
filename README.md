@@ -103,8 +103,27 @@ User.create(
 ## Troubleshooting
 
 If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't create database.` while running `rake db:setup` or `rake db:create` then it may mean that your database is password protected. There are two ways to setup required databases:
-  
-1. (Recommended) Loosen local Postgres database security to allow local users without password
+    
+1. (Recommended) Create users and databases manually
+
+    ```sh
+    sudo -u postgres psql -c "CREATE USER \"web-monitoring-db_development\" WITH PASSWORD 'wmdb';"
+    sudo -u postgres createdb -O web-monitoring-db_development web-monitoring-db_development -E utf-8
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' web-monitoring-db_development
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' web-monitoring-db_development
+    ```
+    
+    and then set `DATABASE_URL` environment variable to point to the development database:
+     
+    ```sh
+    export DATABASE_URL=postgres://web-monitoring-db_development:wmdb@localhost/web-monitoring-db_development
+    ```
+    
+    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal. 
+    
+    Required databases exist, now continue with loading schema.
+
+2. Loosen local Postgres database security to allow local users without password
 
     You have to edit [pg_hba.conf](https://www.postgresql.org/docs/9.6/static/auth-pg-hba-conf.html) config file (`/etc/postgresql/9.6/main/pg_hba.conf` on Unix) and add or update authorization line for local logins from `md5` to `trust`:
     
@@ -121,26 +140,6 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
     ```
     
     Now `bundle exec rake db:setup` command should work.
-    
-2. Create users and databases manually
-
-    ```sh
-    sudo -u postgres psql -c "CREATE USER wmdb_dev WITH PASSWORD 'wmdb_dev';"
-    sudo -u postgres createdb -O wmdb_dev wmdb_dev -E utf-8
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' wmdb_dev
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' wmdb_dev
-    ```
-    
-    and then set `DATABASE_URL` environment variable to point to the development database:
-     
-    ```sh
-    export DATABASE_URL=postgres://wmdb_dev:wmdb_dev@localhost/wmdb_dev
-    ```
-    
-    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal. 
-    
-    Required databases exist, now continue with loading schema.
-
 
 ## Contributors
 
