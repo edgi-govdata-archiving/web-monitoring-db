@@ -33,6 +33,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: annotation1
     )
+    sign_in users(:alice)
     post(
       api_v0_page_version_annotations_path(page, page.versions[0]),
       as: :json,
