@@ -18,7 +18,9 @@ module SameOriginSessionsConcern
   protected
 
   def disable_session_for_cross_origin_request
-    if request.host != referring_host
+    # Nil referers are OK -- e.g. a user navigating directly to the page has no
+    # referer. The security case we're concerned about always has a referer.
+    if referring_host && request.host != referring_host
       # Clear the session, but skip committing when writing response
       request.session_options[:skip] = true
       request.session.clear
