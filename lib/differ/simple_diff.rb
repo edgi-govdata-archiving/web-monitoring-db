@@ -8,7 +8,9 @@ module Differ
       options ||= {}
       query = options.merge(
         a: change.from_version.uri,
-        b: change.version.uri
+        a_hash: change.from_version.version_hash,
+        b: change.version.uri,
+        b_hash: change.version.version_hash
       )
 
       response = HTTParty.get(@url, query: query)
