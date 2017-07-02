@@ -27,7 +27,7 @@ It’s a Rails app that:
     On Debian Linux:
 
     ```sh
-    # apt-get install redis
+    $ apt-get install redis
     ```
 
 4. Ensure you have a JavaScript Runtime
@@ -38,7 +38,7 @@ It’s a Rails app that:
     On Debian Linux:
     
     ```sh
-    # apt-get install nodejs
+    $ apt-get install nodejs
     ```
     If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md)
 
