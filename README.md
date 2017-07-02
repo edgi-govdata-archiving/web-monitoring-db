@@ -33,6 +33,7 @@ It’s a Rails app that:
 4. Ensure you have a JavaScript Runtime
 
     On OSX:
+
     You do not need to do anything.  Apple JavaScriptCore fulfills this dependency
 
     On Debian Linux:
