@@ -34,14 +34,14 @@ It’s a Rails app that:
 
     On OSX:
 
-    You do not need to do anything.  Apple JavaScriptCore fulfills this dependency
+    You do not need to do anything.  Apple JavaScriptCore fulfills this dependency.
 
     On Debian Linux:
     
     ```sh
     $ apt-get install nodejs
     ```
-    If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md)
+    If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md).
 
 5. Clone this repo
 6. If you don’t have the `bundler` Ruby gem, install it:
