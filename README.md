@@ -27,23 +27,35 @@ It’s a Rails app that:
     On Debian Linux:
 
     ```sh
-    $ apt-get install redis
+    # apt-get install redis
     ```
 
-4. Clone this repo
-5. If you don’t have the `bundler` Ruby gem, install it:
+4. Ensure you have a JavaScript Runtime
+
+    On OSX:
+    You do not need to do anything.  Apple JavaScriptCore fulfills this dependency
+
+    On Debian Linux:
+    
+    ```sh
+    # apt-get install nodejs
+    ```
+    If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md)
+
+5. Clone this repo
+6. If you don’t have the `bundler` Ruby gem, install it:
 
     ```sh
     $ gem install bundler
     ```
 
-6. Wherever you cloned the repo, go to that directory and install dependencies:
+7. Wherever you cloned the repo, go to that directory and install dependencies:
 
     ```sh
     $ bundle install --without production
     ```
 
-7. Set up your database. The simple way to do this is:
+8. Set up your database. The simple way to do this is:
 
     ```sh
     $ bundle exec rake db:setup
@@ -55,7 +67,7 @@ It’s a Rails app that:
     
     If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below. 
 
-8. Start the server!
+9. Start the server!
 
     ```sh
     $ bundle exec rails server
@@ -63,7 +75,7 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-9. Bulk importing (and, in the future, potentially other features) make use of a
+10. Bulk importing (and, in the future, potentially other features) make use of a
    Redis queue. If you plan to use any of these features, you must also start a
    Redis server and worker.
 
