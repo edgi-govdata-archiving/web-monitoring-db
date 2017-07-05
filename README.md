@@ -170,6 +170,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Andrew Bergman](https://github.com/ambergman) |
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
+| [📖](# "Documentation") | [Michael Hardy](https://github.com/michardy) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
