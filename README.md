@@ -160,7 +160,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 
 <!-- ALL-CONTRIBUTORS-LIST:START -->
 | Contributions | Name |
-| :---: | :---: |
+| ----: | :---- |
 | [💻](# "Code") [🚇](# "Infrastructure") [📖](# "Documentation") [💬](# "Answering Questions") [👀](# "Reviewer") | [Rob Brackett](https://github.com/Mr0grog) |
 | [📖](# "Documentation") [👀](# "Reviewer") | [Dan Allan](https://github.com/danielballan) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
