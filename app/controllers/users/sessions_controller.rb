@@ -6,7 +6,7 @@ class Users::SessionsController < Devise::SessionsController
   # or a token are valid (when using HTTP Auth).
   def validate_session
     if user_signed_in?
-      render json: current_user
+      render json: { user: current_user }
     else
       render status: :unauthorized, json: {
         status: 401,
