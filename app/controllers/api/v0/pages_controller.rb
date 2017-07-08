@@ -66,6 +66,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         collection.includes(:latest)
       end
 
-    collection
+    # If any queries create implicit joins, ensure we get a list of unique pages
+    collection.distinct
   end
 end

@@ -184,4 +184,12 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     get '/api/v0/pages/'
     assert_equal('test', @response.get_header('X-Environment'))
   end
+
+  test 'does not return duplicate records when querying by version-specific parameters' do
+    get api_v0_pages_path(source_type: 'versionista')
+    body = JSON.parse(@response.body)
+
+    page_ids = body['data'].pluck('uuid')
+    assert_equal(page_ids.uniq, page_ids, 'The same page was returned multiple times')
+  end
 end
