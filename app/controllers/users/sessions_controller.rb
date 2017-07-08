@@ -14,4 +14,18 @@ class Users::SessionsController < Devise::SessionsController
       }
     end
   end
+
+  def create
+    super do |user|
+      # Devise doesn't give us a great way to customize the response, so
+      # pre-empt the standard response and return early for JSON format
+      if request.format == :json
+        render json: {
+          user: user,
+          token: JWTWrapper.encode(sub: "User:#{user.id}")
+        }
+        return
+      end
+    end
+  end
 end

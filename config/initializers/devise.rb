@@ -253,10 +253,12 @@ Devise.setup do |config|
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.
   #
-  # config.warden do |manager|
-  #   manager.intercept_401 = false
-  #   manager.default_strategies(scope: :user).unshift :some_external_strategy
-  # end
+  config.warden do |manager|
+    # manager.intercept_401 = false
+    # manager.default_strategies(scope: :user).unshift :some_external_strategy
+    manager.strategies.add(:jwt, Devise::Strategies::JsonWebToken)
+    manager.default_strategies(scope: :user).unshift :jwt
+  end
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
@@ -272,3 +274,15 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 end
+
+raw_private_key = ENV['TOKEN_PRIVATE_KEY']
+unless raw_private_key
+  raise 'No TOKEN_PRIVATE_KEY set! It should be an RSA private key.' if Rails.env.production?
+  raw_private_key = 'MIIEogIBAAKCAQEAufNrDQRl6Gj1yuga0DVHeJ4fi+lNWtn4S8XRU8/nBwm9v3ErSzTXHq/IqValOcqoJR3cUM8w4TZK0hkmb82CASUYVh0BOc/l3f1QBPtsewUQvLM9RUirkbMxH/RQNi+PI/2OJWlCU53TlXa5xw3pFHB+vLQajJw0hT8ikS4c/MQQTxAf9sku5yal1SUsI5eQDjNgp6x5dtwQmDvXwp6zOdSF4aBYvjJYRSOSKUFoBRj9En5Ky7qvCMHBinuZY+wXL0Df4UFZIvuwWJVR9wd3ATd/xBnfYbJLQnWMomERXQNEmJVaDH9bxe6Kh+2SoKl5Emd4ra8FA6Rlf9aZqeSE+wIDAQABAoIBAB2PNmtBUbnaRYhV0T1b2tqvuDATjDpu/+t7rMT3/a++uq0eHlW8Np4oL2vL3EQNlSEhWA54gTqr2MUBPnzzXEE2VmIKBlHcXJwnUnsYRKxhp8F3dLv4y11D8QE1YzLZ6JU+D0SfMO393s6ZqvqbmXuoTl1M/BNyGV89JA+UFwOPGcEG1umoByH3H1MhaZAfm25dOYpCmUrCLl5hyIbHSbQagD/XGzGE61DFOYeN3H3D7lHtIHv1x8niHbk8Zl/Hhv3xaFJwPSTl3mrkC1TZyN1I8sGwqaLbFaa56zP5YwkWDM9wUFLPBbkgX6cBVPYiRpg6Uf19cmT9KVCbzUkhGvECgYEA6xu8HSRbuXfkh7Tluo5qhuIwmQD734Ra5cvBXMvQdhgMsJ4V6uAn8xAVCCogSb48q+bLvz416O5K1w08gULWIoJ1Gttq/3InWAOgYY9eYX+SukA13B0vTrSPvXdjJLzzRkzbHcfw6fx4Vk93CGeOBVYmYP/hyvOX7dyQ3CyQ7iUCgYEAynlxy3jDP2xzYQ5jy2IiSKs7pNHJh3v6YcdppnG5PeJUFhQhht39GwE+cuEEnNYPku5gj1wFvQUKEWEh0CBZ2y5uuvOjvZN275Vss6OKq3kMOOTFaVrnhrUgZIY9sM2knM2kIC2SgrB+Szxrbw8CEzNo/lMLGqXbEYTGTtb1bJ8CgYB4U1B6RbJgAJlITu/IA71HXRnsJJHDulRfCWHj4TfGSNatyaqD88beYhuxewXdV+xrOgqKzQcAOHy7BT4zFYbMUKIoZaWkKMM0C18Yryxpj8YDZntqNNGSYVyzZheqpL2I/CqkWkDVL+5SlgbgmUcZOhcYS70+hl76UIke9fwStQKBgEfGRVCbvpr9FumQ8E9ouj6IdNw4gfhFOrzus8UNC12knao1+KyWhOLNzhVrLvdp6ptrZU9sj5wx7R+8DwB4d2H7U8VyGNlbLQ5BKgeEMeQXRP3mGxT95JUcIB+Cdtv2CiSLwWKmxQkPB7Yj9PGpoFKuJsoBJi6MHNxY9PN9wAKBAoGAFkyYs3KWmV6xY2sL9y3wJf9wXbodUuHG8HV/+vUPX5zvSOJlyj13A3R4KZvhHcuLN0Hj3C6Ahqi7uF4cUwMKSBhgjcdw/UTD9/tneJOWTOHsyOMVgDcXV+Hb+VOw+V2OKg+gBeSAC7a2+di5c8I9mnYWQRc0ktsvdMOOGgdQY50='
+end
+
+unless raw_private_key.start_with?('--')
+  raw_private_key = "-----BEGIN RSA PRIVATE KEY-----\n#{raw_private_key}\n-----END RSA PRIVATE KEY-----"
+end
+
+JWTWrapper.private_key = OpenSSL::PKey::RSA.new(raw_private_key)
