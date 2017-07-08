@@ -22,7 +22,7 @@ class Users::SessionsController < Devise::SessionsController
       if request.format == :json
         render json: {
           user: user,
-          token: JWTWrapper.encode(sub: "User:#{user.id}")
+          token: JwtTools::JwtCoder.encode(sub: "User:#{user.id}")
         }
         return
       end
