@@ -1,5 +1,9 @@
 module JWTWrapper
   def self.private_key=(new_key)
+    unless new_key.is_a?(OpenSSL::PKey::RSA)
+      new_key = OpenSSL::PKey::RSA.new(format_rsa_private_key(new_key))
+    end
+
     @private_key = new_key
     @public_key = new_key.public_key
   end
@@ -35,5 +39,19 @@ module JWTWrapper
     rescue
       nil
     end
+  end
+
+  # Ensure a string is properly formatted as an RSA private key for OpenSSL
+  def self.format_rsa_private_key(key)
+    return key if key.is_a?(OpenSSL::PKey::RSA)
+    raise ArgumentError, 'Invalid key type' unless key.is_a?(String)
+
+    prefix = '-----BEGIN RSA PRIVATE KEY-----'
+    postfix = '-----END RSA PRIVATE KEY-----'
+    body_expression = /^(?:#{prefix})?\n?(.+?)\n?(?:#{postfix})?$/
+    body = key.match(body_expression)[1]
+    body = body.scan(/.{1,64}/).join("\n") unless body.include?("\n")
+
+    "#{prefix}\n#{body}\n#{postfix}"
   end
 end
