@@ -26,6 +26,7 @@ module JwtTools
 
       payload = payload.dup
       payload[:exp] = expire_at.to_i
+      payload[:iat] = Time.now.to_i
 
       JWT.encode(payload, @private_key, 'RS256')
     end
