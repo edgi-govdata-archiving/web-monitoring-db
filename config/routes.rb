@@ -2,8 +2,13 @@ Rails.application.routes.draw do
   root 'home#index'
 
   devise_for :users, controllers: {
-    registrations: 'users/registrations'
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
   }
+
+  devise_scope :user do
+    get 'users/session', to: 'users/sessions#validate_session'
+  end
 
   resources :pages, path: '/pages', only: [:index, :show] do
     resources :versions, only: [:index, :show] do
