@@ -12,4 +12,3 @@
 //
 //= require 'admin.js'
 //= require 'cable.js'
-//= require 'pages.js'

@@ -10,15 +10,6 @@ Rails.application.routes.draw do
     get 'users/session', to: 'users/sessions#validate_session'
   end
 
-  resources :pages, path: '/pages', only: [:index, :show] do
-    resources :versions, only: [:index, :show] do
-      member do
-        get 'annotations'
-        post 'annotations', action: 'annotate'
-      end
-    end
-  end
-
   namespace :api do
     namespace :v0 do
       resources :pages, only: [:index, :show], format: :json do
