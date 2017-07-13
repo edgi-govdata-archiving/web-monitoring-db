@@ -13,10 +13,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v0 do
       resources :pages, only: [:index, :show], format: :json do
-        resources :versions, only: [:index, :show, :create] do
-          resources :annotations, only: [:index, :show, :create]
-        end
-
+        resources :versions, only: [:index, :show, :create]
         resources :changes,
           # Allow :id to be ":from_uuid..:to_uuid" or just ":change_id"
           constraints: { id: /(?:[\w\-]*\.\.[\w\-]+)|(?:[^\.\/]+)/ },

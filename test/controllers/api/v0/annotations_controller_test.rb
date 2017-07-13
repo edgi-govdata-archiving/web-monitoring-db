@@ -9,7 +9,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in users(:alice)
     post(
-      api_v0_page_version_annotations_path(page, page.versions[0]),
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
       as: :json,
       params: annotation
     )
@@ -29,17 +29,17 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in users(:alice)
     post(
-      api_v0_page_version_annotations_path(page, page.versions[0]),
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
       as: :json,
       params: annotation1
     )
     sign_in users(:alice)
     post(
-      api_v0_page_version_annotations_path(page, page.versions[0]),
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
       as: :json,
       params: annotation2
     )
-    get(api_v0_page_version_annotations_path(page, page.versions[0]))
+    get(api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"))
 
     assert_response :success
     body = JSON.parse @response.body
@@ -54,19 +54,19 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in users(:alice)
     post(
-      api_v0_page_version_annotations_path(page, page.versions[0]),
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
       as: :json,
       params: annotation1
     )
 
     sign_in users(:admin_user)
     post(
-      api_v0_page_version_annotations_path(page, page.versions[0]),
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
       as: :json,
       params: annotation2
     )
 
-    get(api_v0_page_version_annotations_path(page, page.versions[0]))
+    get(api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"))
 
     assert_response :success
     body = JSON.parse @response.body

@@ -56,14 +56,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   end
 
   def parent_change
-    @change ||=
-      if params[:change_id]
-        change_from_id(params[:change_id])
-      else
-        to_version = Version.find(params[:version_id])
-        to_version.change_from_previous ||
-          (raise ActiveRecord::RecordNotFound, "There is no version prior to #{to_version.uuid}. Annotations describe the change between versions, so this this version cannot be annotated.")
-      end
+    @change ||= change_from_id(params[:change_id])
   end
 
   def change_from_id(change_id)
