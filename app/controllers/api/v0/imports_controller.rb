@@ -9,7 +9,7 @@ class Api::V0::ImportsController < Api::V0::ApiController
 
   def create
     file_key = SecureRandom.uuid
-    FileStorage.default.save_file(file_key, request.body.read)
+    FileStorage.default.save_file(file_key, request.body)
 
     @import = Import.create(
       file: file_key,
