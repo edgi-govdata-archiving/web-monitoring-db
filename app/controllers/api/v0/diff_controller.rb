@@ -21,19 +21,7 @@ class Api::V0::DiffController < Api::V0::ApiController
   end
 
   def change
-    @change ||=
-      if params[:id].include?('..')
-        from_id, to_id = params[:id].split('..')
-        if from_id.present?
-          Change.between(from: Version.find(from_id), to: Version.find(to_id))
-        else
-          Version.find(to_id).change_from_previous ||
-            (raise ActiveRecord::RecordNotFound, "There is no version prior to
-              #{to_id} to change from.")
-        end
-      else
-        Change.find(params[:id])
-      end
+    @change ||= Change.find_by_api_id(params[:id])
   end
 
   def ensure_diffable

@@ -56,23 +56,6 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   end
 
   def parent_change
-    @change ||= change_from_id(params[:change_id])
-  end
-
-  def change_from_id(change_id)
-    return nil if params[:change_id].blank?
-
-    if change_id.include?('..')
-      from_id, to_id = change_id.split('..')
-      if from_id.present?
-        Change.between(from: Version.find(from_id), to: Version.find(to_id))
-      else
-        Version.find(to_id).change_from_previous ||
-          (raise ActiveRecord::RecordNotFound, "There is no version prior to
-            #{to_id} to change from.")
-      end
-    else
-      Change.find(change_id)
-    end
+    @change ||= Change.find_by_api_id(params[:change_id])
   end
 end

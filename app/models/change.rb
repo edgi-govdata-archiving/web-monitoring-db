@@ -14,6 +14,24 @@ class Change < ApplicationRecord
       self.send(instantiator, change_definition)
   end
 
+  # Look up a Change model by its actual ID or by a "{from_id}..{to_id}" string
+  def self.find_by_api_id(api_id)
+    return nil if api_id.blank?
+
+    if api_id.include?('..')
+      from_id, to_id = api_id.split('..')
+      if from_id.present?
+        Change.between(from: Version.find(from_id), to: Version.find(to_id))
+      else
+        Version.find(to_id).change_from_previous ||
+          (raise ActiveRecord::RecordNotFound, "There is no version prior to
+            #{to_id} to change from.")
+      end
+    else
+      Change.find(api_id)
+    end
+  end
+
   def current_annotation
     super ||
       if persisted?
