@@ -7,7 +7,10 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      data: annotations.as_json(include: { author: { only: [:id, :email] } })
+      data: annotations.as_json(
+        include: { author: { only: [:id, :email] } },
+        except: :author_id
+      )
     }
   end
 
@@ -19,7 +22,10 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         version: api_v0_page_version_url(page, version),
         from_version: api_v0_page_version_url(page, @annotation.change.from_version)
       },
-      data: @annotation.as_json(include: { author: { only: [:id, :email] } })
+      data: @annotation.as_json(
+        include: { author: { only: [:id, :email] } },
+        except: :author_id
+      )
     }
   end
 
