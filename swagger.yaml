@@ -218,6 +218,78 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SingleVersion'
+  '/pages/{page_id}/changes':
+    get:
+      tags:
+        - changes
+      summary: List Changes between two Versions on a page
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Change this is
+          required: true
+          type: string
+          format: uuid4
+        - name: page
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: priority_[gt|gte]
+          in: query
+          description: Only include changes with a `priority` greater than (or greater than or equal to) this value.
+          required: false
+          type: float
+        - name: priority_[lt|lte]
+          in: query
+          description: Only include changes with a `priority` less than (or less than or equal to) this value.
+          required: false
+          type: float
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfChanges'
+  '/pages/{page_id}/changes/{from_version}..{to_version}':
+    get:
+      tags:
+        - changes
+      summary: Get a Change between two Versions
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Change this is
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          required: false
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleChange'
   '/pages/{page_id}/changes/{from_version}..{to_version}/annotations':
     get:
       tags:
@@ -475,6 +547,29 @@ definitions:
         format: datetime
       latest:
         $ref: '#/definitions/Version'
+  Change:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      uuid_from:
+        type: string
+        format: uuid4
+      uuid_to:
+        type: string
+        format: uuid4
+      priority:
+        type: number
+        format: float
+      current_annotation:
+        type: object
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
   Annotation:
     type: object
     properties:
@@ -537,6 +632,45 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Version'
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+  SingleChange:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Change'
+      links:
+        type: object
+        properties:
+          page:
+            type: string
+            format: uri
+          from_version:
+            type: string
+            format: uri
+          to_version:
+            type: string
+            format: uri
+  PageOfChanges:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Change'
       links:
         type: object
         properties:
