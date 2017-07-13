@@ -1,6 +1,6 @@
 class Api::V0::ChangesController < Api::V0::ApiController
   def index
-    query = change_collection
+    query = changes_collection
     paging = pagination(query)
     changes = query.limit(paging[:page_items]).offset(paging[:offset])
 
