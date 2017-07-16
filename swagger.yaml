@@ -187,8 +187,8 @@ paths:
           in: query
           description: >-
             A JSON blob containing extra source specific information.  This
-            field is free-form, but we generally expect the following  content
-            for a given `source_type`
+            field is free-form, but we generally expect the data will follow
+            one of the formats outlined in the `/schema` folder.
           type: string
           parameters: null
       responses:
