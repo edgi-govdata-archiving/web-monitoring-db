@@ -42,25 +42,14 @@ class Api::V0::ChangesController < Api::V0::ApiController
 
   def changes_collection
     collection = Change
-    where_numeric_range_params(collection, :priority)
-  end
 
-  def where_numeric_range_params(collection, attribute)
-    gt_param = :"#{attribute}_gt"
-    gte_param = :"#{attribute}_gte"
-    lt_param = :"#{attribute}_lt"
-    lte_param = :"#{attribute}_lte"
-
-    if params[gt_param]
-      collection = collection.where("#{attribute} > ?", params[gt_param])
-    elsif params[gte_param]
-      collection = collection.where("#{attribute} >= ?", params[gte_param])
-    end
-
-    if params[lt_param]
-      collection = collection.where("#{attribute} < ?", params[lt_param])
-    elsif params[lte_param]
-      collection = collection.where("#{attribute} <= ?", params[lte_param])
+    if params[:priority]
+      collection =
+        if params[:priority].match?(/^\d/)
+          collection.where(priority: Float(params[:priority]))
+        else
+          collection.where_in_interval(:priority, params[:priority])
+        end
     end
 
     collection

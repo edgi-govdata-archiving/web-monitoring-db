@@ -31,7 +31,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
   test 'can filter by priority' do
     page = pages(:home_page)
 
-    get(api_v0_page_changes_path(page, priority_gt: 0.5))
+    get(api_v0_page_changes_path(page, priority: '(0.5,)'))
     assert_response :success
     body = JSON.parse @response.body
     assert(body['data'].length.positive?, 'Did not get any changes back')
@@ -40,7 +40,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       assert(priority > 0.5, "Got a priority not > 0.5: #{priority} (from #{change['uuid']})")
     end
 
-    get(api_v0_page_changes_path(page, priority_gte: 0.75))
+    get(api_v0_page_changes_path(page, priority: '[0.75,]'))
     assert_response :success
     body = JSON.parse @response.body
     assert(body['data'].length.positive?, 'Did not get any changes back')
@@ -49,7 +49,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       assert(priority >= 0.75, "Got a priority not >= 0.75: #{priority} (from #{change['uuid']})")
     end
 
-    get(api_v0_page_changes_path(page, priority_lt: 0.75))
+    get(api_v0_page_changes_path(page, priority: '(,0.75)'))
     assert_response :success
     body = JSON.parse @response.body
     assert(body['data'].length.positive?, 'Did not get any changes back')
@@ -58,7 +58,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       assert(priority < 0.75, "Got a priority not < 0.5: #{priority} (from #{change['uuid']})")
     end
 
-    get(api_v0_page_changes_path(page, priority_lte: 0.5))
+    get(api_v0_page_changes_path(page, priority: '[,0.5]'))
     assert_response :success
     body = JSON.parse @response.body
     assert(body['data'].length.positive?, 'Did not get any changes back')
