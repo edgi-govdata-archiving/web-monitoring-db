@@ -67,4 +67,44 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       assert(priority <= 0.5, "Got a priority not <= 0.5: #{priority} (from #{change['uuid']})")
     end
   end
+
+  test 'can filter by significance' do
+    page = pages(:home_page)
+
+    get(api_v0_page_changes_path(page, significance: '(0.5,)'))
+    assert_response :success
+    body = JSON.parse @response.body
+    assert(body['data'].length.positive?, 'Did not get any changes back')
+    body['data'].each do |change|
+      significance = change['significance']
+      assert(significance > 0.5, "Got a significance not > 0.5: #{significance} (from #{change['uuid']})")
+    end
+
+    get(api_v0_page_changes_path(page, significance: '[0.75,]'))
+    assert_response :success
+    body = JSON.parse @response.body
+    assert(body['data'].length.positive?, 'Did not get any changes back')
+    body['data'].each do |change|
+      significance = change['significance']
+      assert(significance >= 0.75, "Got a significance not >= 0.75: #{significance} (from #{change['uuid']})")
+    end
+
+    get(api_v0_page_changes_path(page, significance: '(,0.75)'))
+    assert_response :success
+    body = JSON.parse @response.body
+    assert(body['data'].length.positive?, 'Did not get any changes back')
+    body['data'].each do |change|
+      significance = change['significance']
+      assert(significance < 0.75, "Got a significance not < 0.5: #{significance} (from #{change['uuid']})")
+    end
+
+    get(api_v0_page_changes_path(page, significance: '[,0.5]'))
+    assert_response :success
+    body = JSON.parse @response.body
+    assert(body['data'].length.positive?, 'Did not get any changes back')
+    body['data'].each do |change|
+      significance = change['significance']
+      assert(significance <= 0.5, "Got a significance not <= 0.5: #{significance} (from #{change['uuid']})")
+    end
+  end
 end

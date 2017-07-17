@@ -42,16 +42,8 @@ class Api::V0::ChangesController < Api::V0::ApiController
 
   def changes_collection
     collection = Change
-
-    if params[:priority]
-      collection =
-        if params[:priority].match?(/^\d/)
-          collection.where(priority: Float(params[:priority]))
-        else
-          collection.where_in_interval(:priority, params[:priority])
-        end
-    end
-
+    collection = where_in_interval_param(collection, :priority)
+    collection = where_in_interval_param(collection, :significance)
     collection
   end
 end

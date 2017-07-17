@@ -98,6 +98,18 @@ class Api::V0::ApiController < ApplicationController
     collection.where_in_unbounded_range(attribute, range)
   end
 
+  def where_in_interval_param(collection, name, attribute = nil)
+    value = params[name]
+    return collection unless value
+
+    attribute = name if attribute.nil?
+    if value.match?(/^\d/)
+      collection.where(attribute => Float(value))
+    else
+      collection.where_in_interval(attribute, value)
+    end
+  end
+
   private
 
   def set_environment_header
