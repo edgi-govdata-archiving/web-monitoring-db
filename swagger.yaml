@@ -562,6 +562,9 @@ definitions:
       priority:
         type: number
         format: float
+      significance:
+        type: number
+        format: float
       current_annotation:
         type: object
       created_at:
