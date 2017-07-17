@@ -7,8 +7,9 @@ class Api::V0::ApiController < ApplicationController
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
 
+  rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
-    render_errors(error.model.errors.full_messages, 400)
+    render_errors(error.model.errors.full_messages, 422)
   end
 
 
