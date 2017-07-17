@@ -148,40 +148,4 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
   end
-
-  test 'can annotate versions' do
-    version = versions(:page1_v2)
-
-    sign_in users(:alice)
-    post(
-      api_v0_page_version_annotations_url(pages(:home_page), version),
-      as: :json,
-      params: { something: 'some value' }
-    )
-
-    assert_response(:success)
-
-    body = JSON.parse @response.body
-    annotation_id = body['data']['uuid']
-    ids = version.change_from_previous.annotations.pluck(:uuid)
-    assert_includes(ids, annotation_id, 'Annotation was not added to version')
-    assert_equal(
-      'some value',
-      version.current_annotation['something'],
-      'Annotation was not incorporated into "current_annotaiton"'
-    )
-  end
-
-  test 'cannot annotate the first version of a page' do
-    version = versions(:page1_v1)
-
-    sign_in users(:alice)
-    post(
-      api_v0_page_version_annotations_url(pages(:home_page), version),
-      as: :json,
-      params: { something: 'some value' }
-    )
-
-    assert_response(:not_found)
-  end
 end

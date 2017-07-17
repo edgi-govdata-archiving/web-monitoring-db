@@ -21,4 +21,30 @@ class ApplicationRecord < ActiveRecord::Base
 
     result
   end
+
+  def self.where_in_interval(attribute, interval)
+    unless attribute.to_s.match?(/^[\w\-]*$/)
+      raise ArgumentError, "Attribute '#{attribute}' is not a safe column name"
+    end
+
+    if interval.is_a?(String)
+      interval = NumericInterval.new(interval)
+    elsif !interval.is_a?(NumericInterval)
+      raise ArgumentError, '`interval` must be a NumericInterval or string'
+    end
+
+    result = self
+
+    if interval.start
+      comparison = interval.start_open ? '>' : '>='
+      result = result.where("#{attribute} #{comparison} ?", interval.start)
+    end
+
+    if interval.end
+      comparison = interval.end_open ? '<' : '<='
+      result = result.where("#{attribute} #{comparison} ?", interval.end)
+    end
+
+    result
+  end
 end
