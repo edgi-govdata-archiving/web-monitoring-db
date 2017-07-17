@@ -241,16 +241,11 @@ paths:
           required: false
           type: integer
           default: 1
-        - name: priority_[gt|gte]
+        - name: priority
           in: query
-          description: Only include changes with a `priority` greater than (or greater than or equal to) this value.
+          description: Only include changes with a matching `priority`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= priority < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `priority >= 0.3`.
           required: false
-          type: float
-        - name: priority_[lt|lte]
-          in: query
-          description: Only include changes with a `priority` less than (or less than or equal to) this value.
-          required: false
-          type: float
+          type: float|string
       responses:
         '200':
           description: successful operation
