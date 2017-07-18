@@ -246,6 +246,11 @@ paths:
           description: Only include changes with a matching `priority`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= priority < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `priority >= 0.3`.
           required: false
           type: float|string
+        - name: significance
+          in: query
+          description: Only include changes with a matching `significance`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= significance < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `significance >= 0.3`.
+          required: false
+          type: float|string
       responses:
         '200':
           description: successful operation
@@ -555,6 +560,9 @@ definitions:
         type: string
         format: uuid4
       priority:
+        type: number
+        format: float
+      significance:
         type: number
         format: float
       current_annotation:

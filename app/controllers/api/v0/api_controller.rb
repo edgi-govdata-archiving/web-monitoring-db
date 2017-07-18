@@ -7,8 +7,9 @@ class Api::V0::ApiController < ApplicationController
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
 
+  rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
-    render_errors(error.model.errors.full_messages, 400)
+    render_errors(error.model.errors.full_messages, 422)
   end
 
 
@@ -96,6 +97,18 @@ class Api::V0::ApiController < ApplicationController
     attribute = name if attribute.nil?
     range = parse_unbounded_range!(params[name], name, &parse)
     collection.where_in_unbounded_range(attribute, range)
+  end
+
+  def where_in_interval_param(collection, name, attribute = nil)
+    value = params[name]
+    return collection unless value
+
+    attribute = name if attribute.nil?
+    if value.match?(/^\d/)
+      collection.where(attribute => Float(value))
+    else
+      collection.where_in_interval(attribute, value)
+    end
   end
 
   private

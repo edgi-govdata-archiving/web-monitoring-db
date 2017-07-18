@@ -32,21 +32,9 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   def create
     data = JSON.parse(request.body.read)
     @annotation = parent_change.annotate(data, current_user)
-    parent_change.save
-
-    if !@annotation.valid?
-      render status: 500, json: {
-        errors: @annotation.errors.full_messages.map do |message|
-          {
-            status: 500,
-            title: message
-          }
-        end
-      }
-    else
-      # TODO: should we also somehow return the change's `current_annotation`?
-      self.show
-    end
+    parent_change.save!
+    # TODO: should we also somehow return the change's `current_annotation`?
+    show
   end
 
   protected

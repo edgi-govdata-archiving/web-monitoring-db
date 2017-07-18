@@ -51,4 +51,16 @@ class ChangeTest < ActiveSupport::TestCase
 
     assert_equal 2, change.annotations.count, 'The wrong number of annotations were made'
   end
+
+  test 'annotating with `priority` should update #priority' do
+    change = versions(:page2_v2).change_from_previous
+    change.annotate({ priority: 1 }, users(:alice))
+    assert_equal(1, change.priority, '#priority was not updated')
+  end
+
+  test 'annotating with `significance` should update #significance' do
+    change = versions(:page2_v2).change_from_previous
+    change.annotate({ significance: 1 }, users(:alice))
+    assert_equal(1, change.significance, '#significance was not updated')
+  end
 end
