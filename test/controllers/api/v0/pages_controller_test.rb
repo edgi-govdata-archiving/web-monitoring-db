@@ -192,4 +192,12 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     page_ids = body['data'].pluck('uuid')
     assert_equal(page_ids.uniq, page_ids, 'The same page was returned multiple times')
   end
+
+  test 'can retrieve a single page' do
+    get api_v0_page_path(pages(:home_page))
+    assert_response(:success)
+    assert_equal('application/json', @response.content_type)
+    body = JSON.parse(@response.body)
+    assert(body.key?('data'), 'Response should have a "data" property')
+  end
 end

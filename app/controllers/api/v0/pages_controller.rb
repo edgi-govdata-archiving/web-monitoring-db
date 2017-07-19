@@ -17,7 +17,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   def show
     page = Page.find(params[:id])
     render json: {
-      data: page.as_json(include: { versions: { methods: :current_annotation } })
+      data: page.as_json(include: [:versions])
     }
   end
 

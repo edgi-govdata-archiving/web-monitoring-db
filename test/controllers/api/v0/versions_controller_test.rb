@@ -148,4 +148,14 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
   end
+
+  test 'can retrieve a single version' do
+    version = versions(:page1_v1)
+    get api_v0_page_version_path(version.page, version)
+    assert_response(:success)
+    assert_equal('application/json', @response.content_type)
+    body = JSON.parse(@response.body)
+    assert(body.key?('links'), 'Response should have a "links" property')
+    assert(body.key?('data'), 'Response should have a "data" property')
+  end
 end
