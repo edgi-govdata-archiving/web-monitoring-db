@@ -1,6 +1,80 @@
 require 'test_helper'
 
 class ChangeTest < ActiveSupport::TestCase
+  test 'between should find a change based on two versions' do
+    from_version = versions(:page1_v1)
+    to_version = versions(:page1_v2)
+    found = Change.between(from: from_version, to: to_version)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert(found.persisted?, 'The returned change did not already exist')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'between should find a change based on two IDs' do
+    from_version = versions(:page1_v1)
+    to_version = versions(:page1_v2)
+    found = Change.between(from: from_version.id, to: to_version.id)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert(found.persisted?, 'The returned change did not already exist')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'between should instantiate a change based on two versions if a matching change does not already exist' do
+    from_version = versions(:page1_v3)
+    to_version = versions(:page1_v4)
+    found = Change.between(from: from_version, to: to_version)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert_not(found.persisted?, 'The returned change did not already exist')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'between should instantiate a change based on two IDs if a matching change does not exist' do
+    from_version = versions(:page1_v3)
+    to_version = versions(:page1_v4)
+    found = Change.between(from: from_version.id, to: to_version.id)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert_not(found.persisted?, 'The returned change did not already exist')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'between should create and persist a change if requested' do
+    from_version = versions(:page1_v3)
+    to_version = versions(:page1_v4)
+    found = Change.between(from: from_version, to: to_version, create: true)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert(found.persisted?, 'The returned change was not persisted')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'find_by_api_id should work with IDs like `{from_id}..{to_id}`' do
+    from_version = versions(:page1_v1)
+    to_version = versions(:page1_v2)
+    found = Change.find_by_api_id("#{from_version.id}..#{to_version.id}")
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert_equal(from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(to_version.id, found.version.id, 'It has the wrong `version`')
+  end
+
+  test 'find_by_api_id should work with actual change IDs' do
+    change = changes(:page1_change_1_2)
+    found = Change.find_by_api_id(change.id)
+
+    assert(found.is_a?(Change), 'It did not return a Change')
+    assert_equal(change.from_version.id, found.from_version.id, 'It has the wrong `from_version`')
+    assert_equal(change.version.id, found.version.id, 'It has the wrong `version`')
+  end
+
   test 'annotate should create an annotation' do
     change = versions(:page2_v2).change_from_previous
     change.annotate({ test_field: 'test_value' }, users(:alice))
