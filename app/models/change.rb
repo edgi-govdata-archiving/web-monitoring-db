@@ -16,7 +16,10 @@ class Change < ApplicationRecord
 
   def self.between(from:, to:, create: false)
     return nil if from.nil? || to.nil?
-    change_definition = { from_version: from, version: to }
+    change_definition = {
+      uuid_from: from.is_a?(Version) ? from.uuid : from,
+      uuid_to: to.is_a?(Version) ? to.uuid : to
+    }
     instantiator = create ? :create : :new
     self.where(change_definition).first ||
       self.send(instantiator, change_definition)
