@@ -5,12 +5,15 @@ module JwtTools
     end
 
     def authenticate!
-      Rails.logger.debug "Claim data: '#{claims}'"
-      return fail! unless claims
-      return fail! unless claims.key?('sub')
+      return pass unless claims && claims.key?('sub')
       user_id = claims['sub'].match(/^User:(\d+)$/).try(:[], 1)
-      return fail! unless user_id
-      success! User.find_by_id user_id
+      return pass unless user_id
+      user = User.find_by_id(user_id)
+      if user
+        success! user
+      else
+        fail!
+      end
     end
 
     protected
