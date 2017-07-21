@@ -82,6 +82,21 @@ paths:
             version_hash.
           required: false
           type: string
+        - name: capture_time
+          in: query
+          description: >-
+            Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
+
+            **Examples:**
+
+            - `capture_time=2017-02-01..2017-03-01` for all of February
+
+            - `capture_time=2017-02-01T10:00:00Z..2017-02-01T12:00:00` for February 1st between 10am and noon UTC
+
+            - `capture_time=2017-02-01..` for all versions from February on
+
+            - `capture_time=..2017-02-01` for all versions before February
+
       responses:
         '200':
           description: successful operation
