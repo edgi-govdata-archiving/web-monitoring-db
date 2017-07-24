@@ -35,15 +35,13 @@ module PagingConcern
     links = {
       first: path_resolver.call(
         collection_type,
-        page: 1,
         format: format_type,
-        params: request.query_parameters
+        params: request.query_parameters.merge(page: 1)
       ),
       last: path_resolver.call(
         collection_type,
-        page: total_pages,
         format: format_type,
-        params: request.query_parameters
+        params: request.query_parameters.merge(page: total_pages)
       ),
       prev: nil,
       next: nil
@@ -51,17 +49,15 @@ module PagingConcern
     if page_number > 1
       links[:prev] = path_resolver.call(
         collection_type,
-        page: page_number - 1,
         format: format_type,
-        params: request.query_parameters
+        params: request.query_parameters.merge(page: page_number - 1)
       )
     end
     if page_number < total_pages
       links[:next] = path_resolver.call(
         collection_type,
-        page: page_number + 1,
         format: format_type,
-        params: request.query_parameters
+        params: request.query_parameters.merge(page: page_number + 1)
       )
     end
 

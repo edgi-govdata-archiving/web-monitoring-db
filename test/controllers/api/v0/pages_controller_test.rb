@@ -10,6 +10,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert body_json.key?('data'), 'Response should have a "data" property'
   end
 
+  # Regression
+  test 'should not include the `page` parameter multiple times in one paging link' do
+    # This error occurred when the requested URL already had a `page` param
+    get('/api/v0/pages?page=1')
+    body = JSON.parse(@response.body)
+    first_uri = URI.parse(body['links']['first'])
+    assert_no_match(/(^|&)page=.+?&page=/, first_uri.query, 'The `page` param occurred multiple times in the same URL')
+  end
+
   test 'can filter pages by site' do
     site = 'http://example.com/'
     get "/api/v0/pages/?site=#{URI.encode_www_form_component site}"
