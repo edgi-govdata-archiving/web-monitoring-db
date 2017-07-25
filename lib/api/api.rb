@@ -35,6 +35,12 @@ module Api
     end
   end
 
+  class UnprocessableError < ApiError
+    def status_code
+      422
+    end
+  end
+
   class MismatchedHashError < ApiError
     def status_code
       502

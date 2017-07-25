@@ -249,4 +249,34 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       name: 'Annotations'
     )
   end
+
+  test 'it rejects no POST body' do
+    page = pages(:home_page)
+
+    sign_in users(:alice)
+    post(
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
+      headers: { 'Content-Type': 'application/json' },
+      params: ''
+    )
+
+    assert_response :bad_request
+    body = JSON.parse(@response.body)
+    assert(body.key?('errors'), 'Response should have an "errors" property')
+  end
+
+  test 'it rejects an empty annotation (i.e. `{}`)' do
+    page = pages(:home_page)
+
+    sign_in users(:alice)
+    post(
+      api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
+      headers: { 'Content-Type': 'application/json' },
+      params: '{}'
+    )
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(@response.body)
+    assert(body.key?('errors'), 'Response should have an "errors" property')
+  end
 end
