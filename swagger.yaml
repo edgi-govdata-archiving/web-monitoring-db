@@ -188,7 +188,8 @@ paths:
           description: >-
             A JSON blob containing extra source specific information.  This
             field is free-form, but we generally expect the data will follow
-            one of the following formats: <a href="<%= asset_path('versionista.json') %>">The Versionista schema</a>
+            one of the formats documented under the models section that has a
+            name starting with "source_metadata_"
           type: string
           parameters: null
       responses:
@@ -625,17 +626,6 @@ definitions:
         type: string
       diff_with_previous_url:
         type: string
-    example:
-      url: "https://versionista.com/74003/6186155/12077148/"
-      account: "versionista1"
-      page_id: "6186155"
-      site_id: "74003"
-      diff_hash: "7e0f23bd1cc7da3684898292f2d648dce62e2de7bc48a9e77e8bf0528cf7aebe"
-      version_id: "12077148"
-      diff_length: 5153
-      has_content: true
-      diff_with_first_url: "https://versionista.com/74003/6186155/12077148:9413060"
-      diff_with_previous_url: "https://versionista.com/74003/6186155/12077148:11476331"
 
 externalDocs:
   description: Find out more about the web-monitoring project.
