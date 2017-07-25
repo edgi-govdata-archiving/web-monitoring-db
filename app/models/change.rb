@@ -5,13 +5,42 @@ class Change < ApplicationRecord
   belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, required: true
   has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
+  validates :priority, allow_nil: true, numericality: {
+    greater_than_or_equal_to: 0,
+    less_than_or_equal_to: 1
+  }
+  validates :significance, allow_nil: true, numericality: {
+    greater_than_or_equal_to: 0,
+    less_than_or_equal_to: 1
+  }
 
   def self.between(from:, to:, create: false)
     return nil if from.nil? || to.nil?
-    change_definition = { from_version: from, version: to }
+    change_definition = {
+      uuid_from: from.is_a?(Version) ? from.uuid : from,
+      uuid_to: to.is_a?(Version) ? to.uuid : to
+    }
     instantiator = create ? :create : :new
     self.where(change_definition).first ||
       self.send(instantiator, change_definition)
+  end
+
+  # Look up a Change model by its actual ID or by a "{from_id}..{to_id}" string
+  def self.find_by_api_id(api_id)
+    return nil if api_id.blank?
+
+    if api_id.include?('..')
+      from_id, to_id = api_id.split('..')
+      if from_id.present?
+        Change.between(from: from_id, to: to_id)
+      else
+        Version.find(to_id).change_from_previous ||
+          (raise ActiveRecord::RecordNotFound, "There is no version prior to
+            #{to_id} to change from.")
+      end
+    else
+      Change.find(api_id)
+    end
   end
 
   def current_annotation
@@ -38,12 +67,11 @@ class Change < ApplicationRecord
 
     annotation = annotations.find_or_initialize_by(author: author)
     annotation.annotation = data
-    annotation.save
+    annotation.save!
 
-    if annotation.valid?
-      annotations.reload
-      regenerate_current_annotation
-    end
+    annotations.reload
+    regenerate_current_annotation
+    update_from_annotation
 
     annotation
   end
@@ -68,6 +96,14 @@ class Change < ApplicationRecord
   end
 
   protected
+
+  def update_from_annotation
+    updates = {
+      priority: current_annotation['priority'],
+      significance: current_annotation['significance']
+    }.compact
+    update(updates) unless updates.empty?
+  end
 
   def merge_annotations(base, updates)
     base.with_indifferent_access

@@ -6,7 +6,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      data: versions.as_json(methods: :current_annotation)
+      data: versions.as_json
     }
   end
 
@@ -17,7 +17,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         page: api_v0_page_url(@version.page),
         previous: @version.previous && api_v0_page_version_url(@version.page, @version.previous)
       },
-      data: @version.as_json(methods: :current_annotation)
+      data: @version.as_json
     }
   end
 

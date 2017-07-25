@@ -10,6 +10,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert body_json.key?('data'), 'Response should have a "data" property'
   end
 
+  # Regression
+  test 'should not include the `page` parameter multiple times in one paging link' do
+    # This error occurred when the requested URL already had a `page` param
+    get('/api/v0/pages?page=1')
+    body = JSON.parse(@response.body)
+    first_uri = URI.parse(body['links']['first'])
+    assert_no_match(/(^|&)page=.+?&page=/, first_uri.query, 'The `page` param occurred multiple times in the same URL')
+  end
+
   test 'can filter pages by site' do
     site = 'http://example.com/'
     get "/api/v0/pages/?site=#{URI.encode_www_form_component site}"
@@ -183,5 +192,21 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'includes environment in header of response' do
     get '/api/v0/pages/'
     assert_equal('test', @response.get_header('X-Environment'))
+  end
+
+  test 'does not return duplicate records when querying by version-specific parameters' do
+    get api_v0_pages_path(source_type: 'versionista')
+    body = JSON.parse(@response.body)
+
+    page_ids = body['data'].pluck('uuid')
+    assert_equal(page_ids.uniq, page_ids, 'The same page was returned multiple times')
+  end
+
+  test 'can retrieve a single page' do
+    get api_v0_page_path(pages(:home_page))
+    assert_response(:success)
+    assert_equal('application/json', @response.content_type)
+    body = JSON.parse(@response.body)
+    assert(body.key?('data'), 'Response should have a "data" property')
   end
 end

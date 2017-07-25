@@ -21,16 +21,7 @@ class Api::V0::DiffController < Api::V0::ApiController
   end
 
   def change
-    unless @change
-      to_version = Version.find(params[:to_uuid] || params[:version_id])
-      @change =
-        if params[:from_uuid].present?
-          Change.between(from: Version.find(params[:from_uuid]), to: to_version)
-        else
-          to_version.change_from_previous
-        end
-    end
-    @change
+    @change ||= Change.find_by_api_id(params[:id])
   end
 
   def ensure_diffable

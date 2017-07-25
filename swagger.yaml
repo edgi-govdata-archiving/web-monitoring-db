@@ -82,6 +82,21 @@ paths:
             version_hash.
           required: false
           type: string
+        - name: capture_time
+          in: query
+          description: >-
+            Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
+
+            **Examples:**
+
+            - `capture_time=2017-02-01..2017-03-01` for all of February
+
+            - `capture_time=2017-02-01T10:00:00Z..2017-02-01T12:00:00` for February 1st between 10am and noon UTC
+
+            - `capture_time=2017-02-01..` for all versions from February on
+
+            - `capture_time=..2017-02-01` for all versions before February
+
       responses:
         '200':
           description: successful operation
@@ -225,6 +240,78 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SingleVersion'
+  '/pages/{page_id}/changes':
+    get:
+      tags:
+        - changes
+      summary: List Changes between two Versions on a page
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Change this is
+          required: true
+          type: string
+          format: uuid4
+        - name: page
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: priority
+          in: query
+          description: Only include changes with a matching `priority`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= priority < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `priority >= 0.3`.
+          required: false
+          type: float|string
+        - name: significance
+          in: query
+          description: Only include changes with a matching `significance`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= significance < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `significance >= 0.3`.
+          required: false
+          type: float|string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfChanges'
+  '/pages/{page_id}/changes/{from_version}..{to_version}':
+    get:
+      tags:
+        - changes
+      summary: Get a Change between two Versions
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose Change this is
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          required: false
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleChange'
   '/pages/{page_id}/changes/{from_version}..{to_version}/annotations':
     get:
       tags:
@@ -493,6 +580,32 @@ definitions:
         format: datetime
       latest:
         $ref: '#/definitions/Version'
+  Change:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      uuid_from:
+        type: string
+        format: uuid4
+      uuid_to:
+        type: string
+        format: uuid4
+      priority:
+        type: number
+        format: float
+      significance:
+        type: number
+        format: float
+      current_annotation:
+        type: object
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
   Annotation:
     type: object
     properties:
@@ -555,6 +668,45 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Version'
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+  SingleChange:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Change'
+      links:
+        type: object
+        properties:
+          page:
+            type: string
+            format: uri
+          from_version:
+            type: string
+            format: uri
+          to_version:
+            type: string
+            format: uri
+  PageOfChanges:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Change'
       links:
         type: object
         properties:
