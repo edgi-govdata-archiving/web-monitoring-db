@@ -204,7 +204,8 @@ paths:
             A JSON blob containing extra source specific information.  This
             field is free-form, but we generally expect the data will follow
             one of the formats documented under the models section that has a
-            name starting with "source_metadata_"
+            name starting with "source_metadata_" For example:
+            source_metadata_versionista
           type: string
           parameters: null
       responses:
@@ -558,6 +559,11 @@ definitions:
         type: string
       source_metadata:
         type: object
+        description: >-
+          A JSON blob containing extra source specific information.  This
+          field is free-form, but the data will generally follow one of the
+          formats documented under the models section that has a name
+          starting with "source_metadata_."  For example: source_metadata_versionista
   Page:
     type: object
     properties:
