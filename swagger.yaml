@@ -3,7 +3,7 @@ info:
   description: >-
     The web application that brokers snapshots of webpages archived by various
     third parties and 'diffs' between these versions.
-  version: 'v0'
+  version: v0
   title: web-monitoring-db
   license:
     name: GPL 3
@@ -163,7 +163,9 @@ paths:
       tags:
         - pages and versions
       summary: Submit one new Version (see also imports)
-      description: 'Add a single new version of a page to the database. For importing multiple versions at a time, use the `/imports` API.'
+      description: >-
+        Add a single new version of a page to the database. For importing
+        multiple versions at a time, use the `/imports` API.
       consumes:
         - application/json
       produces:
@@ -198,8 +200,14 @@ paths:
           type: string
         - name: source_metadata
           in: query
-          description: '???'
+          description: >-
+            A JSON blob containing extra source specific information.  This
+            field is free-form, but we generally expect the data will follow
+            one of the formats documented under the models section that has a
+            name starting with "source_metadata_" For example:
+            source_metadata_versionista
           type: string
+          parameters: null
       responses:
         '200':
           description: successful operation
@@ -324,7 +332,9 @@ paths:
           format: uuid4
         - name: from_version
           in: path
-          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          description: >-
+            ID of the "before" Version. If omitted, it will be treated as the
+            version immediately prior to `to_version`.
           required: false
           type: string
           format: uuid4
@@ -346,7 +356,10 @@ paths:
       description: >-
         The POST body should be a JSON object containing any data desired.
 
-        Users can only make one annotation per Change. If the currently signed-in user has not annotated the change between these two versions, a new annotation will be created, otherwise their previous annotation will be replaced.
+        Users can only make one annotation per Change. If the currently
+        signed-in user has not annotated the change between these two versions,
+        a new annotation will be created, otherwise their previous annotation
+        will be replaced.
       consumes:
         - application/json
       produces:
@@ -360,7 +373,9 @@ paths:
           format: uuid4
         - name: from_version
           in: path
-          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          description: >-
+            ID of the "before" Version. If omitted, it will be treated as the
+            version immediately prior to `to_version`.
           required: false
           type: string
           format: uuid4
@@ -374,7 +389,9 @@ paths:
           in: body
           required: true
           schema: {}
-          description: The body is the annotation you wish to add to the change. It is a JSON object with keys and values desired.
+          description: >-
+            The body is the annotation you wish to add to the change. It is a
+            JSON object with keys and values desired.
       responses:
         '200':
           description: successful operation
@@ -399,7 +416,9 @@ paths:
           format: uuid4
         - name: from_version
           in: path
-          description: ID of the "before" Version. If omitted, it will be treated as the version immediately prior to `to_version`.
+          description: >-
+            ID of the "before" Version. If omitted, it will be treated as the
+            version immediately prior to `to_version`.
           required: false
           type: string
           format: uuid4
@@ -540,6 +559,11 @@ definitions:
         type: string
       source_metadata:
         type: object
+        description: >-
+          A JSON blob containing extra source specific information.  This
+          field is free-form, but the data will generally follow one of the
+          formats documented under the models section that has a name
+          starting with "source_metadata_."  For example: source_metadata_versionista
   Page:
     type: object
     properties:
@@ -737,6 +761,30 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Annotation'
+  source_metadata_versionista:
+    type: object
+    properties:
+      url:
+        type: string
+      account:
+        type: string
+      site_id:
+        type: string
+      page_id:
+        type: string
+      diff_hash:
+        type: string
+      version_id:
+        type: string
+      diff_length:
+        type: integer
+      has_content:
+        type: boolean
+      diff_with_first_url:
+        type: string
+      diff_with_previous_url:
+        type: string
+
 externalDocs:
   description: Find out more about the web-monitoring project.
   url: 'https://github.com/edgi-govdata-archiving/web-monitoring'
