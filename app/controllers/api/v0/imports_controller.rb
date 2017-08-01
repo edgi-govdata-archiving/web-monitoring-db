@@ -8,13 +8,15 @@ class Api::V0::ImportsController < Api::V0::ApiController
   end
 
   def create
-    file_key = SecureRandom.uuid
-    FileStorage.default.save_file(file_key, request.body)
+    update_behavior = params[:update] || :skip
+    unless Import.update_behaviors.key?(update_behavior)
+      raise Api::InputError, "'#{update_behavior}' is not a valid update behavior. Use one of: #{Import.update_behaviors.join(', ')}"
+    end
 
-    @import = Import.create(
-      file: file_key,
-      user: current_user
-    )
+    @import = Import.create_with_data({
+      user: current_user,
+      update_behavior: update_behavior
+    }, request.body)
     ImportVersionsJob.perform_later(@import)
     show
   end
