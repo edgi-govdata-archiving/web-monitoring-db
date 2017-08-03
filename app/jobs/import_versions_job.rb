@@ -70,25 +70,27 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
-    permitted_keys = [
-      'uri',
-      'version_hash',
-      'source_type'
-    ]
-
-    permitted_keys.push('source_metadata') unless update_behavior == 'merge'
-    permitted_keys.push('uuid', 'capture_time') unless existing_version
-    version_record = record.select {|key| permitted_keys.include?(key)}
+    disallowed = ['id', 'uuid', 'created_at', 'updated_at']
+    allowed = Version.attribute_names - disallowed
 
     if existing_version
-      if update_behavior == 'merge'
-        version_record['source_metadata'] =
-          existing_version.source_metadata.merge(record['source_metadata'])
-      end
-      existing_version.update(version_record)
+      values =
+        if update_behavior == 'merge'
+          new_values = record.select {|key, _| allowed.include?(key)}
+          if new_values.key?('source_metadata')
+            new_values['source_metadata'] = existing_version.source_metadata
+              .merge(new_values['source_metadata'])
+          end
+          new_values
+        else
+          Hash[allowed.collect {|key| [key, record[key]]}]
+        end
+
+      existing_version.assign_attributes(values)
       existing_version
     else
-      Version.new(version_record)
+      values = record.select {|key, _| allowed.include?(key) || key == 'uuid'}
+      Version.new(values)
     end
   end
 
