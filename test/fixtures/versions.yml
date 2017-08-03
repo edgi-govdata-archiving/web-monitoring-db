@@ -10,18 +10,17 @@ page1_v1:
   capture_time: '2017-03-01T00:00:00Z'
   version_hash: 'abc'
   source_type: 'versionista'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 11,
-      version_id: 111,
-      page_url: 'http://versionista.com/1/11/',
-      diff_with_previous_url: 'http://versionista.com/1/11/111/',
-      diff_with_first_url: null,
-      diff_length: null,
-      diff_hash: null
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 11,
+    version_id: 111,
+    page_url: 'http://versionista.com/1/11/',
+    diff_with_previous_url: 'http://versionista.com/1/11/111/',
+    diff_with_first_url: null,
+    diff_length: null,
+    diff_hash: null
+  }
 
 page2_v1:
   page: sub_page
@@ -110,3 +109,15 @@ page1_v4:
       page_id: 11,
       version_id: 114
     }
+
+page1_v5:
+  page: home_page
+  uri: https://test-bucket.s3.amazonaws.com/page1_v5.html
+  capture_time: '2017-03-05T00:00:00Z'
+  version_hash: 'stu'
+  source_type: 'pagefreezer'
+  source_metadata:
+    account: 'test@example.com'
+    site_id: 1
+    page_id: 11
+    version_id: 115
