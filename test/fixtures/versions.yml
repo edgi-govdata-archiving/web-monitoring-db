@@ -28,18 +28,17 @@ page2_v1:
   capture_time: '2017-03-01T00:00:00Z'
   version_hash: 'def'
   source_type: 'versionista'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 12,
-      version_id: 121,
-      page_url: 'http://versionista.com/1/12/',
-      diff_with_previous_url: 'http://versionista.com/1/12/121/',
-      diff_with_first_url: nil,
-      diff_length: nil,
-      diff_hash: nil
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 12,
+    version_id: 121,
+    page_url: 'http://versionista.com/1/12/',
+    diff_with_previous_url: 'http://versionista.com/1/12/121/',
+    diff_with_first_url: nil,
+    diff_length: nil,
+    diff_hash: nil
+  }
 
 page1_v2:
   page: home_page
@@ -47,18 +46,17 @@ page1_v2:
   capture_time: '2017-03-02T00:00:00Z'
   version_hash: 'ghi'
   source_type: 'versionista'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 11,
-      version_id: 112,
-      page_url: 'http://versionista.com/1/11/',
-      diff_with_previous_url: 'http://versionista.com/1/11/112/',
-      diff_with_first_url: nil,
-      diff_length: 1234678,
-      diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 11,
+    version_id: 112,
+    page_url: 'http://versionista.com/1/11/',
+    diff_with_previous_url: 'http://versionista.com/1/11/112/',
+    diff_with_first_url: nil,
+    diff_length: 1234678,
+    diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+  }
 
 page2_v2:
   page: sub_page
@@ -66,49 +64,46 @@ page2_v2:
   capture_time: '2017-03-02T00:00:00Z'
   version_hash: 'jkl'
   source_type: 'versionista'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 12,
-      version_id: 122,
-      page_url: 'http://versionista.com/1/12/',
-      diff_with_previous_url: 'http://versionista.com/1/12/122/',
-      diff_with_first_url: nil,
-      diff_length: 1234678,
-      diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 12,
+    version_id: 122,
+    page_url: 'http://versionista.com/1/12/',
+    diff_with_previous_url: 'http://versionista.com/1/12/122/',
+    diff_with_first_url: nil,
+    diff_length: 1234678,
+    diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+  }
 
 page1_v3:
   page: home_page
   capture_time: '2017-03-03T00:00:00Z'
   version_hash: 'mno'
   source_type: 'versionista'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 11,
-      version_id: 113,
-      page_url: 'http://versionista.com/1/11/',
-      diff_with_previous_url: 'http://versionista.com/1/11/113/',
-      diff_with_first_url: nil,
-      diff_length: 1234672,
-      diff_hash: '749ab2c0d06c42ae3b841b79e79875f02b3a042e43c92378cd28bd444c04d284'
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 11,
+    version_id: 113,
+    page_url: 'http://versionista.com/1/11/',
+    diff_with_previous_url: 'http://versionista.com/1/11/113/',
+    diff_with_first_url: nil,
+    diff_length: 1234672,
+    diff_hash: '749ab2c0d06c42ae3b841b79e79875f02b3a042e43c92378cd28bd444c04d284'
+  }
 
 page1_v4:
   page: home_page
   capture_time: '2017-03-04T00:00:00Z'
   version_hash: 'pqr'
   source_type: 'pagefreezer'
-  source_metadata: >
-    {
-      account: 'test@example.com',
-      site_id: 1,
-      page_id: 11,
-      version_id: 114
-    }
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 11,
+    version_id: 114
+  }
 
 page1_v5:
   page: home_page
