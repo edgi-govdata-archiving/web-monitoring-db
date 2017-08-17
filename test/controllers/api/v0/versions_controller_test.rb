@@ -158,4 +158,21 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert(body.key?('links'), 'Response should have a "links" property')
     assert(body.key?('data'), 'Response should have a "data" property')
   end
+
+  test 'can query by source_metadata fields' do
+    version = versions(:page1_v1)
+    get api_v0_versions_path(params: {
+      source_metadata: { version_id: version.source_metadata['version_id'] }
+    })
+
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    ids = body['data'].collect {|v| v['source_metadata']['version_id']}.uniq
+    assert_equal(1, ids.length, 'Only one version ID should be included in results')
+    assert_equal(
+      version.source_metadata['version_id'],
+      ids[0],
+      'The returned version did not have a matching ID'
+    )
+  end
 end

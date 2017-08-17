@@ -91,6 +91,12 @@ class Api::V0::VersionsController < Api::V0::ApiController
       source_type: params[:source_type]
     }.compact)
 
+    if params[:source_metadata].respond_to?(:each)
+      params[:source_metadata].each do |key, value|
+        collection = collection.where('source_metadata->>? = ?', key, value)
+      end
+    end
+
     where_in_range_param(collection, :capture_time, &method(:parse_date!))
   end
 end
