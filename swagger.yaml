@@ -154,6 +154,17 @@ paths:
             time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
           required: false
           type: string
+        - name: source_metadata[:key]
+          in: query
+          description: >-
+            Filter results by a given `key` in the `source_metadata` field. You
+            can include this parameter multiple times to filter by more than
+            one `key`. *Note that this field is not indexed, so these queries
+            can be slow.* Examples:
+
+            - `/api/v0/versions?source_metadata[version_id]=12345678`
+
+            - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
       responses:
         '200':
           description: successful operation
@@ -473,6 +484,17 @@ paths:
           description: Filter by version_hash.
           required: false
           type: string
+        - name: source_metadata[:key]
+          in: query
+          description: >-
+            Filter results by a given `key` in the `source_metadata` field. You
+            can include this parameter multiple times to filter by more than
+            one `key`. *Note that this field is not indexed, so these queries
+            can be slow.* Examples:
+
+            - `/api/v0/versions?source_metadata[version_id]=12345678`
+
+            - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
       responses:
         '200':
           description: successful operation
