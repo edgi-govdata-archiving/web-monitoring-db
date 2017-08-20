@@ -24,6 +24,9 @@ module WebpageVersionsDb
       end
 
       allow do
+        # Use this instead of `origins '*'` because we need to allow auth.
+        # FIXME: We should come back and re-evaluate if we can change client
+        # behavior to work with `origins '*'`
         origins /.*/
         resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
       end
