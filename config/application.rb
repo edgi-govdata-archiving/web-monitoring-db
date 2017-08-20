@@ -24,7 +24,7 @@ module WebpageVersionsDb
       end
 
       allow do
-        origins '*'
+        origins /.*/
         resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
       end
     end
