@@ -28,7 +28,11 @@ module WebpageVersionsDb
         # FIXME: We should come back and re-evaluate if we can change client
         # behavior to work with `origins '*'`
         origins /.*/
-        resource '*', :headers => :any, :methods => [:get, :post, :options], :if => is_admin_url
+        resource '*',
+          :headers => :any,
+          :methods => [:get, :post, :options],
+          :if => is_admin_url,
+          :credentials => true
       end
     end
   end
