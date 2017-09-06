@@ -2,15 +2,38 @@ class Api::V0::PagesController < Api::V0::ApiController
   def index
     query = page_collection
     paging = pagination(query)
-    pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
+    pages = query.limit(paging[:page_items]).offset(paging[:offset])
 
-    json_options = {
-      include: should_include_versions ? :versions : :latest
-    }
+    # In order to handle pagination when querying across pages and versions
+    # together, we do two separate queries:
+    #   1. Get a unique list of page IDs according to our query conditions. We
+    #      can use limit/offset here because the returned data is just pages,
+    #      not unique combinations of page + version, so offset is actually an
+    #      offset into the list of pages, which is what we want.
+    #   2. Do a separate query to get all the actual data for the pages and
+    #      versions associated with the page IDs found above in step 1.
+    #
+    # ActiveRecord normally does the above automatically, but adding ordering
+    # based on associated records (e.g. versions.capture_time here) causes the
+    # built-in behavior to break, so we do it manually here. For more, see:
+    #   - https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/129
+    #   - https://github.com/rails/rails/issues/30531
+    result_data =
+      if should_include_versions
+        # NOTE: need to get :updated_at here because it's used for ordering
+        page_ids = pages.pluck(:uuid, :updated_at).collect {|data| data[0]}
+        results = query
+          .where(uuid: page_ids)
+          .includes(:versions)
+          .order('versions.capture_time')
+        results.as_json(include: :versions)
+      else
+        pages.includes(:latest).as_json(include: :latest)
+      end
 
     render json: {
       links: paging[:links],
-      data: pages.as_json(json_options)
+      data: result_data
     }
   end
 
@@ -59,14 +82,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     end
 
-    collection =
-      if should_include_versions
-        collection.includes(:versions).order('versions.capture_time')
-      else
-        collection.includes(:latest)
-      end
-
     # If any queries create implicit joins, ensure we get a list of unique pages
-    collection.distinct
+    collection.distinct.order(updated_at: :desc)
   end
 end
