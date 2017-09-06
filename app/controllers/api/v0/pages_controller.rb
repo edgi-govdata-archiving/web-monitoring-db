@@ -4,33 +4,20 @@ class Api::V0::PagesController < Api::V0::ApiController
     paging = pagination(query)
     pages = query.limit(paging[:page_items]).offset(paging[:offset])
 
-    # When using limit/offset on queries that `include` associations (e.g.
-    # `versions` here), ActiveRecord actually does TWO queries:
-    #   1. A query for only the IDs of the primary record type (e.g. pages).
-    #      This ensures the limit/offset isn't mispositioned by extra rows
-    #      created when joining to the versions table.
-    #   2. A query for the joined primary and associated records (e.g. pages +
-    #      versions) based on a list of primary record IDs from step 1 above.
-    #      This gets us the actual data to instantiate models.
+    # In order to handle pagination when querying across pages and versions
+    # together, we do two separate queries:
+    #   1. Get a unique list of page IDs according to our query conditions. We
+    #      can use limit/offset here because the returned data is just pages,
+    #      not unique combinations of page + version, so offset is actually an
+    #      offset into the list of pages, which is what we want.
+    #   2. Do a separate query to get all the actual data for the pages and
+    #      versions associated with the page IDs found above in step 1.
     #
-    # HOWEVER! If ordering criteria includes fields from the associated records
-    # (e.g. versions), then those fields have to be included in the first query,
-    # which means we potentially get the wrong primary record IDs (since the
-    # returned rows are now a pages + versions combo).
-    #
-    # To work around this, do a similar operation manually:
-    #   1. Do NOT `includes(:versions)` and do NOT include version sorting on
-    #      the first query where we get IDs so as not to trigger the two-query
-    #      behavior (otherwise it would query for a set of IDs in order to query
-    #      for the IDs we asked for).
-    #   2. Once we have IDs, query specifically for those IDs and then include
-    #      the associated version records and version ordering info. This does
-    #      not trigger the two-query behavior because there's no limit/offset.
-    #
-    # NOTE: there was a previous solution to this that manually ordered
-    # versions right here in Ruby. This approach results in the same number of
-    # SQL queries and gets results already in the right order, so should
-    # hopefully be more performant.
+    # ActiveRecord normally does the above automatically, but adding ordering
+    # based on associated records (e.g. versions.capture_time here) causes the
+    # built-in behavior to break, so we do it manually here. For more, see:
+    #   - https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/129
+    #   - https://github.com/rails/rails/issues/30531
     result_data =
       if should_include_versions
         # NOTE: need to get :updated_at here because it's used for ordering
