@@ -2,15 +2,40 @@ class Api::V0::PagesController < Api::V0::ApiController
   def index
     query = page_collection
     paging = pagination(query)
-    pages = query.order(updated_at: :desc).limit(paging[:page_items]).offset(paging[:offset])
+    pages = query.limit(paging[:page_items]).offset(paging[:offset])
 
-    json_options = {
-      include: should_include_versions ? :versions : :latest
-    }
+    # If we are including versions, sort the version list in-app here.
+    # Why is a bit complicated... when using limit/offset on queries that
+    # `include` associations (as we include `versions` here), it actually does
+    # TWO queries:
+    #   1. A query for only the IDs of the primary record type (e.g. pages).
+    #      This ensures the limit/offset isn't mispositioned by extra rows
+    #      created when joining to the versions table.
+    #   2. A query for the joined primary and associated records (e.g. pages +
+    #      versions) based on a list of primary record IDs from step 1 above.
+    #      This gets us the actual data to instantiate models.
+    #
+    # HOWEVER! If ordering criteria includes fields from the associated records
+    # (e.g. versions), then they those fields have to be included in the first
+    # query, which means we potentially get the wrong primary record IDs (since
+    # the returned rows are now a pages + versions combo).
+    #
+    # So my best solution here is to sort in-app :(
+    result_data =
+      if should_include_versions
+        pages.as_json(include: :versions).collect do |page|
+          page['versions'].sort! do |a, b|
+            a['capture_time'] <=> b['capture_time']
+          end
+          page
+        end
+      else
+        pages.as_json(include: :latest)
+      end
 
     render json: {
       links: paging[:links],
-      data: pages.as_json(json_options)
+      data: result_data
     }
   end
 
@@ -61,12 +86,12 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     collection =
       if should_include_versions
-        collection.includes(:versions).order('versions.capture_time')
+        collection.includes(:versions)
       else
         collection.includes(:latest)
       end
 
     # If any queries create implicit joins, ensure we get a list of unique pages
-    collection.distinct
+    collection.distinct.order(updated_at: :desc)
   end
 end

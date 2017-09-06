@@ -209,4 +209,73 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert(body.key?('data'), 'Response should have a "data" property')
   end
+
+  test 'includes all pages when include_versions is true' do
+    # This is a regression test for an issue where limit/offset queries for
+    # paging wind up taking into account page-version combinations, not just
+    # pages, so the actual page records on a given result page may not match up
+    # with the full set.
+    first_page = Page.first
+    now = DateTime.now
+    Page.transaction do
+      100.times {|i| first_page.versions.create(capture_time: now - i.days)}
+
+      (105 - Page.count).times do
+        page = Page.create(url: "http://example.com/temp/#{SecureRandom.hex}")
+        page.versions.create(capture_time: now - 1.day)
+      end
+    end
+
+    def get_all_pages(url)
+      get url
+      assert_response(:success)
+      body = JSON.parse @response.body
+      pages = body['data']
+      next_url = body['links']['next']
+      next_url ? pages.concat(get_all_pages(next_url)) : pages
+    end
+
+    base_url = api_v0_pages_path(
+      include_versions: true,
+      capture_time: "..#{now.iso8601}"
+    )
+    found_ids = get_all_pages(base_url).collect {|page| page['uuid']}.sort
+    all_ids = Page
+      .where_in_unbounded_range('versions.capture_time', [nil, now])
+      .pluck(:uuid)
+      .sort
+
+    assert_equal(
+      all_ids,
+      found_ids,
+      "Not all page IDs were in paged results (#{found_ids.length} of #{all_ids.length} total found)"
+    )
+  end
+
+  test 'the latest version is actually the latest' do
+    # Add some versions out of order
+    page = Page.first
+    page.versions.create(capture_time: DateTime.now - 5.days)
+    page.versions.create(capture_time: DateTime.now)
+    page.versions.create(capture_time: DateTime.now - 1.day)
+    page = Page.last
+    page.versions.create(capture_time: DateTime.now - 5.days)
+    page.versions.create(capture_time: DateTime.now)
+    page.versions.create(capture_time: DateTime.now - 1.day)
+
+    get api_v0_pages_path(capture_time: "..#{(DateTime.now - 1.day).iso8601}")
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    # Ensure every returned page has the correct latest version.
+    body['data'].each do |found_page|
+      actual_page = Page.find(found_page['uuid'])
+      skip unless actual_page.latest
+
+      assert_equal(
+        actual_page.latest.capture_time.as_json,
+        found_page['latest']['capture_time']
+      )
+    end
+  end
 end
