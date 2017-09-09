@@ -27,8 +27,10 @@ class Api::V0::PagesController < Api::V0::ApiController
           .includes(:versions)
           .order('versions.capture_time')
         results.as_json(include: :versions)
-      else
+      elsif should_include_latest
         pages.includes(:latest).as_json(include: :latest)
+      else
+        pages.as_json
       end
 
     render json: {
@@ -52,6 +54,10 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def should_include_versions
     boolean_param :include_versions
+  end
+
+  def should_include_latest
+    !should_include_versions && boolean_param(:include_latest)
   end
 
   def page_collection
