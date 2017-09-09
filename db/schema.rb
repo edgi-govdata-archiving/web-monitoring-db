@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170801192038) do
+ActiveRecord::Schema.define(version: 20170909151007) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -104,6 +104,7 @@ ActiveRecord::Schema.define(version: 20170801192038) do
     t.jsonb "source_metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["page_uuid"], name: "index_versions_on_page_uuid"
     t.index ["version_hash"], name: "index_versions_on_version_hash"

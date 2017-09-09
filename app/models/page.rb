@@ -1,7 +1,11 @@
 class Page < ApplicationRecord
   include UuidPrimaryKey
 
-  has_many :versions, -> { order(capture_time: :desc) }, foreign_key: 'page_uuid', inverse_of: :page
+  has_many :versions,
+    -> { order(capture_time: :desc) },
+    foreign_key: 'page_uuid',
+    inverse_of: :page,
+    after_add: :sync_titles
   has_one :latest,
     (lambda do
       # DISTINCT ON requires the first ORDER to be the distinct column(s)
@@ -36,6 +40,13 @@ class Page < ApplicationRecord
   def url_must_have_domain
     unless url.match?(/^([\w\+\-\.]+:\/\/)?[^\/]+\.[^\/]{2,}/)
       errors.add(:url, 'must have a domain')
+    end
+  end
+
+  def sync_titles(version)
+    if version.title.present?
+      most_recent_capture_time = versions.limit(1).order(capture_time: :desc).pluck(:capture_time).first
+      self.title = version.title if most_recent_capture_time.nil? || most_recent_capture_time <= version.capture_time
     end
   end
 end
