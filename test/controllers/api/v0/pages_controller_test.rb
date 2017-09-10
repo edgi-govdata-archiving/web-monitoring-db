@@ -118,6 +118,14 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       'Results included pages with versions not captured in the filtered date range'
   end
 
+  test 'includes latest version if include_latest = true' do
+    get api_v0_pages_path(include_latest: true)
+    body = JSON.parse @response.body
+    results = body['data']
+
+    assert_kind_of Hash, results[0]['latest'], '"latest" property was not a hash'
+  end
+
   test 'includes versions if include_versions = true' do
     get api_v0_pages_path(include_versions: true)
     body = JSON.parse @response.body
@@ -132,6 +140,17 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     home_page = results.find {|page| page['uuid'] == pages(:home_page).uuid}
     assert_equal pages(:home_page).versions.count, home_page['versions'].length,
       '"Home page" didn’t include all versions'
+  end
+
+  test 'includes only versions if include_versions = true and include_latest = true' do
+    get api_v0_pages_path(include_versions: true, include_latest: true)
+    body = JSON.parse @response.body
+    results = body['data']
+
+    # returned records should have "versions" instead of "latest"
+    with_latest = results.select {|page| page.key? 'latest'}
+    assert_empty with_latest, 'Results had objects with a "latest" property'
+    assert_kind_of Array, results[0]['versions'], '"versions" property was not an array'
   end
 
   test 'Only includes versions that match query when include_versions = true' do
@@ -263,7 +282,10 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     page.versions.create(capture_time: DateTime.now)
     page.versions.create(capture_time: DateTime.now - 1.day)
 
-    get api_v0_pages_path(capture_time: "..#{(DateTime.now - 1.day).iso8601}")
+    get api_v0_pages_path(
+      capture_time: "..#{(DateTime.now - 1.day).iso8601}",
+      include_latest: true
+    )
     assert_response(:success)
     body = JSON.parse(@response.body)
 
