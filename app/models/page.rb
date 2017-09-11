@@ -45,8 +45,8 @@ class Page < ApplicationRecord
 
   def sync_titles(version)
     if version.title.present?
-      most_recent_capture_time = versions.limit(1).order(capture_time: :desc).pluck(:capture_time).first
-      self.title = version.title if most_recent_capture_time.nil? || most_recent_capture_time <= version.capture_time
+      most_recent_capture_time = latest.capture_time
+      update(title: version.title) if most_recent_capture_time.nil? || most_recent_capture_time <= version.capture_time
     end
   end
 end

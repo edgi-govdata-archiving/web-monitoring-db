@@ -75,7 +75,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       'uri',
       'version_hash',
       'source_type',
-      'source_metadata'
+      'source_metadata',
+      'title'
     ]
     params
       .require(:version)
