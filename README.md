@@ -37,7 +37,7 @@ It’s a Rails app that:
     You do not need to do anything.  Apple JavaScriptCore fulfills this dependency.
 
     On Debian Linux:
-    
+
     ```sh
     $ apt-get install nodejs
     ```
@@ -65,8 +65,8 @@ It’s a Rails app that:
     That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
 
     If you’d like to do the setup manually see [manual postgres setup](#manual-postgres-setup) below.
-    
-    If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below. 
+
+    If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below.
 
 9. Start the server!
 
@@ -116,7 +116,7 @@ User.create(
 ## Troubleshooting
 
 If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't create database.` while running `rake db:setup` or `rake db:create` then it may mean that your database is password protected. There are two ways to setup required databases:
-    
+
 1. (Recommended) Create users and databases manually
 
     ```sh
@@ -125,33 +125,33 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' web-monitoring-db_development
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' web-monitoring-db_development
     ```
-    
+
     and then set `DATABASE_URL` environment variable to point to the development database:
-     
+
     ```sh
     export DATABASE_URL=postgres://web-monitoring-db_development:wmdb@localhost/web-monitoring-db_development
     ```
-    
-    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal. 
-    
+
+    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal.
+
     Required databases exist, now continue with loading schema.
 
 2. Loosen local Postgres database security to allow local users without password
 
     You have to edit [pg_hba.conf](https://www.postgresql.org/docs/9.6/static/auth-pg-hba-conf.html) config file (`/etc/postgresql/9.6/main/pg_hba.conf` on Unix) and add or update authorization line for local logins from `md5` to `trust`:
-    
+
     ```
     # "local" is for Unix domain socket connections only
     local   all             all                                     trust
     # IPv4 local connections:
     host    all             all             127.0.0.1/32            trust
-    ```   
-    
+    ```
+
     Create Postgres superuser that will link to your account:
     ```
     sudo -u postgres createuser `whoami` -ds
     ```
-    
+
     Now `bundle exec rake db:setup` command should work.
 
 ## Contributors
@@ -171,6 +171,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
 | [📖](# "Documentation") | [Michael Hardy](https://github.com/michardy) |
+| [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
