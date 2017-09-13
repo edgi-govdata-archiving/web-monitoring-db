@@ -1,7 +1,8 @@
 module PagingConcern
   extend ActiveSupport::Concern
 
-  PAGE_SIZE = 100
+  DEFAULT_PAGE_SIZE = 100
+  MAX_PAGE_SIZE = 10_000
 
   protected
 
@@ -28,45 +29,48 @@ module PagingConcern
 
     format_type = url_format || self.paging_url_format
     total_items = collection.count
-    total_pages = total_items.zero? ? 1 : (total_items / PAGE_SIZE.to_f).ceil
-    page_number = (params[:page] || 1).to_i.clamp(1, total_pages)
-    page_offset = (page_number - 1) * PAGE_SIZE
+    chunk_size = (params[:chunk_size] || DEFAULT_PAGE_SIZE).to_i.clamp(1, MAX_PAGE_SIZE)
+    total_chunks = total_items.zero? ? 1 : (total_items / chunk_size.to_f).ceil
+    chunk_number = (params[:chunk] || 1).to_i.clamp(1, total_chunks)
+    item_offset = (chunk_number - 1) * chunk_size
 
     links = {
       first: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: 1)
+        params: request.query_parameters.merge(chunk: 1)
       ),
       last: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: total_pages)
+        params: request.query_parameters.merge(chunk: total_chunks)
       ),
       prev: nil,
       next: nil
     }
-    if page_number > 1
+    if chunk_number > 1
       links[:prev] = path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: page_number - 1)
+        params: request.query_parameters.merge(chunk: chunk_number - 1,
+                                               chunk_size: chunk_size)
       )
     end
-    if page_number < total_pages
+    if chunk_number < total_chunks
       links[:next] = path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: page_number + 1)
+        params: request.query_parameters.merge(chunk: chunk_number + 1,
+                                               chunk_size: chunk_size)
       )
     end
 
     {
-      pages: total_pages,
-      page_number: page_number,
-      offset: page_offset,
+      chunks: total_chunks,
+      chunk_number: chunk_number,
+      offset: item_offset,
       total_items: total_items,
-      page_items: PAGE_SIZE,
+      chunk_size: chunk_size,
       links: links
     }
   end

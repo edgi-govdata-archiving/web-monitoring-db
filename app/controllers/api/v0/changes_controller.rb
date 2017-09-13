@@ -2,7 +2,7 @@ class Api::V0::ChangesController < Api::V0::ApiController
   def index
     query = changes_collection
     paging = pagination(query)
-    changes = query.limit(paging[:page_items]).offset(paging[:offset])
+    changes = query.limit(paging[:chunk_size]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],

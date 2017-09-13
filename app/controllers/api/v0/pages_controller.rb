@@ -2,7 +2,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   def index
     query = page_collection
     paging = pagination(query)
-    pages = query.limit(paging[:page_items]).offset(paging[:offset])
+    pages = query.limit(paging[:chunk_size]).offset(paging[:offset])
 
     # In order to handle pagination when querying across pages and versions
     # together, we do two separate queries:
