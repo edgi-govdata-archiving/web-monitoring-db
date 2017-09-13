@@ -25,7 +25,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         results = query
           .where(uuid: page_ids)
           .includes(:versions)
-          .order('versions.capture_time')
+          .order('versions.capture_time DESC')
         results.as_json(include: :versions)
       elsif should_include_latest
         pages.includes(:latest).as_json(include: :latest)
