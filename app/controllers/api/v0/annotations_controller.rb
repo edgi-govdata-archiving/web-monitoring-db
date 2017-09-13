@@ -3,7 +3,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
   def index
     paging = pagination(parent_change.annotations)
-    annotations = parent_change.annotations.limit(paging[:page_items]).offset(paging[:offset])
+    annotations = parent_change.annotations.limit(paging[:chunk_size]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],

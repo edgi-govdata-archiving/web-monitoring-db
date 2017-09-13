@@ -2,7 +2,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def index
     query = version_collection
     paging = pagination(query)
-    versions = query.limit(paging[:page_items]).offset(paging[:offset])
+    versions = query.limit(paging[:chunk_size]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],
