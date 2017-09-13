@@ -1,7 +1,10 @@
 class Page < ApplicationRecord
   include UuidPrimaryKey
 
-  has_many :versions, -> { order(capture_time: :desc) }, foreign_key: 'page_uuid', inverse_of: :page
+  has_many :versions,
+    -> { order(capture_time: :desc) },
+    foreign_key: 'page_uuid',
+    inverse_of: :page
   has_one :latest,
     (lambda do
       # DISTINCT ON requires the first ORDER to be the distinct column(s)

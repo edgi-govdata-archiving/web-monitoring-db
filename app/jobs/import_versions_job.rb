@@ -70,6 +70,9 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
+    # TODO: Remove line 74 below once full transition from 'page_title' to 'title'
+    # is complete
+    record['title'] = record['page_title'] if record.key?('page_title')
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
     allowed = Version.attribute_names - disallowed
 
@@ -104,7 +107,6 @@ class ImportVersionsJob < ApplicationJob
     end
     Page.find_by(search_options) || Page.create(
       url: record['page_url'],
-      title: record['page_title'],
       agency: record['site_agency'],
       site: record['site_name']
     )
