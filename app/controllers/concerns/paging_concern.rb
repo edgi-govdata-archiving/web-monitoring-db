@@ -1,7 +1,8 @@
 module PagingConcern
   extend ActiveSupport::Concern
 
-  PAGE_SIZE = 100
+  DEFAULT_PAGE_SIZE = 100
+  MAX_PAGE_SIZE = 10_000
 
   protected
 
@@ -28,20 +29,21 @@ module PagingConcern
 
     format_type = url_format || self.paging_url_format
     total_items = collection.count
-    total_pages = total_items.zero? ? 1 : (total_items / PAGE_SIZE.to_f).ceil
-    page_number = (params[:page] || 1).to_i.clamp(1, total_pages)
-    page_offset = (page_number - 1) * PAGE_SIZE
+    page_size = (params[:chunk_size] || DEFAULT_PAGE_SIZE).to_i.clamp(1, MAX_PAGE_SIZE)
+    total_pages = total_items.zero? ? 1 : (total_items / page_size.to_f).ceil
+    page_number = (params[:chunk] || 1).to_i.clamp(1, total_pages)
+    page_offset = (page_number - 1) * page_size
 
     links = {
       first: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: 1)
+        params: request.query_parameters.merge(chunk: 1)
       ),
       last: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: total_pages)
+        params: request.query_parameters.merge(chunk: total_pages)
       ),
       prev: nil,
       next: nil
@@ -50,14 +52,16 @@ module PagingConcern
       links[:prev] = path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: page_number - 1)
+        params: request.query_parameters.merge(chunk: page_number - 1,
+                                               chunk_size: page_size)
       )
     end
     if page_number < total_pages
       links[:next] = path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(page: page_number + 1)
+        params: request.query_parameters.merge(chunk: page_number + 1,
+                                               chunk_size: page_size)
       )
     end
 
@@ -66,7 +70,7 @@ module PagingConcern
       page_number: page_number,
       offset: page_offset,
       total_items: total_items,
-      page_items: PAGE_SIZE,
+      page_items: page_size,
       links: links
     }
   end
