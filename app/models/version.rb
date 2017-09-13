@@ -8,11 +8,22 @@ class Version < ApplicationRecord
     class_name: 'Change',
     foreign_key: 'uuid_to'
 
+  after_save :sync_page_title
+
   def previous
     self.page.versions.where('capture_time < ?', self.capture_time).first
   end
 
   def change_from_previous
     Change.between(from: previous, to: self)
+  end
+
+  private
+
+  def sync_page_title
+    if title.present?
+      most_recent_capture_time = page.latest.capture_time
+      page.update(title: title) if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
+    end
   end
 end

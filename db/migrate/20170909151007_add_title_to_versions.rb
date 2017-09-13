@@ -1,8 +1,20 @@
 class AddTitleToVersions < ActiveRecord::Migration[5.1]
   def change
     add_column :versions, :title, :string
-    Version.includes(:page).find_each do |v|
-      puts "Updated Version record with UUID #{v.uuid} to have title '#{v.title}'" if v.update(title: v.page.title)
+
+    reversible do |dir|
+      dir.up do
+        say_with_time("Copying titles from pages to versions") do
+          page_count = 0
+          version_count = 0
+          Page.includes(:versions).find_each do |page|
+            page_count += 1
+            version_count += page.versions.update_all(title: page.title)
+          end
+          say("#{page_count} pages assessed", :subitem)
+          say("#{version_count} versions updated", :subitem)
+        end
+      end
     end
   end
 end
