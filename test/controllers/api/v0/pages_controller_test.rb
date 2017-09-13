@@ -21,17 +21,17 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'should repect chunk_size pagination parameter' do
     # one result per page ('chunk' to avoid ambiguity with Page model)
-    get(api_v0_pages_path, params: {chunk: 1, chunk_size: 1})
+    get(api_v0_pages_path, params: { chunk: 1, chunk_size: 1 })
     body = JSON.parse(@response.body)
     data = body['data']
     assert_equal 1, data.length
     # one result per page; second page
-    get(api_v0_pages_path, params: {chunk: 2, chunk_size: 1})
+    get(api_v0_pages_path, params: { chunk: 2, chunk_size: 1 })
     body = JSON.parse(@response.body)
     data = body['data']
     assert_equal 1, data.length
     # two results per page
-    get(api_v0_pages_path, params: {chunk: 1, chunk_size: 2})
+    get(api_v0_pages_path, params: { chunk: 1, chunk_size: 2 })
     body = JSON.parse(@response.body)
     data = body['data']
     assert_equal 2, data.length
