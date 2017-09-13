@@ -4,7 +4,7 @@ class AddTitleToVersions < ActiveRecord::Migration[5.1]
 
     reversible do |dir|
       dir.up do
-        say_with_time("Copying titles from pages to versions") do
+        say_with_time('Copying titles from pages to versions') do
           page_count = 0
           version_count = 0
           Page.includes(:versions).find_each do |page|

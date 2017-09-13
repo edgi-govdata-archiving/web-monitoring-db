@@ -8,7 +8,7 @@ class Version < ApplicationRecord
     class_name: 'Change',
     foreign_key: 'uuid_to'
 
-  after_save :sync_page_title
+  after_create :sync_page_title
 
   def previous
     self.page.versions.where('capture_time < ?', self.capture_time).first
