@@ -2,14 +2,16 @@ class Api::V0::DiffController < Api::V0::ApiController
   def show
     ensure_diffable
 
+    content = raw_diff
+
     render json: {
       data: {
         page_id: change.version.page.uuid,
         from_version_id: change.from_version.uuid,
         to_version_id: change.version.uuid,
         diff_service: params[:type],
-        diff_service_version: '?',
-        content: raw_diff
+        diff_service_version: content.is_a?(Hash) && content['version'] || '?',
+        content: content
       }
     }
   end
