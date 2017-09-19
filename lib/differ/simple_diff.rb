@@ -17,11 +17,15 @@ module Differ
 
       # TODO: get our simple differ to return correct Content-Type header
       # and remove check for magical 'format' query arg
-      if response.request.format == :json || options['format'] == 'json'
-        JSON.parse(response.body)
-      else
-        response.body
-      end
+      body =
+        if response.request.format == :json || options['format'] == 'json'
+          JSON.parse(response.body)
+        else
+          response.body
+        end
+
+      raise Api::DynamicError.new(body, response.code) if response.code >= 400
+      body
     end
   end
 end

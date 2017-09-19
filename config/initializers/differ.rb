@@ -1,32 +1,22 @@
 require_dependency 'differ/differ'
 require_dependency 'differ/simple_diff'
 
-if ENV['DIFFER_SOURCE']
-  Differ.register(:source, Differ::SimpleDiff.new(ENV['DIFFER_SOURCE']))
-end
-
-if ENV['DIFFER_LENGTH']
-  Differ.register(:length, Differ::SimpleDiff.new(ENV['DIFFER_LENGTH']))
-end
-
-if ENV['DIFFER_IDENTICAL_BYTES']
-  Differ.register(:identical_bytes,
-                  Differ::SimpleDiff.new(ENV['DIFFER_IDENTICAL_BYTES']))
-end
-
-if ENV['DIFFER_SIDE_BY_SIDE_TEXT']
-  Differ.register(:side_by_side_text,
-                  Differ::SimpleDiff.new(ENV['DIFFER_SIDE_BY_SIDE_TEXT']))
-end
-
-if ENV['DIFFER_PAGEFREEZER']
-  Differ.register(:pagefreezer, Differ::SimpleDiff.new(ENV['DIFFER_PAGEFREEZER']))
-end
-
-if ENV['DIFFER_HTML_SOURCE']
-  Differ.register(:html_source, Differ::SimpleDiff.new(ENV['DIFFER_HTML_SOURCE']))
-end
-
-if ENV['DIFFER_HTML_TEXT']
-  Differ.register(:html_text, Differ::SimpleDiff.new(ENV['DIFFER_HTML_TEXT']))
+# Automatically create SimpleDiff instances with the name of whatever is after
+# "DIFFER_" in the name of the following env vars.
+[
+  'DIFFER_SOURCE',
+  'DIFFER_LENGTH',
+  'DIFFER_IDENTICAL_BYTES',
+  'DIFFER_SIDE_BY_SIDE_TEXT',
+  'DIFFER_PAGEFREEZER',
+  'DIFFER_HTML_SOURCE',
+  'DIFFER_HTML_TEXT',
+  'DIFFER_HTML_VISUAL'
+].each do |env_var|
+  if ENV[env_var]
+    Differ.register(
+      env_var.gsub(/^DIFFER_/, '').downcase.to_sym,
+      Differ::SimpleDiff.new(ENV[env_var])
+    )
+  end
 end
