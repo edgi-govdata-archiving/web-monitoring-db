@@ -8,7 +8,6 @@ class Api::V0::DiffController < Api::V0::ApiController
         from_version_id: change.from_version.uuid,
         to_version_id: change.version.uuid,
         diff_service: params[:type],
-        diff_service_version: '?',
         content: raw_diff
       }
     }
