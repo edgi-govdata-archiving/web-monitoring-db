@@ -48,7 +48,7 @@ class Api::V0::ApiController < ApplicationController
     code || begin
       error_name = error.class.name
       ActionDispatch::ExceptionWrapper.status_code_for_exception(error_name)
-    rescue
+    rescue StandardError => _
       500
     end
   end
@@ -68,7 +68,7 @@ class Api::V0::ApiController < ApplicationController
   def parse_date!(date)
     raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
     DateTime.parse date
-  rescue
+  rescue StandardError => _
     raise Api::InputError, "Invalid date: '#{date}'"
   end
 

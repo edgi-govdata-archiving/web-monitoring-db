@@ -9,7 +9,7 @@ class ImportVersionsJob < ApplicationJob
 
     begin
       import_raw_data(@import.load_data)
-    rescue
+    rescue StandardError => _
       @import.processing_errors << 'Unknown error occurred'
       raise
     ensure
@@ -32,7 +32,7 @@ class ImportVersionsJob < ApplicationJob
       rescue ActiveRecord::RecordInvalid => error
         messages = error.model.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
-      rescue
+      rescue StandardError => _
         # for unexpected error types, still note the job failed and complete it
         @import.processing_errors << 'Unknown error occurred'
         raise
