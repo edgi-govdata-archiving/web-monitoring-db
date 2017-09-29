@@ -30,7 +30,7 @@ module SameOriginSessionsConcern
   def referring_host
     return nil unless request.referer
     URI.parse(request.referer).host
-  rescue
+  rescue StandardError => _
     '[invalid host]'
   end
 end

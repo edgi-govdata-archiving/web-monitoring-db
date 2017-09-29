@@ -16,9 +16,7 @@ module PagingConcern
 
   # Undoubtedly there is a gem that makes this nicer
   def pagination(collection, path_resolver: :paging_path_for, url_format: nil)
-    unless collection
-      collection = @collection
-    end
+    collection ||= @collection
 
     collection_type = collection.new.class.name.underscore.to_sym
 
