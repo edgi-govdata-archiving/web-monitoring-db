@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/web-monitoring-db
+    docker:
+      - image: circleci/ruby:2.4.1-node
+        environment:
+          RAILS_ENV: test
+          RACK_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: root
+          HOST_URL: 'web-monitoring-db.test'
+          ALLOWED_ARCHIVE_HOSTS: 'https://edgi-versionista-archive.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
+      - image: circleci/postgres:9.5-alpine
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: circle-test_test
+    steps:
+      - checkout
+      - restore_cache:
+          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+
+      # Bundle install dependencies
+      - run: bundle install --path vendor/bundle
+
+      # Store bundle cache
+      - save_cache:
+          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      # Database setup
+      - run:
+          name: Setup Database Setup
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:schema:load
+      - type: shell
+        command: bundle exec rake test
+      - type: shell
+        command: bundle exec rubocop
