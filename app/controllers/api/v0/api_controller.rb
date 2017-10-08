@@ -1,6 +1,6 @@
 class Api::V0::ApiController < ApplicationController
   include PagingConcern
-  before_action :require_authentication!, only: [:create]
+  before_action :require_authentication!
   before_action :set_environment_header
 
   rescue_from StandardError, with: :render_errors if Rails.env.production? || Rails.env.test?
