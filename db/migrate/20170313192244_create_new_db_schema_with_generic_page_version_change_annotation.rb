@@ -1,11 +1,11 @@
 class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Migration[5.0]
   def change
-    # Since 9.4, PostgreSQL recommends using `pgcrypto`'s `gen_random_uuid()`
+    # Since 9.4, PostgreSQL recommends using `pgcrypto`'s `gen_random_uuid`
     # https://github.com/rails/rails/commit/b915b11cca558eb99b7c2621c4457491d4bdb43b
     enable_extension 'pgcrypto'
 
-    create_table :pages, id: false, default: -> { "gen_random_uuid()" } do |t|
-      t.primary_key :uuid, gen_random_uuid()
+    create_table :pages, id: false, default: -> { 'gen_random_uuid' } do |t|
+      t.primary_key :uuid, gen_random_uuid
       t.string :url, null: false
       t.string :title
       t.string :agency
@@ -15,8 +15,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
       t.index :url
     end
 
-    create_table :versions, id: false, default: -> { "gen_random_uuid()" } do |t|
-      t.primary_key :uuid, gen_random_uuid()
+    create_table :versions, id: false, default: -> { 'gen_random_uuid' } do |t|
+      t.primary_key :uuid, gen_random_uuid
       # No way to use `belongs_to/references` to make a column named `*_uuid`
       t.uuid :page_uuid, null: false
       t.datetime :capture_time, null: false
@@ -31,8 +31,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
       t.foreign_key :pages, column: :page_uuid, primary_key: 'uuid'
     end
 
-    create_table :changes, id: false, default: -> { "gen_random_uuid()" } do |t|
-      t.primary_key :uuid, gen_random_uuid()
+    create_table :changes, id: false, default: -> { 'gen_random_uuid' } do |t|
+      t.primary_key :uuid, gen_random_uuid
       t.uuid :uuid_from, null: false
       t.uuid :uuid_to, null: false
       t.float :priority, default: 0.5
@@ -45,8 +45,8 @@ class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Mi
       t.foreign_key :versions, column: :uuid_to, primary_key: 'uuid'
     end
 
-    create_table :annotations, id: false, default: -> { "gen_random_uuid()" } do |t|
-      t.primary_key :uuid, gen_random_uuid()
+    create_table :annotations, id: false, default: -> { 'gen_random_uuid' } do |t|
+      t.primary_key :uuid, gen_random_uuid
       # No way to use `belongs_to/references` to make a column named `*_uuid`
       t.uuid :change_uuid, null: false
       t.belongs_to :author, foreign_key: { to_table: :users }
