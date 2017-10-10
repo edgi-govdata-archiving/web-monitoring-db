@@ -2,6 +2,7 @@ class ChangeAnnotationAuthorToNotNull < ActiveRecord::Migration[5.1]
   def do_sql(*args)
     expression = ActiveRecord::Base.send :sanitize_sql, args
     ActiveRecord::Base.connection.exec_query(expression)
+    raise StandardError, 'You can’t run this migration without any users in your DB'
   end
 
   def up
