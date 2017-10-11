@@ -74,6 +74,13 @@ paths:
           required: false
           type: string
           default: false
+        - name: include_latest
+          in: query
+          description: >-
+            If true, add a latest key to the each item with the latest version.
+          required: false
+          type: string
+          default: false
         - name: source_type
           in: query
           description: >-
