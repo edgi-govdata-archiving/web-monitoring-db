@@ -77,15 +77,13 @@ paths:
         - name: source_type
           in: query
           description: >-
-            Only relevant if include_versions=true. Filters versions by
-            source_type.
+            Only include pages with at least one versions of this source type.
           required: false
           type: string
         - name: hash
           in: query
           description: >-
-            Only relevant if include_versions=true. Filters versions by
-            version_hash.
+            Only include the pages that have at least one version with this hash.
           required: false
           type: string
         - name: capture_time
