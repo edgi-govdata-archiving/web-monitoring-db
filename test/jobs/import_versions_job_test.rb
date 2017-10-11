@@ -107,4 +107,28 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     expected_meta = original_meta.merge('test_meta' => 'data')
     assert_equal(expected_meta, version.source_metadata, 'source_metadata was not merged')
   end
+
+  test 'raises helpful error if page_url is missing' do
+    import = Import.create_with_data(
+      {
+        user: users(:alice),
+        update_behavior: :merge
+      },
+      [
+        {
+          # omitted page_url
+          page_title: pages(:home_page).title,
+          site_agency: 'The Federal Example Agency',
+          site_name: pages(:home_page).site,
+          capture_time: versions(:page1_v5).capture_time,
+          # NOTE: uri is intentionally left out; it should not get set to nil
+          version_hash: 'INVALID_HASH',
+          source_type: versions(:page1_v5).source_type,
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+    assert_equal(['Row 0: page_url is missing from record'], import.processing_errors, 'expected error due to missing page_url')
+  end
 end

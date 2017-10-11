@@ -32,10 +32,12 @@ class ImportVersionsJob < ApplicationJob
       rescue ActiveRecord::RecordInvalid => error
         messages = error.model.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
-      rescue StandardError => _
-        # for unexpected error types, still note the job failed and complete it
-        @import.processing_errors << 'Unknown error occurred'
-        raise
+      rescue StandardError => error
+        @import.processing_errors << if Rails.env.development?
+                                       "Row #{row}: #{error.message}"
+                                     else
+                                       "Row #{row}: Unknown error occurred"
+                                     end
       end
     end
   end
@@ -101,6 +103,7 @@ class ImportVersionsJob < ApplicationJob
     # TODO: there shouldn't be a special case for Versionista here -- we should
     # just match on `url`, but this requires fixing:
     # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/24
+    raise Api::InputError, 'page_url is missing from record' unless record.key?('page_url')
     search_options = { url: Page.normalize_url(record['page_url']) }
     if record['source_type'] == 'versionista'
       search_options[:site] = record['site_name']
