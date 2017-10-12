@@ -123,6 +123,7 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
     sudo -u postgres psql -c "CREATE USER \"web-monitoring-db_development\" WITH PASSWORD 'wmdb';"
     sudo -u postgres createdb -O web-monitoring-db_development web-monitoring-db_development -E utf-8
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' web-monitoring-db_development
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";' web-monitoring-db_development
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' web-monitoring-db_development
     ```
 
