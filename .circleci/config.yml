@@ -34,7 +34,9 @@ jobs:
           command: |
             bundle exec rake db:create
             bundle exec rake db:schema:load
-      - type: shell
-        command: bundle exec rake test
-      - type: shell
-        command: bundle exec rubocop
+      - run:
+          name: Tests
+          command: bundle exec rake test
+      - run:
+          name: Code linting
+          command: bundle exec rubocop
