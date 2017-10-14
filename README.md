@@ -174,6 +174,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
+| [💻](# "Code") | [Kate Donaldson](https://github.com/katelovescode) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
