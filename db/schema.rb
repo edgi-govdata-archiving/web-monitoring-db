@@ -15,8 +15,9 @@ ActiveRecord::Schema.define(version: 20170914154249) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+  enable_extension "pgcrypto"
 
-  create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "change_uuid", null: false
     t.integer "author_id", null: false
     t.jsonb "annotation", null: false
@@ -26,7 +27,7 @@ ActiveRecord::Schema.define(version: 20170914154249) do
     t.index ["change_uuid"], name: "index_annotations_on_change_uuid"
   end
 
-  create_table "changes", primary_key: "uuid", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "changes", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "uuid_from", null: false
     t.uuid "uuid_to", null: false
     t.float "priority"
@@ -62,7 +63,7 @@ ActiveRecord::Schema.define(version: 20170914154249) do
     t.index ["redeemer_id"], name: "index_invitations_on_redeemer_id"
   end
 
-  create_table "pages", primary_key: "uuid", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "pages", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "url", null: false
     t.string "title"
     t.string "agency"
@@ -95,7 +96,7 @@ ActiveRecord::Schema.define(version: 20170914154249) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "versions", primary_key: "uuid", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "versions", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "page_uuid", null: false
     t.datetime "capture_time", null: false
     t.string "uri"

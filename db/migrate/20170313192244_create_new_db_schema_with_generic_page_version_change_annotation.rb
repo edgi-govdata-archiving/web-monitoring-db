@@ -1,7 +1,10 @@
 class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Migration[5.0]
   def change
+    # Since 9.4, PostgreSQL recommends using `pgcrypto`'s `gen_random_uuid()`
+    # https://github.com/rails/rails/commit/b915b11cca558eb99b7c2621c4457491d4bdb43b
     # Postgres needs this for proper UUID support
     enable_extension 'uuid-ossp'
+    enable_extension 'pgcrypto'
 
     create_table :pages, id: false do |t|
       t.primary_key :uuid, :uuid
