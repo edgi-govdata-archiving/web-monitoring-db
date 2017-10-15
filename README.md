@@ -167,14 +167,14 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") [🚇](# "Infrastructure") [📖](# "Documentation") [💬](# "Answering Questions") [👀](# "Reviewer") | [Rob Brackett](https://github.com/Mr0grog) |
 | [📖](# "Documentation") | [Patrick Connolly](https://github.com/patcon) |
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
+| [💻](# "Code") | [Kate Donaldson](https://github.com/katelovescode) |
 | [📖](# "Documentation") | [Michael Hardy](https://github.com/michardy) |
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
+| [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
-| [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
-| [💻](# "Code") | [Kate Donaldson](https://github.com/katelovescode) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
