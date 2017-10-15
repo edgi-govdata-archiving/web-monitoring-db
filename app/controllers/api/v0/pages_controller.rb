@@ -18,7 +18,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     # built-in behavior to break, so we do it manually here. For more, see:
     #   - https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/129
     #   - https://github.com/rails/rails/issues/30531
-    result_data =
+    result_data, inclusion =
       if should_include_versions
         # NOTE: need to get :updated_at here because it's used for ordering
         page_ids = pages.pluck(:uuid, :updated_at).collect {|data| data[0]}
@@ -26,24 +26,24 @@ class Api::V0::PagesController < Api::V0::ApiController
           .where(uuid: page_ids)
           .includes(:versions)
           .order('versions.capture_time DESC')
-        results.as_json(include: :versions)
+        [results, :versions]
       elsif should_include_latest
-        pages.includes(:latest).as_json(include: :latest)
+        [pages.includes(:latest), :latest]
       else
-        pages.as_json
+        [pages, nil]
       end
 
     render json: {
       links: paging[:links],
       data: result_data
-    }
+    }, include: inclusion
   end
 
   def show
     page = Page.find(params[:id])
     render json: {
-      data: page.as_json(include: [:versions])
-    }
+      data: page
+    }, include: [:versions]
   end
 
   protected
