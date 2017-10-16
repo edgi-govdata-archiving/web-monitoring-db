@@ -14,6 +14,10 @@ class Version < ApplicationRecord
     self.page.versions.where('capture_time < ?', self.capture_time).first
   end
 
+  def next
+    self.page.versions.where('capture_time > ?', self.capture_time).last
+  end
+
   def change_from_previous
     Change.between(from: previous, to: self)
   end
