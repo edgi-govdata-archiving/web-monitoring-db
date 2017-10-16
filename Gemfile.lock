@@ -73,9 +73,6 @@ GEM
     httparty (0.15.6)
       multi_xml (>= 0.5.2)
     i18n (0.8.6)
-    jbuilder (2.7.0)
-      activesupport (>= 4.2.0)
-      multi_json (>= 1.2)
     jmespath (1.3.1)
     json (2.1.0)
     jwt (1.5.6)
@@ -101,6 +98,7 @@ GEM
     nio4r (2.1.0)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
+    oj (3.3.8)
     orm_adapter (0.5.0)
     parallel (1.12.0)
     parser (2.4.0.0)
@@ -238,10 +236,10 @@ DEPENDENCIES
   byebug
   devise
   httparty
-  jbuilder (~> 2.6)
   jwt (~> 1.5)
   listen (~> 3.1)
   newrelic_rpm
+  oj (~> 3.3)
   pg (~> 0.18)
   postmark-rails
   pry-rails

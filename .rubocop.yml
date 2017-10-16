@@ -21,6 +21,9 @@ Metrics/ParameterLists:
   Exclude:
     - 'lib/versionista_service/*'
 
+Metrics/CyclomaticComplexity:
+  Max: 12
+
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
