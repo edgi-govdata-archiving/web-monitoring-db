@@ -1,8 +1,10 @@
 class Api::V0::ChangesController < Api::V0::ApiController
   def index
     query = changes_collection
+    sorting = sortation(params[:sort])
     paging = pagination(query)
     changes = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    changes = changes.order(sorting) unless sorting.nil?
 
     render json: {
       links: paging[:links],
