@@ -313,7 +313,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       skip unless actual_page.latest
 
       assert_equal(
-        actual_page.latest.capture_time.as_json,
+        actual_page.latest.capture_time.iso8601,
         found_page['latest']['capture_time']
       )
     end
