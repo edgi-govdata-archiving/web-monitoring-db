@@ -15,8 +15,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     render json: {
       links: {
         page: api_v0_page_url(@version.page),
-        previous: @version.previous && api_v0_page_version_url(@version.page, @version.previous),
-        next: @version.next && api_v0_page_version_url(@version.page, @version.next)
+        previous: @version.previous && api_v0_version_url(@version.previous),
+        next: @version.next && api_v0_version_url(@version.next)
       },
       data: @version
     }

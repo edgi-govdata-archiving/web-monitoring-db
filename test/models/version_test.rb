@@ -12,7 +12,7 @@ class VersionTest < ActiveSupport::TestCase
   end
 
   test 'next should get the next version' do
-    nxt = versions(:page1_v1).next
-    assert_equal versions(:page1_v2), nxt, 'Next returned the wrong version'
+    next_version = versions(:page1_v1).next
+    assert_equal versions(:page1_v2), next_version, 'Next returned the wrong version'
   end
 end
