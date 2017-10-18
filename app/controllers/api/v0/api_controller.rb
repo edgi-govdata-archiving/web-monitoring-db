@@ -23,7 +23,7 @@ class Api::V0::ApiController < ApplicationController
   # This is different from Devise's authenticate_user! -- it does not redirect.
   def require_authentication!
     unless user_signed_in?
-      render_errors('You must be logged in to perform this action.', 401)
+      raise Api::AuthorizationError, 'You must be logged in to perform this action.'
     end
   end
 

@@ -19,4 +19,10 @@ module Api
       super(message)
     end
   end
+
+  class AuthorizationError < StandardError
+    def status_code
+      401
+    end
+  end
 end

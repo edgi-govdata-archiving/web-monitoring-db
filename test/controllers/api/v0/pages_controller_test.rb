@@ -2,6 +2,10 @@ require 'test_helper'
 
 class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  test 'cannot list pages without auth' do
+    get '/api/v0/pages/'
+    assert_response :unauthorized
+  end
   test 'can list pages' do
     sign_in users(:alice)
     get '/api/v0/pages/'
