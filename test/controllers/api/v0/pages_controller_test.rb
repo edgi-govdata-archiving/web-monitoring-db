@@ -8,6 +8,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert body_json.key?('links'), 'Response should have a "links" property'
     assert body_json.key?('data'), 'Response should have a "data" property'
+    assert body_json.key?('meta'), 'Response should have a "meta" property'
   end
 
   # Regression
@@ -317,5 +318,17 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
         found_page['latest']['capture_time']
       )
     end
+  end
+
+  test 'meta section' do
+    get '/api/v0/pages/'
+    assert_response :success
+    assert_equal 'application/json', @response.content_type
+    body_json = JSON.parse @response.body
+    assert_equal(
+      Page.count,
+      body_json['meta']['total_results'],
+      "The total count field should contain count of results across all paged results"
+    )
   end
 end

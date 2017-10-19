@@ -40,7 +40,8 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     render json: Oj.dump({
       links: paging[:links],
-      data: result_data
+      data: result_data,
+      meta: { total_results: pages.size }
     }, mode: :strict)
   end
 
