@@ -320,7 +320,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'meta section' do
+  test 'returns a meta property' do
     get '/api/v0/pages/'
     assert_response :success
     assert_equal 'application/json', @response.content_type

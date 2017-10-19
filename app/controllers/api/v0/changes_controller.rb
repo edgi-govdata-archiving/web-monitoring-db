@@ -6,7 +6,8 @@ class Api::V0::ChangesController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      data: changes.as_json(methods: :current_annotation)
+      data: changes.as_json(methods: :current_annotation),
+      meta: { total_results: query.count }
     }
   end
 
