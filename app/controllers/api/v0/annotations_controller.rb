@@ -12,7 +12,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         include: { author: { only: [:id, :email] } },
         except: :author_id
       ),
-      meta: { total_results: annotations.size }
+      metadata: { total_results: annotations.size }
     }
   end
 

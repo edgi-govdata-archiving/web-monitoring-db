@@ -10,7 +10,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse(@response.body)
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
-    assert(body_json.key?('meta'), 'Response should have a "meta" property')
+    assert(body_json.key?('metadata'), 'Response should have a "metadata" property')
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
@@ -177,7 +177,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'returns a meta property' do
+  test 'metadata property' do
     page = pages(:home_page)
 
     get(api_v0_page_versions_url(page))
@@ -186,8 +186,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse(@response.body)
     assert_equal(
       page.versions.count,
-      body_json['meta']['total_results'],
-      'Should contain the total number of versions mathcing the query for the page'
-      )
+      body_json['metadata']['total_results'],
+      'Should contain the total number of versions mathcing the query for the page')
   end
 end

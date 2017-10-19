@@ -177,11 +177,11 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
-    assert(body_json.key?('meta'), 'Response should have a "meta" property')
+    assert(body_json.key?('metadata'), 'Response should have a "metadata" property')
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
-  test 'meta property' do
+  test 'metadata property' do
     page = pages(:home_page)
     change_id = page.versions[0].uuid
 
@@ -201,8 +201,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal(
       Change.find_by_api_id("..#{change_id}").annotations.count,
-      body_json['meta']['total_results'],
-      'Should contain the count of total results across all pages'
-      )
+      body_json['metadata']['total_results'],
+      'Should contain the count of total results across all pages')
   end
 end
