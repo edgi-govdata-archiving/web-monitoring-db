@@ -15,4 +15,9 @@ class VersionTest < ActiveSupport::TestCase
     next_version = versions(:page1_v1).next
     assert_equal versions(:page1_v2), next_version, 'Next returned the wrong version'
   end
+
+  test 'change from next should always return a change object (even if unpersisted)' do
+    change = versions(:page2_v1).change_from_next
+    assert_not_nil change
+  end
 end
