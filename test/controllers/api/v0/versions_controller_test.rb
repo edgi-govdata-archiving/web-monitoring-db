@@ -187,6 +187,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal(
       page.versions.count,
       body_json['metadata']['total_results'],
-      'Should contain the total number of versions mathcing the query for the page')
+      'Should contain the total number of versions mathcing the query for the page'
+    )
   end
 end

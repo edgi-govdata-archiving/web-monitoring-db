@@ -119,6 +119,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(
       Change.count,
       body['metadata']['total_results'],
-      'Should contain count of total results across all pages')
+      'Should contain count of total results across all pages'
+    )
   end
 end

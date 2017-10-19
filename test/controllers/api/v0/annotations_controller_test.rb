@@ -202,6 +202,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal(
       Change.find_by_api_id("..#{change_id}").annotations.count,
       body_json['metadata']['total_results'],
-      'Should contain the count of total results across all pages')
+      'Should contain the count of total results across all pages'
+    )
   end
 end
