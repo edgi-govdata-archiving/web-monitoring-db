@@ -7,6 +7,7 @@ class Api::V0::ApiController < ApplicationController
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
   rescue_from Api::DynamicError, with: :render_errors
+  rescue_from Api::AuthorizationError, with: :render_errors
 
   rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
