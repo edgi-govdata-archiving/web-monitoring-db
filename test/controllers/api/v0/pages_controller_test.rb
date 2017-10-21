@@ -1,7 +1,13 @@
 require 'test_helper'
 
 class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+  test 'cannot list pages without auth' do
+    get '/api/v0/pages/'
+    assert_response :unauthorized
+  end
   test 'can list pages' do
+    sign_in users(:alice)
     get '/api/v0/pages/'
     assert_response :success
     assert_equal 'application/json', @response.content_type
@@ -13,6 +19,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   # Regression
   test 'should not include the `chunk` parameter multiple times in one paging link' do
     # This error occurred when the requested URL already had a `chunk` param
+    sign_in users(:alice)
     get('/api/v0/pages?chunk=1')
     body = JSON.parse(@response.body)
     first_uri = URI.parse(body['links']['first'])
@@ -20,6 +27,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'should repect chunk_size pagination parameter' do
+    sign_in users(:alice)
     # one result per page ('chunk' to avoid ambiguity with Page model)
     get(api_v0_pages_path, params: { chunk: 1, chunk_size: 1 })
     body = JSON.parse(@response.body)
@@ -38,6 +46,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by site' do
+    sign_in users(:alice)
     site = 'http://example.com/'
     get "/api/v0/pages/?site=#{URI.encode_www_form_component site}"
     body_json = JSON.parse @response.body
@@ -50,6 +59,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by agency' do
+    sign_in users(:alice)
     agency = 'Department of Testing'
     get "/api/v0/pages/?agency=#{URI.encode_www_form_component agency}"
     body_json = JSON.parse @response.body
@@ -62,6 +72,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by title' do
+    sign_in users(:alice)
     title = 'Page One'
     get api_v0_pages_path(title: title)
     body_json = JSON.parse @response.body
@@ -74,6 +85,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by URL' do
+    sign_in users(:alice)
     url = 'http://example.com/'
     get "/api/v0/pages/?url=#{URI.encode_www_form_component url}"
     body_json = JSON.parse @response.body
@@ -88,6 +100,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by URL with "*" wildcard' do
+    sign_in users(:alice)
     url = 'http://example.com/*'
     get "/api/v0/pages/?url=#{URI.encode_www_form_component url}"
     body_json = JSON.parse @response.body
@@ -102,6 +115,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by version source_type' do
+    sign_in users(:alice)
     get api_v0_pages_path(source_type: 'pagefreezer')
     body = JSON.parse @response.body
     ids = body['data'].pluck 'uuid'
@@ -113,6 +127,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by version hash' do
+    sign_in users(:alice)
     get api_v0_pages_path(hash: 'def')
     body = JSON.parse @response.body
     ids = body['data'].pluck 'uuid'
@@ -124,6 +139,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter pages by version capture_time' do
+    sign_in users(:alice)
     get api_v0_pages_url(
       capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
     )
@@ -137,6 +153,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes latest version if include_latest = true' do
+    sign_in users(:alice)
     get api_v0_pages_path(include_latest: true)
     body = JSON.parse @response.body
     results = body['data']
@@ -145,6 +162,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes versions if include_versions = true' do
+    sign_in users(:alice)
     get api_v0_pages_path(include_versions: true)
     body = JSON.parse @response.body
     results = body['data']
@@ -161,6 +179,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes only versions if include_versions = true and include_latest = true' do
+    sign_in users(:alice)
     get api_v0_pages_path(include_versions: true, include_latest: true)
     body = JSON.parse @response.body
     results = body['data']
@@ -172,6 +191,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Only includes versions that match query when include_versions = true' do
+    sign_in users(:alice)
     get api_v0_pages_path(
       capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z',
       include_versions: true
@@ -184,6 +204,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Included versions should be in descending capture_time order' do
+    sign_in users(:alice)
     # Add a version whose natural order and capture_time order are different
     latest_time = pages(:home_page).versions.first.capture_time
     pages(:home_page).versions.create(capture_time: latest_time - 1.day)
@@ -199,6 +220,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be "1"' do
+    sign_in users(:alice)
     get api_v0_pages_path(include_versions: 1)
     body = JSON.parse @response.body
     results = body['data']
@@ -206,6 +228,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be "t"' do
+    sign_in users(:alice)
     get api_v0_pages_path(include_versions: 't')
     body = JSON.parse @response.body
     results = body['data']
@@ -213,6 +236,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be value-less (e.g. "pages?include_versions")' do
+    sign_in users(:alice)
     get "#{api_v0_pages_path}?include_versions"
     body = JSON.parse @response.body
     results = body['data']
@@ -220,6 +244,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions cannot be an empty string (e.g. "pages?include_versions")' do
+    sign_in users(:alice)
     get "#{api_v0_pages_path}?include_versions="
     body = JSON.parse @response.body
     results = body['data']
@@ -227,11 +252,13 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes environment in header of response' do
+    sign_in users(:alice)
     get '/api/v0/pages/'
     assert_equal('test', @response.get_header('X-Environment'))
   end
 
   test 'does not return duplicate records when querying by version-specific parameters' do
+    sign_in users(:alice)
     get api_v0_pages_path(source_type: 'versionista')
     body = JSON.parse(@response.body)
 
@@ -240,6 +267,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can retrieve a single page' do
+    sign_in users(:alice)
     get api_v0_page_path(pages(:home_page))
     assert_response(:success)
     assert_equal('application/json', @response.content_type)
@@ -248,6 +276,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes all pages when include_versions is true' do
+    sign_in users(:alice)
     # This is a regression test for an issue where limit/offset queries for
     # paging wind up taking into account page-version combinations, not just
     # pages, so the actual page records on a given result page may not match up
@@ -291,6 +320,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'the latest version is actually the latest' do
     # Add some versions out of order
+    sign_in users(:alice)
     page = Page.first
     page.versions.create(capture_time: DateTime.now - 5.days)
     page.versions.create(capture_time: DateTime.now)

@@ -2,7 +2,9 @@ require 'test_helper'
 require 'minitest/mock'
 
 class Api::V0::DiffControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
   test 'can diff two versions' do
+    sign_in users(:alice)
     differ = Differ::SimpleDiff.new('http://example.com')
     Differ.register(:special, differ)
 
@@ -20,6 +22,7 @@ class Api::V0::DiffControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'returns 501 (not implemented) error for unknown diff types' do
+    sign_in users(:alice)
     change = changes(:page1_change_1_2)
     get "/api/v0/pages/#{change.version.page.uuid}/changes/#{change.from_version.uuid}..#{change.version.uuid}/diff/who_knows"
 
@@ -27,6 +30,7 @@ class Api::V0::DiffControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'returns 400 error for versions with no content' do
+    sign_in users(:alice)
     change = changes(:page1_change_2_3)
     get "/api/v0/pages/#{change.version.page.uuid}/changes/#{change.from_version.uuid}..#{change.version.uuid}/diff/special"
     assert_response :bad_request
