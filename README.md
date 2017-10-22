@@ -56,7 +56,9 @@ It’s a Rails app that:
     $ bundle install --without production
     ```
 
-8. Set up your database. The simple way to do this is:
+8. Copy `.env.example` to `.env` and edit it if needed.
+
+9. Set up your database. The simple way to do this is:
 
     ```sh
     $ bundle exec rake db:setup
@@ -68,7 +70,7 @@ It’s a Rails app that:
 
     If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below.
 
-9. Start the server!
+10. Start the server!
 
     ```sh
     $ bundle exec rails server
@@ -76,7 +78,7 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-10. Bulk importing (and, in the future, potentially other features) make use of a
+11. Bulk importing (and, in the future, potentially other features) make use of a
    Redis queue. If you plan to use any of these features, you must also start a
    Redis server and worker.
 
