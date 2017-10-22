@@ -64,6 +64,7 @@ GEM
       railties (>= 4.1.0, < 5.2)
       responders
       warden (~> 1.2.3)
+    dotenv (2.2.1)
     erubi (1.6.1)
     execjs (2.7.0)
     ffi (1.9.18)
@@ -235,6 +236,7 @@ DEPENDENCIES
   aws-sdk (~> 2.9)
   byebug
   devise
+  dotenv (~> 2.2.0)
   httparty
   jwt (~> 1.5)
   listen (~> 3.1)
