@@ -107,7 +107,7 @@ Style/MultilineBlockChain:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: symmetrical, new_line, same_line
-Style/MultilineMethodCallBraceLayout:
+Layout/MultilineMethodCallBraceLayout:
   Exclude:
     - 'lib/tasks/versionista.rake'
 
@@ -115,7 +115,7 @@ Style/MultilineMethodCallBraceLayout:
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
 # SupportedStyles: aligned, indented, indented_relative_to_receiver
-Style/MultilineMethodCallIndentation:
+Layout/MultilineMethodCallIndentation:
   Exclude:
     - 'app/models/change.rb'
 

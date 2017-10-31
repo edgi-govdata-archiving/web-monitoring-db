@@ -33,13 +33,13 @@ Layout/IndentHash:
 Style/ClassAndModuleChildren:
   Enabled: false
 
-Style/EmptyLines:
+Layout/EmptyLines:
   Enabled: false
 
 Style/GuardClause:
   Enabled: false
 
-Style/MultilineMethodCallIndentation:
+Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
 Style/RegexpLiteral:
@@ -48,7 +48,7 @@ Style/RegexpLiteral:
 Style/SafeNavigation:
   Enabled: false
 
-Style/SpaceInsideBlockBraces:
+Layout/SpaceInsideBlockBraces:
   Enabled: false
 
 Style/SymbolArray:
