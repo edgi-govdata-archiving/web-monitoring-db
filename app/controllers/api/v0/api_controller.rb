@@ -1,5 +1,6 @@
 class Api::V0::ApiController < ApplicationController
   include PagingConcern
+  include SortingConcern
   before_action :require_authentication!
   before_action :set_environment_header
 

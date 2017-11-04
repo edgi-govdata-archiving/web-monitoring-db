@@ -2,8 +2,10 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   before_action :set_annotation, only: [:show]
 
   def index
+    sorting = sortation(params[:sort])
     paging = pagination(parent_change.annotations)
     annotations = parent_change.annotations.limit(paging[:chunk_size]).offset(paging[:offset])
+    annotations = annotations.order(sorting) unless sorting.nil?
 
     render json: {
       links: paging[:links],
