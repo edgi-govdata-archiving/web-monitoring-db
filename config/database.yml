@@ -81,6 +81,7 @@ test:
 #
 production:
   <<: *default
-  database: web-monitoring-db_production
-  username: web-monitoring-db
-  password: <%= ENV['WEB-MONITORING-DB_DATABASE_PASSWORD'] %>
+  # database: web-monitoring-db_production
+  # username: web-monitoring-db
+  # password: <%= ENV['WEB-MONITORING-DB_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_RDS'] || ENV['DATABASE_URL'] %>
