@@ -2,7 +2,7 @@ module PagingConcern
   extend ActiveSupport::Concern
 
   DEFAULT_PAGE_SIZE = 100
-  MAX_PAGE_SIZE = 10_000
+  MAX_PAGE_SIZE = [ENV.fetch('MAX_COLLECTION_PAGE_SIZE', 10_000).to_i, 10].max
 
   protected
 
