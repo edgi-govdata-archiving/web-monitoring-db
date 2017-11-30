@@ -1,8 +1,10 @@
 require 'test_helper'
 
 class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
   test 'can list changes' do
     page = pages(:home_page)
+    sign_in users(:alice)
     get(api_v0_page_changes_path(page))
 
     assert_response :success
@@ -15,6 +17,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can get a single change by version IDs' do
     page = pages(:home_page)
+    sign_in users(:alice)
     from_version = versions(:page1_v1)
     to_version = versions(:page1_v2)
     get(api_v0_page_change_path(page, "#{from_version.id}..#{to_version.id}"))
@@ -30,6 +33,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can filter by priority' do
     page = pages(:home_page)
+    sign_in users(:alice)
 
     get(api_v0_page_changes_path(page, priority: '(0.5,)'))
     assert_response :success
@@ -70,6 +74,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can filter by significance' do
     page = pages(:home_page)
+    sign_in users(:alice)
 
     get(api_v0_page_changes_path(page, significance: '(0.5,)'))
     assert_response :success

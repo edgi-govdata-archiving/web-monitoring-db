@@ -4,6 +4,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   test 'can list versions' do
+    sign_in users(:alice)
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response(:success)
     assert_equal('application/json', @response.content_type)
@@ -14,6 +15,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can list versions independent of pages' do
+    sign_in users(:alice)
     get api_v0_versions_url
     assert_response(:success)
     body_json = JSON.parse(@response.body)
@@ -22,6 +24,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can post a new version' do
+    sign_in users(:alice)
     skip
     # page = pages(:home_page)
     # post(api_v0_page_versions_url(page), params: {
@@ -49,6 +52,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions by hash' do
+    sign_in users(:alice)
     target = versions(:page1_v1)
     get api_v0_page_versions_url(pages(:home_page), hash: target.version_hash)
     body_json = JSON.parse @response.body
@@ -59,6 +63,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions by exact date' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: '2017-03-01T00:00:00Z'
@@ -73,6 +78,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'returns meaningful error for bad dates' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: 'ugh'
@@ -86,6 +92,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions by date range' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
@@ -100,6 +107,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions captured before a date' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: '..2017-03-01T12:00:00Z'
@@ -114,6 +122,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions captured after a date' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: '2017-03-01T12:00:00Z..'
@@ -128,6 +137,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'returns meaningful error for bad date ranges' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(
       pages(:home_page),
       capture_time: 'ugh..2017-03-04'
@@ -141,6 +151,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can filter versions by source_type' do
+    sign_in users(:alice)
     get api_v0_page_versions_url(pages(:home_page), source_type: 'pagefreezer')
 
     body_json = JSON.parse @response.body
@@ -150,6 +161,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can retrieve a single version' do
+    sign_in users(:alice)
     version = versions(:page1_v1)
     get api_v0_page_version_path(version.page, version)
     assert_response(:success)
@@ -160,6 +172,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can query by source_metadata fields' do
+    sign_in users(:alice)
     version = versions(:page1_v1)
     get api_v0_versions_path(params: {
       source_metadata: { version_id: version.source_metadata['version_id'] }

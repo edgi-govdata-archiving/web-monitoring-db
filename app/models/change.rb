@@ -31,8 +31,12 @@ class Change < ApplicationRecord
 
     if api_id.include?('..')
       from_id, to_id = api_id.split('..')
-      if from_id.present?
+      if from_id.present? && to_id.present?
         Change.between(from: from_id, to: to_id)
+      elsif from_id.present?
+        Version.find(from_id).change_from_next ||
+          (raise ActiveRecord::RecordNotFound, "There is no version following
+            #{from_id} to change to.")
       else
         Version.find(to_id).change_from_previous ||
           (raise ActiveRecord::RecordNotFound, "There is no version prior to

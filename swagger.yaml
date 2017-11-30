@@ -94,6 +94,7 @@ paths:
           required: false
           type: string
         - name: capture_time
+          type: string
           in: query
           description: >-
             Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
@@ -172,6 +173,7 @@ paths:
           required: false
           type: string
         - name: source_metadata[:key]
+          type: string
           in: query
           description: >-
             Filter results by a given `key` in the `source_metadata` field. You
@@ -235,7 +237,6 @@ paths:
             name starting with "source_metadata_" For example:
             source_metadata_versionista
           type: string
-          parameters: null
       responses:
         '200':
           description: successful operation
@@ -302,12 +303,12 @@ paths:
           in: query
           description: Only include changes with a matching `priority`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= priority < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `priority >= 0.3`.
           required: false
-          type: float|string
+          type: number
         - name: significance
           in: query
           description: Only include changes with a matching `significance`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= significance < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `significance >= 0.3`.
           required: false
-          type: float|string
+          type: number
       responses:
         '200':
           description: successful operation
@@ -473,6 +474,83 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SingleAnnotation'
+  '/pages/{page_id}/changes/{from_version}..{to_version}/diff/{diff_type}':
+    get:
+      tags:
+        - changes
+      summary: Generate a diff between the two versions in a change.
+      description: >-
+        The system can generate diffs according to a variety of algorithms. Most of these are provided by the `web-monitoring-processing` project. Some diffs can take query parameters for greater customization.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page whose versions are being diffed
+          required: true
+          type: string
+          format: uuid4
+        - name: from_version
+          in: path
+          description: >-
+            ID of the "before" Version. If omitted, it will be treated as the
+            version immediately prior to `to_version`.
+          required: false
+          type: string
+          format: uuid4
+        - name: to_version
+          in: path
+          description: ID of the "after" Version
+          required: true
+          type: string
+          format: uuid4
+        - name: diff_type
+          in: path
+          description: >
+            Type of diff to generate. Possible values are…
+              * `length` - the difference between length, in bytes, of each version
+              * `identical_bytes` - a boolean indicating whether the two versions are identical
+              * `side_by_side_text` - the visible text of each version formatted as
+                ```
+                {a_text: "string", b_text: "string"}
+                ```
+              * `html_source` - additions and removals to the actual source code, formatted as:
+                  ```
+                  [
+                    [-1, "some text that was removed"],
+                    [1, "some text that was added"],
+                    [0, "some text that was not changed"],
+                    [1, "some text that was added"],
+                    // and so on
+                  ]
+                  ```
+              * `html_text` - additions and removals to the visible text on the page, formatted as:
+                  ```
+                  [
+                    [-1, "some text that was removed"],
+                    [1, "some text that was added"],
+                    [0, "some text that was not changed"],
+                    [1, "some text that was added"],
+                    // and so on
+                  ]
+                  ```
+              * `html_visual` - an HTML page with differences marked up. This is meant to be rendered directly in a web browser.
+          required: true
+          type: string
+          enum:
+            - length
+            - identical_bytes
+            - side_by_side_text
+            - html_source
+            - html_text
+            - html_visual
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Diff'
   /versions:
     get:
       tags:
@@ -850,6 +928,31 @@ definitions:
         type: string
       diff_with_previous_url:
         type: string
+  Diff:
+    type: object
+    properties:
+      data:
+        type: object
+        properties:
+          page_id:
+            type: string
+            format: uuid4
+          from_version_id:
+            type: string
+            format: uuid4
+          to_version_id:
+            type: string
+            format: uuid4
+          diff_service:
+            type: string
+          content:
+            type: object
+            description: Most responses contain this structure, but what is actually in `content` depends on the type of diff.
+            properties:
+              diff:
+                type: object
+              version:
+                type: string
 
 externalDocs:
   description: Find out more about the web-monitoring project.

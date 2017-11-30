@@ -16,7 +16,7 @@ Rails.application.routes.draw do
         resources :versions, only: [:index, :show, :create]
         resources :changes,
           # Allow :id to be ":from_uuid..:to_uuid" or just ":change_id"
-          constraints: { id: /(?:[\w\-]*\.\.[\w\-]+)|(?:[^\.\/]+)/ },
+          constraints: { id: /(?:[\w\-]*\.\.[\w\-]+)|(?:[\w\-]+\.\.[\w\-]*)|(?:[^\.\/]+)/ },
           only: [:index, :show] do
             resources :annotations, only: [:index, :show, :create]
             member do

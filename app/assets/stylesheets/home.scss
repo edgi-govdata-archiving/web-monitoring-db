@@ -13,3 +13,16 @@
 .swagger-ui .topbar {
   display: none;
 }
+
+#auth-notice {
+  background: #f6f6f6;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  color: #333;
+  margin: 0 20px;
+  padding: 0 1em;
+}
+
+#auth-notice .code-block {
+  padding: 0 1em;
+}

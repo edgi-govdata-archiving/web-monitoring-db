@@ -1,12 +1,13 @@
 class Api::V0::ApiController < ApplicationController
   include PagingConcern
-  before_action :require_authentication!, only: [:create]
+  before_action :require_authentication!
   before_action :set_environment_header
 
   rescue_from StandardError, with: :render_errors if Rails.env.production? || Rails.env.test?
   rescue_from Api::NotImplementedError, with: :render_errors
   rescue_from Api::InputError, with: :render_errors
   rescue_from Api::DynamicError, with: :render_errors
+  rescue_from Api::AuthorizationError, with: :render_errors
 
   rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
@@ -23,7 +24,7 @@ class Api::V0::ApiController < ApplicationController
   # This is different from Devise's authenticate_user! -- it does not redirect.
   def require_authentication!
     unless user_signed_in?
-      render_errors('You must be logged in to perform this action.', 401)
+      raise Api::AuthorizationError, 'You must be logged in to perform this action.'
     end
   end
 
