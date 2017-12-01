@@ -65,6 +65,10 @@ GEM
       railties (>= 4.1.0, < 5.2)
       responders
       warden (~> 1.2.3)
+    dotenv (2.2.1)
+    dotenv-rails (2.2.1)
+      dotenv (= 2.2.1)
+      railties (>= 3.2, < 5.2)
     erubi (1.7.0)
     execjs (2.7.0)
     ffi (1.9.18)
@@ -236,6 +240,7 @@ DEPENDENCIES
   aws-sdk (~> 2.9)
   byebug
   devise
+  dotenv-rails
   httparty
   jwt (~> 1.5)
   listen (~> 3.1)
@@ -261,4 +266,4 @@ RUBY VERSION
    ruby 2.4.1p111
 
 BUNDLED WITH
-   1.15.4
+   1.16.0

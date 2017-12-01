@@ -55,8 +55,12 @@ It’s a Rails app that:
     ```sh
     $ bundle install --without production
     ```
+8. Copy the .env.example file to .env - this allows for easy configuration locally.
+	```sh
+	$ cp .env.example .env
+	```
 
-8. Set up your database. The simple way to do this is:
+9. Set up your database. The simple way to do this is:
 
     ```sh
     $ bundle exec rake db:setup
@@ -68,7 +72,7 @@ It’s a Rails app that:
 
     If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below.
 
-9. Start the server!
+10. Start the server!
 
     ```sh
     $ bundle exec rails server
@@ -76,7 +80,7 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-10. Bulk importing (and, in the future, potentially other features) make use of a
+11. Bulk importing (and, in the future, potentially other features) make use of a
    Redis queue. If you plan to use any of these features, you must also start a
    Redis server and worker.
 
@@ -175,6 +179,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
+| [💻](# "Code") | [Kasper Holbek Jensen](https://github.com/kholbekj) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
