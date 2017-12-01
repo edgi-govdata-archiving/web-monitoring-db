@@ -13,9 +13,10 @@ It’s a Rails app that:
 
 1. Ensure you have Ruby 2.4.1+
 
-   You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
+    You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
 
 2. Ensure you have PostgreSQL 9.5+
+
 3. Ensure you have [Redis](https://redis.io)
 
     On OSX:
@@ -44,6 +45,7 @@ It’s a Rails app that:
     If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md).
 
 5. Clone this repo
+
 6. If you don’t have the `bundler` Ruby gem, install it:
 
     ```sh
@@ -55,10 +57,12 @@ It’s a Rails app that:
     ```sh
     $ bundle install --without production
     ```
+
 8. Copy the .env.example file to .env - this allows for easy configuration locally.
-	```sh
-	$ cp .env.example .env
-	```
+
+    ```sh
+    $ cp .env.example .env
+    ```
 
 9. Set up your database. The simple way to do this is:
 
@@ -80,21 +84,20 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-11. Bulk importing (and, in the future, potentially other features) make use of a
-   Redis queue. If you plan to use any of these features, you must also start a
-   Redis server and worker.
+11. Bulk importing (and, in the future, potentially other features) make use of a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
 
-   Start redis:
+    Start redis:
 
-   ```sh
-   $ redis-server
-   ```
+    ```sh
+    $ redis-server
+    ```
 
-   Start a worker:
+    Start a worker:
 
-   ```sh
-   $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
-   ```
+    ```sh
+    $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
+    ```
+
 
 ## Manual Postgres Setup
 
@@ -116,6 +119,7 @@ User.create(
   confirmed_at: Time.now
 )
 ```
+
 
 ## Troubleshooting
 
@@ -159,6 +163,7 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
 
     Now `bundle exec rake db:setup` command should work.
 
+
 ## Contributors
 
 This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions!
@@ -173,13 +178,13 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
 | [💻](# "Code") | [Kate Donaldson](https://github.com/katelovescode) |
 | [📖](# "Documentation") | [Michael Hardy](https://github.com/michardy) |
+| [💻](# "Code") | [Kasper Holbek Jensen](https://github.com/kholbekj) |
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
-| [💻](# "Code") | [Kasper Holbek Jensen](https://github.com/kholbekj) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 (For a key to the contribution emoji or more info on this format, check out [“All Contributors.”](https://github.com/kentcdodds/all-contributors))
