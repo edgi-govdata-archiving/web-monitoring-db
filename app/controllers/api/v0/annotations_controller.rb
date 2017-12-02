@@ -2,9 +2,8 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   before_action :set_annotation, only: [:show]
 
   def index
-    annotations = parent_change.annotations
-    paging = pagination(annotations)
-    annotations = annotations.limit(paging[:chunk_size]).offset(paging[:offset])
+    paging = pagination(parent_change.annotations)
+    annotations = parent_change.annotations.limit(paging[:chunk_size]).offset(paging[:offset])
 
     render json: {
       links: paging[:links],
@@ -12,7 +11,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         include: { author: { only: [:id, :email] } },
         except: :author_id
       ),
-      metadata: { total_results: annotations.size }
+      meta: { total_results: paging[:total_items] }
     }
   end
 
