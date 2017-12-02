@@ -10,7 +10,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse @response.body
     assert body.key?('links'), 'Response should have a "links" property'
     assert body.key?('data'), 'Response should have a "data" property'
-    assert body.key?('metadata'), 'Response should have a "metadata" property'
+    assert body.key?('meta'), 'Response should have a "metadata" property'
     assert(body['data'].is_a?(Array), 'Data should be an array')
   end
 
@@ -109,7 +109,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'metadata property' do
+  test 'meta property' do
     page = pages(:home_page)
     get(api_v0_page_changes_path(page))
 
@@ -118,7 +118,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse @response.body
     assert_equal(
       Change.count,
-      body['metadata']['total_results'],
+      body['meta']['total_results'],
       'Should contain count of total results across all pages'
     )
   end
