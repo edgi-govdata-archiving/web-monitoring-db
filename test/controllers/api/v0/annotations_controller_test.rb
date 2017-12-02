@@ -185,16 +185,24 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     page = pages(:home_page)
     change_id = page.versions[0].uuid
 
-    annotation = { 'test_key' => 'test_value' }
+    annotation1 = { 'test_key_1' => 'test_value_1' }
+    annotation2 = { 'test_key_2' => 'test_value_2' }
     sign_in users(:alice)
     post(
       api_v0_page_change_annotations_path(page, "..#{change_id}"),
       as: :json,
-      params: annotation
+      params: annotation1
     )
     assert_response :success
 
-    get(api_v0_page_change_annotations_path(page, "..#{change_id}"))
+    post(
+      api_v0_page_change_annotations_path(page, "..#{change_id}"),
+      as: :json,
+      params: annotation2
+    )
+    assert_response :success
+
+    get(api_v0_page_change_annotations_path(page, "..#{change_id}", params: {chunk_size: 1}))
 
     assert_response :success
     body_json = JSON.parse @response.body
