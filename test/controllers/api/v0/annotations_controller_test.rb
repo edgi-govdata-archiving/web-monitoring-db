@@ -202,7 +202,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     )
     assert_response :success
 
-    get(api_v0_page_change_annotations_path(page, "..#{change_id}", params: {chunk_size: 1}))
+    get(api_v0_page_change_annotations_path(page, "..#{change_id}", params: { chunk_size: 1 }))
 
     assert_response :success
     body_json = JSON.parse @response.body
