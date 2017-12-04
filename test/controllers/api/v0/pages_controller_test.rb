@@ -8,7 +8,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert body_json.key?('links'), 'Response should have a "links" property'
     assert body_json.key?('data'), 'Response should have a "data" property'
-    assert body_json.key?('meta'), 'Response should have a "metadata" property'
+    assert body_json.key?('meta'), 'Response should have a "meta" property'
   end
 
   # Regression
@@ -320,7 +320,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'meta property' do
+  test 'meta property should have a total_results field that contains total results across all chunks' do
     get '/api/v0/pages/'
     assert_response :success
     assert_equal 'application/json', @response.content_type

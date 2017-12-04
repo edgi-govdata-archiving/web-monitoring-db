@@ -177,11 +177,11 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
-    assert(body_json.key?('meta'), 'Response should have a "metadata" property')
+    assert(body_json.key?('meta'), 'Response should have a "meta" property')
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
-  test 'meta property' do
+  test 'meta property should have a total_results field that contains total results across all chunks' do
     page = pages(:home_page)
     change_id = page.versions[0].uuid
 
