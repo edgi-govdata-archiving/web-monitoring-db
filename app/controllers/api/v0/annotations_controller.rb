@@ -7,11 +7,11 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
+      meta: { total_results: paging[:total_items] },
       data: annotations.as_json(
         include: { author: { only: [:id, :email] } },
         except: :author_id
-      ),
-      meta: { total_results: paging[:total_items] }
+      )
     }
   end
 

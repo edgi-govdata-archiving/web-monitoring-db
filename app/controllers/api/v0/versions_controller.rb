@@ -6,8 +6,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      data: versions,
-      meta: { total_results: paging[:total_items] }
+      meta: { total_results: paging[:total_items] },
+      data: versions
     }
   end
 
