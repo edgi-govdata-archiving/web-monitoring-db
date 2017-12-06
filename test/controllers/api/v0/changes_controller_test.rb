@@ -12,6 +12,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse @response.body
     assert body.key?('links'), 'Response should have a "links" property'
     assert body.key?('data'), 'Response should have a "data" property'
+    assert body.key?('meta'), 'Response should have a "meta" property'
     assert(body['data'].is_a?(Array), 'Data should be an array')
   end
 
@@ -111,5 +112,19 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       significance = change['significance']
       assert(significance <= 0.5, "Got a significance not <= 0.5: #{significance} (from #{change['uuid']})")
     end
+  end
+
+  test 'meta property should have a total_results field that contains total results across all chunks' do
+    page = pages(:home_page)
+    get(api_v0_page_changes_path(page))
+
+    assert_response :success
+    assert_equal 'application/json', @response.content_type
+    body = JSON.parse @response.body
+    assert_equal(
+      Change.count,
+      body['meta']['total_results'],
+      'Should contain count of total results across all pages'
+    )
   end
 end

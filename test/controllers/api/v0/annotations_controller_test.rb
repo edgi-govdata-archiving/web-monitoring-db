@@ -166,4 +166,51 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       'Change#significance was updated by annotation'
     )
   end
+
+  test 'can list annotations' do
+    page = pages(:home_page)
+    change_id = page.versions[0].uuid
+
+    get(api_v0_page_change_annotations_path(page, "..#{change_id}"))
+
+    assert_response :success
+    body_json = JSON.parse @response.body
+    assert(body_json.key?('links'), 'Response should have a "links" property')
+    assert(body_json.key?('data'), 'Response should have a "data" property')
+    assert(body_json.key?('meta'), 'Response should have a "meta" property')
+    assert(body_json['data'].is_a?(Array), 'Data should be an array')
+  end
+
+  test 'meta property should have a total_results field that contains total results across all chunks' do
+    page = pages(:home_page)
+    change_id = page.versions[0].uuid
+
+    annotation1 = { 'test_key_1' => 'test_value_1' }
+    annotation2 = { 'test_key_2' => 'test_value_2' }
+    sign_in users(:alice)
+    post(
+      api_v0_page_change_annotations_path(page, "..#{change_id}"),
+      as: :json,
+      params: annotation1
+    )
+    assert_response :success
+
+    post(
+      api_v0_page_change_annotations_path(page, "..#{change_id}"),
+      as: :json,
+      params: annotation2
+    )
+    assert_response :success
+
+    get(api_v0_page_change_annotations_path(page, "..#{change_id}", params: { chunk_size: 1 }))
+
+    assert_response :success
+    body_json = JSON.parse @response.body
+
+    assert_equal(
+      Change.find_by_api_id("..#{change_id}").annotations.count,
+      body_json['meta']['total_results'],
+      'Should contain the count of total results across all pages'
+    )
+  end
 end

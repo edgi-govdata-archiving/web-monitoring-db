@@ -11,6 +11,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse(@response.body)
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
+    assert(body_json.key?('meta'), 'Response should have a "meta" property')
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
@@ -186,6 +187,20 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       version.source_metadata['version_id'],
       ids[0],
       'The returned version did not have a matching ID'
+    )
+  end
+
+  test 'meta property should have a total_results field that contains total results across all chunks' do
+    page = pages(:home_page)
+
+    get(api_v0_page_versions_url(page))
+    assert_response(:success)
+    assert_equal('application/json', @response.content_type)
+    body_json = JSON.parse(@response.body)
+    assert_equal(
+      page.versions.count,
+      body_json['meta']['total_results'],
+      'Should contain the total number of versions mathcing the query for the page'
     )
   end
 end
