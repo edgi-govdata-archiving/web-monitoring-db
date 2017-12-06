@@ -168,6 +168,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can list annotations' do
+    sign_in users(:alice)
     page = pages(:home_page)
     change_id = page.versions[0].uuid
 

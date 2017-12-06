@@ -115,6 +115,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'meta property should have a total_results field that contains total results across all chunks' do
+    sign_in users(:alice)
     page = pages(:home_page)
     get(api_v0_page_changes_path(page))
 
