@@ -1,7 +1,12 @@
 module Differ
   class SimpleDiff
-    def initialize(url)
+    def initialize(url, type = nil)
       @url = url
+
+      if type
+        @url += '/' unless @url.ends_with?('/')
+        @url += URI.encode_www_form_component(type)
+      end
     end
 
     def diff(change, options = nil)
@@ -19,12 +24,20 @@ module Differ
       # and remove check for magical 'format' query arg
       body =
         if response.request.format == :json || options['format'] == 'json'
-          JSON.parse(response.body)
+          begin
+            JSON.parse(response.body)
+          rescue JSON::ParserError
+            response.body
+          end
         else
           response.body
         end
 
-      raise Api::DynamicError.new(body, response.code) if response.code >= 400
+      if response.code >= 400
+        message = body.is_a?(Hash) && body['error'] || body
+        raise Api::DynamicError.new(message, response.code)
+      end
+
       body
     end
   end

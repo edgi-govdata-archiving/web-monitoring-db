@@ -3,20 +3,19 @@ require_dependency 'differ/simple_diff'
 
 # Automatically create SimpleDiff instances with the name of whatever is after
 # "DIFFER_" in the name of the following env vars.
-[
-  'DIFFER_SOURCE',
-  'DIFFER_LENGTH',
-  'DIFFER_IDENTICAL_BYTES',
-  'DIFFER_SIDE_BY_SIDE_TEXT',
-  'DIFFER_PAGEFREEZER',
-  'DIFFER_HTML_SOURCE',
-  'DIFFER_HTML_TEXT',
-  'DIFFER_HTML_VISUAL'
-].each do |env_var|
-  if ENV[env_var]
+ENV.each do |key, value|
+  if key == 'DIFFER_DEFAULT'
+    # The differ registered with a nil key is actually constructor arguments,
+    # not a differ instance.
+    Differ.register(nil, value)
+  elsif key.start_with?('DIFFER_')
     Differ.register(
-      env_var.gsub(/^DIFFER_/, '').downcase.to_sym,
-      Differ::SimpleDiff.new(ENV[env_var])
+      key.gsub(/^DIFFER_/, '').downcase.to_sym,
+      Differ::SimpleDiff.new(value)
     )
   end
+end
+
+unless Differ.for_type(nil)
+  Rails.logger.warn('No default differ registered for unknown types! To register a default, set the DIFFER_DEFAULT environment variable.')
 end
