@@ -3,13 +3,15 @@ class Api::V0::DiffController < Api::V0::ApiController
     ensure_diffable
 
     render json: {
-      data: {
-        page_id: change.version.page.uuid,
-        from_version_id: change.from_version.uuid,
-        to_version_id: change.version.uuid,
-        diff_service: params[:type],
-        content: raw_diff
-      }
+      links: {
+        page: api_v0_page_url(change.version.page),
+        from_version: api_v0_version_url(change.from_version),
+        to_version: api_v0_version_url(change.version)
+      },
+      meta: {
+        requested_type: params[:type]
+      },
+      data: raw_diff
     }
   end
 
