@@ -165,7 +165,7 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
 
 ## Docker
 
-The Dockerfile runs the rails server on port 80 in the container. To build
+The Dockerfile runs the rails server on port 3000 in the container. To build
 and run:
 
 ```
@@ -173,7 +173,7 @@ docker build -t db . -e <ENVIRONMENT VARIABLES>
 docker run -p 3000:3000 db
 ```
 
-Point your browser or ``curl`` at ``http://localhost:4000``.
+Point your browser or ``curl`` at ``http://localhost:3000``.
 
 ## Contributors
 
