@@ -9,8 +9,13 @@ class ImportVersionsJob < ApplicationJob
 
     begin
       import_raw_data(@import.load_data)
-    rescue StandardError => _
-      @import.processing_errors << 'Unknown error occurred'
+    rescue StandardError => error
+      @import.processing_errors << if Rails.env.development?
+                                     "Row #{row}: #{error.message}"
+                                   else
+                                     "Row #{row}: Unknown error occurred"
+                                   end
+      Rails.logger.error "Row #{row}: #{error.message}"
       raise
     ensure
       @import.status = :complete
