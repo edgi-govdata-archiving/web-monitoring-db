@@ -48,6 +48,25 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, data.length
   end
 
+  test 'should use correct chunk_size in links if requested value was out of range' do
+    def chunk_size_in_url(url)
+      query = url.split('?')[1]
+
+      if query
+        query_item = query.split('&').find {|item| item.start_with?('chunk_size=')}
+        query_item.split('=')[1].to_i if query_item
+      end
+    end
+
+    sign_in users(:alice)
+    get(api_v0_pages_path, params: { chunk_size: 1_000_000 })
+    links = JSON.parse(@response.body)['links']
+    first_size = chunk_size_in_url(links['first'])
+    last_size = chunk_size_in_url(links['first'])
+    assert_equal PagingConcern::MAX_PAGE_SIZE, first_size
+    assert_equal PagingConcern::MAX_PAGE_SIZE, last_size
+  end
+
   test 'can filter pages by site' do
     sign_in users(:alice)
     site = 'http://example.com/'
