@@ -36,12 +36,14 @@ module PagingConcern
       first: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(chunk: 1)
+        params: request.query_parameters.merge(chunk: 1,
+                                               chunk_size: chunk_size)
       ),
       last: path_resolver.call(
         collection_type,
         format: format_type,
-        params: request.query_parameters.merge(chunk: total_chunks)
+        params: request.query_parameters.merge(chunk: total_chunks,
+                                               chunk_size: chunk_size)
       ),
       prev: nil,
       next: nil
