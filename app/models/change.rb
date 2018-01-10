@@ -47,6 +47,10 @@ class Change < ApplicationRecord
     end
   end
 
+  def api_id
+    "#{uuid_from}..#{uuid_to}"
+  end
+
   def current_annotation
     super ||
       if persisted?
