@@ -2,7 +2,7 @@ class Api::V0::DiffController < Api::V0::ApiController
   def show
     ensure_diffable
 
-    if stale?(etag: diff_etag, last_modified: diff_modification_time, public: true)
+    if stale?(etag: diff_etag, last_modified: Differ.cache_date, public: true)
       render json: {
         links: {
           page: api_v0_page_url(change.version.page),
@@ -18,12 +18,6 @@ class Api::V0::DiffController < Api::V0::ApiController
   end
 
   protected
-
-  def raw_diff
-    Rails.cache.fetch("diff/#{cache_key}", expires_in: 2.weeks) do
-      Differ.for_type!(params[:type]).diff(change, request.query_parameters)
-    end
-  end
 
   def change
     @change ||= Change.find_by_api_id(params[:id])
@@ -43,27 +37,16 @@ class Api::V0::DiffController < Api::V0::ApiController
     end
   end
 
-  def diff_modification_time
-    [
-      change.from_version.capture_time,
-      change.version.capture_time,
-      Differ.cache_date
-    ].max
+  def differ
+    @differ ||= Differ.for_type!(params[:type])
   end
 
-  def cache_key
-    # Special case: we don't include `format=json`. Clients often include this
-    # to handle bad response headers from an old differ
-    # TODO: remove special case for `format=json` when possible
-    diff_params = request.query_parameters
-      .reject {|key, value| key == :format && value == 'json'}
-      .sort.collect {|key, value| "#{key}=#{value}"}
-      .join('&')
-
-    "#{params[:type]}?#{diff_params}/#{change.api_id}/#{diff_modification_time.iso8601}"
+  def raw_diff
+    differ.diff(change, request.query_parameters)
   end
 
   def diff_etag
+    cache_key = differ.cache_key(change, request.query_parameters)
     Digest::SHA256.hexdigest(cache_key)
   end
 end
