@@ -50,7 +50,15 @@ class Api::V0::DiffController < Api::V0::ApiController
   end
 
   def cache_key
-    "#{change.api_id}::#{diff_modification_time.iso8601}"
+    # Special case: we don't include `format=json`. Clients often include this
+    # to handle bad response headers from an old differ
+    # TODO: remove special case for `format=json` when possible
+    diff_params = request.query_parameters
+      .reject {|key, value| key == :format && value == 'json'}
+      .sort.collect {|key, value| "#{key}=#{value}"}
+      .join('&')
+
+    "#{params[:type]}?#{diff_params}/#{change.api_id}/#{diff_modification_time.iso8601}"
   end
 
   def diff_etag
