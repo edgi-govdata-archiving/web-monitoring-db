@@ -20,7 +20,9 @@ class Api::V0::DiffController < Api::V0::ApiController
   protected
 
   def raw_diff
-    Differ.for_type!(params[:type]).diff(change, request.query_parameters)
+    Rails.cache.fetch("diff/#{cache_key}", expires_in: 2.weeks) do
+      Differ.for_type!(params[:type]).diff(change, request.query_parameters)
+    end
   end
 
   def change
