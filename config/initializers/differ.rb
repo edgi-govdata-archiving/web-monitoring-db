@@ -19,3 +19,7 @@ end
 unless Differ.for_type(nil)
   Rails.logger.warn('No default differ registered for unknown types! To register a default, set the DIFFER_DEFAULT environment variable.')
 end
+
+if ENV['CACHE_DATE_DIFFER']
+  Differ.cache_date = Time.parse(ENV['CACHE_DATE_DIFFER'])
+end

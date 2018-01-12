@@ -22,4 +22,16 @@ module Differ
     default_url = @type_map && @type_map[nil]
     default_url ? SimpleDiff.new(default_url, type) : nil
   end
+
+  # Hint for other tools to expire cached diffs older than this date.
+  # This provides a really simple (if imprecise) mechanism for expiring cached
+  # diffs when a diff algorithm is updated. Note that this is broad, though:
+  # updating this date will expire all diff types.
+  def self.cache_date
+    @cache_date ||= Time.new(2000, 1, 1)
+  end
+
+  def self.cache_date=(time)
+    @cache_date = time
+  end
 end
