@@ -28,7 +28,7 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
   config.action_mailer.perform_caching = false
-  
+
   # Action Mailer host default
   config.action_mailer.default_url_options = { :host => ENV.fetch('HOST_URL', 'localhost') }
 
@@ -42,4 +42,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # No caching in tests!
+  config.cache_store = :null_store
 end
