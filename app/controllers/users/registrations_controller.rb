@@ -6,7 +6,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def new
     @invitation = current_invitation
     super do |user|
-      user.email = @invitation.email if @invitation.email.present?
+      user.email = @invitation.email if @invitation.try(:email).present?
     end
   end
 
