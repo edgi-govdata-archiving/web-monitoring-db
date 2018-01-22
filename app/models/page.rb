@@ -17,6 +17,12 @@ class Page < ApplicationRecord
     end),
     foreign_key: 'page_uuid',
     class_name: 'Version'
+  has_and_belongs_to_many :agencies,
+    foreign_key: 'page_uuid',
+    association_foreign_key: 'agency_uuid'
+  has_and_belongs_to_many :sites,
+    foreign_key: 'page_uuid',
+    association_foreign_key: 'site_uuid'
 
   before_save :normalize_url
   validate :url_must_have_domain

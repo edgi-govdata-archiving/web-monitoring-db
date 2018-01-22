@@ -10,12 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101214731) do
+ActiveRecord::Schema.define(version: 20180121230313) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
   enable_extension "pgcrypto"
+
+  create_table "agencies", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.index ["name"], name: "index_agencies_on_name", unique: true
+  end
+
+  create_table "agencies_pages", id: false, force: :cascade do |t|
+    t.uuid "agency_uuid", null: false
+    t.uuid "page_uuid", null: false
+    t.index ["agency_uuid", "page_uuid"], name: "index_agencies_pages_on_agency_uuid_and_page_uuid", unique: true
+    t.index ["agency_uuid"], name: "index_agencies_pages_on_agency_uuid"
+    t.index ["page_uuid"], name: "index_agencies_pages_on_page_uuid"
+  end
 
   create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "change_uuid", null: false
@@ -74,6 +87,21 @@ ActiveRecord::Schema.define(version: 20171101214731) do
     t.index ["url"], name: "index_pages_on_url"
   end
 
+  create_table "pages_sites", id: false, force: :cascade do |t|
+    t.uuid "page_uuid", null: false
+    t.uuid "site_uuid", null: false
+    t.index ["page_uuid", "site_uuid"], name: "index_pages_sites_on_page_uuid_and_site_uuid", unique: true
+    t.index ["page_uuid"], name: "index_pages_sites_on_page_uuid"
+    t.index ["site_uuid"], name: "index_pages_sites_on_site_uuid"
+  end
+
+  create_table "sites", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "versionista_id"
+    t.index ["name"], name: "index_sites_on_name", unique: true
+    t.index ["versionista_id"], name: "index_sites_on_versionista_id", unique: true
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -111,11 +139,15 @@ ActiveRecord::Schema.define(version: 20171101214731) do
     t.index ["version_hash"], name: "index_versions_on_version_hash"
   end
 
+  add_foreign_key "agencies_pages", "agencies", column: "agency_uuid", primary_key: "uuid"
+  add_foreign_key "agencies_pages", "pages", column: "page_uuid", primary_key: "uuid"
   add_foreign_key "annotations", "users", column: "author_id"
   add_foreign_key "changes", "versions", column: "uuid_from", primary_key: "uuid"
   add_foreign_key "changes", "versions", column: "uuid_to", primary_key: "uuid"
   add_foreign_key "imports", "users"
   add_foreign_key "invitations", "users", column: "issuer_id"
   add_foreign_key "invitations", "users", column: "redeemer_id"
+  add_foreign_key "pages_sites", "pages", column: "page_uuid", primary_key: "uuid"
+  add_foreign_key "pages_sites", "sites", column: "site_uuid", primary_key: "uuid"
   add_foreign_key "versions", "pages", column: "page_uuid", primary_key: "uuid"
 end
