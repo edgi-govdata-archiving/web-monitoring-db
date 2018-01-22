@@ -65,8 +65,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     pages = Page.where(url: 'http://testsite.com/')
     assert_equal 1, pages.length
     assert_equal import_data[0][:title], pages[0].title
-    assert_equal import_data[0][:site_agency], pages[0].agency
-    assert_equal import_data[0][:site_name], pages[0].site
+    assert_not_nil pages[0].agencies.find_by(name: import_data[0][:site_agency])
+    assert_not_nil pages[0].sites.find_by(name: import_data[0][:site_name])
 
     versions = pages[0].versions
     assert_equal 2, versions.length
