@@ -26,30 +26,32 @@ class Api::V0::PagesController < Api::V0::ApiController
           .where(uuid: page_ids)
           .includes(:versions)
           .order('versions.capture_time DESC')
-        lightweight_query(results, :versions)
+        lightweight_query(results)
       elsif should_include_latest
-        # [pages.includes(:latest), :latest]
-        page_ids = pages.pluck(:uuid, :updated_at).collect {|data| data[0]}
-        results = Page
-          .where(uuid: page_ids)
-          .includes(:latest)
-        lightweight_query(results, :latest)
+        pages.includes(:latest).as_json(include: [:agencies, :latest, :sites])
       else
         lightweight_query(pages)
       end
 
-    render json: Oj.dump({
-      links: paging[:links],
-      meta: { total_results: paging[:total_items] },
-      data: result_data
-    }, mode: :strict)
+    render json: Oj.dump(
+      {
+        links: paging[:links],
+        meta: { total_results: paging[:total_items] },
+        data: result_data
+      },
+      mode: should_include_latest ? :rails : :strict
+    )
   end
 
   def show
-    page = Page.find(params[:id])
+    page = Page
+      .left_outer_joins(:agencies, :sites)
+      .includes(:agencies, :sites)
+      .find(params[:id])
+
     render json: {
       data: page
-    }, include: [:versions]
+    }, include: [:versions, :agencies, :sites]
   end
 
   protected
@@ -68,6 +70,11 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def page_collection
     collection = Page.where(params.permit(:agency, :site, :title))
+    # NOTE: You *can't* use left_outer_joins here because ActiveRecord screws
+    # up and tries to join the tables *twice* in the query. I think this is
+    # probably because it is a has_and_belongs_to_many, but have not had time
+    # to break down exactly what is going wrong. In any case, `includes` works.
+    collection = collection.includes(:agencies, :sites)
 
     collection = where_in_range_param(
       collection,
@@ -78,7 +85,7 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     version_params = params.permit(:hash, :source_type)
     if version_params.present?
-      collection = collection.joins(:versions).where(versions: {
+      collection = collection.left_outer_joins(:versions).where(versions: {
         version_hash: params[:hash],
         source_type: params[:source_type]
       }.compact)
@@ -98,145 +105,82 @@ class Api::V0::PagesController < Api::V0::ApiController
     collection.distinct.order(updated_at: :desc)
   end
 
-  # Get the results of an ActiveRecord query (and, optionally, one association)
-  # as a simple JSON-compatible structure without instantiating actual models.
-  # This is generally way fancier footwork that one should be performing and
-  # should only be used for extremely hot (in speed or memory) queries.
+  # Get the results of an ActiveRecord query as a simple JSON-compatible
+  # structure without instantiating actual models. This is generally way
+  # fancier footwork that one should be performing and should only be used for
+  # extremely hot (in speed or memory) queries.
   #
   # It makes a number of assumptions about the structure of queries and only
-  # works with has_many and has_one associations (the association can also be
-  # nil). Those assumptions are generally reasonable, but are likely sensitive
-  # to underlying changes in ActiveRecord.
-  def lightweight_query(relation, association = nil)
-    reflection = relation.model._reflections.try(:[], association.to_s)
-
-    if !reflection || reflection.is_a?(ActiveRecord::Reflection::HasManyReflection)
-      lightweight_query_with_many(relation, reflection)
-    elsif reflection.is_a?(ActiveRecord::Reflection::HasOneReflection)
-      lightweight_query_with_one(relation, reflection)
-    else
-      raise StandardError, "lightweight query can only handle `has_one` and `has_many` associations, not #{reflection.class.name}"
-    end
-  end
-
-  # Perform a lightweight query with a has_many association (or no association)
-  def lightweight_query_with_many(relation, association_reflection)
+  # works with some kinds of associations. Queries with associations that
+  # require more than one actual SQL call are not supported. This is also
+  # likely sensitive to underlying changes in ActiveRecord.
+  def lightweight_query(relation)
     primary_type = relation.model
-    names = primary_type.attribute_names
-    primary_names_length = names.length
-    association = association_reflection.try(:name)
-    names += association_reflection.klass.attribute_names if association_reflection
+    # Hold information about associations in arrays indexed by the association
+    # for later quick lookup when working with segments of each result row.
+    associations = (relation.eager_load_values + relation.includes_values).collect(&:to_s)
+    reflections = associations.collect {|association| primary_type._reflections.try(:[], association)}
+    association_names = [nil] + associations
+    types = [primary_type] + reflections.collect(&:klass)
+    attribute_names = types.collect(&:attribute_names)
 
     # Ensure primary records are all consecutive and not interleaved because of
     # other orderings in the query.
-    relation.order_values.insert(
-      0,
-      "#{primary_type.table_name}.#{primary_type.primary_key} ASC"
-    )
+    unless relation.order_values.frozen?
+      relation.order_values.insert(
+        0,
+        "#{primary_type.table_name}.#{primary_type.primary_key} ASC"
+      )
+    end
     raw = ActiveRecord::Base.connection.exec_query(relation.to_sql)
 
-    skip_length = raw.columns.find_index('t0_r0') || 0
-    primary_names_length += skip_length
-    names = (0...skip_length).to_a + names
-
     parsers = raw.columns.collect do |column|
       PrimitiveParser.for(raw.column_types[column])
     end
 
-    last_id = nil
-    current_record = nil
+    # List of final resulting hashes for each primary model
     results = []
+    # Hashes that map IDs to previously built objects for each association
+    object_maps = association_names.collect {|_| {}}
+    # A cached range for iterating throw associations on each row
+    model_range = 0...association_names.count
 
     raw.rows.each do |row|
-      if last_id != row[0]
-        current_record = {}
-        results << current_record
-        current_record[association] = [] if association
-      end
+      primary_record = nil
+      column_index = 0
+      model_range.each do |model_index|
+        model_id = row[column_index]
+        record = object_maps[model_index][model_id]
+        record_is_new = record.nil?
 
-      associated_record = {}
+        # Create and read record data or skip ahead if we already have a copy
+        if record
+          column_index += attribute_names[model_index].count
+        else
+          record = {}
+          object_maps[model_index][model_id] = record
 
-      row.each_with_index do |value, index|
-        next if index < skip_length
-        next if index < primary_names_length && last_id == row[0]
-        target = index < primary_names_length ? current_record : associated_record
-        parser = parsers[index]
+          attribute_names[model_index].each do |name|
+            value = row[column_index]
+            parser = parsers[column_index]
+            record[name] = parser ? parser.deserialize(value) : value
+            column_index += 1
+          end
+        end
 
-        target[names[index]] = parser ? parser.deserialize(value) : value
-      end
-
-      current_record[association] << associated_record if association
-      last_id = row[0]
-    end
-
-    results
-  end
-
-  # Perform a lightweight query with a has_one association
-  def lightweight_query_with_one(relation, association_reflection)
-    raw = ActiveRecord::Base.connection.exec_query(relation.to_sql)
-    primary_type = relation.model
-    names = primary_type.attribute_names
-    names_length = names.length
-
-    parsers = raw.columns.collect do |column|
-      PrimitiveParser.for(raw.column_types[column])
-    end
-
-    last_id = nil
-    results = []
-    id_map = {}
-
-    raw.rows.each do |row|
-      next if last_id == row[0]
-
-      record = {}
-      results << record
-      last_id = row[0]
-      id_map[last_id] = record
-
-      row.each_with_index do |value, index|
-        next if index >= names_length
-        parser = parsers[index]
-
-        record[names[index]] = parser ? parser.deserialize(value) : value
-      end
-    end
-
-    # And now for the association
-    secondary_type = association_reflection.klass
-    secondary_query = secondary_type.where(
-      association_reflection.foreign_key => id_map.keys
-    )
-    if association_reflection.scope
-      secondary_query = secondary_query.merge(association_reflection.scope)
-    end
-    raw = ActiveRecord::Base.connection.exec_query(secondary_query.to_sql)
-    names = secondary_type.attribute_names
-    names_length = names.length
-
-    parsers = raw.columns.collect do |column|
-      PrimitiveParser.for(raw.column_types[column])
-    end
-
-    last_id = nil
-    raw.rows.each do |row|
-      next if last_id == row[0]
-
-      record = {}
-      last_id = row[0]
-
-      row.each_with_index do |value, index|
-        next if index >= names_length
-        parser = parsers[index]
-
-        record[names[index]] = parser ? parser.deserialize(value) : value
-        if record[names[index]].is_a? Time
-          record[names[index]] = record[names[index]].iso8601
+        # Add the record to the right association/list
+        if model_index.zero?
+          primary_record = record
+          results << record if record_is_new
+        elsif reflections[model_index - 1].is_a?(ActiveRecord::Reflection::HasOneReflection)
+          field_name = association_names[model_index]
+          primary_record[field_name] = record
+        else
+          field_name = association_names[model_index]
+          field = (primary_record[field_name] ||= [])
+          field << record unless model_id.nil? || field.include?(record)
         end
       end
-
-      id_map[record[association_reflection.foreign_key]][association_reflection.name] = record
     end
 
     results

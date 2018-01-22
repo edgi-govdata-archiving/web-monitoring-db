@@ -366,7 +366,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
       assert_equal(
         actual_page.latest.capture_time.iso8601,
-        found_page['latest']['capture_time']
+        # Trim potential sub-second precision depending on serialization method
+        found_page['latest']['capture_time'].sub(/\.\d+/, '')
       )
     end
   end
