@@ -110,15 +110,17 @@ class ImportVersionsJob < ApplicationJob
     # just match on `url`, but this requires fixing:
     # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/24
     raise Api::InputError, 'page_url is missing from record' unless record.key?('page_url')
-    search_options = { url: Page.normalize_url(record['page_url']) }
-    if record['source_type'] == 'versionista'
-      search_options[:site] = record['site_name']
+    page = Page.find_or_create_by(url: Page.normalize_url(record['page_url']))
+
+    page.add_to_agency(record['site_agency']) if record['site_agency']
+
+    if record['site_name']
+      site_id = record['source_type'] == 'versionista' &&
+                record['source_metadata']['site_id']
+      page.add_to_site(record['site_name'], versionista_id: site_id)
     end
-    Page.find_by(search_options) || Page.create(
-      url: record['page_url'],
-      agency: record['site_agency'],
-      site: record['site_name']
-    )
+
+    page
   end
 
   private

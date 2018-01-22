@@ -36,6 +36,32 @@ class Page < ApplicationRecord
     end
   end
 
+  def add_to_agency(agency)
+    agency = Agency.find_or_create_by(name: agency) unless agency.is_a?(Agency)
+    agencies.push(agency) unless agencies.include?(agency)
+    agency
+  end
+
+  def add_to_site(site, versionista_id: nil)
+    unless site.is_a?(Site)
+      if versionista_id
+        name = site
+        site = Site.find_by(versionista_id: versionista_id)
+        if site
+          site.update(name: name)
+        else
+          site = Site.find_or_create_by(name: name)
+          site.update(versionista_id: versionista_id)
+        end
+      else
+        site = Site.find_or_create_by(name: site)
+      end
+    end
+
+    sites.push(site) unless sites.include?(site)
+    site
+  end
+
   protected
 
   def normalize_url
