@@ -32,17 +32,17 @@ COPY . ./
 
 ### RUNTIME STAGE ###
 
-# FROM ruby:2.4.1-slim
-# MAINTAINER enviroDGI@gmail.com
+FROM ruby:2.4.1-slim
+MAINTAINER enviroDGI@gmail.com
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 3000
 
 # Copy build products from builder image above.
-# COPY --from=builder /usr/local/bundle /usr/local/bundle
-# COPY --from=builder /app /app
-# WORKDIR /app
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY --from=builder /app /app
+WORKDIR /app
 
 # Pre-compile static assets.
 RUN bundle exec rake assets:precompile
