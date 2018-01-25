@@ -169,9 +169,8 @@ The Dockerfile runs the rails server on port 3000 in the container. To build
 and run:
 
 ```
-docker build -t db-geneic -e <ENVIRONMENT VARIABLES> .
-docker build -t db-rails-server -e <ENVIRONMENT VARIABLES> dockers/rails-server
-docker build -t db-import-worker -e <ENVIRONMENT VARIABLES> dockers/import-worker
+docker build -t db-rails-server -f Dockerfile.rails-server .
+docker build -t db-import-worker -f Dockerfile.import-worker .
 docker run -p 3000:3000 db-rails-server -e <ENVIRONMENT VARIABLES> .
 docker run -p 6379:6379 db-import-worker -e <ENVIRONMENT VARIABLES> .
 ```

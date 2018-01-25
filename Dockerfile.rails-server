@@ -1,7 +1,7 @@
 # This Dockerfile uses a multi-stage build.
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
-### FIRST STAGE ###
+### BUILD STAGE ###
 
 FROM ruby:2.4.1-slim as builder
 MAINTAINER enviroDGI@gmail.com
@@ -11,7 +11,8 @@ MAINTAINER enviroDGI@gmail.com
 # Debian image, we use apt-get to install those.
 RUN apt-get update && apt-get install -y \
     build-essential \
-    nodejs
+    nodejs \
+    libpq-dev
 
 # Configure the main working directory. This is the base
 # directory used in any further RUN, COPY, and ENTRYPOINT
@@ -29,17 +30,19 @@ RUN gem install bundler && bundle install --jobs 20 --retry 5
 # Copy the main application.
 COPY . ./
 
-### SECOND STAGE ###
+### RUNTIME STAGE ###
 
-FROM ruby:2.4.1-slim
-MAINTAINER enviroDGI@gmail.com
+# FROM ruby:2.4.1-slim
+# MAINTAINER enviroDGI@gmail.com
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 3000
 
-COPY --from=builder /app /app
-WORKDIR /app
+# Copy build products from builder image above.
+# COPY --from=builder /usr/local/bundle /usr/local/bundle
+# COPY --from=builder /app /app
+# WORKDIR /app
 
 # Pre-compile static assets.
 RUN bundle exec rake assets:precompile
