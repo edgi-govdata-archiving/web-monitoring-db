@@ -18,6 +18,9 @@ class Page < ApplicationRecord
     foreign_key: 'page_uuid',
     class_name: 'Version'
 
+  has_many :maintainerships, foreign_key: :page_uuid
+  has_many :maintainers, through: :maintainerships
+
   before_save :normalize_url
   validate :url_must_have_domain
 
@@ -28,6 +31,25 @@ class Page < ApplicationRecord
     else
       "http://#{url}"
     end
+  end
+
+  def add_maintainer(maintainer)
+    unless maintainer.is_a?(Maintainer)
+      maintainer = Maintainer.find_or_create_by(name: maintainer)
+    end
+
+    maintainers.push(maintainer) unless maintainers.include?(maintainer)
+    maintainer
+  end
+
+  def remove_maintainer(maintainer)
+    attached_maintainer =
+      if maintainer.is_a?(Tag)
+        maintainers.find_by(uuid: maintainer.uuid)
+      else
+        maintainers.find_by(name: maintainer.strip)
+      end
+    maintainers.delete(attached_maintainer) if attached_maintainer
   end
 
   protected

@@ -37,4 +37,34 @@ class PageTest < ActiveSupport::TestCase
     refute(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it has an empty title')
   end
+
+  test 'can add many maintainer models to a page' do
+    pages(:home_page).add_maintainer(maintainers(:epa))
+    pages(:home_page).add_maintainer(maintainers(:doi))
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+    assert pages(:home_page).maintainers.find(maintainers(:doi).uuid)
+  end
+
+  test 'can add a maintainer to a page by name' do
+    pages(:home_page).add_maintainer('EPA')
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+  end
+
+  test 'can add a maintainer case-insensitively' do
+    pages(:home_page).add_maintainer('ePa')
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+  end
+
+  test 'adding an unknown maintainer to a page creates that maintainer' do
+    pages(:home_page).add_maintainer('Department of Unicorns')
+    unicorns = Maintainer.find_by!(name: 'Department of Unicorns')
+    assert pages(:home_page).maintainers.include?(unicorns)
+  end
+
+  test 'adding a maintainer repeatedly to a page does not cause errors or duplicates' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer(maintainers(:epa))
+
+    assert_equal(1, pages(:home_page).maintainers.count)
+  end
 end
