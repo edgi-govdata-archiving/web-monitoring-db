@@ -113,7 +113,7 @@ GEM
     parallel (1.12.1)
     parser (2.4.0.2)
       ast (~> 2.3)
-    pg (0.21.0)
+    pg (1.0.0)
     postmark (1.10.0)
       json
       rake
@@ -257,7 +257,7 @@ DEPENDENCIES
   listen (~> 3.1)
   newrelic_rpm
   oj (~> 3.3)
-  pg (~> 0.18)
+  pg (~> 1.0)
   postmark-rails
   pry-rails
   puma (~> 3.0)
