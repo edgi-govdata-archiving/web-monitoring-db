@@ -78,6 +78,8 @@ Style/HashSyntax:
 # Cop supports --auto-correct.
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
+  # TURNING THIS OFF UNTIL WE GET Metrics/LineLength under control
+  Enabled: false
   Exclude:
     - 'app/controllers/concerns/paging_concern.rb'
     - 'app/controllers/pages_controller.rb'
