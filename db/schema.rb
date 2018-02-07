@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180128062846) do
+ActiveRecord::Schema.define(version: 20180207031149) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -92,6 +92,23 @@ ActiveRecord::Schema.define(version: 20180128062846) do
     t.index ["url"], name: "index_pages_on_url"
   end
 
+  create_table "taggings", id: false, force: :cascade do |t|
+    t.uuid "taggable_uuid", null: false
+    t.string "taggable_type"
+    t.uuid "tag_uuid", null: false
+    t.datetime "created_at", null: false
+    t.index ["tag_uuid"], name: "index_taggings_on_tag_uuid"
+    t.index ["taggable_uuid", "tag_uuid"], name: "index_taggings_on_taggable_uuid_and_tag_uuid", unique: true
+    t.index ["taggable_uuid"], name: "index_taggings_on_taggable_uuid"
+  end
+
+  create_table "tags", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.citext "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "users", id: :serial, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -137,5 +154,6 @@ ActiveRecord::Schema.define(version: 20180128062846) do
   add_foreign_key "invitations", "users", column: "redeemer_id"
   add_foreign_key "maintainerships", "maintainers", column: "maintainer_uuid", primary_key: "uuid"
   add_foreign_key "maintainerships", "pages", column: "page_uuid", primary_key: "uuid"
+  add_foreign_key "taggings", "tags", column: "tag_uuid", primary_key: "uuid"
   add_foreign_key "versions", "pages", column: "page_uuid", primary_key: "uuid"
 end

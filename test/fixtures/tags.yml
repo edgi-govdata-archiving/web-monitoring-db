@@ -1,0 +1,11 @@
+site_whatever:
+  name: 'site:whatever'
+
+listing_page:
+  name: 'Listing Page'
+
+frequently_updated:
+  name: 'Frequently Updated'
+
+home_page:
+  name: 'Home Page'
