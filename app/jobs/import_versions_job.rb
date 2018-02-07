@@ -106,19 +106,17 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def find_or_create_page_for_record(record)
-    # TODO: there shouldn't be a special case for Versionista here -- we should
-    # just match on `url`, but this requires fixing:
-    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/24
     raise Api::InputError, 'page_url is missing from record' unless record.key?('page_url')
-    search_options = { url: Page.normalize_url(record['page_url']) }
-    if record['source_type'] == 'versionista'
-      search_options[:site] = record['site_name']
-    end
-    Page.find_by(search_options) || Page.create(
-      url: record['page_url'],
-      agency: record['site_agency'],
-      site: record['site_name']
-    )
+
+    record_url = Page.normalize_url(record['page_url'])
+    page = Page.find_or_create_by(url: record_url)
+
+    record.fetch('page_maintainers', []).each {|name| page.add_maintainer(name)}
+    page.add_maintainer(record['site_agency']) if record.key?('site_agency')
+    record.fetch('page_tags', []).each {|name| page.add_tag(name)}
+    page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
+
+    page
   end
 
   private
