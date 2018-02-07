@@ -366,14 +366,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
       assert_equal(
         actual_page.latest.capture_time.iso8601,
-        found_page['latest']['capture_time']
+        # Trim potential sub-second precision depending on serialization method
+        found_page['latest']['capture_time'].sub(/\.\d+/, '')
       )
     end
   end
 
   test 'meta property should have a total_results field that contains total results across all chunks' do
     sign_in users(:alice)
-    get '/api/v0/pages/'
+    get api_v0_pages_path
     assert_response :success
     assert_equal 'application/json', @response.content_type
     body_json = JSON.parse @response.body
@@ -382,5 +383,39 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       body_json['meta']['total_results'],
       'The total count field should contain count of results across all paged results'
     )
+  end
+
+  test 'includes maintainers in list response' do
+    pages(:dot_home_page).add_maintainer(maintainers(:someone))
+
+    sign_in users(:alice)
+    get api_v0_pages_path
+    assert_response :success
+    result = JSON.parse(@response.body)['data']
+    result.each do |page|
+      assert_kind_of(Array, page['maintainers'])
+      actual_page = Page.find(page['uuid'])
+      assert_equal(actual_page.maintainers.count, page['maintainers'].length)
+    end
+
+    dot_home = result.find {|page| page['uuid'] == pages(:dot_home_page).uuid}
+    assert_includes(dot_home['maintainers'].first, 'uuid')
+    assert_includes(dot_home['maintainers'].first, 'name')
+  end
+
+  test 'includes maintainers in single page response' do
+    page = pages(:dot_home_page)
+    page.add_maintainer(maintainers(:someone))
+
+    sign_in users(:alice)
+    get api_v0_page_path(page)
+    assert_response :success
+    body = JSON.parse @response.body
+    assert_kind_of(Array, body['data']['maintainers'])
+
+    maintainers = body['data']['maintainers']
+    assert_equal(page.maintainers.count, maintainers.length)
+    assert_equal(page.maintainers.first.uuid, maintainers.first['uuid'])
+    assert_equal(page.maintainers.first.name, maintainers.first['name'])
   end
 end
