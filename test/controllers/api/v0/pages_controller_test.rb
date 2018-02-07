@@ -29,7 +29,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/(^|&)chunk=.+?&chunk=/, first_uri.query, 'The `chunk` param occurred multiple times in the same URL')
   end
 
-  test 'should repect chunk_size pagination parameter' do
+  test 'should respect chunk_size pagination parameter' do
     sign_in users(:alice)
     # one result per page ('chunk' to avoid ambiguity with Page model)
     get(api_v0_pages_path, params: { chunk: 1, chunk_size: 1 })
@@ -139,6 +139,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'can filter pages by version source_type' do
     sign_in users(:alice)
     get api_v0_pages_path(source_type: 'pagefreezer')
+    assert_response :success
     body = JSON.parse @response.body
     ids = body['data'].pluck 'uuid'
 
@@ -439,5 +440,79 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = JSON.parse @response.body
     assert_kind_of(Array, body['data']['tags'])
+  end
+
+  test 'can filter by tags' do
+    pages(:home_page).add_tag('home page')
+    pages(:home_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('solar')
+    pages(:home_page_site2).add_tag('home page')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { tags: ['frequently updated'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(2, body['meta']['total_results'])
+    assert_equal(2, body['data'].length)
+
+    sub_page = body['data'].find {|page| page['uuid'] == pages(:sub_page).uuid}
+    assert_equal(
+      ['Frequently Updated', 'solar'],
+      sub_page['tags'].pluck('name').sort
+    )
+  end
+
+  test 'filtering with multiple tags ORs the tags' do
+    pages(:home_page).add_tag('home page')
+    pages(:home_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('solar')
+    pages(:home_page_site2).add_tag('home page')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { tags: ['frequently updated', 'home page'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(3, body['meta']['total_results'])
+    assert_equal(3, body['data'].length)
+  end
+
+  test 'can filter by maintainer' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('Unicorn Department')
+    pages(:home_page_site2).add_maintainer('Unicorn Department')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { maintainers: ['Unicorn Department'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(2, body['meta']['total_results'])
+    assert_equal(2, body['data'].length)
+
+    sub_page = body['data'].find {|page| page['uuid'] == pages(:sub_page).uuid}
+    assert_equal(
+      ['DOE', 'Unicorn Department'],
+      sub_page['maintainers'].pluck('name').sort
+    )
+  end
+
+  test 'can filter by multiple ORs the maintainers' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('Unicorn Department')
+    pages(:home_page_site2).add_maintainer('Unicorn Department')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: {
+      maintainers: ['Unicorn Department', 'EPA']
+    })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(3, body['meta']['total_results'])
+    assert_equal(3, body['data'].length)
   end
 end

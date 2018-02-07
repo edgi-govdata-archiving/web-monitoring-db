@@ -1,35 +1,21 @@
 class Api::V0::PagesController < Api::V0::ApiController
   def index
     query = page_collection
-    paging = pagination(query)
-    pages = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    id_query = filter_maintainers_and_tags(query)
+    paging = pagination(id_query)
+    id_query = id_query.limit(paging[:chunk_size]).offset(paging[:offset])
 
-    # In order to handle pagination when querying across pages and versions
-    # together, we do two separate queries:
-    #   1. Get a unique list of page IDs according to our query conditions. We
-    #      can use limit/offset here because the returned data is just pages,
-    #      not unique combinations of page + version, so offset is actually an
-    #      offset into the list of pages, which is what we want.
-    #   2. Do a separate query to get all the actual data for the pages and
-    #      versions associated with the page IDs found above in step 1.
-    #
-    # ActiveRecord normally does the above automatically, but adding ordering
-    # based on associated records (e.g. versions.capture_time here) causes the
-    # built-in behavior to break, so we do it manually here. For more, see:
-    #   - https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/129
-    #   - https://github.com/rails/rails/issues/30531
+    # NOTE: need to get :updated_at here because it's used for ordering
+    page_ids = id_query.pluck(:uuid, :updated_at).collect {|data| data[0]}
+
     result_data =
       if should_include_versions
-        # NOTE: need to get :updated_at here because it's used for ordering
-        page_ids = pages.pluck(:uuid, :updated_at).collect {|data| data[0]}
         results = query
           .where(uuid: page_ids)
           .includes(:versions)
           .order('versions.capture_time DESC')
         lightweight_query(results)
       elsif should_include_latest
-        page_ids = pages.pluck(:uuid, :updated_at).collect {|data| data[0]}
-
         # Filters from the original query should *not* affect what's "latest",
         # (though they do affect which *pages* get included) so we build a
         # whole new query from scratch here.
@@ -42,7 +28,9 @@ class Api::V0::PagesController < Api::V0::ApiController
           .includes(:latest, :maintainers, :tags)
           .as_json(include: [:latest, :maintainers, :tags])
       else
-        lightweight_query(pages)
+        # TODO: we could optimize and not do the page IDs check for this case
+        # if we aren't also filtering by maintainers or tags.
+        lightweight_query(query.where(uuid: page_ids))
       end
 
     render json: Oj.dump({
@@ -74,6 +62,24 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def page_collection
+    # TODO: is there a query interface we can/should have for AND queries on
+    # tags or maintainers? e.g. pages tagged 'home page' AND 'solar'
+    # The query would be convoluted, but basically:
+    # Page.joins(<<-SQL
+    #   INNER JOIN (
+    #     SELECT taggable_uuid as inner_t_uuid
+    #       FROM taggings
+    #       INNER JOIN tags ON taggings.tag_uuid = tags.uuid
+    #       WHERE tags.name = 'home page' AND taggings.taggable_type = 'Page'
+    #     INTERSECT
+    #     SELECT taggable_uuid as inner_t_uuid
+    #       FROM taggings
+    #       INNER JOIN tags ON taggings.tag_uuid = tags.uuid
+    #       WHERE tags.name = 'solar' AND taggings.taggable_type = 'Page'
+    #   ) match_tags ON match_tags.inner_t_uuid = pages.uuid
+    # SQL).all
+
+    # TODO: remove agency and site here
     collection = Page.where(params.permit(:agency, :site, :title))
     # NOTE: You *can't* use left_outer_joins here because ActiveRecord screws
     # up and tries to join the tables *twice* in the query. I think this is
@@ -108,6 +114,30 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     # If any queries create implicit joins, ensure we get a list of unique pages
     collection.distinct.order(updated_at: :desc)
+  end
+
+  # Determine whether results should be limited to pages with certain
+  # associations. Required because we still want the actual results to have all
+  # the relevant associations for selected pages; the filters only change
+  # which *pages* we select.
+  def should_filter_by_associations
+    params[:maintainers].is_a?(Array) || params[:tags].is_a?(Array)
+  end
+
+  # This is separate from the page_collection method because we want to make
+  # sure this filtering is only used to select which *pages* are in the result;
+  # we want actual output to include *all* the maintainers/tags on the pages
+  # that were matched, not just the ones asked for.
+  def filter_maintainers_and_tags(collection)
+    if params[:maintainers].is_a?(Array)
+      collection = collection.where(maintainers: { name: params[:maintainers] })
+    end
+
+    if params[:tags].is_a?(Array)
+      collection = collection.where(tags: { name: params[:tags] })
+    end
+
+    collection
   end
 
   # Get the results of an ActiveRecord query as a simple JSON-compatible
