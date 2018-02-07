@@ -39,8 +39,8 @@ class Api::V0::PagesController < Api::V0::ApiController
         Page
           .where(uuid: page_ids)
           .order(updated_at: :desc)
-          .includes(:latest, :maintainers)
-          .as_json(include: [:latest, :maintainers])
+          .includes(:latest, :maintainers, :tags)
+          .as_json(include: [:latest, :maintainers, :tags])
       else
         lightweight_query(pages)
       end
@@ -56,7 +56,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     page = Page.find(params[:id])
     render json: {
       data: page
-    }, include: [:versions, :maintainers]
+    }, include: [:versions, :maintainers, :tags]
   end
 
   protected
@@ -79,7 +79,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     # up and tries to join the tables *twice* in the query. I think this is
     # probably because it is a has_and_belongs_to_many, but have not had time
     # to break down exactly what is going wrong. In any case, `includes` works.
-    collection = collection.eager_load(:maintainers)
+    collection = collection.eager_load(:maintainers, :tags)
 
     collection = where_in_range_param(
       collection,

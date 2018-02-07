@@ -418,4 +418,26 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(page.maintainers.first.uuid, maintainers.first['uuid'])
     assert_equal(page.maintainers.first.name, maintainers.first['name'])
   end
+
+  test 'includes tags in list response' do
+    sign_in users(:alice)
+    get api_v0_pages_path
+    assert_response :success
+    result = JSON.parse(@response.body)['data']
+    result.each do |page|
+      assert_kind_of(Array, page['tags'])
+      actual_page = Page.find(page['uuid'])
+      assert_equal(actual_page.tags.count, page['tags'].length)
+    end
+  end
+
+  test 'includes tags in single page response' do
+    page = pages(:dot_home_page)
+
+    sign_in users(:alice)
+    get api_v0_page_path(page)
+    assert_response :success
+    body = JSON.parse @response.body
+    assert_kind_of(Array, body['data']['tags'])
+  end
 end
