@@ -7,10 +7,7 @@ module Taggable
   end
 
   def add_tag(tag)
-    unless tag.is_a?(Tag)
-      tag = Tag.find_or_create_by(name: tag.strip)
-    end
-
+    tag = Tag.find_or_create_by(name: tag.strip) unless tag.is_a?(Tag)
     tags.push(tag) unless tags.include?(tag)
     tag
   end

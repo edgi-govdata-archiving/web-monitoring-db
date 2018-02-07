@@ -111,6 +111,7 @@ class PageTest < ActiveSupport::TestCase
     pages(:home_page_site2).add_tag('frequently updated')
     assert_equal(
       ['Listing Page', 'Frequently Updated'],
-      pages(:home_page_site2).tag_names)
+      pages(:home_page_site2).tag_names
+    )
   end
 end
