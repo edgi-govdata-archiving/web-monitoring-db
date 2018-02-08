@@ -58,7 +58,7 @@ Rails.application.configure do
 
   # Action Mailer configuration
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('HOST_URL', 'web-monitoring-db.herokuapp.com')
+    host: ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org')
   }
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
