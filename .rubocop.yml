@@ -23,6 +23,8 @@ Metrics/ParameterLists:
 
 Metrics/CyclomaticComplexity:
   Max: 12
+  Exclude:
+    - 'app/controllers/api/v0/pages_controller.rb'
 
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation

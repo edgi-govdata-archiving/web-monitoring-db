@@ -149,18 +149,14 @@ class Api::V0::PagesController < Api::V0::ApiController
   def format_page_json(page)
     page['maintainers'] = page.delete('maintainerships').collect do |item|
       item['maintainer']
-        .reject {|k, v| k == 'created_at' || k == 'updated_at'}
-        .merge({
-          'assigned_at' => item['created_at']
-        })
+        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
+        .merge('assigned_at' => item['created_at'])
     end
 
     page['tags'] = page.delete('taggings').collect do |item|
       item['tag']
-        .reject {|k, v| k == 'created_at' || k == 'updated_at'}
-        .merge({
-          'assigned_at' => item['created_at']
-        })
+        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
+        .merge('assigned_at' => item['created_at'])
     end
   end
 
@@ -281,10 +277,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     end
 
-    if block_given?
-      results.collect {|record| yield record}
-    end
-
+    results.collect {|record| yield record} if block_given?
     results
   end
 

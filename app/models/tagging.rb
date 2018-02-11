@@ -4,11 +4,11 @@ class Tagging < ApplicationRecord
 
   # A smarter implementation might support all the normal options, but we
   # don't have any other use cases right now, so maybe not worth the effort.
-  def as_json(options={})
+  def as_json(_options = {})
     {
       'uuid' => tag_uuid,
       'name' => tag.name,
-      'assigned_at' => created_at,
+      'assigned_at' => created_at
     }
   end
 end

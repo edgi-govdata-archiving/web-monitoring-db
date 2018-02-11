@@ -53,13 +53,13 @@ class Page < ApplicationRecord
     maintainers.delete(attached_maintainer) if attached_maintainer
   end
 
-  def as_json(options={})
+  def as_json(options = {})
     # Tags and Maintainers get a special JSON representation
     custom_options = options.clone
     includes = custom_options[:include]
-    associations = {maintainers: false, tags: false}
+    associations = { maintainers: false, tags: false }
 
-    if includes == :tags || includes == :maintainers
+    if [:maintainers, :tags].include?(includes)
       associations[includes] = true
       custom_options.delete(:include)
     elsif includes.is_a?(Enumerable)
