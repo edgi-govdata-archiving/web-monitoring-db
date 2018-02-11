@@ -13,17 +13,13 @@ class Api::V0::MaintainersController < Api::V0::ApiController
 
   def show
     @maintainer ||= Maintainer.find(params[:id])
-    parent_url =
-      if @maintainer.parent_uuid
-        api_v0_maintainer_url(@maintainer.parent_uuid)
-      else
-        nil
-      end
+    parent_url = @maintainer.parent_uuid &&
+                 api_v0_maintainer_url(@maintainer.parent_uuid)
 
     render json: {
       links: {
         parent: parent_url,
-        children: api_v0_maintainers_url(params: { parent: @maintainer.uuid }),
+        children: api_v0_maintainers_url(params: { parent: @maintainer.uuid })
       },
       data: @maintainer
     }
@@ -31,7 +27,7 @@ class Api::V0::MaintainersController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for(model_type, *args)
+  def paging_path_for(_model_type, *args)
     if page
       api_v0_page_maintainers_url(*args)
     else
@@ -48,12 +44,12 @@ class Api::V0::MaintainersController < Api::V0::ApiController
     collection = page ? page.maintainerships.joins(:maintainer) : Maintainer
 
     if params.key?(:parent)
-      if page
-        collection = collection
-          .merge(Maintainer.where(parent_uuid: params[:parent]))
-      else
-        collection = collection.where(parent_uuid: params[:parent])
-      end
+      collection =
+        if page
+          collection.merge(Maintainer.where(parent_uuid: params[:parent]))
+        else
+          collection.where(parent_uuid: params[:parent])
+        end
     end
 
     collection.order(created_at: :asc)

@@ -63,7 +63,7 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "can list maintainers by their parent" do
+  test 'can list maintainers by their parent' do
     maintainers(:someone).update(parent: maintainers(:epa))
 
     sign_in(users(:alice))
@@ -81,9 +81,11 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     pages(:home_page).add_maintainer(maintainers(:doi))
 
     sign_in(users(:alice))
-    get(api_v0_page_maintainers_path(
-      pages(:home_page),
-      params: { parent: maintainers(:epa).uuid })
+    get(
+      api_v0_page_maintainers_path(
+        pages(:home_page),
+        params: { parent: maintainers(:epa).uuid }
+      )
     )
     assert_response(:success)
     body = JSON.parse(@response.body)

@@ -21,7 +21,7 @@ class Api::V0::TagsController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for(model_type, *args)
+  def paging_path_for(_model_type, *args)
     if page
       api_v0_page_tags_url(*args)
     else
