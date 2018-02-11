@@ -24,11 +24,13 @@ Rails.application.routes.draw do
             end
         end
         resources :maintainers, only: [:index], format: :json
+        resources :tags, only: [:index], format: :json
       end
 
       resources :versions, only: [:index, :show], format: :json
       resources :imports, only: [:create, :show], format: :json
       resources :maintainers, only: [:index, :show], format: :json
+      resources :tags, only: [:index, :show], format: :json
     end
   end
 
