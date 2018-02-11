@@ -402,6 +402,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     dot_home = result.find {|page| page['uuid'] == pages(:dot_home_page).uuid}
     assert_includes(dot_home['maintainers'].first, 'uuid')
     assert_includes(dot_home['maintainers'].first, 'name')
+    assert_includes(dot_home['maintainers'].first, 'assigned_at')
   end
 
   test 'includes maintainers in single page response' do
@@ -425,6 +426,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes tags in list response' do
+    pages(:dot_home_page).add_tag(tags(:site_whatever))
+
     sign_in users(:alice)
     get api_v0_pages_path
     assert_response :success

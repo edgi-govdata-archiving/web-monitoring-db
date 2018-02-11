@@ -14,7 +14,7 @@ class Api::V0::PagesController < Api::V0::ApiController
           .where(uuid: page_ids)
           .includes(:versions)
           .order('versions.capture_time DESC')
-        lightweight_query(results)
+        lightweight_query(results, &method(:format_page_json))
       elsif should_include_latest
         # Filters from the original query should *not* affect what's "latest",
         # (though they do affect which *pages* get included) so we build a
@@ -30,7 +30,10 @@ class Api::V0::PagesController < Api::V0::ApiController
       else
         # TODO: we could optimize and not do the page IDs check for this case
         # if we aren't also filtering by maintainers or tags.
-        lightweight_query(query.where(uuid: page_ids))
+        lightweight_query(
+          query.where(uuid: page_ids),
+          &method(:format_page_json)
+        )
       end
 
     render json: Oj.dump({
@@ -85,7 +88,10 @@ class Api::V0::PagesController < Api::V0::ApiController
     # up and tries to join the tables *twice* in the query. I think this is
     # probably because it is a has_and_belongs_to_many, but have not had time
     # to break down exactly what is going wrong. In any case, `includes` works.
-    collection = collection.eager_load(:maintainers, :tags)
+    collection = collection.eager_load(
+      maintainerships: [:maintainer],
+      taggings: [:tag]
+    )
 
     collection = where_in_range_param(
       collection,
@@ -140,6 +146,24 @@ class Api::V0::PagesController < Api::V0::ApiController
     collection
   end
 
+  def format_page_json(page)
+    page['maintainers'] = page.delete('maintainerships').collect do |item|
+      item['maintainer']
+        .reject {|k, v| k == 'created_at' || k == 'updated_at'}
+        .merge({
+          'assigned_at' => item['created_at']
+        })
+    end
+
+    page['tags'] = page.delete('taggings').collect do |item|
+      item['tag']
+        .reject {|k, v| k == 'created_at' || k == 'updated_at'}
+        .merge({
+          'assigned_at' => item['created_at']
+        })
+    end
+  end
+
   # Get the results of an ActiveRecord query as a simple JSON-compatible
   # structure without instantiating actual models. This is generally way
   # fancier footwork that one should be performing and should only be used for
@@ -151,11 +175,38 @@ class Api::V0::PagesController < Api::V0::ApiController
   # likely sensitive to underlying changes in ActiveRecord.
   def lightweight_query(relation)
     primary_type = relation.model
+
     # Hold information about associations in arrays indexed by the association
     # for later quick lookup when working with segments of each result row.
-    associations = (relation.eager_load_values + relation.includes_values).collect(&:to_s)
-    reflections = associations.collect {|association| primary_type._reflections.try(:[], association)}
-    association_names = [nil] + associations
+    associations = relation.eager_load_values + relation.includes_values
+
+    # Each entry in parent_types is the index of the type (in `types`, below)
+    # that is the parent object of the association for that index
+    parent_types = [nil]
+
+    # Get the reflection for each association to be included; handles one-level
+    # deep nesting, e.g. `includes(some_model: [:some_child])`
+    reflections = associations.collect do |association|
+      if association.is_a?(Hash)
+        # We're only going one level deep, otherwise this should be a separate
+        # method and also we should just give up and write SQL at that point.
+        # (Maybe we should already have been doing that.)
+        association.collect do |parent_name, child_names|
+          parent_types << 0
+          parent_association = primary_type._reflections.try(:[], parent_name.to_s)
+          child_associations = child_names.collect do |name|
+            parent_types << parent_types.length - 1
+            parent_association.klass._reflections.try(:[], name.to_s)
+          end
+          [parent_association, *child_associations]
+        end
+      else
+        parent_types << 0
+        primary_type._reflections.try(:[], association.to_s)
+      end
+    end.flatten
+
+    association_names = [nil] + reflections.collect {|r| r.name.to_s}
     types = [primary_type] + reflections.collect(&:klass)
     attribute_names = types.collect(&:attribute_names)
 
@@ -177,14 +228,20 @@ class Api::V0::PagesController < Api::V0::ApiController
     results = []
     # Hashes that map IDs to previously built objects for each association
     object_maps = association_names.collect {|_| {}}
-    # A cached range for iterating throw associations on each row
+    # A cached range for iterating through associations on each row
     model_range = 0...association_names.count
 
     raw.rows.each do |row|
       primary_record = nil
+      row_records = []
       column_index = 0
       model_range.each do |model_index|
         model_id = row[column_index]
+        record_exists = model_id.present?
+        if types[model_index].primary_key.nil?
+          model_id = row.slice(column_index, attribute_names[model_index].length)
+          record_exists = model_id.all?(&:present?)
+        end
         record = object_maps[model_index][model_id]
         record_is_new = record.nil?
 
@@ -203,19 +260,29 @@ class Api::V0::PagesController < Api::V0::ApiController
           end
         end
 
+        row_records << record
+
         # Add the record to the right association/list
         if model_index.zero?
           primary_record = record
           results << record if record_is_new
-        elsif reflections[model_index - 1].is_a?(ActiveRecord::Reflection::HasOneReflection)
-          field_name = association_names[model_index]
-          primary_record[field_name] = record
         else
+          parent = row_records[parent_types[model_index]]
           field_name = association_names[model_index]
-          field = (primary_record[field_name] ||= [])
-          field << record unless model_id.nil? || field.include?(record)
+
+          reflection = reflections[model_index - 1]
+          if reflection.is_a?(ActiveRecord::Reflection::HasOneReflection) || reflection.is_a?(ActiveRecord::Reflection::BelongsToReflection)
+            parent[field_name] = record_exists ? record : nil
+          else
+            field = (parent[field_name] ||= [])
+            field << record unless !record_exists || field.include?(record)
+          end
         end
       end
+    end
+
+    if block_given?
+      results.collect {|record| yield record}
     end
 
     results
