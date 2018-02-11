@@ -53,6 +53,38 @@ class Page < ApplicationRecord
     maintainers.delete(attached_maintainer) if attached_maintainer
   end
 
+  def as_json(options={})
+    # Tags and Maintainers get a special JSON representation
+    custom_options = options.clone
+    includes = custom_options[:include]
+    associations = {maintainers: false, tags: false}
+
+    if includes == :tags || includes == :maintainers
+      associations[includes] = true
+      custom_options.delete(:include)
+    elsif includes.is_a?(Enumerable)
+      custom_options[:include] = includes.clone
+      if custom_options[:include].delete(:maintainers)
+        associations[:maintainers] = true
+      end
+      if custom_options[:include].delete(:tags)
+        associations[:tags] = true
+      end
+    end
+
+    result = super.as_json(custom_options)
+
+    if associations[:maintainers]
+      result['maintainers'] = self.maintainerships.as_json
+    end
+
+    if associations[:tags]
+      result['tags'] = self.taggings.as_json
+    end
+
+    result
+  end
+
   protected
 
   def normalize_url

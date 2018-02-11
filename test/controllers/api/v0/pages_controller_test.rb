@@ -418,6 +418,10 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(page.maintainers.count, maintainers.length)
     assert_equal(page.maintainers.first.uuid, maintainers.first['uuid'])
     assert_equal(page.maintainers.first.name, maintainers.first['name'])
+    assert_equal(
+      page.maintainerships.first.created_at.iso8601,
+      maintainers.first['assigned_at'].sub(/\.\d+/, '')
+    )
   end
 
   test 'includes tags in list response' do
@@ -434,12 +438,22 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'includes tags in single page response' do
     page = pages(:dot_home_page)
+    page.add_tag(tags(:listing_page))
 
     sign_in users(:alice)
     get api_v0_page_path(page)
     assert_response :success
     body = JSON.parse @response.body
     assert_kind_of(Array, body['data']['tags'])
+
+    tags = body['data']['tags']
+    assert_equal(page.tags.count, tags.length)
+    assert_equal(page.tags.first.uuid, tags.first['uuid'])
+    assert_equal(page.tags.first.name, tags.first['name'])
+    assert_equal(
+      page.taggings.first.created_at.iso8601,
+      tags.first['assigned_at'].sub(/\.\d+/, '')
+    )
   end
 
   test 'can filter by tags' do
