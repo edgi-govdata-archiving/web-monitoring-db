@@ -45,7 +45,7 @@ class Page < ApplicationRecord
 
   def remove_maintainer(maintainer)
     attached_maintainer =
-      if maintainer.is_a?(Tag)
+      if maintainer.is_a?(Maintainer)
         maintainers.find_by(uuid: maintainer.uuid)
       else
         maintainers.find_by(name: maintainer.strip)

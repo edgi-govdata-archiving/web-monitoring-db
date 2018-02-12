@@ -93,4 +93,108 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     assert_equal(1, body['data'].length)
     assert_equal(maintainers(:someone).uuid, body['data'][0]['uuid'])
   end
+
+
+
+  test 'can add a maintainer to a page' do
+    sign_in users(:alice)
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { name: 'EPA' }
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_equal('EPA', body['data']['name'])
+
+    get(api_v0_page_maintainers_path(pages(:home_page)))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    maintainer_names = body['data'].pluck('name')
+    assert_includes(
+      maintainer_names,
+      'EPA','The maintainer was not added to the page maintainers list'
+    )
+  end
+
+  test 'can add a maintainer to a page by UUID' do
+    sign_in users(:alice)
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { uuid: maintainers(:epa).uuid }
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_equal('EPA', body['data']['name'])
+
+    get(api_v0_page_maintainers_path(pages(:home_page)))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    maintainer_ids = body['data'].pluck('uuid')
+    assert_includes(
+      maintainer_ids,
+      maintainers(:epa).uuid,
+      'The maintainer was not added to the page maintainers list'
+    )
+  end
+
+  test 'can create a maintainer' do
+    sign_in users(:alice)
+    post(
+      api_v0_maintainers_path,
+      as: :json,
+      params: { name: 'NCEA', parent_uuid: maintainers(:epa).uuid }
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_equal('NCEA', body['data']['name'])
+
+    get(api_v0_maintainers_path)
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    maintainer_names = body['data'].pluck('name')
+    assert_includes(
+      maintainer_names,
+      'NCEA',
+      'The maintainer was not added to the maintainers list'
+    )
+  end
+
+  test 'cannot add a maintainer with no name or UUID to a page' do
+    sign_in users(:alice)
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { xyz: 'Magical Maintainer' }
+    )
+    assert_response(:bad_request)
+  end
+
+  test 'can edit a maintainer' do
+    sign_in users(:alice)
+    patch(
+      api_v0_maintainer_path(maintainers(:epa)),
+      as: :json,
+      params: { name: 'epa' }
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_equal('epa', body['data']['name'])
+  end
+
+  test 'can delete a maintainer from a page' do
+    pages(:home_page).add_maintainer(maintainers(:epa))
+
+    sign_in users(:alice)
+    delete(api_v0_page_maintainer_path(pages(:home_page), maintainers(:epa)))
+    assert_response(:redirect)
+    follow_redirect!
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    assert_kind_of(Array, body['data'], 'A list of maintainers was not returned')
+    maintainer_names = body['data'].pluck('name')
+    assert_not_includes(maintainer_names, 'EPA', 'The maintainer was not removed from the page')
+  end
 end

@@ -23,13 +23,13 @@ Rails.application.routes.draw do
               get 'diff/:type', to: 'diff#show'
             end
         end
-        resources :maintainers, only: [:index], format: :json
+        resources :maintainers, except: [:new, :edit], format: :json
         resources :tags, except: [:new, :edit], format: :json
       end
 
       resources :versions, only: [:index, :show], format: :json
       resources :imports, only: [:create, :show], format: :json
-      resources :maintainers, only: [:index, :show], format: :json
+      resources :maintainers, except: [:new, :edit, :destroy], format: :json
       resources :tags, except: [:new, :edit, :destroy], format: :json
     end
   end
