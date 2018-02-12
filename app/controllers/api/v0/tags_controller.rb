@@ -19,6 +19,38 @@ class Api::V0::TagsController < Api::V0::ApiController
     }
   end
 
+  def create
+    data = JSON.parse(request.body.read)
+    if data['uuid'].nil? && data['name'].nil?
+      raise Api::InputError, 'You must specify either a `uuid` or `name` for the tag to add.'
+    end
+
+    @tag =
+      if page
+        if data['uuid']
+          page.add_tag(Tag.find(data['uuid']))
+        else
+          page.add_tag(data['name'])
+        end
+      else
+        Tag.find_or_create_by(name: data['name'])
+      end
+    show
+  end
+
+  def update
+    @tag = (page ? page.tags : Tag).find(params[:id])
+    data = JSON.parse(request.body.read)
+    @tag.update(name: data['name'])
+    show
+  end
+
+  def destroy
+    # NOTE: this assumes you can only get here in the context of a page
+    page.untag(Tag.find(params[:id]))
+    redirect_to(api_v0_page_tags_url(page))
+  end
+
   protected
 
   def paging_path_for(_model_type, *args)
