@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180207061655) do
+ActiveRecord::Schema.define(version: 20180212043742) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "uuid-ossp"
-  enable_extension "pgcrypto"
   enable_extension "citext"
+  enable_extension "pgcrypto"
+  enable_extension "uuid-ossp"
 
   create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "change_uuid", null: false
