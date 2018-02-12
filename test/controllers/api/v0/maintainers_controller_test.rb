@@ -113,7 +113,8 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     maintainer_names = body['data'].pluck('name')
     assert_includes(
       maintainer_names,
-      'EPA','The maintainer was not added to the page maintainers list'
+      'EPA',
+      'The maintainer was not added to the page maintainers list'
     )
   end
 
