@@ -596,7 +596,9 @@ paths:
       tags:
         - pages and versions
       summary: Get all the maintainers of a specific Page
-      description: ''
+      description: >
+        Maintainers are individuals or organizations who manage
+        or publish a Page.
       consumes:
         - application/json
       produces:
@@ -978,7 +980,9 @@ paths:
       tags:
         - maintainers
       summary: Get all maintainers
-      description: ''
+      description: >
+        Maintainers are individuals or organizations who manage
+        or publish a Page.
       consumes:
         - application/json
       produces:
