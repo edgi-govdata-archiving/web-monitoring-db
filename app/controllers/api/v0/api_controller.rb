@@ -4,11 +4,7 @@ class Api::V0::ApiController < ApplicationController
   before_action :set_environment_header
 
   rescue_from StandardError, with: :render_errors if Rails.env.production?
-  rescue_from Api::NotImplementedError, with: :render_errors
-  rescue_from Api::InputError, with: :render_errors
-  rescue_from Api::DynamicError, with: :render_errors
-  rescue_from Api::AuthorizationError, with: :render_errors
-  rescue_from Api::ResourceExistsError, with: :render_errors
+  rescue_from Api::ApiError, with: :render_errors
 
   rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|

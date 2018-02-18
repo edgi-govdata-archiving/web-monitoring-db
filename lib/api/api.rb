@@ -1,17 +1,20 @@
 module Api
-  class NotImplementedError < StandardError
+  class ApiError < StandardError
+  end
+
+  class NotImplementedError < ApiError
     def status_code
       501
     end
   end
 
-  class InputError < StandardError
+  class InputError < ApiError
     def status_code
       400
     end
   end
 
-  class DynamicError < StandardError
+  class DynamicError < ApiError
     attr_accessor :status_code
 
     def initialize(message, status_code)
@@ -20,13 +23,13 @@ module Api
     end
   end
 
-  class AuthorizationError < StandardError
+  class AuthorizationError < ApiError
     def status_code
       401
     end
   end
 
-  class ResourceExistsError < StandardError
+  class ResourceExistsError < ApiError
     def status_code
       409
     end
