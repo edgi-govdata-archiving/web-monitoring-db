@@ -31,24 +31,31 @@ class Api::V0::MaintainersController < Api::V0::ApiController
       raise Api::InputError, 'You must specify either a `uuid` or `name` for the maintainer to add.'
     end
 
+    valid_fields = ['name', 'parent_uuid']
+
     @maintainer =
       if page
         if data['uuid']
           page.add_maintainer(Maintainer.find(data['uuid']))
         else
-          maintainer = page.add_maintainer(data['name'])
-          if data.key?('parent_uuid')
-            maintainer.update!(parent_uuid: data['parent_uuid'])
+          conditions = data.select {|key, _| valid_fields.include?(key)}
+          begin
+            maintainer = Maintainer.find_or_create_by(conditions)
+          rescue ActiveRecord::RecordNotUnique
+            raise Api::ResourceExistsError, "A different maintainer with the name `#{data['name']}` already exists."
           end
+          page.add_maintainer(maintainer)
           maintainer
         end
       else
-        maintainer = Maintainer.find_or_create_by(name: data['name'])
-        if data.key?('parent_uuid')
-          maintainer.update!(parent_uuid: data['parent_uuid'])
+        conditions = data.select {|key, _| valid_fields.include?(key)}
+        begin
+          Maintainer.create!(conditions)
+        rescue ActiveRecord::RecordNotUnique
+          raise Api::ResourceExistsError, "A different maintainer with the name `#{data['name']}` already exists."
         end
-        maintainer
       end
+
     show
   end
 

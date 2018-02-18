@@ -25,4 +25,10 @@ module Api
       401
     end
   end
+
+  class ResourceExistsError < StandardError
+    def status_code
+      409
+    end
+  end
 end

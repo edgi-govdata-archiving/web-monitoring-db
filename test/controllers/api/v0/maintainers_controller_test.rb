@@ -162,6 +162,42 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  test 'cannot create a maintainer that already exists' do
+    sign_in users(:alice)
+
+    post(api_v0_maintainers_path, as: :json, params: { name: 'NCEA' })
+    assert_response(:success)
+
+    post(api_v0_maintainers_path, as: :json, params: { name: 'NCEA' })
+    assert_response(:conflict)
+  end
+
+  test 'cannot add a maintainer to a page if it would mean creating a conflicting maintainer' do
+    sign_in users(:alice)
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { name: 'EPA' }
+    )
+    assert_response(:success)
+
+    # It's not an error to add a maintainer that is already there...
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { name: 'EPA' }
+    )
+    assert_response(:success)
+
+    # ...but it is one to try and create a conlicting maintainer
+    post(
+      api_v0_page_maintainers_path(pages(:home_page)),
+      as: :json,
+      params: { name: 'EPA', parent_uuid: maintainers(:epa).uuid }
+    )
+    assert_response(:conflict)
+  end
+
   test 'cannot add a maintainer with no name or UUID to a page' do
     sign_in users(:alice)
     post(
