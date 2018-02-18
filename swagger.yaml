@@ -96,10 +96,10 @@ paths:
         - name: capture_time
           type: string
           in: query
-          description: >-
+          description: >
             Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
 
-            **Examples:**
+            **Examples…**
 
             - `capture_time=2017-02-01..2017-03-01` for all of February
 
@@ -108,6 +108,39 @@ paths:
             - `capture_time=2017-02-01..` for all versions from February on
 
             - `capture_time=..2017-02-01` for all versions before February
+        - name: 'maintainers[]'
+          type: string
+          in: query
+          description: >
+            Only retreive pages with maintainers whose `name`
+            matches the value of this field. You can repeat
+            this parameter multiple times to match more than one
+            maintainer, e.g…
+
+                ?maintainers[]=EPA&maintainers[]=DOE
+
+            The values here are not case-sensitive. Repeated
+            matches are a *UNION* or *OR* style grouping; that
+            is, you get all pages that have any of the maintainers
+            requested, not only pages that have all of the
+            maintainers listed.
+
+        - name: 'tags[]'
+          type: string
+          in: query
+          description: >
+            Only retreive pages with tags whose `name`
+            matches the value of this field. You can repeat
+            this parameter multiple times to match more than one
+            tag, e.g…
+
+                ?tags[]=site:EPA&tags[]=frequently_updated
+
+            The values here are not case-sensitive. Repeated
+            matches are a *UNION* or *OR* style grouping; that
+            is, you get all pages that have any of the tags
+            requested, not only pages that have all of the
+            tags listed.
 
       responses:
         '200':
@@ -175,11 +208,11 @@ paths:
         - name: source_metadata[:key]
           type: string
           in: query
-          description: >-
+          description: >
             Filter results by a given `key` in the `source_metadata` field. You
             can include this parameter multiple times to filter by more than
             one `key`. *Note that this field is not indexed, so these queries
-            can be slow.* Examples:
+            can be slow.* Examples…
 
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
@@ -201,6 +234,12 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return
+          required: true
+          type: string
+          format: uuid4
         - name: uuid
           in: query
           description: uuid of new Version to store
@@ -551,6 +590,260 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/Diff'
+
+  '/pages/{page_id}/maintainers':
+    get:
+      tags:
+        - pages and versions
+      summary: Get all the maintainers of a specific Page
+      description: >
+        Maintainers are individuals or organizations who manage
+        or publish a Page.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return maintainers for
+          required: true
+          type: string
+          format: uuid4
+        - name: chunk
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: chunk_size
+          in: query
+          description: number of items per chunk
+          required: false
+          type: integer
+          default: 100
+        - name: parent
+          in: query
+          description: >-
+            Only return maintainers whose parent has this UUID.
+          required: false
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfMaintainerships'
+    post:
+      tags:
+        - pages and versions
+      summary: Add a maintainer to a page
+      description: >
+        Add a maintainer to a page. The maintainer can be a pre-existing one attached to another page or it can be a completely new maintainer.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return maintainers for
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >
+            The request body should be a JSON object. If the
+            `uuid` parameter is specified, all others will be
+            ignored.
+          required: true
+          schema:
+            $ref: '#/definitions/MaintainerPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainership'
+
+  '/pages/{page_id}/maintainers/{maintainer_id}':
+    get:
+      tags:
+        - pages and versions
+      summary: Get a maintainer as attached to a page
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return maintainers for
+          required: true
+          type: string
+          format: uuid4
+        - name: maintainer_id
+          in: path
+          description: ID of the maintainer to get
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainership'
+    delete:
+      tags:
+        - pages and versions
+      summary: Remove a maintainer from a page
+      description: >-
+        Removes a maintainer from a page. This does not actually
+        delete the maintainer itself.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to remove the maintainer from
+          required: true
+          type: string
+          format: uuid4
+        - name: maintainer_id
+          in: path
+          description: ID of the maintainer to remove
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '302':
+          description: On success, you will be redirected to the list of all maintainers on the page.
+
+  '/pages/{page_id}/tags':
+    get:
+      tags:
+        - pages and versions
+      summary: Get all the tags on a specific Page
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return tags for
+          required: true
+          type: string
+          format: uuid4
+        - name: chunk
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: chunk_size
+          in: query
+          description: number of items per chunk
+          required: false
+          type: integer
+          default: 100
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfTaggings'
+    post:
+      tags:
+        - pages and versions
+      summary: Add a tag to a page
+      description: >
+        Add a tag to a page. The tag can be a pre-existing one attached to another page or it can be a completely new tag.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to add the tag to
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >
+            The request body should be a JSON object. If the
+            `uuid` parameter is specified, all others will be
+            ignored.
+          required: true
+          schema:
+            $ref: '#/definitions/TagPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleTagging'
+
+  '/pages/{page_id}/tags/{tag_id}':
+    get:
+      tags:
+        - pages and versions
+      summary: Get a tag as attached to a particular page.
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return tags for
+          required: true
+          type: string
+          format: uuid4
+        - name: tag_id
+          in: path
+          description: ID of the tag to get
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleTagging'
+    delete:
+      tags:
+        - pages and versions
+      summary: Remove a tag from a page
+      description: >-
+        Removes a tag from a page. This does not actually
+        delete the tag itself.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to remove the tag from
+          required: true
+          type: string
+          format: uuid4
+        - name: tag_id
+          in: path
+          description: ID of the tag to remove
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '302':
+          description: On success, you will be redirected to the list of all tags on the page.
+
   /versions:
     get:
       tags:
@@ -593,11 +886,11 @@ paths:
           type: string
         - name: source_metadata[:key]
           in: query
-          description: >-
+          description: >
             Filter results by a given `key` in the `source_metadata` field. You
             can include this parameter multiple times to filter by more than
             one `key`. *Note that this field is not indexed, so these queries
-            can be slow.* Examples:
+            can be slow.* Examples…
 
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
@@ -681,6 +974,244 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/ImportStatus'
+
+  '/maintainers':
+    get:
+      tags:
+        - maintainers
+      summary: Get all maintainers
+      description: >
+        Maintainers are individuals or organizations who manage
+        or publish a Page.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: chunk
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: chunk_size
+          in: query
+          description: number of items per chunk
+          required: false
+          type: integer
+          default: 100
+        - name: parent
+          in: query
+          description: >-
+            Only return maintainers whose parent has this UUID.
+          required: false
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfMaintainers'
+    post:
+      tags:
+        - maintainers
+      summary: Add a maintainer
+      description: >-
+        Add a maintainer. This does not associate the maintainer
+        with a particular page. Usually you will want to POST
+        to `/pages/{page_id}/maintainers` instead, which will
+        create the maintainer if it does not already exist.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return maintainers for
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >-
+            The request body should be a JSON object. For this
+            endpoint, the `uuid` parameter is not supported.
+          required: true
+          schema:
+            $ref: '#/definitions/MaintainerPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainer'
+
+  '/maintainers/{maintainer_id}':
+    get:
+      tags:
+        - maintainers
+      summary: Get a maintainer
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: maintainer_id
+          in: path
+          description: ID of the maintainer to get
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainer'
+
+    patch:
+      tags:
+        - maintainers
+      summary: Update a maintainer
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: maintainer_id
+          in: path
+          description: ID of the maintainer to update
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >-
+            The request body should be a JSON object.
+          required: true
+          schema:
+            $ref: '#/definitions/MaintainerPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainer'
+
+  '/tags':
+    get:
+      tags:
+        - tags
+      summary: Get all tags
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: chunk
+          in: query
+          description: pagination parameter
+          required: false
+          type: integer
+          default: 1
+        - name: chunk_size
+          in: query
+          description: number of items per chunk
+          required: false
+          type: integer
+          default: 100
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfTags'
+    post:
+      tags:
+        - tags
+      summary: Add a tag
+      description: >
+        Add a tag. This does not associate the tag
+        with a particular page. Usually you will want to POST
+        to `/pages/{page_id}/tags` instead, which will
+        create the tag if it does not already exist.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return tags for
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >
+            The request body should be a JSON object. For this
+            endpoint, the `uuid` parameter is not supported.
+          required: true
+          schema:
+            $ref: '#/definitions/TagPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleMaintainer'
+
+  '/tags/{tag_id}':
+    get:
+      tags:
+        - tags
+      summary: Get a tag
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tag_id
+          in: path
+          description: ID of the tag to get
+          required: true
+          type: string
+          format: uuid4
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleTag'
+
+    patch:
+      tags:
+        - tags
+      summary: Update a tag
+      description: ''
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: tag_id
+          in: path
+          description: ID of the tag to update
+          required: true
+          type: string
+          format: uuid4
+        - name: '[body]'
+          in: body
+          description: >
+            The request body should be a JSON object.
+          required: true
+          schema:
+            $ref: '#/definitions/TagPost'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SingleTag'
+
 definitions:
   Version:
     type: object
@@ -730,6 +1261,14 @@ definitions:
         format: datetime
       latest:
         $ref: '#/definitions/Version'
+      maintainers:
+        type: array
+        items:
+          $ref: '#/definitions/Maintainership'
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/Tagging'
   Change:
     type: object
     properties:
@@ -953,6 +1492,231 @@ definitions:
                 type: object
               version:
                 type: string
+
+  Maintainership:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      parent_uuid:
+        type: string
+        format: uuid4
+      assigned_at:
+        type: string
+        format: datetime
+
+  Maintainer:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      parent_uuid:
+        type: string
+        format: uuid4
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+
+  MaintainerPost:
+    description: >-
+      This data can be posted to create or update a maintainer.
+      The `uuid` field is only valid when being used to attach
+      a maintainer to a page, and if it is used, all other fields
+      are ignored.
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      parent_uuid:
+        type: string
+        format: uuid4
+
+  SingleMaintainership:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          parent:
+            type: string
+            format: url
+          children:
+            type: string
+            format: url
+      data:
+        $ref: '#/definitions/Maintainership'
+
+  PageOfMaintainerships:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Maintainership'
+
+  SingleMaintainer:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          parent:
+            type: string
+            format: url
+          children:
+            type: string
+            format: url
+      data:
+        $ref: '#/definitions/Maintainer'
+
+  PageOfMaintainers:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Maintainer'
+
+  Tagging:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      assigned_at:
+        type: string
+        format: datetime
+
+  Tag:
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+
+  TagPost:
+    description: >-
+      This data can be posted to create or update a tag.
+      The `uuid` field is only valid when being used to attach
+      a tag to a page, and if it is used, all other fields
+      are ignored.
+    type: object
+    properties:
+      uuid:
+        type: string
+        format: uuid4
+      name:
+        type: string
+
+  SingleTagging:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Tagging'
+
+  PageOfTaggings:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Tagging'
+
+  SingleTag:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/Tag'
+
+  PageOfTags:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          last:
+            type: string
+            format: uri
+          prev:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Tag'
 
 externalDocs:
   description: Find out more about the web-monitoring project.

@@ -19,6 +19,8 @@ Lint/ParenthesesAsGroupedExpression:
 # Offense count: 16
 Metrics/AbcSize:
   Max: 77
+  Exclude:
+    - 'app/controllers/api/v0/pages_controller.rb'
 
 # Offense count: 5
 # Configuration parameters: CountComments, ExcludedMethods.
@@ -38,11 +40,13 @@ Metrics/LineLength:
 # Offense count: 28
 # Configuration parameters: CountComments.
 Metrics/MethodLength:
-  Max: 78
+  Max: 80
 
 # Offense count: 4
 Metrics/PerceivedComplexity:
   Max: 12
+  Exclude:
+    - 'app/controllers/api/v0/pages_controller.rb'
 
 # Offense count: 7
 # Cop supports --auto-correct.

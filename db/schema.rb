@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101214731) do
+ActiveRecord::Schema.define(version: 20180212043742) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-  enable_extension "uuid-ossp"
+  enable_extension "citext"
   enable_extension "pgcrypto"
+  enable_extension "uuid-ossp"
 
   create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "change_uuid", null: false
@@ -63,6 +64,23 @@ ActiveRecord::Schema.define(version: 20171101214731) do
     t.index ["redeemer_id"], name: "index_invitations_on_redeemer_id"
   end
 
+  create_table "maintainers", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.citext "name", null: false
+    t.uuid "parent_uuid"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_maintainers_on_name", unique: true
+  end
+
+  create_table "maintainerships", id: false, force: :cascade do |t|
+    t.uuid "maintainer_uuid", null: false
+    t.uuid "page_uuid", null: false
+    t.datetime "created_at", null: false
+    t.index ["maintainer_uuid", "page_uuid"], name: "index_maintainerships_on_maintainer_uuid_and_page_uuid", unique: true
+    t.index ["maintainer_uuid"], name: "index_maintainerships_on_maintainer_uuid"
+    t.index ["page_uuid"], name: "index_maintainerships_on_page_uuid"
+  end
+
   create_table "pages", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "url", null: false
     t.string "title"
@@ -72,6 +90,23 @@ ActiveRecord::Schema.define(version: 20171101214731) do
     t.datetime "updated_at", null: false
     t.index ["site"], name: "index_pages_on_site"
     t.index ["url"], name: "index_pages_on_url"
+  end
+
+  create_table "taggings", id: false, force: :cascade do |t|
+    t.uuid "taggable_uuid", null: false
+    t.string "taggable_type"
+    t.uuid "tag_uuid", null: false
+    t.datetime "created_at", null: false
+    t.index ["tag_uuid"], name: "index_taggings_on_tag_uuid"
+    t.index ["taggable_uuid", "tag_uuid"], name: "index_taggings_on_taggable_uuid_and_tag_uuid", unique: true
+    t.index ["taggable_uuid"], name: "index_taggings_on_taggable_uuid"
+  end
+
+  create_table "tags", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.citext "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -117,5 +152,8 @@ ActiveRecord::Schema.define(version: 20171101214731) do
   add_foreign_key "imports", "users"
   add_foreign_key "invitations", "users", column: "issuer_id"
   add_foreign_key "invitations", "users", column: "redeemer_id"
+  add_foreign_key "maintainerships", "maintainers", column: "maintainer_uuid", primary_key: "uuid"
+  add_foreign_key "maintainerships", "pages", column: "page_uuid", primary_key: "uuid"
+  add_foreign_key "taggings", "tags", column: "tag_uuid", primary_key: "uuid"
   add_foreign_key "versions", "pages", column: "page_uuid", primary_key: "uuid"
 end

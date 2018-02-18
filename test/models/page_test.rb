@@ -37,4 +37,81 @@ class PageTest < ActiveSupport::TestCase
     refute(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it has an empty title')
   end
+
+  test 'can add many maintainer models to a page' do
+    pages(:home_page).add_maintainer(maintainers(:epa))
+    pages(:home_page).add_maintainer(maintainers(:doi))
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+    assert pages(:home_page).maintainers.find(maintainers(:doi).uuid)
+  end
+
+  test 'can add a maintainer to a page by name' do
+    pages(:home_page).add_maintainer('EPA')
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+  end
+
+  test 'can add a maintainer case-insensitively' do
+    pages(:home_page).add_maintainer('ePa')
+    assert pages(:home_page).maintainers.find(maintainers(:epa).uuid)
+  end
+
+  test 'adding an unknown maintainer to a page creates that maintainer' do
+    pages(:home_page).add_maintainer('Department of Unicorns')
+    unicorns = Maintainer.find_by!(name: 'Department of Unicorns')
+    assert pages(:home_page).maintainers.include?(unicorns)
+  end
+
+  test 'adding a maintainer repeatedly to a page does not cause errors or duplicates' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer(maintainers(:epa))
+
+    assert_equal(1, pages(:home_page).maintainers.count)
+  end
+
+  test 'can add many tags to a page' do
+    pages(:home_page).add_tag(tags(:listing_page))
+    pages(:home_page).add_tag(tags(:frequently_updated))
+    assert pages(:home_page).tags.find(tags(:listing_page).uuid)
+    assert pages(:home_page).tags.find(tags(:frequently_updated).uuid)
+  end
+
+  test 'can add a tag to a page by name' do
+    pages(:home_page).add_tag('Listing Page')
+    assert pages(:home_page).tags.find(tags(:listing_page).uuid)
+  end
+
+  test 'can add a tag case-insensitively' do
+    pages(:home_page).add_tag('lIStinG page')
+    assert pages(:home_page).tags.find(tags(:listing_page).uuid)
+  end
+
+  test 'adding an unknown tag to a page creates that tag' do
+    pages(:home_page).add_tag('Unicorns and rainbows')
+    unicorns = Tag.find_by!(name: 'Unicorns and rainbows')
+    assert pages(:home_page).tags.include?(unicorns)
+  end
+
+  test 'adding a tag repeatedly to a page does not cause errors or duplicates' do
+    pages(:home_page_site2).add_tag('listing page')
+    pages(:home_page_site2).add_tag(tags(:listing_page))
+
+    assert_equal(1, pages(:home_page_site2).tags.count)
+  end
+
+  test 'a page can be untagged' do
+    pages(:home_page_site2).add_tag('listing page')
+    assert_equal(1, pages(:home_page_site2).tags.count)
+
+    pages(:home_page_site2).untag('Listing Page')
+    assert_equal(0, pages(:home_page_site2).tags.count)
+  end
+
+  test 'can list the names of tags' do
+    pages(:home_page_site2).add_tag('listing page')
+    pages(:home_page_site2).add_tag('frequently updated')
+    assert_equal(
+      ['Listing Page', 'Frequently Updated'],
+      pages(:home_page_site2).tag_names
+    )
+  end
 end

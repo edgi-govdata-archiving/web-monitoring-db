@@ -29,7 +29,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/(^|&)chunk=.+?&chunk=/, first_uri.query, 'The `chunk` param occurred multiple times in the same URL')
   end
 
-  test 'should repect chunk_size pagination parameter' do
+  test 'should respect chunk_size pagination parameter' do
     sign_in users(:alice)
     # one result per page ('chunk' to avoid ambiguity with Page model)
     get(api_v0_pages_path, params: { chunk: 1, chunk_size: 1 })
@@ -139,6 +139,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'can filter pages by version source_type' do
     sign_in users(:alice)
     get api_v0_pages_path(source_type: 'pagefreezer')
+    assert_response :success
     body = JSON.parse @response.body
     ids = body['data'].pluck 'uuid'
 
@@ -366,14 +367,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
       assert_equal(
         actual_page.latest.capture_time.iso8601,
-        found_page['latest']['capture_time']
+        # Trim potential sub-second precision depending on serialization method
+        found_page['latest']['capture_time'].sub(/\.\d+/, '')
       )
     end
   end
 
   test 'meta property should have a total_results field that contains total results across all chunks' do
     sign_in users(:alice)
-    get '/api/v0/pages/'
+    get api_v0_pages_path
     assert_response :success
     assert_equal 'application/json', @response.content_type
     body_json = JSON.parse @response.body
@@ -382,5 +384,152 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       body_json['meta']['total_results'],
       'The total count field should contain count of results across all paged results'
     )
+  end
+
+  test 'includes maintainers in list response' do
+    pages(:dot_home_page).add_maintainer(maintainers(:someone))
+
+    sign_in users(:alice)
+    get api_v0_pages_path
+    assert_response :success
+    result = JSON.parse(@response.body)['data']
+    result.each do |page|
+      assert_kind_of(Array, page['maintainers'])
+      actual_page = Page.find(page['uuid'])
+      assert_equal(actual_page.maintainers.count, page['maintainers'].length)
+    end
+
+    dot_home = result.find {|page| page['uuid'] == pages(:dot_home_page).uuid}
+    assert_includes(dot_home['maintainers'].first, 'uuid')
+    assert_includes(dot_home['maintainers'].first, 'name')
+    assert_includes(dot_home['maintainers'].first, 'assigned_at')
+  end
+
+  test 'includes maintainers in single page response' do
+    page = pages(:dot_home_page)
+    page.add_maintainer(maintainers(:someone))
+
+    sign_in users(:alice)
+    get api_v0_page_path(page)
+    assert_response :success
+    body = JSON.parse @response.body
+    assert_kind_of(Array, body['data']['maintainers'])
+
+    maintainers = body['data']['maintainers']
+    assert_equal(page.maintainers.count, maintainers.length)
+    assert_equal(page.maintainers.first.uuid, maintainers.first['uuid'])
+    assert_equal(page.maintainers.first.name, maintainers.first['name'])
+    assert_equal(
+      page.maintainerships.first.created_at.iso8601,
+      maintainers.first['assigned_at'].sub(/\.\d+/, '')
+    )
+  end
+
+  test 'includes tags in list response' do
+    pages(:dot_home_page).add_tag(tags(:site_whatever))
+
+    sign_in users(:alice)
+    get api_v0_pages_path
+    assert_response :success
+    result = JSON.parse(@response.body)['data']
+    result.each do |page|
+      assert_kind_of(Array, page['tags'])
+      actual_page = Page.find(page['uuid'])
+      assert_equal(actual_page.tags.count, page['tags'].length)
+    end
+  end
+
+  test 'includes tags in single page response' do
+    page = pages(:dot_home_page)
+    page.add_tag(tags(:listing_page))
+
+    sign_in users(:alice)
+    get api_v0_page_path(page)
+    assert_response :success
+    body = JSON.parse @response.body
+    assert_kind_of(Array, body['data']['tags'])
+
+    tags = body['data']['tags']
+    assert_equal(page.tags.count, tags.length)
+    assert_equal(page.tags.first.uuid, tags.first['uuid'])
+    assert_equal(page.tags.first.name, tags.first['name'])
+    assert_equal(
+      page.taggings.first.created_at.iso8601,
+      tags.first['assigned_at'].sub(/\.\d+/, '')
+    )
+  end
+
+  test 'can filter by tags' do
+    pages(:home_page).add_tag('home page')
+    pages(:home_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('solar')
+    pages(:home_page_site2).add_tag('home page')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { tags: ['frequently updated'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(2, body['meta']['total_results'])
+    assert_equal(2, body['data'].length)
+
+    sub_page = body['data'].find {|page| page['uuid'] == pages(:sub_page).uuid}
+    assert_equal(
+      ['Frequently Updated', 'solar'],
+      sub_page['tags'].pluck('name').sort
+    )
+  end
+
+  test 'filtering with multiple tags ORs the tags' do
+    pages(:home_page).add_tag('home page')
+    pages(:home_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('frequently updated')
+    pages(:sub_page).add_tag('solar')
+    pages(:home_page_site2).add_tag('home page')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { tags: ['frequently updated', 'home page'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(3, body['meta']['total_results'])
+    assert_equal(3, body['data'].length)
+  end
+
+  test 'can filter by maintainer' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('Unicorn Department')
+    pages(:home_page_site2).add_maintainer('Unicorn Department')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: { maintainers: ['Unicorn Department'] })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(2, body['meta']['total_results'])
+    assert_equal(2, body['data'].length)
+
+    sub_page = body['data'].find {|page| page['uuid'] == pages(:sub_page).uuid}
+    assert_equal(
+      ['DOE', 'Unicorn Department'],
+      sub_page['maintainers'].pluck('name').sort
+    )
+  end
+
+  test 'can filter by multiple ORs the maintainers' do
+    pages(:home_page).add_maintainer('EPA')
+    pages(:home_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('DOE')
+    pages(:sub_page).add_maintainer('Unicorn Department')
+    pages(:home_page_site2).add_maintainer('Unicorn Department')
+
+    sign_in users(:alice)
+    get api_v0_pages_path(params: {
+      maintainers: ['Unicorn Department', 'EPA']
+    })
+    assert_response :success
+    body = JSON.parse(@response.body)
+    assert_equal(3, body['meta']['total_results'])
+    assert_equal(3, body['data'].length)
   end
 end

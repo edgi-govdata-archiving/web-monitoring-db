@@ -1,5 +1,6 @@
 class Page < ApplicationRecord
   include UuidPrimaryKey
+  include Taggable
 
   has_many :versions,
     -> { order(capture_time: :desc) },
@@ -18,6 +19,9 @@ class Page < ApplicationRecord
     foreign_key: 'page_uuid',
     class_name: 'Version'
 
+  has_many :maintainerships, foreign_key: :page_uuid
+  has_many :maintainers, through: :maintainerships
+
   before_save :normalize_url
   validate :url_must_have_domain
 
@@ -28,6 +32,57 @@ class Page < ApplicationRecord
     else
       "http://#{url}"
     end
+  end
+
+  def add_maintainer(maintainer)
+    unless maintainer.is_a?(Maintainer)
+      maintainer = Maintainer.find_or_create_by(name: maintainer)
+    end
+
+    maintainers.push(maintainer) unless maintainers.include?(maintainer)
+    maintainer
+  end
+
+  def remove_maintainer(maintainer)
+    attached_maintainer =
+      if maintainer.is_a?(Maintainer)
+        maintainers.find_by(uuid: maintainer.uuid)
+      else
+        maintainers.find_by(name: maintainer.strip)
+      end
+    maintainers.delete(attached_maintainer) if attached_maintainer
+  end
+
+  def as_json(options = {})
+    # Tags and Maintainers get a special JSON representation
+    custom_options = options.clone
+    includes = custom_options[:include]
+    associations = { maintainers: false, tags: false }
+
+    if [:maintainers, :tags].include?(includes)
+      associations[includes] = true
+      custom_options.delete(:include)
+    elsif includes.is_a?(Enumerable)
+      custom_options[:include] = includes.clone
+      if custom_options[:include].delete(:maintainers)
+        associations[:maintainers] = true
+      end
+      if custom_options[:include].delete(:tags)
+        associations[:tags] = true
+      end
+    end
+
+    result = super.as_json(custom_options)
+
+    if associations[:maintainers]
+      result['maintainers'] = self.maintainerships.as_json
+    end
+
+    if associations[:tags]
+      result['tags'] = self.taggings.as_json
+    end
+
+    result
   end
 
   protected
