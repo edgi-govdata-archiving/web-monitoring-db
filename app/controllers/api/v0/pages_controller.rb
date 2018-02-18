@@ -1,4 +1,6 @@
 class Api::V0::PagesController < Api::V0::ApiController
+  include SortingConcern
+
   def index
     query = page_collection
     id_query = filter_maintainers_and_tags(query)
@@ -6,7 +8,13 @@ class Api::V0::PagesController < Api::V0::ApiController
     id_query = id_query.limit(paging[:chunk_size]).offset(paging[:offset])
 
     # NOTE: need to get :updated_at here because it's used for ordering
-    page_ids = id_query.pluck(:uuid, :updated_at).collect {|data| data[0]}
+    order_attributes =
+      if sorting_params.present?
+        sorting_params.collect {|sorting| sorting.keys.first}
+      else
+        [:updated_at]
+      end
+    page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
 
     result_data =
       if should_include_versions
@@ -24,7 +32,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         # when versions are included, so it's ok to just use ActiveRecord here.
         Page
           .where(uuid: page_ids)
-          .order(updated_at: :desc)
+          .order(sorting_params.present? ? sorting_params : 'updated_at DESC')
           .includes(:latest, :maintainers, :tags)
           .as_json(include: [:latest, :maintainers, :tags])
       else
@@ -119,7 +127,9 @@ class Api::V0::PagesController < Api::V0::ApiController
     end
 
     # If any queries create implicit joins, ensure we get a list of unique pages
-    collection.distinct.order(updated_at: :desc)
+    collection = collection.distinct.order(updated_at: :desc)
+
+    sort_using_params(collection)
   end
 
   # Determine whether results should be limited to pages with certain
@@ -206,14 +216,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     types = [primary_type] + reflections.collect(&:klass)
     attribute_names = types.collect(&:attribute_names)
 
-    # Ensure primary records are all consecutive and not interleaved because of
-    # other orderings in the query.
-    unless relation.order_values.frozen?
-      relation.order_values.insert(
-        0,
-        "#{primary_type.table_name}.#{primary_type.primary_key} ASC"
-      )
-    end
+    # Run the actual query
     raw = ActiveRecord::Base.connection.exec_query(relation.to_sql)
 
     parsers = raw.columns.collect do |column|

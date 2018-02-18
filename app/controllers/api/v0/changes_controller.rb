@@ -1,4 +1,6 @@
 class Api::V0::ChangesController < Api::V0::ApiController
+  include SortingConcern
+
   def index
     query = changes_collection
     paging = pagination(query)
@@ -42,9 +44,9 @@ class Api::V0::ChangesController < Api::V0::ApiController
   end
 
   def changes_collection
-    collection = Change
+    collection = Change.order(created_at: :asc)
     collection = where_in_interval_param(collection, :priority)
     collection = where_in_interval_param(collection, :significance)
-    collection
+    sort_using_params(collection)
   end
 end

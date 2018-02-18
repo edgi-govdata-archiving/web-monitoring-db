@@ -1,4 +1,6 @@
 class Api::V0::VersionsController < Api::V0::ApiController
+  include SortingConcern
+
   def index
     query = version_collection
     paging = pagination(query)
@@ -87,7 +89,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def version_collection
-    collection = page && page.versions || Version
+    collection = page && page.versions || Version.order(created_at: :asc)
 
     collection = collection.where({
       version_hash: params[:hash],
@@ -100,6 +102,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
     end
 
-    where_in_range_param(collection, :capture_time, &method(:parse_date!))
+    collection = where_in_range_param(collection, :capture_time, &method(:parse_date!))
+
+    sort_using_params(collection)
   end
 end
