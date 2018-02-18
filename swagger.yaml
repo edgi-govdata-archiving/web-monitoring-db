@@ -20,6 +20,19 @@ tags:
     description: Bulk-importing Versions
 schemes:
   - https
+
+parameters:
+  sort:
+    name: sort
+    in: query
+    required: false
+    type: string
+    description: >
+      Sort the results. This should be a comma-separated list of sort
+      values, where each value is in the form `field:order`, e.g.
+      `title:asc,url:desc`. You can sort by any field on the result
+      objects.
+
 paths:
   /pages:
     get:
@@ -44,6 +57,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
         - name: site
           in: query
           description: Filter results by site.
@@ -198,6 +212,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
           description: >-
@@ -332,6 +347,7 @@ paths:
           required: false
           type: integer
           default: 1
+        - $ref: '#/parameters/sort'
         - name: chunk_size
           in: query
           description: number of items per chunk
@@ -418,6 +434,7 @@ paths:
           required: true
           type: string
           format: uuid4
+        - $ref: '#/parameters/sort'
       responses:
         '200':
           description: successful operation
@@ -622,6 +639,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
         - name: parent
           in: query
           description: >-
@@ -751,6 +769,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
       responses:
         '200':
           description: successful operation
@@ -867,6 +886,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
           description: >-
@@ -1000,6 +1020,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
         - name: parent
           in: query
           description: >-
@@ -1121,6 +1142,7 @@ paths:
           required: false
           type: integer
           default: 100
+        - $ref: '#/parameters/sort'
       responses:
         '200':
           description: successful operation
