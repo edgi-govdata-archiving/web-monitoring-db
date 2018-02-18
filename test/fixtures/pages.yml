@@ -21,3 +21,9 @@ dot_home_page:
   title: 'Welcome to the Department of Testing'
   agency: 'Department of Testing'
   site: 'DOT - Home Site'
+
+other_page_one:
+  url: 'http://example3.com/'
+  title: 'Page One'
+  agency: 'Department of Whatever'
+  site: 'http://example3.com/'

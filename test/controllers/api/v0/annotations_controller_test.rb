@@ -214,4 +214,39 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       'Should contain the count of total results across all pages'
     )
   end
+
+  test 'can order annotations with `?sort=field:direction`' do
+    sign_in users(:alice)
+    page = pages(:home_page)
+    annotations(:annotation1).touch
+    get(
+      api_v0_page_change_annotations_url(
+        page,
+        changes(:page1_change_1_2),
+        params: { sort: 'updated_at:asc' }
+      )
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['updated_at']],
+      name: 'Annotations'
+    )
+
+    get(
+      api_v0_page_change_annotations_url(
+        page,
+        changes(:page1_change_1_2),
+        params: { sort: 'updated_at:desc' }
+      )
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['updated_at', 'desc']],
+      name: 'Annotations'
+    )
+  end
 end

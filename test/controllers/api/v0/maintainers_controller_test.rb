@@ -234,4 +234,25 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     maintainer_names = body['data'].pluck('name')
     assert_not_includes(maintainer_names, 'EPA', 'The maintainer was not removed from the page')
   end
+
+  test 'can order maintainers with `?sort=field:direction`' do
+    sign_in users(:alice)
+    get(api_v0_maintainers_url(params: { sort: 'name:asc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['name']],
+      name: 'Maintainers'
+    )
+
+    get(api_v0_maintainers_url(params: { sort: 'name:desc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['name', 'desc']],
+      name: 'Maintainers'
+    )
+  end
 end

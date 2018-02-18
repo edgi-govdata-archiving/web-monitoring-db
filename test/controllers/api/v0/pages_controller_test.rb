@@ -541,4 +541,59 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     })
     assert_response :success
   end
+
+  test 'can order pages with `?sort=field:direction,field:direction`' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { sort: 'title:asc, url:asc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    assert_ordered_by(
+      body['data'],
+      [['title'], ['url']],
+      name: 'Pages'
+    )
+
+    get(api_v0_pages_url(params: { sort: 'title:desc, url:desc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    assert_ordered_by(
+      body['data'],
+      [['title', 'desc'], ['url', 'desc']],
+      name: 'Pages'
+    )
+  end
+
+  test 'can order pages with latest with `?sort=field:direction`' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: {
+      include_latest: true,
+      sort: 'title:asc, url:asc'
+    }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    assert_ordered_by(
+      body['data'],
+      [['title'], ['url']],
+      name: 'Pages'
+    )
+  end
+
+  test 'can order pages with versions with `?sort=field:direction`' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: {
+      include_versions: true,
+      sort: 'title:asc, url:asc'
+    }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+
+    assert_ordered_by(
+      body['data'],
+      [['title'], ['url']],
+      name: 'Pages'
+    )
+  end
 end

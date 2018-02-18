@@ -9,3 +9,9 @@ page1_change_2_3:
   version: page1_v3
   priority: 0.5
   significance: 0.5
+
+page1_change_4_5:
+  from_version: page1_v4
+  version: page1_v5
+  priority: 0.75
+  significance: 0.5
