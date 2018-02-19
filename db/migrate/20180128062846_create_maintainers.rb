@@ -1,6 +1,7 @@
 class CreateMaintainers < ActiveRecord::Migration[5.1]
   def change
     enable_extension :citext
+    enable_extension :pgcrypto
 
     create_table :maintainers, id: false do |t|
       t.primary_key :uuid, :uuid
