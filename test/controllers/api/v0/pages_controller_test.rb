@@ -532,4 +532,13 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(3, body['meta']['total_results'])
     assert_equal(3, body['data'].length)
   end
+
+  test 'can query pages by capture time and source type together' do
+    sign_in users(:alice)
+    get api_v0_pages_path(params: {
+      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z',
+      source_type: 'versionista'
+    })
+    assert_response :success
+  end
 end
