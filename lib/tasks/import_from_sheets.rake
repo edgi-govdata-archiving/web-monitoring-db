@@ -2,19 +2,18 @@ require 'google/apis/sheets_v4'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
 
-IMPORT_TYPE = 'rake_task_v1'
-OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
-APPLICATION_NAME = 'Web Monitoring DB Importer'
+IMPORT_TYPE = 'rake_task_v1'.freeze
+OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'.freeze
+APPLICATION_NAME = 'Web Monitoring DB Importer'.freeze
 
 
-desc 'Create annotations from data in analysts’ Google sheets -- only the sheet ID and user e-mail are required.'
+desc 'Create annotations from data in analysts’ Google sheets -- only sheet ID & user e-mail are required.'
 task :import_annotations_from_sheet, [:sheet_id, :user_email, :tabs, :start_row, :end_row] => [:environment] do |_t, args|
-
   verbose = ENV['VERBOSE']
-  client = get_client
   sheet_id = args[:sheet_id]
   start_row = args.fetch(:start_row, 7).to_i
   end_row = args[:end_row] || ''
+  client = sheets_client
 
   user = User.find_by!(email: args[:user_email])
 
@@ -25,7 +24,7 @@ task :import_annotations_from_sheet, [:sheet_id, :user_email, :tabs, :start_row,
 
   tabs =
     if args[:tabs]
-      tabs = args[:tabs].split(',').collect {|name| name.strip}
+      args[:tabs].split(',').collect(&:strip)
     else
       client.get_spreadsheet(sheet_id).sheets.collect do |sheet|
         sheet.properties.title
@@ -60,13 +59,14 @@ task :import_annotations_from_sheet, [:sheet_id, :user_email, :tabs, :start_row,
       tab_count += 1
     end
   ensure
-    puts "\nRESULTS:"
-    puts "--------"
+    puts ''
+    puts 'RESULTS:'
+    puts '--------'
     puts "Created #{annotated_count} annotations"
     puts "Skipped #{skipped_count} rows"
     puts "Errored #{error_count} rows"
     puts "In      #{tab_count} spreadsheet tabs"
-    puts ""
+    puts ''
   end
 end
 
@@ -136,7 +136,7 @@ def annotation_data_for_row(row)
   data
 end
 
-def get_client
+def sheets_client
   service = Google::Apis::SheetsV4::SheetsService.new
   service.client_options.application_name = APPLICATION_NAME
   service.authorization = authorize_google
@@ -145,26 +145,30 @@ end
 
 def authorize_google
   unless ENV['GOOGLE_CLIENT_ID'] && ENV['GOOGLE_CLIENT_SECRET']
-    raise "You must have both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables set."
+    raise 'You must have both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables set.'
   end
 
-  scope = Google::Apis::SheetsV4::AUTH_SPREADSHEETS_READONLY
   client_id = Google::Auth::ClientId.new(
-    ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'])
+    ENV['GOOGLE_CLIENT_ID'],
+    ENV['GOOGLE_CLIENT_SECRET']
+  )
+  scope = Google::Apis::SheetsV4::AUTH_SPREADSHEETS_READONLY
   token_store = Google::Auth::Stores::FileTokenStore.new(file: Tempfile.new)
   authorizer = Google::Auth::UserAuthorizer.new(client_id, scope, token_store)
 
   user_id = 'default'
   credentials = authorizer.get_credentials(user_id)
   if credentials.nil?
-    url = authorizer.get_authorization_url(
-      base_url: OOB_URI)
-    puts "Open the following URL in the browser and enter the " +
-         "resulting code after authorization:"
+    url = authorizer.get_authorization_url(base_url: OOB_URI)
+    puts 'Open the following URL in your browser and enter the ' \
+         'resulting code after authorization:'
     puts url
     code = STDIN.gets.strip
     credentials = authorizer.get_and_store_credentials_from_code(
-      user_id: user_id, code: code, base_url: OOB_URI)
+      user_id: user_id,
+      code: code,
+      base_url: OOB_URI
+    )
   end
 
   credentials
