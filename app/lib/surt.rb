@@ -2,7 +2,7 @@ require 'addressable/uri'
 
 module Surt
   def self.surt(url, options = {})
-    Surt::Format.format(canonicalize(url, options), options)
+    Surt::Format.url(Surt::Canonicalize.url(parse_url(url), options), options)
   end
 
   def self.canonicalize(url, options = {})
@@ -10,7 +10,7 @@ module Surt
   end
 
   def self.format(url, options = {})
-    Surt::Format.format(parse_url(url), options)
+    Surt::Format.url(parse_url(url), options)
   end
 
   private

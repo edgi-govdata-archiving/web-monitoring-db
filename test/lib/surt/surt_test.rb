@@ -282,7 +282,6 @@ class SurtTest < ActiveSupport::TestCase
   end
 
   test 'it formats URLs as SURT' do
-    skip
     assert_equal('org,archive)/', Surt::format('http://archive.org/'))
     assert_equal('org,archive,xyz)/', Surt::format('http://xyz.archive.org/'))
     assert_equal('org,archive)/goo', Surt::format('http://archive.org/goo'))
@@ -290,7 +289,6 @@ class SurtTest < ActiveSupport::TestCase
   end
 
   test 'it canonicalizes and formats URLs' do
-    skip
     assert_equal('org,archive)/goo', Surt::surt('http://archive.org/goo/'))
     assert_equal('org,archive)/goo', Surt::surt('http://archive.org/goo/?'))
     assert_equal('org,archive)/goo?a&b', Surt::surt('http://archive.org/goo/?b&a'))
