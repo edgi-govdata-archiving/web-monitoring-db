@@ -289,6 +289,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  addressable (~> 2.5)
   aws-sdk-s3 (~> 1.8)
   byebug
   devise
