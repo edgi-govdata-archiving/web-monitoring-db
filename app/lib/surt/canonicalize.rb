@@ -21,26 +21,26 @@ module Surt::Canonicalize
     remove_trailing_slash_unless_empty: true,
     remove_userinfo: true,
     remove_www: true,
-    sort_query: true,
-  }
+    sort_query: true
+  }.freeze
 
   DEFAULT_PORTS = {
     'http' => 80,
     'https' => 443
-  }
+  }.freeze
 
   PATH_SESSION_IDS = [
     /^(.*\/)(\((?:[a-z]\([0-9a-z]{24}\))+\)\/)([^\?]+\.aspx.*)$/i,
     /^(.*\/)(\([0-9a-z]{24}\)\/)([^\?]+\.aspx.*)$/i
-  ]
+  ].freeze
 
   QUERY_SESSION_IDS = [
     /^(.*)(?:jsessionid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:phpsessid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:sid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24})(?:&(.*))?$/i,
-    /^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$/i,
-  ]
+    /^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$/i
+  ].freeze
 
   OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/
   WWW_SUBDOMAIN = /(^|\.)www\d*\./
@@ -48,12 +48,10 @@ module Surt::Canonicalize
 
   # TODO: Internet Archive's SURT uses this crazy charcater set, but only one
   # test fails if we just use Addressable's standard set. Maybe drop this?
-  SAFE_CHARACTERS = '0-9a-zA-Z' + (
-    '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'
-      .split('')
-      .collect {|character| "\\#{character}"}
-      .join('')
-  )
+  SAFE_CHARACTERS = '0-9a-zA-Z' + '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'
+    .split('')
+    .collect {|character| "\\#{character}"}
+    .join('')
 
   # Canonicalize a URL. This is the normal entrypoint to this module.
   #
@@ -121,13 +119,12 @@ module Surt::Canonicalize
     items = path.split('/', -1)[1..-1] || []
 
     if options[:remove_dot_segments]
-      items = items.reduce([]) do |accumulator, item|
+      items = items.each_with_object([]) do |item, accumulator|
         if item == '..'
           accumulator.pop
         elsif item != '.'
           accumulator.push(item)
         end
-        accumulator
       end
     end
 
@@ -170,8 +167,6 @@ module Surt::Canonicalize
       url.fragment = nil if url.fragment && url.fragment[0] != '!'
     end
   end
-
-  private
 
   def self.dword_to_decimal_ip(raw_dword)
     dword = raw_dword.to_i

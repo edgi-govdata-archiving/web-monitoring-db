@@ -282,16 +282,16 @@ class SurtTest < ActiveSupport::TestCase
   end
 
   test 'it formats URLs as SURT' do
-    assert_equal('org,archive)/', Surt::format('http://archive.org/'))
-    assert_equal('org,archive,xyz)/', Surt::format('http://xyz.archive.org/'))
-    assert_equal('org,archive)/goo', Surt::format('http://archive.org/goo'))
-    assert_equal('org,archive)/goo/gah', Surt::format('http://archive.org/goo/gah'))
+    assert_equal('org,archive)/', Surt.format('http://archive.org/'))
+    assert_equal('org,archive,xyz)/', Surt.format('http://xyz.archive.org/'))
+    assert_equal('org,archive)/goo', Surt.format('http://archive.org/goo'))
+    assert_equal('org,archive)/goo/gah', Surt.format('http://archive.org/goo/gah'))
   end
 
   test 'it canonicalizes and formats URLs' do
-    assert_equal('org,archive)/goo', Surt::surt('http://archive.org/goo/'))
-    assert_equal('org,archive)/goo', Surt::surt('http://archive.org/goo/?'))
-    assert_equal('org,archive)/goo?a&b', Surt::surt('http://archive.org/goo/?b&a'))
-    assert_equal('org,archive)/goo?a=1&a=2&b', Surt::surt('http://archive.org/goo/?a=2&b&a=1'))
+    assert_equal('org,archive)/goo', Surt.surt('http://archive.org/goo/'))
+    assert_equal('org,archive)/goo', Surt.surt('http://archive.org/goo/?'))
+    assert_equal('org,archive)/goo?a&b', Surt.surt('http://archive.org/goo/?b&a'))
+    assert_equal('org,archive)/goo?a=1&a=2&b', Surt.surt('http://archive.org/goo/?a=2&b&a=1'))
   end
 end

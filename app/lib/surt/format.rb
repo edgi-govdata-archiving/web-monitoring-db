@@ -1,8 +1,8 @@
 module Surt::Format
   DEFAULT_OPTIONS = {
     include_scheme: false,
-    include_trailing_comma: false,
-  }
+    include_trailing_comma: false
+  }.freeze
 
   # Format a URL as a SURT string.
   #
@@ -44,6 +44,6 @@ module Surt::Format
     host = "#{url.userinfo}@#{host}" if url.userinfo
     host = "#{host}:#{url.port}" if url.port
     host += ',' if options[:include_trailing_comma]
-    host += ')'
+    host + ')'
   end
 end
