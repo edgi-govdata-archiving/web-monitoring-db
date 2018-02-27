@@ -112,8 +112,8 @@ class ImportVersionsJob < ApplicationJob
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
 
-    record_url = Page.normalize_url(record['page_url'])
-    page = Page.find_or_create_by(url: record_url)
+    url = record['page_url']
+    page = Page.find_by_url(url) || Page.create(url: url)
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')

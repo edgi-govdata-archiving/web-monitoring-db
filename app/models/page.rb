@@ -26,6 +26,11 @@ class Page < ApplicationRecord
   before_save :normalize_url
   validate :url_must_have_domain
 
+  def self.find_by_url(raw_url)
+    url = normalize_url(raw_url)
+    Page.find_by(url: url) || Page.find_by(url_key: create_url_key(url))
+  end
+
   def self.normalize_url(url)
     return if url.nil?
     if url.match?(/^[\w\+\-\.]+:\/\//)
@@ -33,6 +38,10 @@ class Page < ApplicationRecord
     else
       "http://#{url}"
     end
+  end
+
+  def self.create_url_key(url)
+    Surt.surt(url)
   end
 
   def add_maintainer(maintainer)
@@ -87,17 +96,13 @@ class Page < ApplicationRecord
   end
 
   def update_url_key
-    update(url_key: generate_url_key)
+    update(url_key: Page.create_url_key(url))
   end
 
   protected
 
   def ensure_url_key
-    self.url_key ||= generate_url_key
-  end
-
-  def generate_url_key
-    Surt.surt(self.url)
+    self.url_key ||= Page.create_url_key(url)
   end
 
   def normalize_url

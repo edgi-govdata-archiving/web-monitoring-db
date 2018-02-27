@@ -312,6 +312,45 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, body_json['data']['processing_errors'].length
   end
 
+  test 'matches pages by url_key if no exact url match' do
+    import_data = [
+      {
+        page_url: 'http://testSITE.com/whatever',
+        title: 'Example Page',
+        page_maintainers: ['The Federal Example Agency'],
+        page_tags: ['Example Site'],
+        capture_time: '2017-05-01T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: 'http://testsite.com/whatever/',
+        title: 'Example Page',
+        page_maintainers: ['The Federal Example Agency'],
+        page_tags: ['Test', 'Home Page'],
+        capture_time: '2017-05-03T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path,
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    imported_page = Page.find_by(url: 'http://testSITE.com/whatever')
+    assert_equal(2, imported_page.versions.count, 'The imported versions were added to separate pages')
+  end
+
   test 'can import `null` page_tags' do
     import_data = [
       {
