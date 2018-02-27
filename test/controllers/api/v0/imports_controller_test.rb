@@ -79,7 +79,9 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     end
 
     versions = pages[0].versions
-    assert_equal 2, versions.length
+    assert_equal(2, versions.length)
+    assert_equal(import_data[0][:page_url], versions[1].capture_url)
+    assert_equal(import_data[1][:page_url], versions[0].capture_url)
   end
 
   test 'can import data with deprecated `site_agency`, `site_name` fields' do

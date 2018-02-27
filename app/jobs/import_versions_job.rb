@@ -81,6 +81,7 @@ class ImportVersionsJob < ApplicationJob
     # TODO: Remove line 74 below once full transition from 'page_title' to 'title'
     # is complete
     record['title'] = record['page_title'] if record.key?('page_title')
+    record['capture_url'] = record['page_url'] if record.key?('page_url')
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
     allowed = Version.attribute_names - disallowed
 
