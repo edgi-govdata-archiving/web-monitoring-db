@@ -22,6 +22,7 @@ class Page < ApplicationRecord
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
 
+  before_create :ensure_url_key
   before_save :normalize_url
   validate :url_must_have_domain
 
@@ -85,7 +86,19 @@ class Page < ApplicationRecord
     result
   end
 
+  def update_url_key
+    update(url_key: generate_url_key)
+  end
+
   protected
+
+  def ensure_url_key
+    self.url_key ||= generate_url_key
+  end
+
+  def generate_url_key
+    Surt.surt(self.url)
+  end
 
   def normalize_url
     self.url = self.class.normalize_url(self.url)

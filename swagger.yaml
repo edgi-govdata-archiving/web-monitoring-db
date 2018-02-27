@@ -1279,6 +1279,15 @@ definitions:
         format: uuid4
       url:
         type: string
+      url_key:
+        type: string
+        format: surt
+        description: >
+          A canonical version of the Page's URL. It is mostly used for
+          determining whether versions from different capture_urls represent
+          the same page, e.g. `http://epa.gov` vs. `https://epa.gov`. For more
+          about the SURT format, see:
+          http://crawler.archive.org/articles/user_manual/glossary.html#surt
       title:
         type: string
       site:

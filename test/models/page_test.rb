@@ -114,4 +114,9 @@ class PageTest < ActiveSupport::TestCase
       pages(:home_page_site2).tag_names
     )
   end
+
+  test 'pages generate a url_key when created' do
+    page = Page.create(url: 'http://sub.EXAMPLE.com/somewhere')
+    assert_equal('com,example,sub)/somewhere', page.url_key)
+  end
 end

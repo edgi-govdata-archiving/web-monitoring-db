@@ -63,8 +63,9 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, body_json['data']['processing_errors'].length
 
     pages = Page.where(url: 'http://testsite.com/')
-    assert_equal 1, pages.length
-    assert_equal import_data[0][:title], pages[0].title
+    assert_equal(1, pages.length)
+    assert_equal('com,testsite)/', pages[0].url_key, 'URL key was not generated')
+    assert_equal(import_data[0][:title], pages[0].title)
 
     maintainer_names = pages[0].maintainers.pluck(:name).to_a
     imported_maintainers = import_data.flat_map {|d| d[:page_maintainers]}
