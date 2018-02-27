@@ -1,4 +1,6 @@
 class Api::V0::TagsController < Api::V0::ApiController
+  include SortingConcern
+
   def index
     query = tag_collection
     paging = pagination(query)
@@ -68,6 +70,7 @@ class Api::V0::TagsController < Api::V0::ApiController
 
   def tag_collection
     collection = page ? page.taggings.joins(:tag) : Tag
-    collection.order(created_at: :asc)
+    collection = collection.order(created_at: :asc)
+    sort_using_params(collection)
   end
 end

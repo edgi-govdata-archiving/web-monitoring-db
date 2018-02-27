@@ -25,7 +25,7 @@ page1_v1:
 page2_v1:
   page: sub_page
   uri: 'http://example.com/page2_v1'
-  capture_time: '2017-03-01T00:00:00Z'
+  capture_time: '2017-03-01T00:00:01Z'
   version_hash: 'def'
   source_type: 'versionista'
   source_metadata: {
@@ -61,7 +61,7 @@ page1_v2:
 page2_v2:
   page: sub_page
   uri: 'http://example.com/page2_v2'
-  capture_time: '2017-03-02T00:00:00Z'
+  capture_time: '2017-03-02T00:00:01Z'
   version_hash: 'jkl'
   source_type: 'versionista'
   source_metadata: {

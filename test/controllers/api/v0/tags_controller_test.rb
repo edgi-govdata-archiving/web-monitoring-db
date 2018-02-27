@@ -151,4 +151,25 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     tag_names = body['data'].pluck('name')
     assert_not_includes(tag_names, 'site:whatever', 'The tag was not removed from the page')
   end
+
+  test 'can order tags with `?sort=field:direction`' do
+    sign_in users(:alice)
+    get(api_v0_tags_url(params: { sort: 'name:asc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['name']],
+      name: 'Tags'
+    )
+
+    get(api_v0_tags_url(params: { sort: 'name:desc' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['name', 'desc']],
+      name: 'Tags'
+    )
+  end
 end

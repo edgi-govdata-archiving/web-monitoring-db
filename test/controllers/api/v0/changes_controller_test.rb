@@ -128,4 +128,36 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
       'Should contain count of total results across all pages'
     )
   end
+
+  test 'can order changes with `?sort=field:direction`' do
+    sign_in users(:alice)
+    page = pages(:home_page)
+    get(
+      api_v0_page_changes_url(
+        page,
+        params: { sort: 'priority:asc,significance:asc' }
+      )
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['priority'], ['significance']],
+      name: 'Changes'
+    )
+
+    get(
+      api_v0_page_changes_url(
+        page,
+        params: { sort: 'priority:desc,significance:desc' }
+      )
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['priority', 'desc'], ['significance', 'desc']],
+      name: 'Changes'
+    )
+  end
 end

@@ -204,4 +204,20 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       'Should contain the total number of versions mathcing the query for the page'
     )
   end
+
+  test 'can order versions with `?sort=field:direction,field:direction`' do
+    sign_in users(:alice)
+    get(
+      api_v0_versions_url(
+        params: { sort: 'source_type:asc, capture_time:asc' }
+      )
+    )
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert_ordered_by(
+      body['data'],
+      [['source_type'], ['capture_time']],
+      name: 'Versions'
+    )
+  end
 end
