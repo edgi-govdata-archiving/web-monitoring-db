@@ -22,6 +22,7 @@ gem 'oj', '~> 3.4'
 gem 'sentry-raven'
 gem 'readthis'
 gem 'hiredis'
+gem 'google-api-client'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
