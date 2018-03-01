@@ -1,9 +1,8 @@
 # This Dockerfile uses a multi-stage build.
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
-### BUILD STAGE ###
-
-FROM ruby:2.4.1-slim as builder
+### BASE ENVIRONMENT STAGE ###
+FROM ruby:2.4.1-slim as base
 MAINTAINER enviroDGI@gmail.com
 
 # Install apt based dependencies required to run Rails as
@@ -30,19 +29,26 @@ RUN gem install bundler && bundle install --jobs 20 --retry 5
 # Copy the main application.
 COPY . ./
 
-### RUNTIME STAGE ###
 
-FROM ruby:2.4.1-slim
+### IMPORT WORKER TARGET ###
+FROM base as import-worker
 MAINTAINER enviroDGI@gmail.com
+WORKDIR /app
+
+ENV QUEUE=*
+ENV VERBOSE=1
+
+CMD ["bundle", "exec", "rake", "environment", "resque:work"]
+
+
+### RAILS SERVER TARGET ###
+FROM base as rails-server
+MAINTAINER enviroDGI@gmail.com
+WORKDIR /app
 
 # Expose port 3000 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 3000
-
-# Copy build products from builder image above.
-COPY --from=builder /usr/local/bundle /usr/local/bundle
-COPY --from=builder /app /app
-WORKDIR /app
 
 # Pre-compile static assets.
 RUN bundle exec rake assets:precompile
