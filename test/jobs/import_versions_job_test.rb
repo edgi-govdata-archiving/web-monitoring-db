@@ -129,6 +129,6 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       ].map(&:to_json).join("\n")
     )
     ImportVersionsJob.perform_now(import)
-    assert_equal(['Row 0: page_url is missing from record'], import.processing_errors, 'expected error due to missing page_url')
+    assert_equal(['Row 0: `page_url` is missing'], import.processing_errors, 'expected error due to missing page_url')
   end
 end
