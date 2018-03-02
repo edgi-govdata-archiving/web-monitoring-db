@@ -242,8 +242,6 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can import `null` page_maintainers' do
-    page_versions_count = pages(:home_page).versions.count
-    original_data = versions(:page1_v1).as_json
     import_data = [
       {
         page_url: 'http://testsite.com/',
@@ -278,8 +276,6 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'cannot import non-array page_maintainers' do
-    page_versions_count = pages(:home_page).versions.count
-    original_data = versions(:page1_v1).as_json
     import_data = [
       {
         page_url: 'http://testsite.com/',
@@ -314,8 +310,6 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can import `null` page_tags' do
-    page_versions_count = pages(:home_page).versions.count
-    original_data = versions(:page1_v1).as_json
     import_data = [
       {
         page_url: 'http://testsite.com/',
@@ -350,8 +344,6 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'cannot import non-array page_tags' do
-    page_versions_count = pages(:home_page).versions.count
-    original_data = versions(:page1_v1).as_json
     import_data = [
       {
         page_url: 'http://testsite.com/',
