@@ -240,4 +240,140 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     expected_meta = original_data['source_metadata'].merge('test_meta' => 'data')
     assert_equal(expected_meta, version.source_metadata, 'source_metadata was not merged')
   end
+
+  test 'can import `null` page_maintainers' do
+    import_data = [
+      {
+        page_url: 'http://testsite.com/',
+        page_title: 'Test Page',
+        page_maintainers: nil,
+        capture_time: versions(:page1_v1).capture_time,
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'INVALID_HASH',
+        source_type: versions(:page1_v1).source_type,
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path,
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal 'pending', body_json['data']['status']
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal 'complete', body_json['data']['status']
+    assert_equal 0, body_json['data']['processing_errors'].length
+  end
+
+  test 'cannot import non-array page_maintainers' do
+    import_data = [
+      {
+        page_url: 'http://testsite.com/',
+        page_title: 'Test Page',
+        page_maintainers: 5,
+        capture_time: versions(:page1_v1).capture_time,
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'INVALID_HASH',
+        source_type: versions(:page1_v1).source_type,
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path,
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal 'pending', body_json['data']['status']
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal 'complete', body_json['data']['status']
+    assert_equal 1, body_json['data']['processing_errors'].length
+  end
+
+  test 'can import `null` page_tags' do
+    import_data = [
+      {
+        page_url: 'http://testsite.com/',
+        page_title: 'Test Page',
+        page_tags: nil,
+        capture_time: versions(:page1_v1).capture_time,
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'INVALID_HASH',
+        source_type: versions(:page1_v1).source_type,
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path,
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal 'pending', body_json['data']['status']
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal 'complete', body_json['data']['status']
+    assert_equal 0, body_json['data']['processing_errors'].length
+  end
+
+  test 'cannot import non-array page_tags' do
+    import_data = [
+      {
+        page_url: 'http://testsite.com/',
+        page_title: 'Test Page',
+        page_tags: 5,
+        capture_time: versions(:page1_v1).capture_time,
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'INVALID_HASH',
+        source_type: versions(:page1_v1).source_type,
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path,
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal 'pending', body_json['data']['status']
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal 'complete', body_json['data']['status']
+    assert_equal 1, body_json['data']['processing_errors'].length
+  end
 end

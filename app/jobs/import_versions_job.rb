@@ -106,14 +106,17 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def find_or_create_page_for_record(record)
-    raise Api::InputError, 'page_url is missing from record' unless record.key?('page_url')
+    validate_present!(record, 'page_url')
+    validate_kind!([String], record, 'page_url')
+    validate_kind!([Array, NilClass], record, 'page_maintainers')
+    validate_kind!([Array, NilClass], record, 'page_tags')
 
     record_url = Page.normalize_url(record['page_url'])
     page = Page.find_or_create_by(url: record_url)
 
-    record.fetch('page_maintainers', []).each {|name| page.add_maintainer(name)}
+    (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')
-    record.fetch('page_tags', []).each {|name| page.add_tag(name)}
+    (record['page_tags'] || []).each {|name| page.add_tag(name)}
     page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
 
     page
@@ -140,6 +143,22 @@ class ImportVersionsJob < ApplicationJob
       else
         yield line, row
       end
+    end
+  end
+
+  def validate_present!(record, field_name)
+    raise Api::InputError, "`#{field_name}` is missing" unless record.key?(field_name)
+  end
+
+  def validate_kind!(kinds, record, field_name)
+    kinds = [kinds] unless kinds.is_a?(Enumerable)
+    value = record[field_name]
+
+    unless kinds.any? {|kind| value.is_a?(kind)}
+      names = kinds.collect do |kind|
+        kind == NilClass ? 'null' : "a #{kind.name}"
+      end.join(' or ')
+      raise Api::InputError, "`#{field_name}` must be #{names}, not `#{value.class.name}`"
     end
   end
 end
