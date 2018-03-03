@@ -164,6 +164,21 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
     Now `bundle exec rake db:setup` command should work.
 
 
+## Docker
+
+The Dockerfile runs the rails server on port 3000 in the container. To build
+and run:
+
+```
+docker build --target rails-server -t envirodgi/db-rails-server .
+docker build --target import-worker -t envirodgi/db-import-worker .
+docker run -p 3000:3000 envirodgi/db-rails-server -e <ENVIRONMENT VARIABLES> .
+docker run -p 6379:6379 envirodgi/db-import-worker -e <ENVIRONMENT VARIABLES> .
+```
+
+Point your browser or ``curl`` at ``http://localhost:3000``.
+
+
 ## Contributors
 
 This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions!
