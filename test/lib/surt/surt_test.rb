@@ -17,12 +17,12 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://alexa.com/',
       'http://www.alexa.com/',
-      'It did not remove a "www." subdomain'
+      'It failed to remove a "www." subdomain'
     )
     assert_canonicalized(
       'http://archive.org/',
       'http://www34.archive.org/',
-      'It removed a "www[digit]." subdomain'
+      'It failed to remove a "www[digit]." subdomain'
     )
   end
 
@@ -30,17 +30,17 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://archive.org/index.html',
       'http://archive.org/index.html?',
-      'It removed an empty query'
+      'It failed to remove an empty query'
     )
     assert_canonicalized(
       'http://archive.org/index.html?a=b&b=b',
       'http://archive.org/index.html?b=b&a=b',
-      'It alphabetized the query'
+      'It failed to alphabetized the query'
     )
     assert_canonicalized(
       'http://archive.org/index.html?a=b&b=a&b=b',
       'http://archive.org/index.html?b=a&b=b&a=b',
-      'It alphabetized a query with repeat keys'
+      'It failed to alphabetized a query with repeat keys'
     )
   end
 
@@ -82,17 +82,17 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://168.188.99.26',
       'http://168.188.99.26',
-      'It did leave a simple IPv4 alone'
+      'It failed to leave a simple IPv4 alone'
     )
     assert_canonicalized(
       'http://15.0.0.1',
       'http://017.0.0.1',
-      'It did not decode an octal IP'
+      'It failed to decode an octal IP'
     )
     assert_canonicalized(
       'http://195.127.0.11/blah',
       'http://3279880203/blah',
-      'It did not decode a DWORD host'
+      'It failed to decode a DWORD host'
     )
     # Python SURT does some crazy fixing of IPv4 addresses, but I'm not sure
     # it's actually worth supporting here.
@@ -169,7 +169,7 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://xn--n3h.com',
       '☃.com',
-      '?'
+      'It failed to IDNA-encode the host name'
     )
   end
 
@@ -202,7 +202,7 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://gotaport.com:1234/',
       'http://gotaport.com:1234/',
-      'It did not keep non-standard port numbers'
+      'It failed to keep non-standard port numbers'
     )
   end
 
