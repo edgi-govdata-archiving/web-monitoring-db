@@ -1247,11 +1247,21 @@ definitions:
       capture_time:
         type: string
         format: datetime
+        description: The time that the version was captured at.
+      capture_url:
+        type: string
+        format: uri
+        description: >
+          The exact URL the version was originally captured at. A page may
+          capture versions from several URLs that are *effectively* the same,
+          but the `capture_url` on Version gives the exact URL.
       uri:
         type: string
         format: uri
+        description: A URL from which to retrieve the raw content of the version.
       version_hash:
         type: string
+        description: A SHA-256 hash of the version’s raw content.
       source_type:
         type: string
       source_metadata:
@@ -1269,6 +1279,15 @@ definitions:
         format: uuid4
       url:
         type: string
+      url_key:
+        type: string
+        format: surt
+        description: >
+          A canonical version of the Page's URL. It is mostly used for
+          determining whether versions from different capture_urls represent
+          the same page, e.g. `http://epa.gov` vs. `https://epa.gov`. For more
+          about the SURT format, see:
+          http://crawler.archive.org/articles/user_manual/glossary.html#surt
       title:
         type: string
       site:

@@ -17,6 +17,9 @@ AllCops:
 Metrics/ClassLength:
   Enabled: false
 
+Metrics/ModuleLength:
+  Enabled: false
+
 Metrics/ParameterLists:
   Exclude:
     - 'lib/versionista_service/*'
@@ -25,6 +28,7 @@ Metrics/CyclomaticComplexity:
   Max: 12
   Exclude:
     - 'app/controllers/api/v0/pages_controller.rb'
+    - 'app/lib/surt/canonicalize.rb'
 
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
@@ -36,6 +40,10 @@ Style/ClassAndModuleChildren:
   Enabled: false
 
 Layout/EmptyLines:
+  Enabled: false
+
+# This was mostly all false positives.
+Style/FormatStringToken:
   Enabled: false
 
 Style/GuardClause:

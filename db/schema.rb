@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180212043742) do
+ActiveRecord::Schema.define(version: 20180227034314) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,8 +88,10 @@ ActiveRecord::Schema.define(version: 20180212043742) do
     t.string "site"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "url_key"
     t.index ["site"], name: "index_pages_on_site"
     t.index ["url"], name: "index_pages_on_url"
+    t.index ["url_key"], name: "index_pages_on_url_key"
   end
 
   create_table "taggings", id: false, force: :cascade do |t|
@@ -141,6 +143,7 @@ ActiveRecord::Schema.define(version: 20180212043742) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"
+    t.string "capture_url"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["page_uuid"], name: "index_versions_on_page_uuid"
     t.index ["version_hash"], name: "index_versions_on_version_hash"

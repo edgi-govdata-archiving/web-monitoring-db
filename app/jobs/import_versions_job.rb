@@ -81,6 +81,7 @@ class ImportVersionsJob < ApplicationJob
     # TODO: Remove line 74 below once full transition from 'page_title' to 'title'
     # is complete
     record['title'] = record['page_title'] if record.key?('page_title')
+    record['capture_url'] = record['page_url'] if record.key?('page_url')
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
     allowed = Version.attribute_names - disallowed
 
@@ -111,8 +112,8 @@ class ImportVersionsJob < ApplicationJob
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
 
-    record_url = Page.normalize_url(record['page_url'])
-    page = Page.find_or_create_by(url: record_url)
+    url = record['page_url']
+    page = Page.find_by_url(url) || Page.create(url: url)
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')

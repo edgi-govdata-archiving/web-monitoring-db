@@ -47,6 +47,7 @@ Metrics/PerceivedComplexity:
   Max: 12
   Exclude:
     - 'app/controllers/api/v0/pages_controller.rb'
+    - 'app/lib/surt/canonicalize.rb'
 
 # Offense count: 7
 # Cop supports --auto-correct.
