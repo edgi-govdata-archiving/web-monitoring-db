@@ -133,6 +133,7 @@ If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't cr
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' web-monitoring-db_development
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";' web-monitoring-db_development
     sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' web-monitoring-db_development
+    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "citext";' web-monitoring-db_development
     ```
 
     and then set `DATABASE_URL` environment variable to point to the development database:
