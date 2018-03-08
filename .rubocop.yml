@@ -30,6 +30,19 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/api/v0/pages_controller.rb'
     - 'app/lib/surt/canonicalize.rb'
 
+Naming/MemoizedInstanceVariableName:
+  Exclude:
+    # There are some good reasons not to apply this in Rails controllers
+    - 'app/controllers/**/*'
+
+Naming/UncommunicativeMethodParamName:
+  # TODO: remove this; `to` is going to be added to the default list soon (?)
+  # https://github.com/bbatsov/rubocop/pull/5626
+  AllowedNames:
+    - id
+    - io
+    - to
+
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
