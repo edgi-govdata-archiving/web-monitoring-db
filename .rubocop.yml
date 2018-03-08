@@ -42,6 +42,9 @@ Style/ClassAndModuleChildren:
 Layout/EmptyLines:
   Enabled: false
 
+Style/AsciiComments:
+  Enabled: false
+
 # This was mostly all false positives.
 Style/FormatStringToken:
   Enabled: false
