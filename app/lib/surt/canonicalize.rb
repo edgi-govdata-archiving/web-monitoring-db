@@ -1,6 +1,12 @@
 require 'addressable/uri'
 
 module Surt::Canonicalize
+  # TODO: add remove_directory_index option? Based on Purell:
+  # https://github.com/PuerkitoBio/purell#api
+  # https://github.com/PuerkitoBio/purell/blob/f619812e3caf603a8df60a7ec6f2654b703189ef/purell.go#L84
+  #
+  # TODO: Add fixing malformed IPv4 address like Internet Archive's SURT does:
+  # `http://10.0.258` → `http://10.0.1.2`
   DEFAULT_OPTIONS = {
     decode_dword_host: true,
     decode_hex_host: true,
@@ -34,12 +40,25 @@ module Surt::Canonicalize
     /^(.*\/)(\([0-9a-z]{24}\)\/)([^\?]+\.aspx.*)$/i
   ].freeze
 
+  # TODO: should we refactor this into a more readable format? e.g:
+  # [
+  #   {param_to_remove: /regex or string to match value/},
+  #   {param_to_remove1: /regex for value/, param_to_remove2: /regex for value/}
+  # ]
   QUERY_SESSION_IDS = [
     /^(.*)(?:jsessionid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:phpsessid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:sid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24})(?:&(.*))?$/i,
-    /^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$/i
+    /^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:utm_source=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:utm_medium=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:utm_term=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:utm_content=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:utm_campaign=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:sms_ss=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:awesm=[^&])(?:&(.*))?$/i,
+    /^(.*)(?:xtor=[^&])(?:&(.*))?$/i
   ].freeze
 
   OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/

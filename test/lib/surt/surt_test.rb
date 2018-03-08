@@ -281,6 +281,19 @@ class SurtTest < ActiveSupport::TestCase
     )
   end
 
+  test 'it removes tracking identifiers from querystrings' do
+    assert_canonicalized(
+      'http://example.com/x',
+      'http://example.com/x?utm_term=a&utm_medium=b&utm_source=c&utm_content=d&utm_campaign=e',
+      'It failed to remove `utm_*` query params'
+    )
+    assert_canonicalized(
+      'http://example.com/x',
+      'http://example.com/x?sms_ss=a&awesm=b&xtor=c',
+      'It failed to remove assorted tracking query params'
+    )
+  end
+
   test 'it formats URLs as SURT' do
     assert_equal('org,archive)/', Surt.format('http://archive.org/'))
     assert_equal('org,archive,xyz)/', Surt.format('http://xyz.archive.org/'))
