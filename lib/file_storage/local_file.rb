@@ -20,7 +20,7 @@ module FileStorage
       File.read(full_path(path))
     end
 
-    def save_file(path, content, _ = nil)
+    def save_file(path, content, _options = nil)
       ensure_directory
       File.open(full_path(path), 'wb') do |file|
         content_string = content.try(:read) || content
