@@ -69,10 +69,10 @@ workflows:
           type: approval
           requires:
             - build
-      - publish_docker:
-          requires:
-            - hold
           filters:
             branches:
               only:
                 - master
+      - publish_docker:
+          requires:
+            - hold
