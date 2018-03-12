@@ -40,3 +40,39 @@ jobs:
       - run:
           name: Code linting
           command: bundle exec rubocop
+
+  publish_docker:
+    machine: true
+    steps:
+      - checkout
+      - run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker run -d --name db company/proprietary-db:1.2.3
+      - run: |
+          docker build --target rails-server -t envirodgi/db-rails-server:$CIRCLE_SHA1 .
+          docker build --target rails-server -t envirodgi/db-rails-server:latest .
+      - run: |
+          docker build --target import-worker -t envirodgi/db-import-worker:$CIRCLE_SHA1 .
+          docker build --target import-worker -t envirodgi/db-import-worker:latest .
+      - run: |
+          docker push envirodgi/db-rails-server:$CIRCLE_SHA1
+          docker push envirodgi/db-rails-server:latest
+          docker push envirodgi/db-import-worker:$CIRCLE_SHA1
+          docker push envirodgi/db-import-worker:latest
+
+workflows:
+  version: 2
+  build-and-publish:
+    jobs:
+      - build
+      - hold:
+          type: approval
+          requires:
+            - build
+      - publish_docker:
+          requires:
+            - hold
+          filters:
+            branches:
+              only:
+                - master
