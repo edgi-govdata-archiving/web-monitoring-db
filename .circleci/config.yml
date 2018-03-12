@@ -62,17 +62,24 @@ jobs:
 
 workflows:
   version: 2
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: master
+
   build-and-publish:
     jobs:
-      - build
-      - hold:
-          type: approval
-          requires:
-            - build
+      - build:
           filters:
             branches:
               only:
                 - master
+      - hold:
+          type: approval
+          requires:
+            - build
       - publish_docker:
           requires:
             - hold
