@@ -35,7 +35,7 @@ class ImportVersionsJob < ApplicationJob
         messages = error.model.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
       rescue ActiveRecord::RecordInvalid => error
-        messages = error.model.errors.full_messages.join(', ')
+        messages = error.record.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
       rescue StandardError => error
         @import.processing_errors << if Rails.env.development?
@@ -113,7 +113,7 @@ class ImportVersionsJob < ApplicationJob
     validate_kind!([Array, NilClass], record, 'page_tags')
 
     url = record['page_url']
-    page = Page.find_by_url(url) || Page.create(url: url)
+    page = Page.find_by_url(url) || Page.create!(url: url)
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')
