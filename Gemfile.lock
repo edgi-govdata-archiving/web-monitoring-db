@@ -146,12 +146,12 @@ GEM
     parser (2.5.0.2)
       ast (~> 2.4.0)
     pg (0.21.0)
-    postmark (1.10.0)
+    postmark (1.11.0)
       json
       rake
-    postmark-rails (0.15.0)
+    postmark-rails (0.16.0)
       actionmailer (>= 3.0.0)
-      postmark (~> 1.10.0)
+      postmark (~> 1.11.0)
     powerpack (0.1.1)
     pry (0.11.3)
       coderay (~> 1.1.0)
