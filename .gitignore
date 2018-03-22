@@ -17,3 +17,6 @@
 # Configuration files
 .powenv
 .env
+
+# Sqlite3
+*.sqlite3
