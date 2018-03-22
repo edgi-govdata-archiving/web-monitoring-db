@@ -2,6 +2,8 @@ require 'digest'
 require 'httparty'
 
 module Archiver
+  REDIRECT_LIMIT = 10
+
   # Configuration ----------
 
   def self.store=(store)
@@ -29,7 +31,7 @@ module Archiver
   # Primary API ----------
 
   def self.archive(url)
-    response = HTTParty.get(url)
+    response = HTTParty.get(url, limit: REDIRECT_LIMIT)
     hash = hash_content(response.body)
 
     url =
@@ -52,7 +54,7 @@ module Archiver
   end
 
   def self.hash_content_at_url(url)
-    response = HTTParty.get(url)
+    response = HTTParty.get(url, limit: REDIRECT_LIMIT)
     hash_content(response.body)
   end
 
