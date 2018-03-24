@@ -69,7 +69,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can filter pages by site' do
     sign_in users(:alice)
-    site = 'http://example.com/'
+    site = 'http://example1.com/'
     get "/api/v0/pages/?site=#{URI.encode_www_form_component site}"
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
@@ -108,7 +108,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can filter pages by URL' do
     sign_in users(:alice)
-    url = 'http://example.com/'
+    url = 'http://example1.com/'
     get "/api/v0/pages/?url=#{URI.encode_www_form_component url}"
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
@@ -123,7 +123,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
   test 'can filter pages by URL with "*" wildcard' do
     sign_in users(:alice)
-    url = 'http://example.com/*'
+    url = 'http://example1.com/*'
     get "/api/v0/pages/?url=#{URI.encode_www_form_component url}"
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
@@ -310,7 +310,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       100.times {|i| first_page.versions.create(capture_time: now - i.days)}
 
       (105 - Page.count).times do
-        page = Page.create(url: "http://example.com/temp/#{SecureRandom.hex}")
+        page = Page.create(url: "http://example1.com/temp/#{SecureRandom.hex}")
         page.versions.create(capture_time: now - 1.day)
       end
     end
