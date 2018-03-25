@@ -1,14 +1,14 @@
 home_page:
-  url: 'http://example.com/'
+  url: 'http://example1.com/'
   title: 'Page One'
   agency: 'Department of Examples'
-  site: 'http://example.com/'
+  site: 'http://example1.com/'
 
 sub_page:
-  url: 'http://example.com/page2.html'
+  url: 'http://example1.com/page2.html'
   title: 'Page Two'
   agency: 'Department of Examples'
-  site: 'http://example.com/'
+  site: 'http://example1.com/'
 
 home_page_site2:
   url: 'http://example2.com/index.html'
