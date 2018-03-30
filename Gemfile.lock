@@ -143,7 +143,7 @@ GEM
     orm_adapter (0.5.0)
     os (0.9.6)
     parallel (1.12.1)
-    parser (2.5.0.5)
+    parser (2.5.0.2)
       ast (~> 2.4.0)
     pg (0.21.0)
     postmark (1.11.0)
