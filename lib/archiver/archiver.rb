@@ -30,9 +30,15 @@ module Archiver
 
   # Primary API ----------
 
-  def self.archive(url)
+  def self.archive(url, expected_hash: nil)
     response = HTTParty.get(url, limit: REDIRECT_LIMIT)
     hash = hash_content(response.body)
+    if expected_hash && expected_hash != hash
+      raise Api::DynamicError.new(
+        "Response body for '#{url}' did not match expected hash (#{expected_hash})",
+        :bad_gateway
+      )
+    end
 
     url =
       if already_archived?(url)

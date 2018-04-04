@@ -35,7 +35,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
       end
     elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
-      result = Archiver.archive(@version.uri)
+      result = Archiver.archive(@version.uri, expected_hash: @version.version_hash)
       @version.version_hash = result[:hash]
       @version.uri = result[:url]
     end

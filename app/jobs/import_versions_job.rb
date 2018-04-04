@@ -27,9 +27,7 @@ class ImportVersionsJob < ApplicationJob
     each_json_line(raw_data) do |record, row|
       begin
         import_record(record)
-      rescue Api::NotImplementedError => error
-        @import.processing_errors << "Row #{row}: #{error.message}"
-      rescue Api::InputError => error
+      rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
       rescue ActiveModel::ValidationError => error
         messages = error.model.errors.full_messages.join(', ')
@@ -65,7 +63,7 @@ class ImportVersionsJob < ApplicationJob
         raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
       end
     elsif !Archiver.already_archived?(version.uri) || !version.version_hash
-      result = Archiver.archive(version.uri)
+      result = Archiver.archive(version.uri, expected_hash: version.version_hash)
       version.version_hash = result[:hash]
       if result[:url] != version.uri
         version.source_metadata['original_url'] = version.uri
