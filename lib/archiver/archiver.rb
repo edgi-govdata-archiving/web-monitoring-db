@@ -34,10 +34,7 @@ module Archiver
     response = HTTParty.get(url, limit: REDIRECT_LIMIT)
     hash = hash_content(response.body)
     if expected_hash && expected_hash != hash
-      raise Api::DynamicError.new(
-        "Response body for '#{url}' did not match expected hash (#{expected_hash})",
-        :bad_gateway
-      )
+      raise Api::MismatchedHashError.new(url, expected_hash)
     end
 
     url =
