@@ -85,7 +85,7 @@ module Archiver
         raise error if attempt >= tries
       end
 
-      sleep(attempt ** 2)
+      sleep(attempt**2)
     end
   end
 end
