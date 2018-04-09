@@ -34,4 +34,14 @@ module Api
       409
     end
   end
+
+  class MismatchedHashError < ApiError
+    def status_code
+      502
+    end
+
+    def initialize(url, hash)
+      super("Response body for '#{url}' did not match expected hash (#{hash})")
+    end
+  end
 end
