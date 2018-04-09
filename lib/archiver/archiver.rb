@@ -3,6 +3,7 @@ require 'httparty'
 
 module Archiver
   REDIRECT_LIMIT = 10
+  MAXIMUM_TRIES = 3
 
   # Configuration ----------
 
@@ -31,7 +32,10 @@ module Archiver
   # Primary API ----------
 
   def self.archive(url, expected_hash: nil)
-    response = HTTParty.get(url, limit: REDIRECT_LIMIT)
+    response = retry_request do
+      HTTParty.get(url, limit: REDIRECT_LIMIT)
+    end
+
     hash = hash_content(response.body)
     if expected_hash && expected_hash != hash
       raise Api::MismatchedHashError.new(url, expected_hash)
@@ -57,7 +61,9 @@ module Archiver
   end
 
   def self.hash_content_at_url(url)
-    response = HTTParty.get(url, limit: REDIRECT_LIMIT)
+    response = retry_request do
+      HTTParty.get(url, limit: REDIRECT_LIMIT)
+    end
     hash_content(response.body)
   end
 
@@ -67,5 +73,19 @@ module Archiver
 
   def self.external_archive_url?(url)
     allowed_hosts.any? {|base| url.starts_with?(base)}
+  end
+
+  # Auto-retry requests that error out or have gateway errors
+  def self.retry_request(tries: MAXIMUM_TRIES)
+    (1..tries).each do |attempt|
+      begin
+        response = yield
+        return response if attempt >= tries || (response.code != 503 && response.code != 504)
+      rescue HTTParty::ResponseError => error
+        raise error if attempt >= tries
+      end
+
+      sleep(attempt**2)
+    end
   end
 end
