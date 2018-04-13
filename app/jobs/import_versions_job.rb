@@ -36,7 +36,7 @@ class ImportVersionsJob < ApplicationJob
         messages = error.record.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
       rescue StandardError => error
-        @import.processing_errors << if Rails.env.development?
+        @import.processing_errors << if Rails.env.development? || Rails.env.test?
                                        "Row #{row}: #{error.message}"
                                      else
                                        "Row #{row}: Unknown error occurred"
@@ -47,7 +47,9 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_record(record)
-    page = find_or_create_page_for_record(record)
+    page = page_for_record(record, create: @import.create_pages)
+    return unless page
+
     existing = page.versions.find_by(
       capture_time: record['capture_time'],
       source_type: record['source_type']
@@ -104,14 +106,18 @@ class ImportVersionsJob < ApplicationJob
     end
   end
 
-  def find_or_create_page_for_record(record)
+  def page_for_record(record, create: true)
     validate_present!(record, 'page_url')
     validate_kind!([String], record, 'page_url')
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
 
     url = record['page_url']
-    page = Page.find_by_url(url) || Page.create!(url: url)
+    page = Page.find_by_url(url) || if create
+                                      Page.create!(url: url)
+                                    else
+                                      return nil
+                                    end
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')

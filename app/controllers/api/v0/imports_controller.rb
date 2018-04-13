@@ -15,7 +15,8 @@ class Api::V0::ImportsController < Api::V0::ApiController
 
     @import = Import.create_with_data({
       user: current_user,
-      update_behavior: update_behavior
+      update_behavior: update_behavior,
+      create_pages: boolean_param(:create_pages, default: true)
     }, request.body)
     ImportVersionsJob.perform_later(@import)
     show
