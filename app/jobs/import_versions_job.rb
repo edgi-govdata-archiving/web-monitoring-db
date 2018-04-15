@@ -48,7 +48,10 @@ class ImportVersionsJob < ApplicationJob
 
   def import_record(record)
     page = page_for_record(record, create: @import.create_pages)
-    return unless page
+    unless page
+      Rails.logger.warn {"Import #{@import.id} skipping unknown URL: #{record['page_url']}@#{record['capture_time']}"}
+      return
+    end
 
     existing = page.versions.find_by(
       capture_time: record['capture_time'],
