@@ -539,12 +539,13 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     body_json = JSON.parse(@response.body)
     job_id = body_json['data']['id']
-    assert_equal 'pending', body_json['data']['status']
+    assert_equal('pending', body_json['data']['status'])
 
     get api_v0_import_path(id: job_id)
     body_json = JSON.parse(@response.body)
-    assert_equal 'complete', body_json['data']['status']
-    assert_equal 0, body_json['data']['processing_errors'].length
+    assert_equal('complete', body_json['data']['status'])
+    assert_equal(0, body_json['data']['processing_errors'].length)
+    assert_equal(1, body_json['data']['processing_warnings'].length)
 
     pages = Page.where(url: 'http://whoa-there-betcha-this.com/is/not/in/the/database')
     assert_equal(0, pages.count)

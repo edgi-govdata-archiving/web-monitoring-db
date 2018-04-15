@@ -49,7 +49,7 @@ class ImportVersionsJob < ApplicationJob
   def import_record(record)
     page = page_for_record(record, create: @import.create_pages)
     unless page
-      Rails.logger.warn {"Import #{@import.id} skipping unknown URL: #{record['page_url']}@#{record['capture_time']}"}
+      warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
       return
     end
 
@@ -131,6 +131,11 @@ class ImportVersionsJob < ApplicationJob
   end
 
   private
+
+  def warn(message)
+    @import.processing_warnings << message
+    Rails.logger.warn "Import #{@import.id} #{message}"
+  end
 
   # iterate through a JSON array or series of newline-delimited JSON objects
   def each_json_line(raw_json)
