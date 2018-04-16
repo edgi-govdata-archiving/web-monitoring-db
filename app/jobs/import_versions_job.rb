@@ -77,6 +77,7 @@ class ImportVersionsJob < ApplicationJob
     end
 
     version.validate!
+    version.update_different_attribute
     version.save
   end
 
