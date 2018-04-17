@@ -501,4 +501,54 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'complete', body_json['data']['status']
     assert_equal 1, body_json['data']['processing_errors'].length
   end
+
+  test 'can not create new pages if ?create_pages=false' do
+    existing_page_versions = pages(:home_page).versions.count
+
+    import_data = [
+      {
+        page_url: 'http://whoa-there-betcha-this.com/is/not/in/the/database',
+        title: 'Heyooooo!',
+        capture_time: '2017-05-01T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        version_hash: 'abc',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: pages(:home_page).url,
+        title: 'Example Page',
+        capture_time: '2017-05-02T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        version_hash: 'def',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path(params: { create_pages: false }),
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal('pending', body_json['data']['status'])
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal('complete', body_json['data']['status'])
+    assert_equal(0, body_json['data']['processing_errors'].length)
+    assert_equal(1, body_json['data']['processing_warnings'].length)
+
+    pages = Page.where(url: 'http://whoa-there-betcha-this.com/is/not/in/the/database')
+    assert_equal(0, pages.count)
+    assert_equal(existing_page_versions + 1, pages(:home_page).versions.count)
+  end
 end

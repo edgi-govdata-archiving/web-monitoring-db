@@ -57,9 +57,10 @@ class Api::V0::ApiController < ApplicationController
       error.to_s
   end
 
-  def boolean_param(param, presence_implies_true = true)
+  def boolean_param(param, presence_implies_true: true, default: false)
+    return default unless params.key?(param)
     value = params[param]
-    return true if params.key?(param) && value.nil? && presence_implies_true
+    return true if value.nil? && presence_implies_true
     /^(true|t|1)$/i.match? value
   end
 

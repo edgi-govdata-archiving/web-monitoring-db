@@ -3,7 +3,7 @@ class Import < ApplicationRecord
   enum status: [:pending, :processing, :complete]
   enum update_behavior: [:skip, :replace, :merge], _suffix: :existing_records
   validates :file, presence: true
-  after_initialize :ensure_processing_errors
+  after_initialize :ensure_processing_errors_and_warnings
 
   def self.create_with_data(attributes, data)
     create(attributes.merge(file: create_data_file(data)))
@@ -21,7 +21,8 @@ class Import < ApplicationRecord
 
   protected
 
-  def ensure_processing_errors
+  def ensure_processing_errors_and_warnings
     self.processing_errors ||= []
+    self.processing_warnings ||= []
   end
 end
