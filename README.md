@@ -11,6 +11,31 @@ It’s a Rails app that:
 
 ## Installation
 
+### Heroku
+
+Heroku can be used to get up and running quickly. The app will run using
+your local codebase, but the supporting services (Postgres & Redis) will
+run in the Heroku cloud, without the need for local setup.
+
+- [Install][heroku-cli] Heroku CLI
+
+```
+$ heroku create my-unique-app-name
+$ heroku addons:create heroku-redis
+$ heroku addons:create heroku-postgresql
+$ heroku plugins:install heroku-config
+$ heroku config:set HEROKU=true
+$ heroku config:pull
+$ heroku local:run bin/setup
+$ heroku local:run bin/rails server
+```
+
+You can now access the app running locally, backed by cloud services.
+
+   [heroku-cli]: https://devcenter.heroku.com/articles/heroku-cli
+
+### Local Workstation
+
 1. Ensure you have Ruby 2.4.1+
 
     You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
