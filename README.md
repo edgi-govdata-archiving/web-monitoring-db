@@ -14,20 +14,27 @@ It’s a Rails app that:
 ### Heroku
 
 Heroku can be used to get up and running quickly. The app will run using
-your local codebase, but the supporting services (Postgres & Redis) will
+your local codebase, but the supporting addons (Postgres & Redis) will
 run in the Heroku cloud, without the need for local setup.
 
 - [Install][heroku-cli] Heroku CLI
 
 ```
-$ heroku create my-unique-app-name
-$ heroku addons:create heroku-redis
-$ heroku addons:create heroku-postgresql
-$ heroku plugins:install heroku-config
+# Prepare remote Heroku instance
+$ cd path/to/web-monitoring-db
+$ heroku create my-unique-web-monitoring-db-app
 $ heroku config:set HEROKU=true
+$ heroku addons:create heroku-redis
+$ heroku addons:create heroku-postgresql --as DATABASE_DEV
+$ heroku addons:create heroku-postgresql --as DATABASE_TEST
+
+# Pull Heroku environment variables to local .env file
+$ heroku plugins:install heroku-config
 $ heroku config:pull
-$ heroku local:run bin/setup
-$ heroku local:run bin/rails server
+
+# Prepare and run app using Heroku addons
+$ make setup
+$ make run
 ```
 
 You can now access the app running locally, backed by cloud services.

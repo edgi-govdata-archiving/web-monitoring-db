@@ -1,6 +1,8 @@
-setup: ## Setup the rails app
+setup: ## Setup the app locally
 	@bin/setup
 
+run: ## Run the app locally
+	@bin/rails server
 
 %:
 	@true
