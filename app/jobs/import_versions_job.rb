@@ -76,6 +76,11 @@ class ImportVersionsJob < ApplicationJob
       end
     end
 
+    if @import.skip_unchanged_versions? && version_changed?(version)
+      warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
+      return
+    end
+
     version.validate!
     version.save
   end
@@ -173,5 +178,17 @@ class ImportVersionsJob < ApplicationJob
       end.join(' or ')
       raise Api::InputError, "`#{field_name}` must be #{names}, not `#{value.class.name}`"
     end
+  end
+
+  def version_changed?(version)
+    return true if version.version_hash.nil?
+
+    previous = version.page.versions
+      .where(source_type: version.source_type)
+      .where('capture_time < ?', version.capture_time)
+      .order(capture_time: :desc)
+      .first
+
+    version.version_hash == previous.try(:version_hash)
   end
 end

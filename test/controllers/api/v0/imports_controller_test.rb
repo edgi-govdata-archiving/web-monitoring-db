@@ -551,4 +551,73 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal(0, pages.count)
     assert_equal(existing_page_versions + 1, pages(:home_page).versions.count)
   end
+
+  test 'can skip versions that are the same as the previous version if ?skip_unchanged_versions=true' do
+    now = Time.now
+    page = Page.create(url: 'http://thecoolest.com/for/reals')
+    page.versions.create(capture_time: now - 5.days, version_hash: 'abc', source_type: 'a')
+    page.versions.create(capture_time: now - 4.days, version_hash: 'def', source_type: 'b')
+
+    # The first two here should get skipped
+    import_data = [
+      {
+        page_url: page.url,
+        title: 'Heyooooo!',
+        capture_time: (now - 3.days).iso8601,
+        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        version_hash: 'abc',
+        source_type: 'a',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: page.url,
+        title: 'Heyooooo!',
+        capture_time: (now - 2.9.days).iso8601,
+        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        version_hash: 'def',
+        source_type: 'b',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: page.url,
+        title: 'Heyooooo!',
+        capture_time: (now - 2.5.days).iso8601,
+        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        version_hash: 'def',
+        source_type: 'a',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: page.url,
+        title: 'Heyooooo!',
+        capture_time: (now - 2.days).iso8601,
+        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        version_hash: 'xyz',
+        source_type: 'b',
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
+    sign_in users(:alice)
+
+    perform_enqueued_jobs do
+      post(
+        api_v0_imports_path(params: { skip_unchanged_versions: true }),
+        headers: { 'Content-Type': 'application/x-json-stream' },
+        params: import_data.map(&:to_json).join("\n")
+      )
+    end
+
+    assert_response :success
+    body_json = JSON.parse(@response.body)
+    job_id = body_json['data']['id']
+    assert_equal('pending', body_json['data']['status'])
+
+    get api_v0_import_path(id: job_id)
+    body_json = JSON.parse(@response.body)
+    assert_equal('complete', body_json['data']['status'])
+    assert_equal(0, body_json['data']['processing_errors'].length, 'There were processing errors')
+    assert_equal(2, body_json['data']['processing_warnings'].length, 'There were not warnings for each skipped version')
+    assert_equal(4, page.versions.reload.count, 'There should have been 4 total versions after importing')
+  end
 end
