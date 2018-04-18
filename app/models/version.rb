@@ -26,7 +26,7 @@ class Version < ApplicationRecord
     Change.between(from: self, to: self.next)
   end
 
-  def update_different_attribute
+  def update_different_attribute(save: true)
     previous = page.versions
       .where(source_type: self.source_type)
       .where('capture_time < ?', self.capture_time)
@@ -35,6 +35,7 @@ class Version < ApplicationRecord
       .first
 
     self.different = previous.nil? || previous.version_hash != version_hash
+    self.save if save
 
     if self.different?
       following = page.versions
