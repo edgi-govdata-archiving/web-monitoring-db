@@ -91,6 +91,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def version_collection
     collection = page && page.versions || Version.order(created_at: :asc)
 
+    if boolean_param(:different, default: true)
+      collection = collection.where(different: true)
+    end
+
     collection = collection.where({
       version_hash: params[:hash],
       source_type: params[:source_type]

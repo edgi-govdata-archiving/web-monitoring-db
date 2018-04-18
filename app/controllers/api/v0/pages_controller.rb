@@ -21,6 +21,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         results = query
           .where(uuid: page_ids)
           .includes(:versions)
+          .where(versions: {different: true})
           .order('versions.capture_time DESC')
         lightweight_query(results, &method(:format_page_json))
       elsif should_include_latest
@@ -53,9 +54,9 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def show
     page = Page.find(params[:id])
-    render json: {
-      data: page
-    }, include: [:versions, :maintainers, :tags]
+    data = page.as_json(include: [:maintainers, :tags])
+    data['versions'] = page.versions.where(different: true).as_json
+    render json: { data: data }
   end
 
   protected
