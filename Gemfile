@@ -42,7 +42,6 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 0.55.0', require: false
   gem 'dotenv-rails'
-  gem 'sqlite3'
 end
 
 group :development do
