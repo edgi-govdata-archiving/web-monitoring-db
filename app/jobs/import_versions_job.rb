@@ -27,7 +27,8 @@ class ImportVersionsJob < ApplicationJob
     total_rows = raw_data.split("\n").length
     each_json_line(raw_data) do |record, row|
       begin
-        Rails.logger.info("Importing row #{row+1}/#{total_rows}...") if ((row+1) % 25 == 0)
+        i = row + 1
+        Rails.logger.info("Importing row #{i}/#{total_rows}...") if (i % 25).zero?
         import_record(record)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
