@@ -33,5 +33,6 @@ import = Import.create(
 
 fs_default = FileStorage.default
 FileStorage.default = FileStorage::LocalFile.new(path: Rails.root.join('db'))
+"--- Importing seed data from db/seed_import.json..."
 ImportVersionsJob.perform_now(import)
 FileStorage.default = fs_default
