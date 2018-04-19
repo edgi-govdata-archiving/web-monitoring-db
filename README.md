@@ -46,45 +46,27 @@ It’s a Rails app that:
 
 5. Clone this repo
 
-6. If you don’t have the `bundler` Ruby gem, install it:
+6. Run:
 
     ```sh
-    $ gem install bundler
+    $ bin/setup
     ```
 
-7. Wherever you cloned the repo, go to that directory and install dependencies:
+    This will set up and populate a database with sample data and an admin user. (Read the output for details!)
 
-    ```sh
-    $ bundle install --without production
-    ```
-
-8. Copy the .env.example file to .env - this allows for easy configuration locally.
-
-    ```sh
-    $ cp .env.example .env
-    ```
-
-9. Set up your database. The simple way to do this is:
-
-    ```sh
-    $ bundle exec rake db:setup
-    ```
-
-    That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
-
-    If you’d like to do the setup manually see [manual postgres setup](#manual-postgres-setup) below.
+    <sub>Alternatively, for manual postgres setup, [see below](#manual-postgres-setup).</sub>
 
     If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below.
 
-10. Start the server!
+7. Start the server!
 
     ```sh
-    $ bundle exec rails server
+    $ bin/rails server
     ```
 
-    You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
+    You did it! Visit the app in your browser at: [`localhost:3000`](http://localhost:3000/)
 
-11. Bulk importing (and, in the future, potentially other features) make use of a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
+8. Bulk importing (and, in the future, potentially other features) make use of a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
 
     Start redis:
 
