@@ -16,8 +16,8 @@ if Archiver.allowed_hosts.empty?
 end
 
 admin = User.find_or_create_by(admin: true) do |user|
-  password = 'PASSWORD'
-  user.email = 'seed-admin@example.com'
+  password = 'someones_password'
+  user.email = 'someone@example.com'
   user.password = password
   user.confirmed_at = Time.now
 
@@ -35,3 +35,7 @@ fs_default = FileStorage.default
 FileStorage.default = FileStorage::LocalFile.new(path: Rails.root.join('db'))
 ImportVersionsJob.perform_now(import)
 FileStorage.default = fs_default
+
+puts "\n\n------------------------------------------------------------"
+puts "Login in with these admin credentials: #{admin.email} / #{admin.password}"
+puts "------------------------------------------------------------\n\n"
