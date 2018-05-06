@@ -31,7 +31,6 @@ class Version < ApplicationRecord
       .where(source_type: self.source_type)
       .where('capture_time < ?', self.capture_time)
       .reorder(capture_time: :desc)
-      .limit(1)
       .first
 
     self.different = previous.nil? || previous.version_hash != version_hash
