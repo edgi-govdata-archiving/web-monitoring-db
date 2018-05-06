@@ -232,6 +232,13 @@ paths:
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
             - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
+        - name: different
+          in: query
+          description: >-
+            If false, include all versions, not just ones that are different from their preceding version.
+          required: false
+          type: string
+          default: true
       responses:
         '200':
           description: successful operation
@@ -967,6 +974,13 @@ paths:
               * `skip` (default value) Don’t import the version or modify the existing database entry
               * `replace` Replace the existing database entry with the imported one
               * `merge` Similar to `replace`, but merges the values in `source_metadata`
+        - name: skip_unchanged_versions
+          in: query
+          description: >-
+            If set to true, the importer will not import versions of a page that have the same hash as the version captured immediately before them (*from the same source*).
+          required: false
+          type: string
+          default: false
       responses:
         '200':
           description: successful operation
