@@ -596,4 +596,72 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       name: 'Pages'
     )
   end
+
+  test 'only lists versions that are different from the previous version on page data' do
+    now = Time.now
+    page_versions = [
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+    ].collect {|data| pages(:home_page).versions.create(data)}
+    page_versions.each(&:update_different_attribute)
+
+    sign_in users(:alice)
+    get(api_v0_page_url(pages(:home_page)))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    uuids = body['data']['versions'].collect {|version| version['uuid']}
+
+    assert_includes(uuids, page_versions[0].uuid)
+    assert_includes(uuids, page_versions[1].uuid)
+    assert_not_includes(uuids, page_versions[2].uuid)
+    assert_not_includes(uuids, page_versions[3].uuid)
+  end
+
+  test 'only lists versions that are different from the previous version on ?include_versions' do
+    now = Time.now
+    page_versions = [
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+    ].collect {|data| pages(:home_page).versions.create(data)}
+    page_versions.each(&:update_different_attribute)
+
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { include_versions: true }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    uuids = body['data'].collect do |page|
+      page['versions'].collect {|version| version['uuid']}
+    end.flatten
+
+    assert_includes(uuids, page_versions[0].uuid)
+    assert_includes(uuids, page_versions[1].uuid)
+    assert_not_includes(uuids, page_versions[2].uuid)
+    assert_not_includes(uuids, page_versions[3].uuid)
+  end
+
+  test 'only lists versions that are different from the previous version on ?include_latest' do
+    now = Time.now
+    page_versions = [
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+    ].collect {|data| pages(:home_page).versions.create(data)}
+    page_versions.each(&:update_different_attribute)
+
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { include_latest: true }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    uuids = body['data'].collect {|page| page['latest'].try(:[], 'uuid')}
+
+    assert_not_includes(uuids, page_versions[0].uuid)
+    assert_includes(uuids, page_versions[1].uuid)
+    assert_not_includes(uuids, page_versions[2].uuid)
+    assert_not_includes(uuids, page_versions[3].uuid)
+  end
 end

@@ -14,7 +14,7 @@ class Page < ApplicationRecord
       # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
       # all public methods append to the end.
       relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
-      relation.order('versions.capture_time DESC')
+      relation.order('versions.capture_time DESC').where(different: true)
     end),
     foreign_key: 'page_uuid',
     class_name: 'Version'

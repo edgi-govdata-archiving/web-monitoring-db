@@ -26,6 +26,34 @@ class Version < ApplicationRecord
     Change.between(from: self, to: self.next)
   end
 
+  def update_different_attribute(save: true)
+    previous = page.versions
+      .where(source_type: self.source_type)
+      .where('capture_time < ?', self.capture_time)
+      .reorder(capture_time: :desc)
+      .first
+
+    self.different = previous.nil? || previous.version_hash != version_hash
+    self.save if save
+
+    if self.different?
+      following = page.versions
+        .where(source_type: self.source_type)
+        .where('capture_time > ?', self.capture_time)
+        .reorder(capture_time: :asc)
+
+      following.each do |next_version|
+        new_different = version_hash != next_version.version_hash
+        if next_version.different? == new_different
+          break
+        else
+          next_version.different = new_different
+          next_version.save!
+        end
+      end
+    end
+  end
+
   private
 
   def sync_page_title
