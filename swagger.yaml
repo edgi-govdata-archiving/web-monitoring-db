@@ -80,14 +80,6 @@ paths:
             performance.
           required: false
           type: string
-        - name: include_versions
-          in: query
-          description: >-
-            If true, add a versions key to the each item with the output of
-            /pages/{page_id}/versions inlined.
-          required: false
-          type: string
-          default: false
         - name: include_latest
           in: query
           description: >-
