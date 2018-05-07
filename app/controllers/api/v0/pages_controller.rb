@@ -46,12 +46,16 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def show
+    # NOTE: This check can be removed once this issue is resolved.
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
     if should_include_versions
       raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled temporarily.'
     end
     page = Page.find(params[:id])
     data = page.as_json(include: [:maintainers, :tags])
-    data['versions'] = page.versions.where(different: true).as_json
+    # NOTE: We'll re-attach versions to /pages/{page_id} when this issue is resolved.
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    # data['versions'] = page.versions.where(different: true).as_json
     render json: { data: data }
   end
 
