@@ -17,14 +17,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
 
     result_data =
-      if should_include_versions
-        results = query
-          .where(uuid: page_ids)
-          .includes(:versions)
-          .where(versions: { different: true })
-          .order('versions.capture_time DESC')
-        lightweight_query(results, &method(:format_page_json))
-      elsif should_include_latest
+      if should_include_latest
         # Filters from the original query should *not* affect what's "latest",
         # (though they do affect which *pages* get included) so we build a
         # whole new query from scratch here.
@@ -53,6 +46,9 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def show
+    if should_include_versions
+      raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled temporarily.'
+    end
     page = Page.find(params[:id])
     data = page.as_json(include: [:maintainers, :tags])
     data['versions'] = page.versions.where(different: true).as_json
@@ -70,7 +66,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def should_include_latest
-    !should_include_versions && boolean_param(:include_latest)
+    boolean_param :include_latest
   end
 
   def page_collection
