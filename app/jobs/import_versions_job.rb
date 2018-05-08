@@ -2,9 +2,10 @@ class ImportVersionsJob < ApplicationJob
   queue_as :default
 
   # TODO: wrap in transaction?
-  def perform(import)
+  def perform(import, progress_reporter = nil)
     Rails.logger.debug "Running Import \##{import.id}"
     @import = import
+    @progress_reporter = progress_reporter
     @import.update(status: :processing)
 
     begin
@@ -26,8 +27,6 @@ class ImportVersionsJob < ApplicationJob
   def import_raw_data(raw_data)
     each_json_line(raw_data) do |record, row, row_count|
       begin
-        i = row + 1
-        Rails.logger.info("Importing row #{i}/#{row_count}...") if (i % 25).zero?
         import_record(record)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
@@ -44,6 +43,8 @@ class ImportVersionsJob < ApplicationJob
                                        "Row #{row}: Unknown error occurred"
                                      end
         Rails.logger.error "Import #{@import.id} Row #{row}: #{error.message}"
+      ensure
+        @progress_reporter.call(row + 1, row_count) if @progress_reporter
       end
     end
   end
