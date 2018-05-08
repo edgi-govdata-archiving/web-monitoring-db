@@ -2,9 +2,10 @@ class ImportVersionsJob < ApplicationJob
   queue_as :default
 
   # TODO: wrap in transaction?
-  def perform(import)
+  def perform(import, log_progress = false)
     Rails.logger.debug "Running Import \##{import.id}"
     @import = import
+    @should_log_progress = log_progress && STDOUT.tty?
     @import.update(status: :processing)
 
     begin
@@ -26,8 +27,6 @@ class ImportVersionsJob < ApplicationJob
   def import_raw_data(raw_data)
     each_json_line(raw_data) do |record, row, row_count|
       begin
-        i = row + 1
-        Rails.logger.info("Importing row #{i}/#{row_count}...") if (i % 25).zero?
         import_record(record)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
@@ -44,6 +43,8 @@ class ImportVersionsJob < ApplicationJob
                                        "Row #{row}: Unknown error occurred"
                                      end
         Rails.logger.error "Import #{@import.id} Row #{row}: #{error.message}"
+      ensure
+        print_progress(row + 1, row_count) if @should_log_progress
       end
     end
   end
@@ -175,6 +176,16 @@ class ImportVersionsJob < ApplicationJob
         kind == NilClass ? 'null' : "a #{kind.name}"
       end.join(' or ')
       raise Api::InputError, "`#{field_name}` must be #{names}, not `#{value.class.name}`"
+    end
+  end
+
+  def print_progress(row, total_rows)
+    now = Time.now
+    if row == 1 || row == total_rows || now - @last_progress_time > 0.5.seconds
+      STDOUT.write("\rImported #{row}/#{total_rows} versions")
+      STDOUT.write("\n") if row == total_rows
+      STDOUT.flush
+      @last_progress_time = now
     end
   end
 end
