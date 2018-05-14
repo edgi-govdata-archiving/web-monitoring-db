@@ -42,15 +42,15 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     arel (8.0.0)
     ast (2.4.0)
-    aws-partitions (1.80.0)
-    aws-sdk-core (3.19.0)
+    aws-partitions (1.86.0)
+    aws-sdk-core (3.20.2)
       aws-partitions (~> 1.0)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
     aws-sdk-kms (1.5.0)
       aws-sdk-core (~> 3)
       aws-sigv4 (~> 1.0)
-    aws-sdk-s3 (1.9.1)
+    aws-sdk-s3 (1.10.0)
       aws-sdk-core (~> 3)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)
@@ -290,7 +290,7 @@ PLATFORMS
 
 DEPENDENCIES
   addressable (~> 2.5)
-  aws-sdk-s3 (~> 1.9)
+  aws-sdk-s3 (~> 1.10)
   byebug
   devise
   dotenv-rails
