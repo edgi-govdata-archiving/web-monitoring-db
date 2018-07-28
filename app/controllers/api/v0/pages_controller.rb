@@ -18,7 +18,7 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     result_data =
       if !should_allow_versions && should_include_versions
-        raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled temporarily.'
+        raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled.'
       elsif should_allow_versions && should_include_versions
         results = query
           .where(uuid: page_ids)
@@ -83,7 +83,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     if should_allow_versions
       !should_include_versions && boolean_param(:include_latest)
     else
-      boolean_param :include_latest
+      boolean_param(:include_latest)
     end
   end
 
