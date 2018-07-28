@@ -185,6 +185,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes versions if include_versions = true' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get api_v0_pages_path(include_versions: true)
     body = JSON.parse @response.body
@@ -202,6 +205,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes only versions if include_versions = true and include_latest = true' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get api_v0_pages_path(include_versions: true, include_latest: true)
     body = JSON.parse @response.body
@@ -214,6 +220,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Only includes versions that match query when include_versions = true' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get api_v0_pages_path(
       capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z',
@@ -227,6 +236,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'Included versions should be in descending capture_time order' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     # Add a version whose natural order and capture_time order are different
     latest_time = pages(:home_page).versions.first.capture_time
@@ -243,6 +255,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be "1"' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get api_v0_pages_path(include_versions: 1)
     body = JSON.parse @response.body
@@ -251,6 +266,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be "t"' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get api_v0_pages_path(include_versions: 't')
     body = JSON.parse @response.body
@@ -259,6 +277,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions can be value-less (e.g. "pages?include_versions")' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get "#{api_v0_pages_path}?include_versions"
     body = JSON.parse @response.body
@@ -267,6 +288,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'include_versions cannot be an empty string (e.g. "pages?include_versions")' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get "#{api_v0_pages_path}?include_versions="
     body = JSON.parse @response.body
@@ -299,6 +323,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'includes all pages when include_versions is true' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     # This is a regression test for an issue where limit/offset queries for
     # paging wind up taking into account page-version combinations, not just
@@ -582,6 +609,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can order pages with versions with `?sort=field:direction`' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     sign_in users(:alice)
     get(api_v0_pages_url(params: {
       include_versions: true,
@@ -598,6 +628,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'only lists versions that are different from the previous version on page data' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     now = Time.now
     page_versions = [
       { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
@@ -620,6 +653,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'only lists versions that are different from the previous version on ?include_versions' do
+    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
+    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+    skip
     now = Time.now
     page_versions = [
       { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },

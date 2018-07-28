@@ -17,7 +17,9 @@ class Api::V0::PagesController < Api::V0::ApiController
     page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
 
     result_data =
-      if should_include_versions
+      if !should_allow_versions && should_include_versions
+        raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled.'
+      elsif should_allow_versions && should_include_versions
         results = query
           .where(uuid: page_ids)
           .includes(:versions)
@@ -55,7 +57,9 @@ class Api::V0::PagesController < Api::V0::ApiController
   def show
     page = Page.find(params[:id])
     data = page.as_json(include: [:maintainers, :tags])
-    data['versions'] = page.versions.where(different: true).as_json
+    if should_allow_versions
+      data['versions'] = page.versions.where(different: true).as_json
+    end
     render json: { data: data }
   end
 
@@ -65,12 +69,22 @@ class Api::V0::PagesController < Api::V0::ApiController
     api_v0_pages_url(*args)
   end
 
+  # NOTE: This check can be removed once this issue is resolved.
+  # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
+  def should_allow_versions
+    ActiveModel::Type::Boolean.new.cast(ENV['ALLOW_VERSIONS_IN_PAGE_RESPONSES'])
+  end
+
   def should_include_versions
     boolean_param :include_versions
   end
 
   def should_include_latest
-    !should_include_versions && boolean_param(:include_latest)
+    if should_allow_versions
+      !should_include_versions && boolean_param(:include_latest)
+    else
+      boolean_param(:include_latest)
+    end
   end
 
   def page_collection
