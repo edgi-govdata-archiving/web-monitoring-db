@@ -142,7 +142,7 @@ GEM
     nio4r (2.3.0)
     nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
-    oj (3.6.4)
+    oj (3.6.5)
     orm_adapter (0.5.0)
     os (0.9.6)
     parallel (1.12.1)
