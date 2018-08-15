@@ -20,7 +20,10 @@ default: &default
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  <% if ENV['DATABASE_URL'] %><% db_uri = URI.parse(ENV['DATABASE_URL']) %>
+  # Try to set default connection properties based on DATABASE_URL.
+  # Otherwise, default to trusted localhost connections on the default port.
+  <% if ENV['DATABASE_URL'] %>
+  <% db_uri = URI.parse(ENV['DATABASE_URL']) %>
   host: <%= db_uri.host || 'localhost' %>
   port: <%= db_uri.port || '!!null' %>
   username: <%= db_uri.user || '!!null' %>
@@ -29,7 +32,15 @@ default: &default
 
 development:
   <<: *default
+  # Try to set the database to the value specified in DATABASE_URL if we're
+  # actually in the expected environment. Otherwise, default to
+  # web-monitoring-db_development
+  <% if ENV['RAILS_ENV'] == 'development' && ENV['DATABASE_URL'] %>
+  <% db_uri = URI.parse(ENV['DATABASE_URL']) %>
+  database: <%= db_uri.path || web-monitoring-db_development %>
+  <% else %>
   database: web-monitoring-db_development
+  <% end %>
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -63,7 +74,15 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  # Try to set the database to the value specified in DATABASE_URL if we're
+  # actually in the expected environment. Otherwise, default to
+  # web-monitoring-db_test
+  <% if ENV['RAILS_ENV'] == 'test' && ENV['DATABASE_URL'] %>
+  <% db_uri = URI.parse(ENV['DATABASE_URL']) %>
+  database: <%= db_uri.path || web-monitoring-db_test %>
+  <% else %>
   database: web-monitoring-db_test
+  <% end %>
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
