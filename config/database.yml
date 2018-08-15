@@ -20,7 +20,12 @@ default: &default
   # For details on connection pooling, see rails configuration guide
   # http://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: localhost
+  <% if ENV['DATABASE_URL'] %><% db_uri = URI.parse(ENV['DATABASE_URL']) %>
+  host: <%= db_uri.host || 'localhost' %>
+  port: <%= db_uri.port || '!!null' %>
+  username: <%= db_uri.user || '!!null' %>
+  password: <%= db_uri.password || '!!null' %>
+  <% end %>
 
 development:
   <<: *default
