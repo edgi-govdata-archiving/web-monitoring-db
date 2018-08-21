@@ -10,6 +10,7 @@ jobs:
           PGHOST: 127.0.0.1
           PGUSER: root
           HOST_URL: 'web-monitoring-db.test'
+          DATABASE_TEST_URL: 'postgres://root@localhost:5432/circle-test_test'
           ALLOWED_ARCHIVE_HOSTS: 'https://edgi-versionista-archive.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
       - image: circleci/postgres:9.5-alpine-ram
         environment:
