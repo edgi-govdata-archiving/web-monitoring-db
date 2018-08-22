@@ -17,3 +17,5 @@
 # Configuration files
 .powenv
 .env
+.env.*
+!.env.example

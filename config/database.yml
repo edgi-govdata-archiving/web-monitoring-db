@@ -1,19 +1,21 @@
-# PostgreSQL. Versions 9.1 and up are supported.
-#
-# Install the pg driver:
-#   gem install pg
-# On OS X with Homebrew:
-#   gem install pg -- --with-pg-config=/usr/local/bin/pg_config
-# On OS X with MacPorts:
-#   gem install pg -- --with-pg-config=/opt/local/lib/postgresql84/bin/pg_config
-# On Windows:
-#   gem install pg
-#       Choose the win32 build.
-#       Install PostgreSQL and put its /bin directory on your path.
-#
-# Configure Using Gemfile
-# gem 'pg'
-#
+# DB-related rake commands execute on both development *and* test environments
+# when the current environment is development, but that means the env vars in
+# .env.test get missed when running rake in development but operating on the
+# test DB. Fix by loading test DATABASE_* vars into DATABASE_*_TEST ◔̯◔
+<%
+  if Rails.env.development? || Rails.env.test?
+    # Copy current environment and overlay test-specific config onto it
+    test_env = {}.update(ENV)
+    Dotenv::ignoring_nonexistent_files do
+      test_env.update(Dotenv::Environment.new('.env.test', true))
+    end
+
+    # Copy any `DATABASE_*` variables to current env as `DATABASE_*_TEST`
+    test_env.each do |key, value|
+      ENV["#{key}_TEST"] = value if key.start_with?('DATABASE')
+    end
+  end
+%>
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -59,6 +61,7 @@ development:
 test:
   <<: *default
   database: web-monitoring-db_test
+  url: <%= ENV['DATABASE_URL_TEST'] %>
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -81,7 +84,8 @@ test:
 #
 production:
   <<: *default
-  # database: web-monitoring-db_production
-  # username: web-monitoring-db
-  # password: <%= ENV['WEB-MONITORING-DB_DATABASE_PASSWORD'] %>
+  # Require explicit, complete DB configuration as a URL.
+  # NOTE: DATABASE_RDS is temporary, and allows us to transition databases from
+  # Heroku to AWS RDS before moving the whole application itself (because
+  # Heroku auto-manages DATABASE_URL, changes we make to it won't stick)
   url: <%= ENV['DATABASE_RDS'] || ENV['DATABASE_URL'] %>
