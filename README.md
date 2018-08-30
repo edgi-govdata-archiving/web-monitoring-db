@@ -11,15 +11,15 @@ It’s a Rails app that:
 
 ## Installation
 
-1. Ensure you have Ruby 2.4.1+
+1. Ensure you have Ruby 2.4.1+.
 
     You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
 
-2. Ensure you have PostgreSQL 9.5+
+2. Ensure you have PostgreSQL 9.5+. If you are on MacOS, we recommend [Postgres.app](https://postgresapp.com). It makes running multiple versions of PostgreSQL much simpler and gives you easy access to start and stop your databases.
 
 3. Ensure you have [Redis](https://redis.io)
 
-    On OSX:
+    On MacOS:
 
     ```sh
     $ brew install redis
@@ -33,7 +33,7 @@ It’s a Rails app that:
 
 4. Ensure you have a JavaScript Runtime
 
-    On OSX:
+    On MacOS:
 
     You do not need to do anything.  Apple JavaScriptCore fulfills this dependency.
 
@@ -64,17 +64,77 @@ It’s a Rails app that:
     $ cp .env.example .env
     ```
 
-9. Set up your database. The simple way to do this is:
+    Take a moment to look through the variables here and change any that make sense for your local environment. If you need set variables differently when running tests, make a `.env.test` file that has your test-specific variables.
 
-    ```sh
-    $ bundle exec rake db:setup
-    ```
+9. Set up your database.
 
-    That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
+    - If your Postgres install trusts local users and you have a superuser (this is the normal situation with Postgres.app), run:
 
-    If you’d like to do the setup manually see [manual postgres setup](#manual-postgres-setup) below.
+        ```sh
+        $ bundle exec rake db:setup
+        ```
 
-    If you're getting error such as `FATAL: role "user" doesn't exist. Couldn't create database.` check [troubleshooting](#troubleshooting) below.
+        That will create a database, set up all the tables, create an admin user, and add some sample data. Make note of the admin user e-mail and password that are shown; you’ll need them to log in and create more users, import more data, or make annotations.
+
+        If you’d like to do the setup manually or don’t want sample data, see [manual postgres setup](#manual-postgres-setup) below.
+
+    - If your Postgres install has a superuser, but doesn't trust local connections, you'll need to configure database credentials in `.env`. Find the line for `DATABASE_URL` in your `.env` file, uncomment it, and fill it in with your username and password. Make another file named `.env.test` and copy that line, but change the database line at the end to configure your test database. Then run the same command as above:
+
+        ```sh
+        $ bundle exec rake db:setup
+        ```
+
+        If you’d like to do the setup manually or don’t want sample data, see [manual postgres setup](#manual-postgres-setup) below.
+
+    - If you’d like to configure your Postgres DB to be more secure and require a non-superuser for your databases, you’ll need to do a little more work:
+
+        1. Log into `psql` and create a new user for your databases. Change the username and password to whatever you’d like:
+
+            ```sql
+            CREATE USER wm_dev_user PASSWORD 'wm_dev_password';
+            ```
+
+        2. (Still in `psql`) Create a development and a test database:
+
+            ```sql
+            -- Development database
+            $ CREATE DATABASE web_monitoring_dev ENCODING 'utf-8' OWNER wm_dev_user;
+            $ \c web_monitoring_dev
+            $ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+            $ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+            $ CREATE EXTENSION IF NOT EXISTS "plpgsql";
+            $ CREATE EXTENSION IF NOT EXISTS "citext";
+            -- Repeat for test database
+            $ CREATE DATABASE web_monitoring_test ENCODING 'utf-8' OWNER wm_dev_user;
+            $ \c web_monitoring_test
+            $ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+            $ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+            $ CREATE EXTENSION IF NOT EXISTS "plpgsql";
+            $ CREATE EXTENSION IF NOT EXISTS "citext";
+            ```
+
+        3. Exit the `psql` console and open your `.env` file. Find the line for `DATABASE_URL` in your `.env` file, uncomment it, and fill it in with your credentials and database name from above:
+
+            ```sh
+            DATABASE_URL=postgres://wm_dev_user:wm_dev_password@localhost:5432/web_monitoring_dev
+            ```
+
+            Make a `.env.test` file and set the same value there, but with the name of your test database:
+
+            ```sh
+            DATABASE_URL=postgres://wm_dev_user:wm_dev_password@localhost:5432/web_monitoring_test
+            ```
+
+        4. Set up all the tables and test data in your DB by running:
+
+            ```sh
+            # Set up tables, indexes, and general database schema:
+            $ bundle exec rake db:schema:load
+            # Add sample data and an admin user:
+            $ bundle exec rake db:seed
+            ```
+
+            For more on this last step, see [manual postgres setup](#manual-postgres-setup) below.
 
 10. Start the server!
 
@@ -119,50 +179,6 @@ User.create(
   confirmed_at: Time.now
 )
 ```
-
-
-## Troubleshooting
-
-If you are getting errors such as `FATAL: role "user" doesn't exist. Couldn't create database.` while running `rake db:setup` or `rake db:create` then it may mean that your database is password protected. There are two ways to setup required databases:
-
-1. (Recommended) Create users and databases manually
-
-    ```sh
-    sudo -u postgres psql -c "CREATE USER \"web-monitoring-db_development\" WITH PASSWORD 'wmdb';"
-    sudo -u postgres createdb -O web-monitoring-db_development web-monitoring-db_development -E utf-8
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";' web-monitoring-db_development
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "pgcrypto";' web-monitoring-db_development
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "plpgsql";' web-monitoring-db_development
-    sudo -u postgres psql -c 'CREATE EXTENSION IF NOT EXISTS "citext";' web-monitoring-db_development
-    ```
-
-    and then set `DATABASE_URL` environment variable to point to the development database:
-
-    ```sh
-    export DATABASE_URL=postgres://web-monitoring-db_development:wmdb@localhost/web-monitoring-db_development
-    ```
-
-    You can put this line in your `~/.bashrc` or `~/.profile` file not to type it each time you open terminal.
-
-    Required databases exist, now continue with loading schema.
-
-2. Loosen local Postgres database security to allow local users without password
-
-    You have to edit [pg_hba.conf](https://www.postgresql.org/docs/9.6/static/auth-pg-hba-conf.html) config file (`/etc/postgresql/9.6/main/pg_hba.conf` on Unix) and add or update authorization line for local logins from `md5` to `trust`:
-
-    ```
-    # "local" is for Unix domain socket connections only
-    local   all             all                                     trust
-    # IPv4 local connections:
-    host    all             all             127.0.0.1/32            trust
-    ```
-
-    Create Postgres superuser that will link to your account:
-    ```
-    sudo -u postgres createuser `whoami` -ds
-    ```
-
-    Now `bundle exec rake db:setup` command should work.
 
 
 ## Docker
