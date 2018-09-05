@@ -201,7 +201,7 @@ This repository falls under EDGI's [Code of Conduct](https://github.com/edgi-gov
 
 ## Contributors
 
-This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions!
+This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions! See our [contributing guidelines](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/CONTRIBUTING.md) to find out how you can help.
 
 <!-- ALL-CONTRIBUTORS-LIST:START -->
 | Contributions | Name |
