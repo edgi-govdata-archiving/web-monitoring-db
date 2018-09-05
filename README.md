@@ -195,6 +195,9 @@ docker run -p 6379:6379 envirodgi/db-import-worker -e <ENVIRONMENT VARIABLES> .
 
 Point your browser or ``curl`` at ``http://localhost:3000``.
 
+## Code of Conduct
+
+This repository falls under EDGI's [Code of Conduct](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md).
 
 ## Contributors
 
