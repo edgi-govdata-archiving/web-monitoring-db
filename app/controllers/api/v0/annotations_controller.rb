@@ -33,7 +33,17 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   end
 
   def create
-    data = JSON.parse(request.body.read)
+    begin
+      data = JSON.parse(request.body.read)
+    rescue JSON::ParserError
+      raise Api::InputError, "Invalid JSON data: '#{request.body.read}'"
+    end
+
+    # TODO: it would be nice to handle this in annotation validation, but we
+    # also want to prevent persisting a change that doesn't exist yet if the
+    # annotation is invalid. Find a better way to do this if possible.
+    raise Api::UnprocessableError, 'Annotations cannot be empty' if data.empty?
+
     @annotation = parent_change.annotate(data, current_user)
     parent_change.save!
     # TODO: should we also somehow return the change's `current_annotation`?

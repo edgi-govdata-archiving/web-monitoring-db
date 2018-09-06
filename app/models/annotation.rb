@@ -40,7 +40,7 @@ class Annotation < ApplicationRecord
     return if value.nil?
 
     if !value.is_a?(Numeric)
-      errors.add(:annotaiton, ".#{property} must be a number")
+      errors.add(:annotation, ".#{property} must be a number")
     elsif !range.cover?(value)
       errors.add(:annotation, ".#{property} must be between #{range.begin} and #{range.end}")
     end
