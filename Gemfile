@@ -11,7 +11,7 @@ gem 'aws-sdk-s3', '~> 1.17'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.1'
-gem 'rails', '~> 5.1.6'
+gem 'rails', '~> 5.2.1'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 3.12'
 gem 'rack-cors', :require => 'rack/cors'
@@ -36,6 +36,9 @@ gem 'addressable', '~> 2.5'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
+
+# Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', '>= 1.3.1', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
