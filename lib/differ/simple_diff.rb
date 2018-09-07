@@ -11,9 +11,10 @@ module Differ
 
     def diff(change, options = nil)
       options, no_cache = extract_local_options(options)
-      key = generate_cache_key(change, options)
+      key = "diff/#{generate_cache_key(change, options)}"
+      version = Differ.cache_date.iso8601
 
-      Rails.cache.fetch("diff/#{key}", expires_in: 2.weeks, force: no_cache) do
+      Rails.cache.fetch(key, version: version, expires_in: 2.weeks, force: no_cache) do
         generate_diff(change, options)
       end
     end
@@ -77,7 +78,7 @@ module Differ
 
       diff_id = @url.sub(/^https?:\/\//, '')
 
-      "#{diff_id}?#{diff_params}/#{change.api_id}/#{Differ.cache_date.iso8601}"
+      "#{diff_id}?#{diff_params}/#{change.api_id}"
     end
   end
 end
