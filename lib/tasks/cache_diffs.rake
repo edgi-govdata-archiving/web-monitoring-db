@@ -20,6 +20,7 @@ task :cache_page_diffs, [:page_uuid] => [:environment] do |_t, args|
   end
 
   next unless page.versions.count > 2
+
   latest_to_base = Change.between(to: page.versions.first, from: page.versions.last)
   cache_change_diffs(latest_to_base, diff_types)
   puts "Cached #{latest_to_base.api_id} (Latest to Base)"
