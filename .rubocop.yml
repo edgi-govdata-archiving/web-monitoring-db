@@ -14,6 +14,10 @@ AllCops:
     # Don't attempt to lint third-party code
     - vendor/**/*
 
+Metrics/BlockLength:
+  Exclude:
+    - 'lib/tasks/data/*'
+
 Metrics/ClassLength:
   Enabled: false
 
