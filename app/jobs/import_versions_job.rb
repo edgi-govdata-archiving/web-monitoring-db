@@ -24,6 +24,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_raw_data(raw_data)
+    last_update = Time.now
     each_json_line(raw_data) do |record, row|
       begin
         import_record(record)
@@ -42,6 +43,12 @@ class ImportVersionsJob < ApplicationJob
                                        "Row #{row}: Unknown error occurred"
                                      end
         Rails.logger.error "Import #{@import.id} Row #{row}: #{error.message}"
+      end
+
+      # Jobs can be *long*, so make sure updates are persisted periodically.
+      if Time.now - last_update > 5
+        @import.save
+        last_update = Time.now
       end
     end
   end
