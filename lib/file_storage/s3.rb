@@ -15,7 +15,11 @@ module FileStorage
 
     def contains_url?(url_string)
       details = parse_s3_url(url_string)
-      details && details[:bucket] == @bucket
+      return false if details.nil? || details[:bucket] != @bucket
+
+      @client.head_object(bucket: @bucket, key: details[:path]).present?
+    rescue Aws::S3::Errors::NotFound
+      false
     end
 
     def get_file(path)

@@ -31,7 +31,13 @@ module Archiver
 
   # Primary API ----------
 
-  def self.archive(url, expected_hash: nil)
+  def self.archive(url, expected_hash: nil, force: false)
+    # If the hash is already in the store, there's no reason to load & verify.
+    if expected_hash && !force
+      hash_url = store.url_for_file(expected_hash)
+      return { url: hash_url, hash: expected_hash } if store.contains_url?(hash_url)
+    end
+
     response = retry_request do
       HTTParty.get(url, limit: REDIRECT_LIMIT)
     end
@@ -57,7 +63,7 @@ module Archiver
   end
 
   def self.already_archived?(url)
-    store.contains_url?(url) || external_archive_url?(url)
+    external_archive_url?(url) || store.contains_url?(url)
   end
 
   def self.hash_content_at_url(url)
