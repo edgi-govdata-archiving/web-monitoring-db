@@ -68,11 +68,13 @@ class AnalyzeChangeJob < ApplicationJob
 
     # TODO: this will eventually be a proper field on `version`:
     # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-    from_media = change.from_version.source_metadata['content_type'] || change.from_version.source_metadata['mime_type'] || ''
+    from_metadata = change.from_version.source_metadata || {}
+    to_metadata = change.version.source_metadata || {}
+    from_media = from_metadata['content_type'] || from_metadata['mime_type'] || ''
     # FIXME: presume super old versionista data is text/html, since we didn't use to track mime type :(
     # This should probably also be fixed with the above issue.
     from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
-    to_media = change.version.source_metadata['content_type'] || change.version.source_metadata['mime_type'] || ''
+    to_media = to_metadata['content_type'] || to_metadata['mime_type'] || ''
     if from_media.start_with?('text/') && to_media.start_with?('text/')
       true
     else
