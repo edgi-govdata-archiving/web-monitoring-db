@@ -231,6 +231,24 @@ paths:
           required: false
           type: string
           default: true
+        - name: include_change_from_previous
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_previous` field in the result
+            that represents a change object between this version and the
+            previous version of this page.
+        - name: include_change_from_earliest
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_earliest` field in the result
+            that represents a change object between this version and the
+            earliest version of this page.
       responses:
         '200':
           description: successful operation
@@ -318,6 +336,24 @@ paths:
           required: true
           type: string
           format: uuid4
+        - name: include_change_from_previous
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_previous` field in the result
+            that represents a change object between this version and the
+            previous version of this page.
+        - name: include_change_from_earliest
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_earliest` field in the result
+            that represents a change object between this version and the
+            earliest version of this page.
       responses:
         '200':
           description: successful operation
@@ -914,6 +950,24 @@ paths:
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
             - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
+        - name: include_change_from_previous
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_previous` field in the result
+            that represents a change object between this version and the
+            previous version of this page.
+        - name: include_change_from_earliest
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_earliest` field in the result
+            that represents a change object between this version and the
+            earliest version of this page.
       responses:
         '200':
           description: successful operation
@@ -936,6 +990,24 @@ paths:
           required: true
           type: string
           format: uuid4
+        - name: include_change_from_previous
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_previous` field in the result
+            that represents a change object between this version and the
+            previous version of this page.
+        - name: include_change_from_earliest
+          in: query
+          type: boolean
+          required: false
+          default: false
+          description: >
+            If present, include a `change_from_earliest` field in the result
+            that represents a change object between this version and the
+            earliest version of this page.
       responses:
         '200':
           description: successful operation
