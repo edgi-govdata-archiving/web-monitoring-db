@@ -2,7 +2,6 @@ require 'test_helper'
 require 'minitest/mock'
 
 class Api::V0::DiffControllerTest < ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
 
   test 'healthcheck responds with success' do
     get '/healthcheck'
