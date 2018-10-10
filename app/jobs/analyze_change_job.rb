@@ -1,12 +1,11 @@
 class AnalyzeChangeJob < ApplicationJob
   queue_as :default
 
-  def perform(to_id, from_id = nil, compare_earliest = true)
+  def perform(to_version, from_version = nil, compare_earliest = true)
     # This is a very narrow-purpose prototype! Most of the work should probably
     # move to web-monitoring-processing.
-    to_version = Version.find(to_id)
-    change = if from_id
-      Change.between(from: from_id, to: to_version)
+    change = if from_version
+      Change.between(from: from_version, to: to_version)
     else
       to_version.change_from_previous
     end

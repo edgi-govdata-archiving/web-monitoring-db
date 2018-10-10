@@ -6,11 +6,13 @@ class ImportVersionsJob < ApplicationJob
     Rails.logger.debug "Running Import \##{import.id}"
     @import = import
     @import.update(status: :processing)
-    @added_ids = []
+    @added = []
 
     begin
       import_raw_data(@import.load_data)
-      @added_ids.uniq.each {|id| AnalyzeChangeJob.perform_later(id)}
+      @added.uniq {|version| version.uuid}.each do |version|
+        AnalyzeChangeJob.perform_later(version)
+      end
     rescue StandardError => error
       @import.processing_errors << if Rails.env.development?
                                      "Import #{import.id}: #{error.message}"
@@ -94,7 +96,7 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    @added_ids << version.uuid
+    @added << version
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
