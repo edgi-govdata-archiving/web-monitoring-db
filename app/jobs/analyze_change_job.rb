@@ -16,7 +16,7 @@ class AnalyzeChangeJob < ApplicationJob
     analyze_change(change)
 
     if compare_earliest
-      earliest = to_version.page.versions.reorder(capture_time: :asc).where("capture_time > '2016-11-01T00:00:00'").first
+      earliest = to_version.page.versions.reorder(capture_time: :asc).first
       change_from_earliest = Change.between(from: earliest, to: to_version)
       analyze_change(change_from_earliest) if is_analyzable(change_from_earliest)
     end
@@ -32,32 +32,56 @@ class AnalyzeChangeJob < ApplicationJob
     text_diff_changes = text_diff.select {|operation| operation[0] != 0}
     results[:text_diff_hash] = hash_changes(text_diff_changes)
     results[:text_diff_count] = text_diff_changes.length
+    results[:text_diff_ratio] = diff_ratio(text_diff)
 
     source_diff = Differ.for_type!('html_source_dmp').diff(change)['diff']
     diff_changes = source_diff.select {|operation| operation[0] != 0}
     results[:source_diff_hash] = hash_changes(diff_changes)
     results[:source_diff_count] = diff_changes.length
+    results[:source_diff_ratio] = diff_ratio(source_diff)
 
     # A text diff change necessarily implies a source change; don't double-count
     if text_diff_changes.length > 0
       # TODO: ignore stop words and also consider special terms more heavily, ignore punctuation
-      priority += 0.4
+      priority += 0.1 + 0.3 * priority_factor(results[:text_diff_ratio])
     elsif diff_changes.length > 0
       # TODO: eventually develop a more granular sense of change, either by
       # parsing or regex, where some source changes matter and some don't.
-      priority += 0.1
+      priority += 0.1 * priority_factor(results[:source_diff_ratio])
     end
 
     links_diff = Differ.for_type!('links_json').diff(change)['diff']
     diff_changes = links_diff.select {|operation| operation[0] != 0}
     results[:links_diff_hash] = hash_changes(diff_changes)
     results[:links_diff_count] = diff_changes.length
-    priority += 0.25 if diff_changes.length > 0
+    results[:links_diff_ratio] = diff_ratio(links_diff)
+    if diff_changes.length > 0
+      priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
+    end
 
-    results[:priority] = priority
+    results[:priority] = priority.round(4)
 
     change.annotate(results, annotator)
     change.save!
+  end
+
+  # Calculate a multiplier for priority based on a ratio representing the amount
+  # of change. This is basically applying a logorithmic curve to the ratio.
+  def priority_factor(ratio)
+    Math.log(1 + (Math::E - 1) * ratio)
+  end
+
+  def diff_ratio(operations)
+    return 0.0 if operations.length == 0 || operations.length == 1 && operations[0] == 0
+
+    characters = operations.reduce([0, 0]) do |counts, operation|
+      code, text = operation
+      counts[0] += text.length if code != 0
+      counts[1] += text.length
+      counts
+    end
+
+    characters[1] == 0 ? 0.0 : (characters[0] / characters[1].to_f).round(4)
   end
 
   def is_analyzable(change)
