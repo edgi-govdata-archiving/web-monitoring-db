@@ -84,7 +84,7 @@ def change_for_version_url(url)
       "source_type = 'versionista' AND source_metadata->>'version_id' = ?",
       match[2]
     )
-    return Change.between(from: from_version, to: to_version, create: true)
+    return Change.between(from: from_version, to: to_version, create: :create)
   end
 
   # Handle our URLs
@@ -92,7 +92,7 @@ def change_for_version_url(url)
   if match
     from_version = Version.find(match[1])
     to_version = Version.find(match[2])
-    return Change.between(from: from_version, to: to_version, create: true)
+    return Change.between(from: from_version, to: to_version, create: :create)
   end
 
   raise StandardError, "Unknown change URL format: '#{url}'"

@@ -7,7 +7,7 @@ class AnalyzeChangeJob < ApplicationJob
     change = if from_version
       Change.between(from: from_version, to: to_version)
     else
-      to_version.change_from_previous
+      to_version.ensure_change_from_previous
     end
 
     return unless is_analyzable(change)
@@ -15,9 +15,8 @@ class AnalyzeChangeJob < ApplicationJob
     analyze_change(change)
 
     if compare_earliest
-      earliest = to_version.page.versions.reorder(capture_time: :asc).first
-      change_from_earliest = Change.between(from: earliest, to: to_version)
-      analyze_change(change_from_earliest) if is_analyzable(change_from_earliest)
+      earliest_change = to_version.ensure_change_from_earliest
+      analyze_change(earliest_change) if is_analyzable(earliest_change)
     end
   end
 

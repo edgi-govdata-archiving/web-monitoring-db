@@ -14,15 +14,19 @@ class Change < ApplicationRecord
     less_than_or_equal_to: 1
   }
 
-  def self.between(from:, to:, create: false)
+  def self.between(from:, to:, create: :new)
+    raise '`create` must be :new, :create, or nil' unless
+      create == :new || create == :create || create.nil?
+
     return nil if from.nil? || to.nil?
     change_definition = {
       uuid_from: from.is_a?(Version) ? from.uuid : from,
       uuid_to: to.is_a?(Version) ? to.uuid : to
     }
-    instantiator = create ? :create : :new
-    self.where(change_definition).first ||
-      self.send(instantiator, change_definition)
+
+    change = self.where(change_definition).first
+    change = self.send(create, change_definition) unless change || create.nil?
+    change
   end
 
   # Look up a Change model by its actual ID or by a "{from_id}..{to_id}" string
@@ -34,11 +38,11 @@ class Change < ApplicationRecord
       if from_id.present? && to_id.present?
         Change.between(from: from_id, to: to_id)
       elsif from_id.present?
-        Version.find(from_id).change_from_next ||
+        Version.find(from_id).ensure_change_from_next ||
           (raise ActiveRecord::RecordNotFound, "There is no version following
             #{from_id} to change to.")
       else
-        Version.find(to_id).change_from_previous ||
+        Version.find(to_id).ensure_change_from_previous ||
           (raise ActiveRecord::RecordNotFound, "There is no version prior to
             #{to_id} to change from.")
       end

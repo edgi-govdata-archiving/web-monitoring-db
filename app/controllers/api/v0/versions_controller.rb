@@ -9,7 +9,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     render json: {
       links: paging[:links],
       meta: { total_results: paging[:total_items] },
-      data: versions
+      data: versions.collect {|version| serialize_version(version)}
     }
   end
 
@@ -21,7 +21,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         previous: @version.previous && api_v0_version_url(@version.previous),
         next: @version.next && api_v0_version_url(@version.next)
       },
-      data: @version
+      data: serialize_version(@version)
     }
   end
 
@@ -109,5 +109,14 @@ class Api::V0::VersionsController < Api::V0::ApiController
     collection = where_in_range_param(collection, :capture_time, &method(:parse_date!))
 
     sort_using_params(collection)
+  end
+
+  def serialize_version(version, options = {})
+    methods = options[:methods] || []
+    methods << :change_from_previous if boolean_param(:include_change_from_previous)
+    methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
+    options[:methods] = methods
+
+    version.as_json(options)
   end
 end

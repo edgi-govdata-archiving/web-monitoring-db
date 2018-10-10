@@ -10,6 +10,10 @@ class Version < ApplicationRecord
 
   after_create :sync_page_title
 
+  def earliest
+    self.page.versions.reorder(capture_time: :asc).first
+  end
+
   def previous
     self.page.versions.where('capture_time < ?', self.capture_time).first
   end
@@ -19,11 +23,27 @@ class Version < ApplicationRecord
   end
 
   def change_from_previous
-    Change.between(from: previous, to: self)
+    Change.between(from: previous, to: self, create: nil)
   end
 
   def change_from_next
-    Change.between(from: self, to: self.next)
+    Change.between(from: self, to: self.next, create: nil)
+  end
+
+  def change_from_earliest
+    Change.between(from: earliest, to: self, create: nil)
+  end
+
+  def ensure_change_from_previous
+    Change.between(from: previous, to: self, create: :new)
+  end
+
+  def ensure_change_from_next
+    Change.between(from: self, to: self.next, create: :new)
+  end
+
+  def ensure_change_from_earliest
+    Change.between(from: earliest, to: self, create: :new)
   end
 
   def update_different_attribute(save: true)
