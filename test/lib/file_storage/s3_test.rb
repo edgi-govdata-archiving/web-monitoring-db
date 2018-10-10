@@ -40,14 +40,28 @@ class FileStorage::S3Test < ActiveSupport::TestCase
   end
 
   test 's3 storage can determine whether an S3 URI matches it' do
+    stub_request(:head, "https://test-bucket.s3.us-west-2.amazonaws.com/something.txt")
+      .to_return(status: 200, body: "", headers: {})
+    stub_request(:head, "https://test-bucket.s3.us-west-2.amazonaws.com/does-not-exist.txt")
+      .to_return(status: 404, body: "", headers: {})
+
     storage = test_storage
     assert storage.contains_url?('s3://test-bucket/something.txt')
+    assert_not storage.contains_url?('s3://test-bucket/does-not-exist.txt')
+    # No stub because no request should be made (it's in the wrong bucket)
     assert_not storage.contains_url?('s3://other-bucket/something.txt')
   end
 
   test 's3 storage can determine whether an S3 URL matches it' do
+    stub_request(:head, "https://test-bucket.s3.us-west-2.amazonaws.com/something.txt")
+      .to_return(status: 200, body: "", headers: {})
+    stub_request(:head, "https://test-bucket.s3.us-west-2.amazonaws.com/does-not-exist.txt")
+      .to_return(status: 404, body: "", headers: {})
+
     storage = test_storage
     assert storage.contains_url?('https://test-bucket.s3.amazonaws.com/something.txt')
+    assert_not storage.contains_url?('s3://test-bucket/does-not-exist.txt')
+    # No stub because no request should be made (it's in the wrong bucket)
     assert_not storage.contains_url?('https://other-bucket.s3.amazonaws.com/something.txt')
   end
 

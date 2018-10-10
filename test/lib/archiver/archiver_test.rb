@@ -3,7 +3,9 @@ require 'test_helper'
 class Archiver::ArchiverTest < ActiveSupport::TestCase
   def setup
     @original_storage = Archiver.store
-    Archiver.store = FileStorage::LocalFile.new(path: Rails.root.join('tmp/test/storage'))
+    path = Rails.root.join('tmp/test/storage')
+    FileUtils.remove_dir(path, force: true)
+    Archiver.store = FileStorage::LocalFile.new(path: path)
   end
 
   def teardown
