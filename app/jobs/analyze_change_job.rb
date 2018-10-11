@@ -107,7 +107,9 @@ class AnalyzeChangeJob < ApplicationJob
     from_media = from_metadata['content_type'] || from_metadata['mime_type'] || ''
     # FIXME: presume super old versionista data is text/html, since we didn't use to track mime type :(
     # This should probably also be fixed with the above issue.
-    from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
+    # FIXME: this was not good enough -- it still caused problems even after the
+    # below "questionable url" stuff. Turning off this fallback for now.
+    # from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
     to_media = to_metadata['content_type'] || to_metadata['mime_type'] || ''
     if from_media.start_with?('text/') && to_media.start_with?('text/')
       # FIXME: this is a temporary fix for some very bad stuck jobs
