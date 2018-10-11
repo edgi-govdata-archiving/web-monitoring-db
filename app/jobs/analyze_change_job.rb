@@ -1,5 +1,7 @@
 class AnalyzeChangeJob < ApplicationJob
-  queue_as :default
+  queue_as :analysis
+
+  QUESTIONABLE_URL = /\.(pdf|jpg|jpeg|png|bmp|gif|xls|xlsx|doc|docx)($|\?|#)/
 
   def perform(to_version, from_version = nil, compare_earliest = true)
     # This is a very narrow-purpose prototype! Most of the work should probably
@@ -10,13 +12,13 @@ class AnalyzeChangeJob < ApplicationJob
       to_version.ensure_change_from_previous
     end
 
-    return unless is_analyzable(change)
+    return unless is_analyzable?(change)
 
     analyze_change(change)
 
     if compare_earliest
       earliest_change = to_version.ensure_change_from_earliest
-      analyze_change(earliest_change) if is_analyzable(earliest_change)
+      analyze_change(earliest_change) if is_analyzable?(earliest_change)
     end
   end
 
@@ -82,9 +84,19 @@ class AnalyzeChangeJob < ApplicationJob
     characters[1] == 0 ? 0.0 : (characters[0] / characters[1].to_f).round(4)
   end
 
-  def is_analyzable(change)
+  def is_analyzable?(change)
     unless change && change.version.uuid != change.from_version.uuid
       Rails.logger.debug "Cannot analyze change #{change.try(:api_id)}; same versions"
+      return false
+    end
+
+    unless is_fetchable?(change.version.uri)
+      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.uri})"
+      return false
+    end
+
+    unless is_fetchable?(change.from_version.uri)
+      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.uri})"
       return false
     end
 
@@ -98,11 +110,23 @@ class AnalyzeChangeJob < ApplicationJob
     from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
     to_media = to_metadata['content_type'] || to_metadata['mime_type'] || ''
     if from_media.start_with?('text/') && to_media.start_with?('text/')
+      # FIXME: this is a temporary fix for some very bad stuck jobs
+      # Basically, the the rule above about assuming text/html for super-old
+      # Versionista data can cause us to ask the diffing server to diff some
+      # big binary data.
+      if change.version.uri.match?(QUESTIONABLE_URL) || change.from_version.uri.match?(QUESTIONABLE_URL)
+        Rails.logger.debug "Cannot analyze change #{change.api_id}; URL looks like maybe not HTML"
+        return false
+      end
       true
     else
       Rails.logger.debug "Cannot analyze change #{change.api_id}; non-text media type"
       false
     end
+  end
+
+  def is_fetchable?(url)
+    url && (url.start_with?('http:') || url.start_with?('https:'))
   end
 
   def hash_changes(changes)
