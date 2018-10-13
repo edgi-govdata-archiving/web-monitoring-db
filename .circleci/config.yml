@@ -66,9 +66,7 @@ workflows:
       - build:
           filters:
             branches:
-              ignore:
-                - master
-                - release
+              ignore: release
 
   build-and-publish:
     jobs:
