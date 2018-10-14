@@ -80,12 +80,14 @@ class AnalyzeChangeJob < ApplicationJob
     text_diff_changes = text_diff.select {|operation| operation[0] != 0}
     results[:text_diff_hash] = hash_changes(text_diff_changes)
     results[:text_diff_count] = text_diff_changes.length
+    results[:text_diff_length] = text_diff_changes.sum {|code, text| text.length}
     results[:text_diff_ratio] = diff_ratio(text_diff)
 
     source_diff = Differ.for_type!('html_source_dmp').diff(change)['diff']
     diff_changes = source_diff.select {|operation| operation[0] != 0}
     results[:source_diff_hash] = hash_changes(diff_changes)
     results[:source_diff_count] = diff_changes.length
+    results[:source_diff_length] = diff_changes.sum {|code, text| text.length}
     results[:source_diff_ratio] = diff_ratio(source_diff)
 
     # A text diff change necessarily implies a source change; don't double-count
