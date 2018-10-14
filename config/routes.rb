@@ -41,4 +41,6 @@ Rails.application.routes.draw do
   post 'admin/cancel_invitation'
   delete 'admin/destroy_user'
   post 'admin/destroy_user'
+
+  get 'healthcheck', to: 'healthcheck#index'
 end

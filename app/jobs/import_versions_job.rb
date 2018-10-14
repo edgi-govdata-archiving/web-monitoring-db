@@ -1,5 +1,5 @@
 class ImportVersionsJob < ApplicationJob
-  queue_as :default
+  queue_as :import
 
   # TODO: wrap in transaction?
   def perform(import)
