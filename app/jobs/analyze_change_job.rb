@@ -107,6 +107,14 @@ class AnalyzeChangeJob < ApplicationJob
       priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
     end
 
+    # If we know a version represents a *server* error (not, say, a 404), then
+    # deprioritize it. These are largely intermittent.
+    # TODO: can we look at past versions to see whether the error is sustained?
+    # TODO: relatedly, bump up priority for sustained 4xx errors
+    priority = [0.1, priority].min if version_status(change.version) >= 500 ||
+      version_status(change.from_version) >= 500 ||
+      looks_like_error(results[:text_diff_ratio], text_diff)
+
     results[:priority] = priority.round(4)
 
     change.annotate(results, annotator)
@@ -213,5 +221,31 @@ class AnalyzeChangeJob < ApplicationJob
   def to_bool(text)
     text = (text || '').downcase
     text == 'true' || text == 't' || text == '1'
+  end
+
+  # If present in the metadata, get the HTTP status code as a number
+  def version_status(version)
+    meta = version.source_metadata || {}
+    (meta['status_code'] || meta['error_code']).to_i
+  end
+
+  # Heuristically identify versions that were errors, but had 2xx status codes
+  def looks_like_error(text_ratio, text_diff)
+    return false if text_ratio < 0.9
+
+    texts = text_diff.reduce({old: '', new: ''}) do |texts, operation|
+      texts[:old] += operation[1] if operation[0] <= 0
+      texts[:new] += operation[1] if operation[0] >= 0
+      texts
+    end
+
+    texts.each do |key, text|
+      text = text.downcase
+      # Based on version 8b52f47a-e1d7-4098-8087-87f71a9fc0b0
+      return true if text.include?('error connecting to apache tomcat instance') &&
+        text.include?('no connection could be made')
+    end
+
+    false
   end
 end
