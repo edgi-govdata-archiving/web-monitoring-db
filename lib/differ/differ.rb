@@ -19,8 +19,12 @@ module Differ
 
   # If configured, create a default/fallback differ for a given type.
   def self.default_for_type(type)
-    default_url = @type_map && @type_map[nil]
-    default_url ? SimpleDiff.new(default_url, type) : nil
+    value = @type_map && @type_map[nil]
+    if value.is_a?(String)
+      SimpleDiff.new(value, type)
+    elsif value.respond_to?(:diff)
+      value
+    end
   end
 
   # Hint for other tools to expire cached diffs older than this date.

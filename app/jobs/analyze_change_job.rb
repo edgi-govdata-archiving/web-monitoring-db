@@ -182,7 +182,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def allowed_extension?(url)
-    extension = Addressable::URI.parse(url).extname
+    extension = Addressable::URI.parse(url).try(:extname)
     !extension || !DISALLOWED_EXTENSIONS.include?(extension)
   end
 
@@ -192,13 +192,13 @@ class AnalyzeChangeJob < ApplicationJob
 
   def annotator
     email = ENV['AUTO_ANNOTATION_USER']
-    user = if email
+    user = if email.present?
       User.find_by(email: email)
     elsif !Rails.env.production?
       User.first
     end
 
-    raise StandardError, 'Could not user to annotate changes' unless user
+    raise StandardError, 'Could not find user to annotate changes' unless user
 
     user
   end
