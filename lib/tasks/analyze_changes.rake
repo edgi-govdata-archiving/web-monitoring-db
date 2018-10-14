@@ -8,6 +8,7 @@ task :analyze_changes, [:start_date, :end_date] => [:environment] do |_t, args|
       items = collection.limit(batch_size).offset(offset)
       items.each {|item| yield item}
       break if items.count.zero?
+
       offset += batch_size
     end
   end
