@@ -35,7 +35,7 @@ FROM base as import-worker
 MAINTAINER enviroDGI@gmail.com
 WORKDIR /app
 
-ENV QUEUE=*
+ENV QUEUES=import,analysis
 ENV VERBOSE=1
 
 CMD ["bundle", "exec", "rake", "environment", "resque:work"]

@@ -4,11 +4,30 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   include ActiveJob::TestHelper
 
+  class MockDiffer
+    def diff(change, options = nil)
+      {
+        'change_count' => 2,
+        'diff' => [
+          [0, 'abc'],
+          [-1, 'def'],
+          [1, 'ghi']
+        ],
+        'version' => '0.1.0',
+        'type' => 'html_text_dmp'
+      }
+    end
+  end
+
   # These tests get network privileges (for now)
   def setup
     WebMock.allow_net_connect!
     @original_allowed_hosts = Archiver.allowed_hosts
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+    # Imports trigger analysis, which uses these diffs
+    Differ.register('html_source_dmp', MockDiffer.new)
+    Differ.register('html_text_dmp', MockDiffer.new)
+    Differ.register('links_json', MockDiffer.new)
   end
 
   def teardown

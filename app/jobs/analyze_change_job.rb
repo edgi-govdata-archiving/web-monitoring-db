@@ -1,7 +1,55 @@
 class AnalyzeChangeJob < ApplicationJob
   queue_as :analysis
 
-  QUESTIONABLE_URL = /\.(pdf|jpg|jpeg|png|bmp|gif|xls|xlsx|doc|docx)($|\?|#)/
+  # text/* media types are allowed, so only non-text types need be explicitly
+  # allowed and only text types need be explicitly disallowed.
+  ALLOWED_MEDIA = [
+    # HTML should be text/html, but these are also common.
+    'appliction/html',
+    'application/xhtml',
+    'application/xhtml+xml',
+    'application/xml',
+    'application/xml+html',
+    'application/xml+xhtml'
+  ].freeze
+
+  DISALLOWED_MEDIA = [
+    'text/calendar'
+  ].freeze
+
+  DISALLOWED_EXTENSIONS = [
+    '.jpg',
+    '.pdf',
+    '.athruz',
+    '.avi',
+    '.doc',
+    '.docbook',
+    '.docx',
+    '.dsselect',
+    '.eps',
+    '.epub',
+    '.exe',
+    '.gif',
+    '.jpeg',
+    '.jpg',
+    '.kmz',
+    '.m2t',
+    '.mov',
+    '.mp3',
+    '.mpg',
+    '.pdf',
+    '.png',
+    '.ppt',
+    '.pptx',
+    '.radar',
+    '.rtf',
+    '.wmv',
+    '.xls',
+    '.xlsm',
+    '.xlsx',
+    '.xml',
+    '.zip'
+  ].freeze
 
   def perform(to_version, from_version = nil, compare_earliest = true)
     # This is a very narrow-purpose prototype! Most of the work should probably
@@ -12,13 +60,13 @@ class AnalyzeChangeJob < ApplicationJob
       to_version.ensure_change_from_previous
     end
 
-    return unless is_analyzable?(change)
+    return unless analyzable?(change)
 
     analyze_change(change)
 
     if compare_earliest
       earliest_change = to_version.ensure_change_from_earliest
-      analyze_change(earliest_change) if is_analyzable?(earliest_change)
+      analyze_change(earliest_change) if analyzable?(earliest_change)
     end
   end
 
@@ -32,12 +80,14 @@ class AnalyzeChangeJob < ApplicationJob
     text_diff_changes = text_diff.select {|operation| operation[0] != 0}
     results[:text_diff_hash] = hash_changes(text_diff_changes)
     results[:text_diff_count] = text_diff_changes.length
+    results[:text_diff_length] = text_diff_changes.sum {|code, text| text.length}
     results[:text_diff_ratio] = diff_ratio(text_diff)
 
     source_diff = Differ.for_type!('html_source_dmp').diff(change)['diff']
     diff_changes = source_diff.select {|operation| operation[0] != 0}
     results[:source_diff_hash] = hash_changes(diff_changes)
     results[:source_diff_count] = diff_changes.length
+    results[:source_diff_length] = diff_changes.sum {|code, text| text.length}
     results[:source_diff_ratio] = diff_ratio(source_diff)
 
     # A text diff change necessarily implies a source change; don't double-count
@@ -58,6 +108,14 @@ class AnalyzeChangeJob < ApplicationJob
     if diff_changes.length > 0
       priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
     end
+
+    # If we know a version represents a *server* error (not, say, a 404), then
+    # deprioritize it. These are largely intermittent.
+    # TODO: can we look at past versions to see whether the error is sustained?
+    # TODO: relatedly, bump up priority for sustained 4xx errors
+    priority = [0.1, priority].min if version_status(change.version) >= 500 ||
+      version_status(change.from_version) >= 500 ||
+      looks_like_error(results[:text_diff_ratio], text_diff)
 
     results[:priority] = priority.round(4)
 
@@ -84,42 +142,23 @@ class AnalyzeChangeJob < ApplicationJob
     characters[1] == 0 ? 0.0 : (characters[0] / characters[1].to_f).round(4)
   end
 
-  def is_analyzable?(change)
+  def analyzable?(change)
     unless change && change.version.uuid != change.from_version.uuid
       Rails.logger.debug "Cannot analyze change #{change.try(:api_id)}; same versions"
       return false
     end
 
-    unless is_fetchable?(change.version.uri)
+    unless fetchable?(change.version.uri)
       Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.uri})"
       return false
     end
 
-    unless is_fetchable?(change.from_version.uri)
+    unless fetchable?(change.from_version.uri)
       Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.uri})"
       return false
     end
 
-    # TODO: this will eventually be a proper field on `version`:
-    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-    from_metadata = change.from_version.source_metadata || {}
-    to_metadata = change.version.source_metadata || {}
-    from_media = from_metadata['content_type'] || from_metadata['mime_type'] || ''
-    # FIXME: presume super old versionista data is text/html, since we didn't use to track mime type :(
-    # This should probably also be fixed with the above issue.
-    # FIXME: this was not good enough -- it still caused problems even after the
-    # below "questionable url" stuff. Turning off this fallback for now.
-    # from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
-    to_media = to_metadata['content_type'] || to_metadata['mime_type'] || ''
-    if from_media.start_with?('text/') && to_media.start_with?('text/')
-      # FIXME: this is a temporary fix for some very bad stuck jobs
-      # Basically, the the rule above about assuming text/html for super-old
-      # Versionista data can cause us to ask the diffing server to diff some
-      # big binary data.
-      if change.version.uri.match?(QUESTIONABLE_URL) || change.from_version.uri.match?(QUESTIONABLE_URL)
-        Rails.logger.debug "Cannot analyze change #{change.api_id}; URL looks like maybe not HTML"
-        return false
-      end
+    if diffable_media?(change.version) && diffable_media?(change.from_version)
       true
     else
       Rails.logger.debug "Cannot analyze change #{change.api_id}; non-text media type"
@@ -127,8 +166,34 @@ class AnalyzeChangeJob < ApplicationJob
     end
   end
 
-  def is_fetchable?(url)
+  def fetchable?(url)
     url && (url.start_with?('http:') || url.start_with?('https:'))
+  end
+
+  def diffable_media?(version)
+    # TODO: this will eventually be a proper field on `version`:
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
+    meta = version.source_metadata || {}
+    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
+    if !media && meta['headers'].is_a?(Hash)
+      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
+    end
+
+    if media
+      media = media.split(';', 2)[0]
+      ALLOWED_MEDIA.include?(media) || (
+        media.start_with?('text/') && !DISALLOWED_MEDIA.include?(media)
+      )
+    elsif !require_media_type?
+      allowed_extension?(version.capture_url)
+    else
+      false
+    end
+  end
+
+  def allowed_extension?(url)
+    extension = Addressable::URI.parse(url).try(:extname)
+    !extension || !DISALLOWED_EXTENSIONS.include?(extension)
   end
 
   def hash_changes(changes)
@@ -137,14 +202,52 @@ class AnalyzeChangeJob < ApplicationJob
 
   def annotator
     email = ENV['AUTO_ANNOTATION_USER']
-    user = if email
+    user = if email.present?
       User.find_by(email: email)
     elsif !Rails.env.production?
       User.first
     end
 
-    raise StandardError, 'Could not user to annotate changes' unless user
+    raise StandardError, 'Could not find user to annotate changes' unless user
 
     user
+  end
+
+  def require_media_type?
+    if @require_media_type.nil?
+      @require_media_type = to_bool(ENV['ANALYSIS_REQUIRE_MEDIA_TYPE'])
+    end
+    @require_media_type
+  end
+
+  def to_bool(text)
+    text = (text || '').downcase
+    text == 'true' || text == 't' || text == '1'
+  end
+
+  # If present in the metadata, get the HTTP status code as a number
+  def version_status(version)
+    meta = version.source_metadata || {}
+    (meta['status_code'] || meta['error_code']).to_i
+  end
+
+  # Heuristically identify versions that were errors, but had 2xx status codes
+  def looks_like_error(text_ratio, text_diff)
+    return false if text_ratio < 0.9
+
+    texts = text_diff.reduce({old: '', new: ''}) do |texts, operation|
+      texts[:old] += operation[1] if operation[0] <= 0
+      texts[:new] += operation[1] if operation[0] >= 0
+      texts
+    end
+
+    texts.each do |key, text|
+      text = text.downcase
+      # Based on version 8b52f47a-e1d7-4098-8087-87f71a9fc0b0
+      return true if text.include?('error connecting to apache tomcat instance') &&
+        text.include?('no connection could be made')
+    end
+
+    false
   end
 end
