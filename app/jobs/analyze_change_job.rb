@@ -1,7 +1,55 @@
 class AnalyzeChangeJob < ApplicationJob
   queue_as :analysis
 
-  QUESTIONABLE_URL = /\.(pdf|jpg|jpeg|png|bmp|gif|xls|xlsx|doc|docx)($|\?|#)/
+  # text/* media types are allowed, so only non-text types need be explicitly
+  # allowed and only text types need be explicitly disallowed.
+  ALLOWED_MEDIA = [
+    # HTML should be text/html, but these are also common.
+    'appliction/html',
+    'application/xhtml',
+    'application/xhtml+xml',
+    'application/xml',
+    'application/xml+html',
+    'application/xml+xhtml'
+  ].freeze
+
+  DISALLOWED_MEDIA = [
+    'text/calendar'
+  ].freeze
+
+  DISALLOWED_EXTENSIONS = [
+    '.jpg',
+    '.pdf',
+    '.athruz',
+    '.avi',
+    '.doc',
+    '.docbook',
+    '.docx',
+    '.dsselect',
+    '.eps',
+    '.epub',
+    '.exe',
+    '.gif',
+    '.jpeg',
+    '.jpg',
+    '.kmz',
+    '.m2t',
+    '.mov',
+    '.mp3',
+    '.mpg',
+    '.pdf',
+    '.png',
+    '.ppt',
+    '.pptx',
+    '.radar',
+    '.rtf',
+    '.wmv',
+    '.xls',
+    '.xlsm',
+    '.xlsx',
+    '.xml',
+    '.zip'
+  ].freeze
 
   def perform(to_version, from_version = nil, compare_earliest = true)
     # This is a very narrow-purpose prototype! Most of the work should probably
@@ -12,13 +60,13 @@ class AnalyzeChangeJob < ApplicationJob
       to_version.ensure_change_from_previous
     end
 
-    return unless is_analyzable?(change)
+    return unless analyzable?(change)
 
     analyze_change(change)
 
     if compare_earliest
       earliest_change = to_version.ensure_change_from_earliest
-      analyze_change(earliest_change) if is_analyzable?(earliest_change)
+      analyze_change(earliest_change) if analyzable?(earliest_change)
     end
   end
 
@@ -84,42 +132,23 @@ class AnalyzeChangeJob < ApplicationJob
     characters[1] == 0 ? 0.0 : (characters[0] / characters[1].to_f).round(4)
   end
 
-  def is_analyzable?(change)
+  def analyzable?(change)
     unless change && change.version.uuid != change.from_version.uuid
       Rails.logger.debug "Cannot analyze change #{change.try(:api_id)}; same versions"
       return false
     end
 
-    unless is_fetchable?(change.version.uri)
+    unless fetchable?(change.version.uri)
       Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.uri})"
       return false
     end
 
-    unless is_fetchable?(change.from_version.uri)
+    unless fetchable?(change.from_version.uri)
       Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.uri})"
       return false
     end
 
-    # TODO: this will eventually be a proper field on `version`:
-    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-    from_metadata = change.from_version.source_metadata || {}
-    to_metadata = change.version.source_metadata || {}
-    from_media = from_metadata['content_type'] || from_metadata['mime_type'] || ''
-    # FIXME: presume super old versionista data is text/html, since we didn't use to track mime type :(
-    # This should probably also be fixed with the above issue.
-    # FIXME: this was not good enough -- it still caused problems even after the
-    # below "questionable url" stuff. Turning off this fallback for now.
-    # from_media = 'text/html' if from_media == '' && change.from_version.source_type == 'versionista'
-    to_media = to_metadata['content_type'] || to_metadata['mime_type'] || ''
-    if from_media.start_with?('text/') && to_media.start_with?('text/')
-      # FIXME: this is a temporary fix for some very bad stuck jobs
-      # Basically, the the rule above about assuming text/html for super-old
-      # Versionista data can cause us to ask the diffing server to diff some
-      # big binary data.
-      if change.version.uri.match?(QUESTIONABLE_URL) || change.from_version.uri.match?(QUESTIONABLE_URL)
-        Rails.logger.debug "Cannot analyze change #{change.api_id}; URL looks like maybe not HTML"
-        return false
-      end
+    if diffable_media?(change.version) && diffable_media?(change.from_version)
       true
     else
       Rails.logger.debug "Cannot analyze change #{change.api_id}; non-text media type"
@@ -127,8 +156,34 @@ class AnalyzeChangeJob < ApplicationJob
     end
   end
 
-  def is_fetchable?(url)
+  def fetchable?(url)
     url && (url.start_with?('http:') || url.start_with?('https:'))
+  end
+
+  def diffable_media?(version)
+    # TODO: this will eventually be a proper field on `version`:
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
+    meta = version.source_metadata || {}
+    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
+    if !media && meta['headers'].is_a?(Hash)
+      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
+    end
+
+    if media
+      media = media.split(';', 2)[0]
+      ALLOWED_MEDIA.include?(media) || (
+        media.start_with?('text/') && !DISALLOWED_MEDIA.include?(media)
+      )
+    elsif !require_media_type?
+      allowed_extension(version.capture_url)
+    else
+      false
+    end
+  end
+
+  def allowed_extension?(url)
+    extension = Addressable::URI.parse(url).extname
+    !extension || !DISALLOWED_EXTENSIONS.include?(extension)
   end
 
   def hash_changes(changes)
@@ -146,5 +201,17 @@ class AnalyzeChangeJob < ApplicationJob
     raise StandardError, 'Could not user to annotate changes' unless user
 
     user
+  end
+
+  def require_media_type?
+    if @require_media_type.nil?
+      @require_media_type = to_bool(ENV['ANALYSIS_REQUIRE_MEDIA_TYPE'])
+    end
+    @require_media_type
+  end
+
+  def to_bool(text)
+    text = (text || '').downcase
+    text == 'true' || text == 't' || text == '1'
   end
 end
