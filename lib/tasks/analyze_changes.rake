@@ -19,7 +19,7 @@ task :analyze_changes, [:start_date, :end_date] => [:environment] do |_t, args|
 
   versions = Version
     .where_in_unbounded_range('capture_time', [start_date, end_date])
-    .order(created_at: :asc)
+    .order(capture_time: :asc)
 
   found_versions = 0
   queued_jobs = 0
