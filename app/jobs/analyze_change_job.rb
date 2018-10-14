@@ -175,7 +175,7 @@ class AnalyzeChangeJob < ApplicationJob
         media.start_with?('text/') && !DISALLOWED_MEDIA.include?(media)
       )
     elsif !require_media_type?
-      allowed_extension(version.capture_url)
+      allowed_extension?(version.capture_url)
     else
       false
     end
