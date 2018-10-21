@@ -59,4 +59,23 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     assert_equal({ 'key' => 'value' }, result)
   end
+
+  test 'it retries requests to avoid intermittent failures' do
+    change = changes(:page1_change_1_2)
+
+    stub_request(:any, 'http://testdiff.com')
+      .with(query: {
+        'a' => change.from_version.uri,
+        'a_hash' => change.from_version.version_hash,
+        'b' => change.version.uri,
+        'b_hash' => change.version.version_hash
+      })
+      .to_timeout
+      .to_return(body: 'Ugh!', status: 500)
+      .to_return(body: 'DIFF!', status: 200)
+
+    differ = Differ::SimpleDiff.new('http://testdiff.com')
+    diff = differ.diff(change)
+    assert_equal('DIFF!', diff)
+  end
 end
