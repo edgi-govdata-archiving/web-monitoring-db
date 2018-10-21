@@ -87,7 +87,7 @@ module Archiver
       begin
         response = yield
         return response if attempt >= tries || (response.code != 503 && response.code != 504)
-      rescue HTTParty::ResponseError => error
+      rescue HTTParty::ResponseError, Timeout::Error => error
         raise error if attempt >= tries
       end
 
