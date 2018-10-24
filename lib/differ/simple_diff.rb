@@ -1,5 +1,7 @@
 module Differ
   class SimpleDiff
+    MAXIMUM_TRIES = 3
+
     def initialize(url, type = nil)
       @url = url
 
@@ -44,7 +46,9 @@ module Differ
         b_hash: change.version.version_hash
       )
 
-      response = HTTParty.get(@url, query: query)
+      response = retry_request do
+        HTTParty.get(@url, query: query)
+      end
 
       # TODO: get our simple differ to return correct Content-Type header
       # and remove check for magical 'format' query arg
@@ -65,6 +69,19 @@ module Differ
       end
 
       body
+    end
+
+    def retry_request(tries: MAXIMUM_TRIES)
+      (1..tries).each do |attempt|
+        begin
+          response = yield
+          return response if attempt >= tries || (response.code < 500)
+        rescue HTTParty::ResponseError, Timeout::Error => error
+          raise error if attempt >= tries
+        end
+
+        sleep((attempt - 1) ** 2)
+      end
     end
 
     def generate_cache_key(change, options)
