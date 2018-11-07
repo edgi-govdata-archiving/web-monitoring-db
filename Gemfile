@@ -7,7 +7,7 @@ end
 
 ruby '2.5.1'
 
-gem 'aws-sdk-s3', '~> 1.20'
+gem 'aws-sdk-s3', '~> 1.23'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.1'
@@ -19,7 +19,7 @@ gem 'resque'
 gem 'resque-heroku-signals'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
-gem 'oj', '~> 3.6'
+gem 'oj', '~> 3.7'
 gem 'sentry-raven'
 gem 'readthis'
 gem 'hiredis'
@@ -44,7 +44,7 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.59.2', require: false
+  gem 'rubocop', '~> 0.60.0', require: false
   gem 'dotenv-rails'
 end
 
