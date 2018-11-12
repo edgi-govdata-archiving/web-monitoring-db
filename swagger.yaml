@@ -1018,9 +1018,13 @@ paths:
       tags:
         - imports
       summary: Submit a batch of Versions to create
-      description: ''
+      description: >-
+        Send a list of version objects to be imported into the database. The list can be a newline-delimited JSON stream (sent with the `application/x-json-stream` content type) or a JSON array (sent with `application/json` content type). The stream is preferable, since processing many versions using it is more efficient. Each version object should conform to the `ImportableVersion` schema below.
+
+        You may send as many versions as you like, but we recommend chunking your import into POSTs of no more than 1,000 versions each to keep things manageable.
       consumes:
         - application/json
+        - application/x-json-stream
       produces:
         - application/json
       parameters:
@@ -1038,6 +1042,13 @@ paths:
               * `skip` (default value) Don’t import the version or modify the existing database entry
               * `replace` Replace the existing database entry with the imported one
               * `merge` Similar to `replace`, but merges the values in `source_metadata`
+        - name: create_pages
+          in: query
+          type: boolean
+          default: true
+          required: false
+          description: >-
+            If set to false, the importer will not create new page records. If the POSTed data contains a version with a `page_url` field that doesn’t match an known page, the version will be skipped and not imported at all.
         - name: skip_unchanged_versions
           in: query
           description: >-
@@ -1045,6 +1056,12 @@ paths:
           required: false
           type: string
           default: false
+        - in: body
+          name: versions
+          required: true
+          description: The body should be a JSON array or newline-delimited stream of `Importableversion` objects (see definition in “Models” section below).
+          schema:
+            $ref: "#/definitions/ImportableVersion"
       responses:
         '200':
           description: successful operation
@@ -1836,6 +1853,44 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Tag'
+
+  ImportableVersion:
+    type: object
+    properties:
+      page_url:
+        type: string
+        format: uri
+        description: The original URL the version was captured from.
+      page_maintainers:
+        type: array
+        items:
+          type: string
+        description: A list of names for individuals, organizations, etc. who are responsible for maintaining the page being captured. E.g. "EPA" for the page at `https://epa.gov/`.
+      page_tags:
+        type: array
+        items:
+          type: string
+        description: A list of tags to apply to the page.
+      title:
+        type: string
+        description: The page or document title for the version.
+      capture_time:
+        type: string
+        format: date-time
+        description: The time at which the version was captured/
+      uri:
+        type: string
+        format: uri
+        description: A URL at which to get the raw response body of the version at `capture_time`
+      version_hash:
+        type: string
+        description: A hex-encoded SHA-256 hash of the response body of the version
+      source_type:
+        type: string
+        description: An identifier for the source of this version data, e.g. `versionista`, `internet_archive`, etc.
+      source_metadata:
+        type: object
+        description: Any additional metadata that you'd like to store. Typically, this is things like unique IDs from the source system (e.g. the site/page/version ID in Versionista), headers, content lengths, redirect chains, etc. The intent is that you should store as rich a set of metadata as you can get for every version, and this gives you a space to put all the information that we can't guarantee must be available from every type of source.
 
 externalDocs:
   description: Find out more about the web-monitoring project.
