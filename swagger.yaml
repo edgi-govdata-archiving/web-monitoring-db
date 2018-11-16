@@ -1877,14 +1877,14 @@ definitions:
       capture_time:
         type: string
         format: date-time
-        description: The time at which the version was captured/
+        description: The time at which the version was captured.
       uri:
         type: string
         format: uri
-        description: A URL at which to get the raw response body of the version at `capture_time`
+        description: A URL at which to get the raw response body of the version at `capture_time`.
       version_hash:
         type: string
-        description: A hex-encoded SHA-256 hash of the response body of the version
+        description: A hex-encoded SHA-256 hash of the response body of the version.
       source_type:
         type: string
         description: An identifier for the source of this version data, e.g. `versionista`, `internet_archive`, etc.
