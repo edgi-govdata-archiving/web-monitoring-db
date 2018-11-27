@@ -16,6 +16,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
 
+    oj_mode = :strict
     result_data =
       if !should_allow_versions && should_include_versions
         raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled.'
@@ -26,18 +27,22 @@ class Api::V0::PagesController < Api::V0::ApiController
           .where(versions: { different: true })
           .order('versions.capture_time DESC')
         lightweight_query(results, &method(:format_page_json))
-      elsif should_include_latest
-        # Filters from the original query should *not* affect what's "latest",
-        # (though they do affect which *pages* get included) so we build a
-        # whole new query from scratch here.
+      elsif should_include_latest || should_include_earliest
+        # Filters from the original query should *not* affect what's "latest"
+        # or "earliest" (though they do affect which *pages* get included), so
+        # we build a whole new query from scratch here.
         # NOTE: lightweight_query can't handle the series of N queries this
         # actually generates, but the result set is not as insanely huge as
         # when versions are included, so it's ok to just use ActiveRecord here.
+        oj_mode = :rails
+        relations = [:maintainers, :tags]
+        relations << :earliest if should_include_earliest
+        relations << :latest if should_include_latest
         Page
           .where(uuid: page_ids)
           .order(sorting_params.present? ? sorting_params : 'updated_at DESC')
-          .includes(:latest, :maintainers, :tags)
-          .as_json(include: [:latest, :maintainers, :tags])
+          .includes(*relations)
+          .as_json(include: relations)
       else
         # TODO: we could optimize and not do the page IDs check for this case
         # if we aren't also filtering by maintainers or tags.
@@ -51,7 +56,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       links: paging[:links],
       meta: { total_results: paging[:total_items] },
       data: result_data
-    }, mode: should_include_latest ? :rails : :strict)
+    }, mode: oj_mode)
   end
 
   def show
@@ -84,6 +89,14 @@ class Api::V0::PagesController < Api::V0::ApiController
       !should_include_versions && boolean_param(:include_latest)
     else
       boolean_param(:include_latest)
+    end
+  end
+
+  def should_include_earliest
+    if should_allow_versions
+      !should_include_versions && boolean_param(:include_earliest)
+    else
+      boolean_param(:include_earliest)
     end
   end
 

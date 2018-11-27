@@ -175,6 +175,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       'Results included pages with versions not captured in the filtered date range'
   end
 
+  test 'includes earliest version if include_earliest = true' do
+    sign_in users(:alice)
+    get api_v0_pages_path(include_earliest: true)
+    body = JSON.parse @response.body
+    results = body['data']
+
+    assert_kind_of Hash, results[0]['earliest'], '"earliest" property was not a hash'
+  end
+
   test 'includes latest version if include_latest = true' do
     sign_in users(:alice)
     get api_v0_pages_path(include_latest: true)
