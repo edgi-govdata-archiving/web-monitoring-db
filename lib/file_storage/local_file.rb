@@ -29,7 +29,12 @@ module FileStorage
     end
 
     def url_for_file(path)
-      "file://#{full_path(path)}"
+      if ENV['HOST_URL'].starts_with?('http://') || ENV['HOST_URL'].starts_with?('https://')
+        base_url = ENV['HOST_URL']
+      else
+        base_url = "http://#{ENV['HOST_URL']}"
+      end
+      "#{base_url}/api/v0/raw/#{path}"
     end
 
     def contains_url?(url_string)
