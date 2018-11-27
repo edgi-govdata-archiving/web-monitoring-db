@@ -38,9 +38,9 @@ module FileStorage
     end
 
     def contains_url?(url_string)
-      if url_string.starts_with? 'file://'
-        path = url_string[7..-1]
-        File.exist? path
+      if url_string.starts_with?('http://') || url_string.starts_with?('https://')
+        path = url_string.split('/')[-1]
+        File.exist? full_path(path)
       else
         false
       end

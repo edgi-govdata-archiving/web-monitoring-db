@@ -42,7 +42,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
     elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
       result = Archiver.archive(@version.uri, expected_hash: @version.version_hash)
       @version.version_hash = result[:hash]
-      # TODO: set the uri to the raw path if result is a local file.
       @version.uri = result[:url]
     end
 
