@@ -27,11 +27,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   def raw
     @version ||= version_collection.find(params[:id])
-    # TODO: only return a local file if a bucket isn't set. Otherwise redirect to bucket
-    # TODO: don't hardcode path
-    path = '/app/tmp/storage/archive/' + @version.version_hash
-    mime_type = @version.source_metadata['mime_type']
-    send_file(path, type: mime_type, disposition: 'inline')
+    redirect_to @version.uri and return
   end
 
   def create
