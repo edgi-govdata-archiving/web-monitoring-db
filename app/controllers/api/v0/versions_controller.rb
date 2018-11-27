@@ -25,6 +25,17 @@ class Api::V0::VersionsController < Api::V0::ApiController
     }
   end
 
+  def raw
+    @version ||= version_collection.find(params[:id])
+    # TODO: only return a local file if a bucket isn't set. Otherwise redirect to bucket
+    # TODO: don't hardcode path
+    path = '/app/tmp/storage/archive/' + @version.version_hash
+    # handy for testing since it renders html, but pretty mucks with the content.
+    #render file: '/app/tmp/storage/archive/' + @version.version_hash
+    # TODO: sniff mime type
+    send_file(path)
+  end
+
   def create
     # TODO: unify this with import code in ImportVersionsJob#import_record
     @version = page.versions.new(version_params)
@@ -37,6 +48,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
       result = Archiver.archive(@version.uri, expected_hash: @version.version_hash)
       @version.version_hash = result[:hash]
+      # TODO: set the uri to the raw path if result is a local file.
       @version.uri = result[:url]
     end
 
