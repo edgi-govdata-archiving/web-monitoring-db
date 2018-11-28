@@ -1,3 +1,6 @@
+include ActionDispatch::Routing::UrlFor
+include Rails.application.routes.url_helpers
+
 module FileStorage
   # Store and retrieve files from the local filesystem.
   class LocalFile
@@ -29,12 +32,8 @@ module FileStorage
     end
 
     def url_for_file(path)
-      if ENV['HOST_URL'].starts_with?('http://') || ENV['HOST_URL'].starts_with?('https://')
-        base_url = ENV['HOST_URL']
-      else
-        base_url = "http://#{ENV['HOST_URL']}"
-      end
-      "#{base_url}/api/v0/raw/#{path}"
+      raw_index_url = polymorphic_url('api_v0_raw_index')
+      "#{raw_index_url}/#{path}"
     end
 
     def contains_url?(url_string)

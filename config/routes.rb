@@ -31,7 +31,8 @@ Rails.application.routes.draw do
       resources :versions, only: [:show] do
         get 'raw', on: :member
       end
-      resources :raw, only: [:show]
+      # raw:index is just a placeholder so we can build a URL for file_storage.
+      resources :raw, only: [:index, :show]
       resources :imports, only: [:create, :show], format: :json
       resources :maintainers, except: [:new, :edit, :destroy], format: :json
       resources :tags, except: [:new, :edit, :destroy], format: :json
