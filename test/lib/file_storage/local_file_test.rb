@@ -4,7 +4,6 @@ include Rails.application.routes.url_helpers
 
 class FileStorage::LocalFileTest < ActiveSupport::TestCase
   storage_path = Rails.root.join('tmp/test/storage')
-  raw_index_url = polymorphic_url('api_v0_raw_index')
 
   def setup
     @storage = nil
@@ -35,7 +34,7 @@ class FileStorage::LocalFileTest < ActiveSupport::TestCase
   end
 
   test 'does not match non-existant local URLs' do
-    nowhere_url = "#{raw_index_url}/nowhere"
+    nowhere_url = polymorphic_url('api_v0_raw', id: 'nowhere')
     assert_not storage.contains_url?(nowhere_url)
   end
 
@@ -44,7 +43,7 @@ class FileStorage::LocalFileTest < ActiveSupport::TestCase
   end
 
   test 'can generate a local URL' do
-    whatever_url = "#{raw_index_url}/whatever"
+    whatever_url = polymorphic_url('api_v0_raw', id: 'whatever')
     assert_equal whatever_url, storage(path: storage_path).url_for_file('whatever')
   end
 end

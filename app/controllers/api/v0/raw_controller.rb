@@ -8,8 +8,4 @@ class Api::V0::RawController < Api::V0::ApiController
     send_file(path, type: mime_type, disposition: 'inline')
   end
 
-  # This is just a placeholder so the router can build a URL for file_storage.
-  def index
-    head 404
-  end
 end

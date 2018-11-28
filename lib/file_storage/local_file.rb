@@ -32,8 +32,7 @@ module FileStorage
     end
 
     def url_for_file(path)
-      raw_index_url = polymorphic_url('api_v0_raw_index')
-      "#{raw_index_url}/#{path}"
+      polymorphic_url('api_v0_raw', id: path)
     end
 
     def contains_url?(url_string)

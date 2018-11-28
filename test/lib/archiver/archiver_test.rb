@@ -4,8 +4,6 @@ include Rails.application.routes.url_helpers
 
 class Archiver::ArchiverTest < ActiveSupport::TestCase
 
-  raw_index_url = polymorphic_url('api_v0_raw_index')
-
   def setup
     @original_storage = Archiver.store
     path = Rails.root.join('tmp/test/storage')
@@ -24,7 +22,7 @@ class Archiver::ArchiverTest < ActiveSupport::TestCase
       .to_return(body: 'Hello!', status: 200)
 
     result = Archiver.archive('http://example.com')
-    expected_url = "#{raw_index_url}/#{hash}"
+    expected_url = polymorphic_url('api_v0_raw', id: hash)
     assert_equal(expected_url, result[:url])
     assert_equal(hash, result[:hash])
     assert_equal('Hello!', Archiver.store.get_file(hash))
