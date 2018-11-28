@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180418061850) do
+ActiveRecord::Schema.define(version: 2018_11_28_194410) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
   enable_extension "citext"
   enable_extension "pgcrypto"
+  enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
   create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 20180418061850) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "url_key"
+    t.boolean "active", default: true
     t.index ["site"], name: "index_pages_on_site"
     t.index ["url"], name: "index_pages_on_url"
     t.index ["url_key"], name: "index_pages_on_url_key"
