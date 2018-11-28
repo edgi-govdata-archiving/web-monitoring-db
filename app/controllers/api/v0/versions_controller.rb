@@ -27,7 +27,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   def raw
     @version ||= version_collection.find(params[:id])
-    redirect_to @version.uri and return
+    redirect_to @version.uri, status: 301 and return
   end
 
   def create
