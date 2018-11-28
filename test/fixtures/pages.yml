@@ -27,3 +27,8 @@ other_page_one:
   title: 'Page One'
   agency: 'Department of Whatever'
   site: 'http://example3.com/'
+
+inactive_page:
+  url: 'http://example-inactive.com/'
+  title: 'Some Page We Do Not Want!'
+  active: false
