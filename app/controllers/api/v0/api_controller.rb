@@ -64,6 +64,16 @@ class Api::V0::ApiController < ApplicationController
     /^(true|t|1)$/i.match? value
   end
 
+  # Returns a boolean OR nil for this param Unlike boolean params above, this
+  # will return nil for `?param` and `?param=`. To get a true or false, the
+  # querystring must explicitly set it. (`?param=true`, `?param=false`, etc.)
+  def nullable_boolean_param(param)
+    value = params[param]
+    return nil unless value.present?
+
+    /^(true|t|1)$/i.match?(value.downcase.strip)
+  end
+
   def parse_date!(date)
     raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
     Time.parse date

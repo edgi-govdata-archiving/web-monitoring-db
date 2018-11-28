@@ -85,7 +85,7 @@ paths:
           description: >-
             If true, add a latest key to the each item with the latest version.
           required: false
-          type: string
+          type: boolean
           default: false
         - name: source_type
           in: query
@@ -147,7 +147,15 @@ paths:
             is, you get all pages that have any of the tags
             requested, not only pages that have all of the
             tags listed.
-
+        - name: active
+          in: query
+          description: >-
+            If set, only include pages that are either active (when set to
+            `true`) or inactive (when set to `false`). (If unset, you get all
+            pages.) “Inactive” pages are pages that are no longer updated with
+            new versions in the database.
+          required: false
+          type: boolean
       responses:
         '200':
           description: successful operation
