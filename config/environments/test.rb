@@ -30,6 +30,12 @@ Rails.application.configure do
   # Store uploaded files on the local file system in a temporary directory
   config.active_storage.service = :test
 
+  # Set the default url host so that we can use polymorphic URLs outside of
+  # action controllers.
+  Rails.application.routes.default_url_options = {
+    :host => ENV.fetch('HOST_URL', 'localhost')
+  }
+
   config.action_mailer.perform_caching = false
 
   # Action Mailer host default

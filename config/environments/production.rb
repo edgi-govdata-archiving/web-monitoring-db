@@ -69,6 +69,12 @@ Rails.application.configure do
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "webpage_versions_db_#{Rails.env}"
 
+  # Set the default url host so that we can use polymorphic URLs outside of
+  # action controllers.
+  Rails.application.routes.default_url_options = {
+    :host => ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org')
+  }
+
   # Action Mailer configuration
   config.action_mailer.default_url_options = {
     host: ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org')

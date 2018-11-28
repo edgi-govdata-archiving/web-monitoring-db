@@ -30,6 +30,12 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
+  # Set the default url host so that we can use polymorphic URLs outside of
+  # action controllers.
+  Rails.application.routes.default_url_options = {
+    :host => ENV.fetch('HOST_URL', 'localhost:3000')
+  }
+
   # Mailers
   config.action_mailer.default_url_options = {
     :host => ENV.fetch('HOST_URL', 'localhost:3000')
