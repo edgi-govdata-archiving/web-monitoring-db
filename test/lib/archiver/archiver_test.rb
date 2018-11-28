@@ -1,6 +1,15 @@
 require 'test_helper'
 
 class Archiver::ArchiverTest < ActiveSupport::TestCase
+
+  if ENV['HOST_URL'].starts_with?('http://') || ENV['HOST_URL'].starts_with?('https://')
+    base_url = "#{ENV['HOST_URL']}"
+  else
+    base_url = "http://#{ENV['HOST_URL']}"
+  end
+
+  base_url = "#{base_url}/api/v0/raw"
+
   def setup
     @original_storage = Archiver.store
     path = Rails.root.join('tmp/test/storage')
@@ -19,7 +28,7 @@ class Archiver::ArchiverTest < ActiveSupport::TestCase
       .to_return(body: 'Hello!', status: 200)
 
     result = Archiver.archive('http://example.com')
-    expected_url = "file://#{Rails.root.join('tmp/test/storage', hash)}"
+    expected_url = "#{base_url}/#{hash}"
     assert_equal(expected_url, result[:url])
     assert_equal(hash, result[:hash])
     assert_equal('Hello!', Archiver.store.get_file(hash))

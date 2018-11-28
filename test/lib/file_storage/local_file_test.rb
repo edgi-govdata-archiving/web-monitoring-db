@@ -3,6 +3,14 @@ require 'test_helper'
 class FileStorage::LocalFileTest < ActiveSupport::TestCase
   storage_path = Rails.root.join('tmp/test/storage')
 
+  if ENV['HOST_URL'].starts_with?('http://') || ENV['HOST_URL'].starts_with?('https://')
+    base_url = "#{ENV['HOST_URL']}"
+  else
+    base_url = "http://#{ENV['HOST_URL']}"
+  end
+
+  base_url = "#{base_url}/api/v0/raw"
+
   def setup
     @storage = nil
   end
@@ -27,16 +35,21 @@ class FileStorage::LocalFileTest < ActiveSupport::TestCase
     assert storage.contains_url?(url)
   end
 
-  test 'does not match non-file URLs' do
+  test 'does not match external URLs' do
     assert_not storage.contains_url?('http://somewhere.com')
   end
 
-  test 'does not match file URLs that are not in its directory' do
+  test 'does not match non-existant local URLs' do
+    nowhere_url = "#{base_url}/nowhere"
+    assert_not storage.contains_url?(nowhere_url)
+  end
+
+  test 'does not match file URLs' do
     assert_not storage.contains_url?('file:///nowhere')
   end
 
-  test 'can generate a file URL' do
-    whatever_url = "file://#{storage_path.join 'whatever'}"
+  test 'can generate a local URL' do
+    whatever_url = "#{base_url}/whatever"
     assert_equal whatever_url, storage(path: storage_path).url_for_file('whatever')
   end
 end
