@@ -14,6 +14,11 @@ class PageTest < ActiveSupport::TestCase
     assert_not(page.valid?, 'The page should be invalid because it has no domain')
   end
 
+  test 'page titles should be single lines with no outside spaces' do
+    page = Page.create(url: 'example1.com/', title: "  This\nis the title\n  ")
+    assert_equal('This is the title', page.title, 'The title was not normalized')
+  end
+
   test 'page title should sync with title from version with most recent capture time' do
     page = pages(:home_page)
     assert_equal('Page One', page.title)

@@ -46,4 +46,14 @@ class VersionTest < ActiveSupport::TestCase
     assert(Version.find(a2.uuid).different?, 'Updating a version inserted before an existing version updates the existing version, too')
     assert(Version.find(b2.uuid).different?, 'Updating a version inserted before an existing version updates the existing version for a given source_type, too')
   end
+
+  test 'version titles should be single lines with no outside spaces' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      version_hash: 'icanputanythingheremwahahahaha',
+      title: "   This is \n\n the title  \n "
+    )
+    assert_equal('This is the title', version.title, 'The title was not normalized')
+  end
 end

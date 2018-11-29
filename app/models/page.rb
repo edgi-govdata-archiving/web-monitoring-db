@@ -1,6 +1,7 @@
 class Page < ApplicationRecord
   include UuidPrimaryKey
   include Taggable
+  include SimpleTitle
 
   has_many :versions,
     -> { order(capture_time: :desc) },
