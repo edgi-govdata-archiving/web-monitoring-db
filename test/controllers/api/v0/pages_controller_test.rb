@@ -709,4 +709,31 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes(uuids, page_versions[2].uuid)
     assert_not_includes(uuids, page_versions[3].uuid)
   end
+
+  test 'includes active and inactive pages if ?active not present' do
+    sign_in users(:alice)
+    get(api_v0_pages_url)
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].any? {|page| page['active'] == true})
+    assert(body['data'].any? {|page| page['active'] == false})
+  end
+
+  test 'includes only active pages if ?active=true' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { active: true }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].any? {|page| page['active'] == true})
+    assert(!body['data'].any? {|page| page['active'] == false})
+  end
+
+  test 'includes only inactive pages if ?active=false' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { active: false }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(!body['data'].any? {|page| page['active'] == true})
+    assert(body['data'].any? {|page| page['active'] == false})
+  end
 end

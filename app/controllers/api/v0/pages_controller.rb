@@ -154,6 +154,9 @@ class Api::V0::PagesController < Api::V0::ApiController
       end
     end
 
+    active_test = nullable_boolean_param(:active)
+    collection = collection.where(active: active_test) unless active_test.nil?
+
     # If any queries create implicit joins, ensure we get a list of unique pages
     collection = collection.distinct.order(updated_at: :desc)
 

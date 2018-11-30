@@ -63,6 +63,10 @@ class ImportVersionsJob < ApplicationJob
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
       return
     end
+    unless page.active?
+      warn "Skipped inactive URL: #{page.url}"
+      return
+    end
 
     existing = page.versions.find_by(
       capture_time: record['capture_time'],
