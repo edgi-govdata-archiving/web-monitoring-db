@@ -144,7 +144,7 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-11. Bulk importing (and, in the future, potentially other features) make use of a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
+11. Bulk importing, automated analysis, and e-mail invitations all run as asynchronous jobs, managed by a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
 
     Start redis:
 
@@ -157,6 +157,18 @@ It’s a Rails app that:
     ```sh
     $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
     ```
+
+    If you only want to run particular type of job, you can set a list of queue names in the `QUEUES` environment variable:
+
+    ```sh
+    $ QUEUES=mailers,import,analysis VERBOSE=1 bundle exec rake environment resque:work
+    ```
+
+    Each job type runs on a different queue:
+
+    - `mailers`: Sending e-mails. (There's no job associated with this queue because it is automatically processed by ActionMailer, a built-in component of Rails.)
+    - `import`: Bulk version imports (processing data sent to the `/api/v0/imports` endpoint).
+    - `analysis`: Auto-analyze changes between versions and create annotations with the results.
 
 
 ## Manual Postgres Setup
@@ -195,9 +207,11 @@ docker run -p 6379:6379 envirodgi/db-import-worker -e <ENVIRONMENT VARIABLES> .
 
 Point your browser or ``curl`` at ``http://localhost:3000``.
 
+
 ## Code of Conduct
 
 This repository falls under EDGI's [Code of Conduct](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md).
+
 
 ## Contributors
 
