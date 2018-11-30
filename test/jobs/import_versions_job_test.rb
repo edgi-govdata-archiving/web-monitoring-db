@@ -131,4 +131,31 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     ImportVersionsJob.perform_now(import)
     assert_equal(['Row 0: `page_url` is missing'], import.processing_errors, 'expected error due to missing page_url')
   end
+
+  test 'does not import versions for inactive pages' do
+    page_versions_count = pages(:inactive_page).versions.count
+    now = Time.now
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:inactive_page).url,
+          page_title: pages(:inactive_page).title,
+          capture_time: now,
+          uri: 'https://test-bucket.s3.amazonaws.com/inactive-v1',
+          version_hash: 'abc',
+          source_type: 'test_source',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    assert_equal(page_versions_count, pages(:inactive_page).versions.count)
+    assert_nil(pages(:inactive_page).versions.where(capture_time: now).first)
+    assert(import.processing_warnings.any? {|warning| warning.include?('inactive')})
+  end
 end
