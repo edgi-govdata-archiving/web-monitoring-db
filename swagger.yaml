@@ -80,10 +80,17 @@ paths:
             performance.
           required: false
           type: string
+        - name: include_earliest
+          in: query
+          description: >-
+            If true, add an `earliest` key to each page with the earliest version of it. (Note this is not affected by `capture_time`, which only modifies which *pages* are returned.)
+          required: false
+          type: string
+          default: false
         - name: include_latest
           in: query
           description: >-
-            If true, add a latest key to the each item with the latest version.
+            If true, add a `latest` key to each page with the latest version of it. (Note this is not affected by `capture_time`, which only modifies which *pages* are returned.)
           required: false
           type: string
           default: false
