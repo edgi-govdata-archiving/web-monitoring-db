@@ -15,3 +15,9 @@ page1_change_4_5:
   version: page1_v5
   priority: 0.75
   significance: 0.5
+
+page2_change_1_2:
+  from_version: page2_v1
+  version: page2_v2
+  priority: 0.5,
+  significance: 0.5

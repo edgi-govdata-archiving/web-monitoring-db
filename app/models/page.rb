@@ -31,6 +31,8 @@ class Page < ApplicationRecord
     end),
     foreign_key: 'page_uuid',
     class_name: 'Version'
+  # This needs a funky name because `changes` is a an activerecord method
+  has_many :tracked_changes, through: :versions
 
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
