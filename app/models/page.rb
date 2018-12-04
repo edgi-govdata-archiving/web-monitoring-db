@@ -38,6 +38,9 @@ class Page < ApplicationRecord
   before_create :ensure_url_key
   before_save :normalize_url
   validate :url_must_have_domain
+  validates :status,
+    allow_nil: true,
+    inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
   def self.find_by_url(raw_url)
     url = normalize_url(raw_url)

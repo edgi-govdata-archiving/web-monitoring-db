@@ -124,4 +124,19 @@ class PageTest < ActiveSupport::TestCase
     page = Page.create(url: 'http://sub.EXAMPLE.com/somewhere')
     assert_equal('com,example,sub)/somewhere', page.url_key)
   end
+
+  test 'page status must be a valid status code or nil' do
+    page = pages(:home_page)
+    page.status = nil
+    assert(page.valid?, 'A nil status was not valid')
+
+    page.status = 200
+    assert(page.valid?, 'A 200 status was not valid')
+
+    page.status = 1000
+    assert_not(page.valid?, 'A 1000 status was valid')
+
+    page.status = 'whats this now'
+    assert_not(page.valid?, 'A text status was valid')
+  end
 end
