@@ -21,7 +21,8 @@ namespace :data do
     updated = 0
     loop do
       values = query.limit(500).collect do |model|
-        "('#{model.uuid}', '#{model_type.normalize_title_string(model.title)}')"
+        new_title = model_type.normalize_title_string(model.title)
+        "('#{model.uuid}', #{Version.connection.quote(new_title)})"
       end
 
       updated += values.length
