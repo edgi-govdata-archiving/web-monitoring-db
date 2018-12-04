@@ -3,12 +3,12 @@ namespace :data do
   task :'20181204_set_version_status', [] => [:environment] do |_t|
     ActiveRecord::Migration.say_with_time('Updating `status` on versions') do
       with_activerecord_log_level(:error) do
-        set_version_statuses()
+        set_version_statuses
       end
     end
   end
 
-  def set_version_statuses()
+  def set_version_statuses
     query = Version
       .where(source_type: 'versionista')
       .where("versions.source_metadata ? 'error_code'")
@@ -57,7 +57,7 @@ namespace :data do
       total += count
 
       if message
-        if count > 0
+        if count.positive?
           print "  #{message.gsub('{n}', count.to_s)}\r"
         else
           print "\n"
@@ -100,7 +100,6 @@ namespace :data do
     end
 
     setters = fields.collect {|field| "#{field} = valueset.#{field}"}.join(', ')
-    valueset = "valueset(uuid, #{fields.join(', ')})"
 
     collection.connection.execute(
       <<-QUERY
