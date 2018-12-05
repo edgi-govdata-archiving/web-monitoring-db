@@ -24,23 +24,16 @@ class VersionTest < ActiveSupport::TestCase
   test 'update_different_attribute' do
     page = Page.create(url: 'http://somerandomsite.com/')
     a1 = page.versions.create(source_type: 'a', version_hash: 'abc', capture_time: Time.now - 3.days)
-    b1 = page.versions.create(source_type: 'b', version_hash: 'abc', capture_time: Time.now - 2.9.days)
+    b1 = page.versions.create(source_type: 'b', version_hash: 'abc', capture_time: Time.now - 2.days)
     a1.update_different_attribute
     b1.update_different_attribute
     assert(a1.different?, 'The first version should have been different')
-    assert_not(b1.different?, 'The second version should not have been different, regardless of source_type')
+    assert_not(b1.different?, 'The second version should not have been different')
 
-    a2 = page.versions.create(source_type: 'a', version_hash: 'abc', capture_time: Time.now - 1.days)
-    b2 = page.versions.create(source_type: 'b', version_hash: 'abc', capture_time: Time.now - 0.9.days)
+    a2 = page.versions.create(source_type: 'a', version_hash: 'def', capture_time: Time.now - 2.5.days)
     a2.update_different_attribute
-    b2.update_different_attribute
-    assert_not(a2.different?, 'A version with the same hash is not different')
-    assert_not(b2.different?, 'A version with the same hash but different source_type is not different')
-
-    a3 = page.versions.create(source_type: 'a', version_hash: 'def', capture_time: Time.now - 2.days)
-    a3.update_different_attribute
-    assert(a3.different?, 'A version with a different hash is different')
-    assert(Version.find(a2.uuid).different?, 'Updating a version inserted before an existing version updates the existing version, too')
+    assert(a2.different?, 'A version with a different hash is different')
+    assert(Version.find(b1.uuid).different?, 'Updating a version inserted before an existing version updates the existing version, too')
   end
 
   test 'version titles should be single lines with no outside spaces' do

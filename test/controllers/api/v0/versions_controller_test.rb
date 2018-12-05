@@ -225,9 +225,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     now = Time.now
     page_versions = [
       { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
     ].collect {|data| pages(:home_page).versions.create(data)}
     page_versions.each(&:update_different_attribute)
 
@@ -239,8 +237,6 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes(uuids, page_versions[0].uuid)
     assert_not_includes(uuids, page_versions[1].uuid)
-    assert_not_includes(uuids, page_versions[2].uuid)
-    assert_not_includes(uuids, page_versions[3].uuid)
   end
 
   test 'lists versions regardless if different from the previous version if ?different=false' do
