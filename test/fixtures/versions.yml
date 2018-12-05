@@ -9,6 +9,7 @@ page1_v1:
   uri: 'http://example1.com/page1_v1'
   capture_time: '2017-03-01T00:00:00Z'
   version_hash: 'abc'
+  status: 200
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -27,6 +28,7 @@ page2_v1:
   uri: 'http://example1.com/page2_v1'
   capture_time: '2017-03-01T00:00:01Z'
   version_hash: 'def'
+  status: 200
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -45,6 +47,7 @@ page1_v2:
   uri: 'http://example1.com/page1_v2'
   capture_time: '2017-03-02T00:00:00Z'
   version_hash: 'ghi'
+  status: 403
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -80,6 +83,7 @@ page1_v3:
   page: home_page
   capture_time: '2017-03-03T00:00:00Z'
   version_hash: 'mno'
+  status: 404
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -93,10 +97,29 @@ page1_v3:
     diff_hash: '749ab2c0d06c42ae3b841b79e79875f02b3a042e43c92378cd28bd444c04d284'
   }
 
+page2_v3:
+  page: sub_page
+  uri: 'http://example1.com/page2_v3'
+  capture_time: '2017-03-03T00:00:01Z'
+  version_hash: 'vwx'
+  source_type: 'versionista'
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 12,
+    version_id: 123,
+    page_url: 'http://versionista.com/1/12/',
+    diff_with_previous_url: 'http://versionista.com/1/12/123/',
+    diff_with_first_url: nil,
+    diff_length: 1234678,
+    diff_hash: '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
+  }
+
 page1_v4:
   page: home_page
   capture_time: '2017-03-04T00:00:00Z'
   version_hash: 'pqr'
+  status: 500
   source_type: 'pagefreezer'
   source_metadata: {
     account: 'test@example.com',

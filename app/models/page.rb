@@ -31,6 +31,8 @@ class Page < ApplicationRecord
     end),
     foreign_key: 'page_uuid',
     class_name: 'Version'
+  # This needs a funky name because `changes` is a an activerecord method
+  has_many :tracked_changes, through: :versions
 
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
@@ -38,6 +40,9 @@ class Page < ApplicationRecord
   before_create :ensure_url_key
   before_save :normalize_url
   validate :url_must_have_domain
+  validates :status,
+    allow_nil: true,
+    inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
   def self.find_by_url(raw_url)
     url = normalize_url(raw_url)

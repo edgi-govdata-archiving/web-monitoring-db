@@ -76,21 +76,21 @@ class ChangeTest < ActiveSupport::TestCase
   end
 
   test 'annotate should create an annotation' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
     change.annotate({ test_field: 'test_value' }, users(:alice))
 
     assert_equal 1, change.annotations.length, 'The wrong number of annotations were added!'
   end
 
   test 'adding an annotation should update current_annotation' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
     change.annotate({ test_field: 'test_value' }, users(:alice))
 
     assert_equal({ 'test_field' => 'test_value' }, change.current_annotation)
   end
 
   test 'annotations should merge by including omitted properties and removing null properties' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
 
     change.annotate({ one: 'a', two: 'b', three: 'c' }, users(:admin_user))
     change.annotate({ one: 'new!', three: nil }, users(:alice))
@@ -99,7 +99,7 @@ class ChangeTest < ActiveSupport::TestCase
   end
 
   test 'annotating a new change should persist it' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
     assert_not change.persisted?, 'The change we are testing was not newly created'
 
     change.annotate({ test_field: 'test_value' }, users(:alice))
@@ -107,7 +107,7 @@ class ChangeTest < ActiveSupport::TestCase
   end
 
   test 'subsequent annotations by the same user should replace the existing annotation' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
 
     change.annotate({ one: 'a', two: 'b', three: 'c' }, users(:alice))
     change.annotate({ one: 'new!', three: nil }, users(:alice))
@@ -118,7 +118,7 @@ class ChangeTest < ActiveSupport::TestCase
   end
 
   test 'subsequent annotations with different users should create new annotations' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
 
     change.annotate({ one: 'a', two: 'b', three: 'c' }, users(:alice))
     change.annotate({ one: 'new!', three: nil }, users(:admin_user))
@@ -127,13 +127,13 @@ class ChangeTest < ActiveSupport::TestCase
   end
 
   test 'annotating with `priority` should update #priority' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
     change.annotate({ priority: 1 }, users(:alice))
     assert_equal(1, change.priority, '#priority was not updated')
   end
 
   test 'annotating with `significance` should update #significance' do
-    change = versions(:page2_v2).ensure_change_from_previous
+    change = versions(:page2_v3).ensure_change_from_previous
     change.annotate({ significance: 1 }, users(:alice))
     assert_equal(1, change.significance, '#significance was not updated')
   end

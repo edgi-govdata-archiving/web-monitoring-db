@@ -56,4 +56,19 @@ class VersionTest < ActiveSupport::TestCase
     )
     assert_equal('This is the title', version.title, 'The title was not normalized')
   end
+
+  test 'version status must be a valid status code or nil' do
+    version = versions(:page1_v1)
+    version.status = nil
+    assert(version.valid?, 'A nil status was not valid')
+
+    version.status = 200
+    assert(version.valid?, 'A 200 status was not valid')
+
+    version.status = 1000
+    assert_not(version.valid?, 'A 1000 status was valid')
+
+    version.status = 'whats this now'
+    assert_not(version.valid?, 'A text status was valid')
+  end
 end

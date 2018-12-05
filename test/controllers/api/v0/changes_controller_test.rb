@@ -14,6 +14,12 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     assert body.key?('data'), 'Response should have a "data" property'
     assert body.key?('meta'), 'Response should have a "meta" property'
     assert(body['data'].is_a?(Array), 'Data should be an array')
+
+    foreign_change_id = changes(:page2_change_1_2).uuid
+    assert_not(
+      body['data'].any? {|change| change['uuid'] == foreign_change_id},
+      'Response included a change from a different page'
+    )
   end
 
   test 'can get a single change by version IDs' do
@@ -123,9 +129,9 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'application/json', @response.content_type
     body = JSON.parse @response.body
     assert_equal(
-      Change.count,
+      page.tracked_changes.count,
       body['meta']['total_results'],
-      'Should contain count of total results across all pages'
+      'Should contain count of total results across all chunks'
     )
   end
 

@@ -44,7 +44,8 @@ class Api::V0::ChangesController < Api::V0::ApiController
   end
 
   def changes_collection
-    collection = Change.order(created_at: :asc)
+    collection = page ? page.tracked_changes : Change
+    collection = collection.order(created_at: :asc)
     collection = where_in_interval_param(collection, :priority)
     collection = where_in_interval_param(collection, :significance)
     sort_using_params(collection)

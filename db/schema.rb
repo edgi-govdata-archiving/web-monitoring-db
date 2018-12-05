@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_28_194410) do
+ActiveRecord::Schema.define(version: 2018_12_04_192154) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -93,6 +93,7 @@ ActiveRecord::Schema.define(version: 2018_11_28_194410) do
     t.datetime "updated_at", null: false
     t.string "url_key"
     t.boolean "active", default: true
+    t.integer "status"
     t.index ["site"], name: "index_pages_on_site"
     t.index ["url"], name: "index_pages_on_url"
     t.index ["url_key"], name: "index_pages_on_url_key"
@@ -149,6 +150,7 @@ ActiveRecord::Schema.define(version: 2018_11_28_194410) do
     t.string "title"
     t.string "capture_url"
     t.boolean "different", default: true
+    t.integer "status"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["page_uuid"], name: "index_versions_on_page_uuid"
     t.index ["version_hash"], name: "index_versions_on_version_hash"
