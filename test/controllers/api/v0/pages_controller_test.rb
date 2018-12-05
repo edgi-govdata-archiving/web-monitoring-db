@@ -704,8 +704,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     uuids = body['data'].collect {|page| page['latest'].try(:[], 'uuid')}
 
-    assert_not_includes(uuids, page_versions[0].uuid)
-    assert_includes(uuids, page_versions[1].uuid)
+    assert_includes(uuids, page_versions[0].uuid)
+    assert_not_includes(uuids, page_versions[1].uuid)
     assert_not_includes(uuids, page_versions[2].uuid)
     assert_not_includes(uuids, page_versions[3].uuid)
   end

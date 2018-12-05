@@ -238,7 +238,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     uuids = body['data'].collect {|version| version['uuid']}
 
     assert_includes(uuids, page_versions[0].uuid)
-    assert_includes(uuids, page_versions[1].uuid)
+    assert_not_includes(uuids, page_versions[1].uuid)
     assert_not_includes(uuids, page_versions[2].uuid)
     assert_not_includes(uuids, page_versions[3].uuid)
   end

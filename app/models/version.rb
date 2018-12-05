@@ -51,18 +51,12 @@ class Version < ApplicationRecord
   end
 
   def update_different_attribute(save: true)
-    previous = page.versions
-      .where(source_type: self.source_type)
-      .where('capture_time < ?', self.capture_time)
-      .reorder(capture_time: :desc)
-      .first
-
+    previous = self.previous
     self.different = previous.nil? || previous.version_hash != version_hash
     self.save if save
 
     if self.different?
       following = page.versions
-        .where(source_type: self.source_type)
         .where('capture_time > ?', self.capture_time)
         .reorder(capture_time: :asc)
 
