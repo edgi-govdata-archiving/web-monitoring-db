@@ -10,6 +10,9 @@ class Version < ApplicationRecord
     foreign_key: 'uuid_to'
 
   after_create :sync_page_title
+  validates :status,
+    allow_nil: true,
+    inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
   def earliest
     self.page.versions.reorder(capture_time: :asc).first

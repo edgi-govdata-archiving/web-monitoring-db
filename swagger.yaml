@@ -163,6 +163,16 @@ paths:
             new versions in the database.
           required: false
           type: boolean
+        - name: status
+          in: query
+          type: string
+          required: false
+          description: >-
+            Include only pages with the given HTTP status code, e.g. `200` or
+            `404`. You may also specify a range using standard mathematical
+            notation for intervals. For example, to get pages with 4XX statuses:
+
+                ?status=[400,500)
       responses:
         '200':
           description: successful operation
@@ -264,6 +274,16 @@ paths:
             If present, include a `change_from_earliest` field in the result
             that represents a change object between this version and the
             earliest version of this page.
+        - name: status
+          in: query
+          type: string
+          required: false
+          description: >-
+            Include only versions with the given HTTP status code, e.g. `200` or
+            `404`. You may also specify a range using standard mathematical
+            notation for intervals. For example, to get all 4XX status versions:
+
+                ?status=[400,500)
       responses:
         '200':
           description: successful operation
@@ -983,6 +1003,16 @@ paths:
             If present, include a `change_from_earliest` field in the result
             that represents a change object between this version and the
             earliest version of this page.
+        - name: status
+          in: query
+          type: string
+          required: false
+          description: >-
+            Include only versions with the given HTTP status code, e.g. `200` or
+            `404`. You may also specify a range using standard mathematical
+            notation for intervals. For example, to get all 4XX status versions:
+
+                ?status=[400,500)
       responses:
         '200':
           description: successful operation

@@ -135,6 +135,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       'versions.capture_time',
       &method(:parse_date!)
     )
+    collection = where_in_interval_param(collection, :status)
 
     version_params = params.permit(:hash, :source_type)
     if version_params.present?

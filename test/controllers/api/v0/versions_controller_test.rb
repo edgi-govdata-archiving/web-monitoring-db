@@ -264,4 +264,20 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_includes(uuids, page_versions[2].uuid)
     assert_includes(uuids, page_versions[3].uuid)
   end
+
+  test 'filters by status using ?status=code' do
+    sign_in users(:alice)
+    get(api_v0_versions_url(params: { status: 404 }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].all? {|item| item['status'] == 404})
+  end
+
+  test 'filters by status interval using ?status=interval' do
+    sign_in users(:alice)
+    get(api_v0_versions_url(params: { status: '[400,500)' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].all? {|item| item['status'] >= 400 && item['status'] < 500})
+  end
 end

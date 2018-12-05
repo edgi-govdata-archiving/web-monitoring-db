@@ -9,6 +9,7 @@ page1_v1:
   uri: 'http://example1.com/page1_v1'
   capture_time: '2017-03-01T00:00:00Z'
   version_hash: 'abc'
+  status: 200
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -27,6 +28,7 @@ page2_v1:
   uri: 'http://example1.com/page2_v1'
   capture_time: '2017-03-01T00:00:01Z'
   version_hash: 'def'
+  status: 200
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -45,6 +47,7 @@ page1_v2:
   uri: 'http://example1.com/page1_v2'
   capture_time: '2017-03-02T00:00:00Z'
   version_hash: 'ghi'
+  status: 403
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -80,6 +83,7 @@ page1_v3:
   page: home_page
   capture_time: '2017-03-03T00:00:00Z'
   version_hash: 'mno'
+  status: 404
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -115,6 +119,7 @@ page1_v4:
   page: home_page
   capture_time: '2017-03-04T00:00:00Z'
   version_hash: 'pqr'
+  status: 500
   source_type: 'pagefreezer'
   source_metadata: {
     account: 'test@example.com',

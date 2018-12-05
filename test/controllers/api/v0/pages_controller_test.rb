@@ -736,4 +736,20 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert(!body['data'].any? {|page| page['active'] == true})
     assert(body['data'].any? {|page| page['active'] == false})
   end
+
+  test 'filters by status using ?status=code' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { status: 404 }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].all? {|page| page['status'] == 404})
+  end
+
+  test 'filters by status interval using ?status=interval' do
+    sign_in users(:alice)
+    get(api_v0_pages_url(params: { status: '[400,500)' }))
+    assert_response(:success)
+    body = JSON.parse(@response.body)
+    assert(body['data'].all? {|page| page['status'] >= 400 && page['status'] < 500})
+  end
 end

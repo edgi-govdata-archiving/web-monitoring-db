@@ -3,6 +3,7 @@ home_page:
   title: 'Page One'
   agency: 'Department of Examples'
   site: 'http://example1.com/'
+  status: 200
 
 sub_page:
   url: 'http://example1.com/page2.html'
@@ -15,18 +16,21 @@ home_page_site2:
   title: 'Site 2, yo!'
   agency: 'Department of Examples'
   site: 'http://example2.com/'
+  status: 404
 
 dot_home_page:
   url: 'http://depart-of-testing.com/index.html'
   title: 'Welcome to the Department of Testing'
   agency: 'Department of Testing'
   site: 'DOT - Home Site'
+  status: 403
 
 other_page_one:
   url: 'http://example3.com/'
   title: 'Page One'
   agency: 'Department of Whatever'
   site: 'http://example3.com/'
+  status: 500
 
 inactive_page:
   url: 'http://example-inactive.com/'
