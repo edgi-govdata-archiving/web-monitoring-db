@@ -99,6 +99,8 @@ namespace :data do
       values << "('#{item.uuid}', #{changes.join(', ')})"
     end
 
+    return 0 if values.empty?
+
     setters = fields.collect {|field| "#{field} = valueset.#{field}"}.join(', ')
 
     collection.connection.execute(
