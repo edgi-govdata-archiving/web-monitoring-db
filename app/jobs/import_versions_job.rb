@@ -100,7 +100,7 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    @added << version
+    @added << version if !existing
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
