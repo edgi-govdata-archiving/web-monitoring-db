@@ -226,7 +226,7 @@ GEM
     resque-heroku-signals (1.27.4.3)
       resque (= 1.27.4)
     retriable (3.1.2)
-    rubocop (0.60.0)
+    rubocop (0.62.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.5, != 2.5.1.1)
@@ -280,7 +280,7 @@ GEM
     uber (0.1.0)
     uglifier (4.1.20)
       execjs (>= 0.3.0, < 3)
-    unicode-display_width (1.4.0)
+    unicode-display_width (1.4.1)
     vegas (0.1.11)
       rack (>= 1.0.0)
     warden (1.2.7)
@@ -323,7 +323,7 @@ DEPENDENCIES
   readthis
   resque
   resque-heroku-signals
-  rubocop (~> 0.60.0)
+  rubocop (~> 0.62.0)
   sass-rails (~> 5.0)
   sentry-raven
   spring
