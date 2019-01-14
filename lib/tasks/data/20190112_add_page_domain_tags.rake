@@ -3,9 +3,28 @@ namespace :data do
   task :'20190112_add_page_domain_tags', [] => [:environment] do |_t|
     ActiveRecord::Migration.say_with_time('Updating domain tags on pages...') do
       with_activerecord_log_level(:error) do
-        iterate_each(Page.all.order(created_at: :asc), &:ensure_domain_tags)
+        last_update = Time.now
+        completed = 0
+        total = Page.all.count
+
+        iterate_each(Page.all.order(created_at: :asc)) do |page|
+          page.ensure_domain_tags
+          completed += 1
+          if Time.now - last_update > 2
+            log_progress(completed, total)
+            last_update = Time.now
+          end
+        end
+
+        log_progress(completed, total, end_line: true)
+        completed
       end
     end
+  end
+
+  def log_progress(completed, total, end_line: false)
+    ending = end_line ? "\n" : "\r"
+    STDOUT.write("   #{completed}/#{total} pages tagged#{ending}")
   end
 
   def with_activerecord_log_level(level = :error)
