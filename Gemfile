@@ -7,11 +7,11 @@ end
 
 ruby '2.5.1'
 
-gem 'aws-sdk-s3', '~> 1.29'
+gem 'aws-sdk-s3', '~> 1.30'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.1'
-gem 'rails', '~> 5.2.1'
+gem 'rails', '~> 5.2.2'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 3.12'
 gem 'rack-cors', :require => 'rack/cors'
@@ -59,7 +59,7 @@ group :development do
 end
 
 group :test do
-  gem 'webmock', '~> 3.4'
+  gem 'webmock', '~> 3.5'
 end
 
 group :production do

@@ -38,6 +38,7 @@ class Page < ApplicationRecord
   has_many :maintainers, through: :maintainerships
 
   before_create :ensure_url_key
+  after_create :ensure_domain_tags
   before_save :normalize_url
   validate :url_must_have_domain
   validates :status,
@@ -117,6 +118,11 @@ class Page < ApplicationRecord
     update(url_key: Page.create_url_key(url))
   end
 
+  def ensure_domain_tags
+    self.add_tag("domain:#{domain}")
+    self.add_tag("2l-domain:#{second_level_domain}")
+  end
+
   protected
 
   def ensure_url_key
@@ -127,8 +133,17 @@ class Page < ApplicationRecord
     self.url = self.class.normalize_url(self.url)
   end
 
+  def domain
+    url.match(/^([\w\+\-\.]+:\/\/)?([^\/]+\.[^\/]{2,})/).try(:[], 2)
+  end
+
+  def second_level_domain
+    full_domain = domain
+    full_domain && full_domain.split('.')[-2..-1].join('.')
+  end
+
   def url_must_have_domain
-    unless url.match?(/^([\w\+\-\.]+:\/\/)?[^\/]+\.[^\/]{2,}/)
+    unless domain.present?
       errors.add(:url, 'must have a domain')
     end
   end
