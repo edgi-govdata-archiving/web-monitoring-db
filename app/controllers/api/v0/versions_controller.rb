@@ -129,6 +129,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
     options[:methods] = methods
 
+    version.uri = "#{api_v0_version_url(version)}/raw"
     version.as_json(options)
   end
 end
