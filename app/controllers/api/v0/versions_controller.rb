@@ -1,3 +1,5 @@
+require 'open-uri'
+
 class Api::V0::VersionsController < Api::V0::ApiController
   include SortingConcern
 
@@ -23,6 +25,14 @@ class Api::V0::VersionsController < Api::V0::ApiController
       },
       data: serialize_version(@version)
     }
+  end
+
+  def raw
+    @version ||= version_collection.find(params[:id])
+    upstream = open(@version.uri)
+    mime_type = @version.source_metadata['mime_type']
+    mime_type = upstream.content_type if mime_type.nil? || mime_type.empty?
+    send_data(upstream.read, type: mime_type, disposition: 'inline')
   end
 
   def create
