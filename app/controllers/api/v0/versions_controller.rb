@@ -31,10 +31,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     @version ||= version_collection.find(params[:id])
 
-    if ENV['PUBLIC_ARCHIVE_HOSTS']
-      self.public_hosts = ENV['PUBLIC_ARCHIVE_HOSTS']
-    end
-
     def self.public_hosts=(hosts)
       hosts = [] if hosts.nil?
       hosts = hosts.split(' ') if hosts.is_a?(String)
@@ -42,6 +38,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
         raise StandardError, 'Public hosts must be a string or enumerable of strings'
       end
       @public_hosts = hosts
+    end
+
+    if ENV['PUBLIC_ARCHIVE_HOSTS']
+      self.public_hosts = ENV['PUBLIC_ARCHIVE_HOSTS']
     end
 
     def self.public_hosts
