@@ -28,11 +28,38 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def raw
+
     @version ||= version_collection.find(params[:id])
-    upstream = open(@version.uri)
-    mime_type = @version.source_metadata['mime_type']
-    mime_type = upstream.content_type if mime_type.nil? || mime_type.empty?
-    send_data(upstream.read, type: mime_type, disposition: 'inline')
+
+    if ENV['PUBLIC_ARCHIVE_HOSTS']
+      self.public_hosts = ENV['PUBLIC_ARCHIVE_HOSTS']
+    end
+
+    def self.public_hosts=(hosts)
+      hosts = [] if hosts.nil?
+      hosts = hosts.split(' ') if hosts.is_a?(String)
+      unless hosts.is_a?(Enumerable) && hosts.all? {|host| host.is_a?(String)}
+        raise StandardError, 'Public hosts must be a string or enumerable of strings'
+      end
+      @public_hosts = hosts
+    end
+
+    def self.public_hosts
+      @public_hosts || []
+    end
+
+    def self.public_archive_uri?(uri)
+      public_hosts.any? {|base| uri.starts_with?(base)}
+    end
+
+    if public_archive_uri?(@version.uri)
+      redirect_to @version.uri, status: 301 and return
+    else
+      upstream = open(@version.uri)
+      mime_type = @version.source_metadata['mime_type']
+      mime_type = upstream.content_type if mime_type.nil? || mime_type.empty?
+      send_data(upstream.read, type: mime_type, disposition: 'inline')
+    end
   end
 
   def create
