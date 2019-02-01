@@ -151,7 +151,7 @@ GEM
     oj (3.7.8)
     orm_adapter (0.5.0)
     os (1.0.0)
-    parallel (1.12.1)
+    parallel (1.13.0)
     parser (2.6.0.0)
       ast (~> 2.4.0)
     pg (1.1.3)
@@ -226,7 +226,7 @@ GEM
     resque-heroku-signals (1.27.4.3)
       resque (= 1.27.4)
     retriable (3.1.2)
-    rubocop (0.63.0)
+    rubocop (0.63.1)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.5, != 2.5.1.1)
@@ -323,7 +323,7 @@ DEPENDENCIES
   readthis
   resque
   resque-heroku-signals
-  rubocop (~> 0.63.0)
+  rubocop (~> 0.63.1)
   sass-rails (~> 5.0)
   sentry-raven
   spring
