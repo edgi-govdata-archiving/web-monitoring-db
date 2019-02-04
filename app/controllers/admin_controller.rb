@@ -73,6 +73,46 @@ class AdminController < ApplicationController
     end
   end
 
+  def promote_user_to_admin
+    @user = User.find(params[:id])
+
+    @user.update_attributes!(admin: true)
+
+    respond_to do |format|
+      format.html do
+        if !@user.admin?
+          redirect_to admin_path, alert: 'There was an error while promoting the user to admin'
+        else
+          redirect_to admin_path, notice: "#{@user.email} has been promoted to admin"
+        end
+      end
+
+      format.json do
+        render json: { data: { success: @user.admin? } }
+      end
+    end
+  end
+
+  def demote_user_from_admin
+    @user = User.find(params[:id])
+
+    @user.update_attributes!(admin: false)
+
+    respond_to do |format|
+      format.html do
+        if @user.admin?
+          redirect_to admin_path, alert: 'There was an error while demoting the user from admin'
+        else
+          redirect_to admin_path, notice: "#{@user.email} has been demoted from admin"
+        end
+      end
+
+      format.json do
+        render json: { data: { success: !@user.admin? } }
+      end
+    end
+  end
+
 
   protected
 
