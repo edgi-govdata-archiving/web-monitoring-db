@@ -11,7 +11,7 @@ class ImportVersionsJob < ApplicationJob
     begin
       import_raw_data(@import.load_data)
       @added.uniq {|version| version.uuid}.each do |version|
-        AnalyzeChangeJob.perform_later(version)
+        AnalyzeChangeJob.perform_later(version) if version.different?
       end
     rescue StandardError => error
       @import.processing_errors << if Rails.env.development?

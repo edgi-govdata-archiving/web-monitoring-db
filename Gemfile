@@ -24,7 +24,7 @@ gem 'sentry-raven'
 gem 'readthis'
 gem 'hiredis'
 gem 'google-api-client'
-gem 'addressable', '~> 2.5'
+gem 'addressable', '~> 2.6'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -44,7 +44,7 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.60.0', require: false
+  gem 'rubocop', '~> 0.63.1', require: false
   gem 'dotenv-rails'
 end
 
@@ -63,8 +63,6 @@ group :test do
 end
 
 group :production do
-  gem 'newrelic_rpm'
-
   # Send transactional e-mail with Postmark
   gem 'postmark-rails', group: :postmark
 end

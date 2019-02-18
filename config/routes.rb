@@ -41,6 +41,9 @@ Rails.application.routes.draw do
   post 'admin/cancel_invitation'
   delete 'admin/destroy_user'
   post 'admin/destroy_user'
-
+  put 'admin/promote_user_to_admin'
+  post 'admin/promote_user_to_admin'
+  put 'admin/demote_user_from_admin'
+  post 'admin/demote_user_from_admin'
   get 'healthcheck', to: 'healthcheck#index'
 end

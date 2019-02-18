@@ -1,3 +1,5 @@
+[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md)
+
 # web-monitoring-db
 
 This repository is the database and API underlying the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring).
@@ -223,6 +225,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [📖](# "Documentation") [👀](# "Reviewer") | [Dan Allan](https://github.com/danielballan) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Andrew Bergman](https://github.com/ambergman) |
 | [💻](# "Code") [🚇](# "Infrastructure") [📖](# "Documentation") [💬](# "Answering Questions") [👀](# "Reviewer") | [Rob Brackett](https://github.com/Mr0grog) |
+| [💻](# "Code") | [Alessandro Caporrini](https://github.com/acaporrini) |
 | [📖](# "Documentation") | [Patrick Connolly](https://github.com/patcon) |
 | [💻](# "Code") | [Robert Dalin](https://github.com/rdalin82) |
 | [💻](# "Code") | [Kate Donaldson](https://github.com/katelovescode) |
