@@ -13,7 +13,7 @@ It’s a Rails app that:
 
 ## Installation
 
-1. Ensure you have Ruby 2.5.1+.
+1. Ensure you have Ruby 2.6.1+.
 
     You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
 
