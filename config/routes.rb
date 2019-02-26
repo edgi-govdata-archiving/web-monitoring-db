@@ -27,11 +27,9 @@ Rails.application.routes.draw do
         resources :tags, except: [:new, :edit], format: :json
       end
 
-      resources :versions, only: [:index, :show], format: :json
-      resources :versions, only: [:show] do
-        get 'raw', on: :member
+      resources :versions, only: [:index, :show], format: :json do
+        get 'raw', on: :member, format: false
       end
-      resources :raw, only: [:show]
       resources :imports, only: [:create, :show], format: :json
       resources :maintainers, except: [:new, :edit, :destroy], format: :json
       resources :tags, except: [:new, :edit, :destroy], format: :json
