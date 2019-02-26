@@ -24,3 +24,5 @@ elsif !Rails.env.production?
 end
 
 Archiver.allowed_hosts = ENV['ALLOWED_ARCHIVE_HOSTS']
+
+Archiver.public_hosts = ENV['PUBLIC_ARCHIVE_HOSTS']

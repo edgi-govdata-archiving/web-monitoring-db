@@ -31,6 +31,19 @@ module Archiver
     @allowed_hosts || []
   end
 
+  def self.public_hosts=(hosts)
+    hosts = [] if hosts.nil?
+    hosts = hosts.split(' ') if hosts.is_a?(String)
+    unless hosts.is_a?(Enumerable) && hosts.all? {|host| host.is_a?(String)}
+      raise StandardError, 'Public hosts must be a string or enumerable of strings'
+    end
+    @public_hosts = hosts
+  end
+
+  def self.public_hosts
+    @public_hosts || []
+  end
+
   # Primary API ----------
 
   def self.archive(url, expected_hash: nil, force: false)
@@ -66,6 +79,10 @@ module Archiver
 
   def self.already_archived?(url)
     external_archive_url?(url) || store.contains_url?(url)
+  end
+
+  def self.public_archive_uri?(uri)
+    public_hosts.any? {|base| uri.starts_with?(base)}
   end
 
   def self.hash_content_at_url(url)
