@@ -30,7 +30,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     expires_in 1.year, :public => true
 
-    if Archiver.public_archive_uri?(@version.uri)
+    if Archiver.public_archive_url?(@version.uri)
       redirect_to @version.uri, status: 301 and return
     else
       upstream = Archiver.get_file_from_uri(@version.uri)

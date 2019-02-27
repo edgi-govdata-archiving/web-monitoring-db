@@ -81,8 +81,8 @@ module Archiver
     external_archive_url?(url) || store.contains_url?(url)
   end
 
-  def self.public_archive_uri?(uri)
-    public_hosts.any? {|base| uri.starts_with?(base)}
+  def self.public_archive_url?(url)
+    public_hosts.any? {|base| url.starts_with?(base)}
   end
 
   def self.hash_content_at_url(url)
@@ -100,25 +100,15 @@ module Archiver
     allowed_hosts.any? {|base| url.starts_with?(base)}
   end
 
-  # FIXME: This is a quick workaround of the limitations of having one named
-  # storage object. We could also move to a registry of named storage objects.
-  # See discussion:
-  # https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/475#pullrequestreview-201988299
   def self.get_file_from_uri(uri)
-    # Try getting a file from configured storage
-    begin
-      response = self.store.get_file(uri)
-    # If the file can't be found, try to HTTP GET it
-    # after verifying that the URI belongs to an archive host.
-    rescue Errno::ENOENT
-      if external_archive_url?(uri)
-        response = retry_request do
-          HTTParty.get(uri, limit: REDIRECT_LIMIT)
-        end
-      # Stop looking if it doesn't belong to an archive host.
-      else
-        raise Errno::ENOENT
+    # HTTP GET the file if its URI belongs to a public host.
+    if public_archive_url?(uri)
+      response = retry_request do
+        HTTParty.get(uri, limit: REDIRECT_LIMIT)
       end
+    # Try getting a file from configured storage if it isn't public.
+    else
+      response = self.store.get_file(uri)
     end
 
     return response
