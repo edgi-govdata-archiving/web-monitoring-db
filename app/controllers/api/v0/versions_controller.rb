@@ -133,7 +133,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
     methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
     options[:methods] = methods
 
-    version.uri = "#{api_v0_version_url(version)}/raw"
-    version.as_json(options)
+    # Don't expose the backend URI, expose the 'raw' route instead.
+    serialized_version = version.as_json(options)
+    serialized_version['uri'] = raw_api_v0_version_url(version)
+    return serialized_version
   end
 end
