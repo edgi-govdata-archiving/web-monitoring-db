@@ -117,7 +117,7 @@ module Archiver
         end
       # Stop looking if it doesn't belong to an archive host.
       else
-	raise Errno::ENOENT
+        raise Errno::ENOENT
       end
     end
 
