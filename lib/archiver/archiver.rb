@@ -82,7 +82,7 @@ module Archiver
   end
 
   def self.public_archive_url?(url)
-    public_hosts.any? {|base| url.starts_with?(base)}
+    external_archive_url?(url) || public_hosts.any? {|base| url.starts_with?(base)}
   end
 
   def self.hash_content_at_url(url)
