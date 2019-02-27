@@ -100,6 +100,30 @@ module Archiver
     allowed_hosts.any? {|base| url.starts_with?(base)}
   end
 
+  # FIXME: This is a quick workaround of the limitations of having one named
+  # storage object. We could also move to a registry of named storage objects.
+  # See discussion:
+  # https://github.com/edgi-govdata-archiving/web-monitoring-db/pull/475#pullrequestreview-201988299
+  def self.get_file_from_uri(uri)
+    # Try getting a file from configured storage
+    begin
+      response = self.store.get_file(uri)
+    # If the file can't be found, try to HTTP GET it
+    # after verifying that the URI belongs to an archive host.
+    rescue Errno::ENOENT
+      if external_archive_url?(uri)
+        response = retry_request do
+          HTTParty.get(uri, limit: REDIRECT_LIMIT)
+        end
+      # Stop looking if it doesn't belong to an archive host.
+      else
+	raise Errno::ENOENT
+      end
+    end
+
+    return response
+  end
+
   # Auto-retry requests that error out or have gateway errors
   def self.retry_request(tries: MAXIMUM_TRIES)
     (1..tries).each do |attempt|

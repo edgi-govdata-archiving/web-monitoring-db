@@ -26,16 +26,19 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def raw
-
     @version ||= version_collection.find(params[:id])
+
+    expires_in 1.year, :public => true
 
     if Archiver.public_archive_uri?(@version.uri)
       redirect_to @version.uri, status: 301 and return
     else
-      upstream = Archiver.store.get_file(@version.uri)
+      upstream = Archiver.get_file_from_uri(@version.uri)
+
       mime_type = @version.source_metadata['mime_type']
       mime_type = upstream.content_type if mime_type.nil? || mime_type.empty?
-      send_data(upstream.read, type: mime_type, disposition: 'inline')
+
+      send_data(upstream, type: mime_type, disposition: 'inline')
     end
   end
 
