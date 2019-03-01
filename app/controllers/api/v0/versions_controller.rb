@@ -30,10 +30,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     expires_in 1.year, :public => true
 
-    if Archiver.public_archive_url?(@version.uri)
+    if Archiver.external_archive_url?(@version.uri)
       redirect_to @version.uri, status: 301 and return
-    else
-      upstream = Archiver.get_file_from_uri(@version.uri)
+    elsif Archiver.store.contains_url?(@version.uri)
+      upstream = Archiver.store.get_file(@version.uri)
 
       # Media type logic mostly cribbed from
       # web-monitoring-db/app/jobs/analyze_change_job.rb
@@ -49,6 +49,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
 
       send_data(upstream, type: media, disposition: 'inline')
+    else
+      raise ActiveRecord::RecordNotFound, "No raw content for #{@version.uuid}."
     end
   end
 

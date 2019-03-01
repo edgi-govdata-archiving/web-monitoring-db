@@ -31,19 +31,6 @@ module Archiver
     @allowed_hosts || []
   end
 
-  def self.public_hosts=(hosts)
-    hosts = [] if hosts.nil?
-    hosts = hosts.split(' ') if hosts.is_a?(String)
-    unless hosts.is_a?(Enumerable) && hosts.all? {|host| host.is_a?(String)}
-      raise StandardError, 'Public hosts must be a string or enumerable of strings'
-    end
-    @public_hosts = hosts
-  end
-
-  def self.public_hosts
-    @public_hosts || []
-  end
-
   # Primary API ----------
 
   def self.archive(url, expected_hash: nil, force: false)
@@ -81,10 +68,6 @@ module Archiver
     external_archive_url?(url) || store.contains_url?(url)
   end
 
-  def self.public_archive_url?(url)
-    external_archive_url?(url) || public_hosts.any? {|base| url.starts_with?(base)}
-  end
-
   def self.hash_content_at_url(url)
     response = retry_request do
       HTTParty.get(url, limit: REDIRECT_LIMIT)
@@ -98,20 +81,6 @@ module Archiver
 
   def self.external_archive_url?(url)
     allowed_hosts.any? {|base| url.starts_with?(base)}
-  end
-
-  def self.get_file_from_uri(uri)
-    # HTTP GET the file if its URI belongs to a public host.
-    if public_archive_url?(uri)
-      response = retry_request do
-        HTTParty.get(uri, limit: REDIRECT_LIMIT)
-      end
-    # Try getting a file from configured storage if it isn't public.
-    else
-      response = self.store.get_file(uri)
-    end
-
-    return response
   end
 
   # Auto-retry requests that error out or have gateway errors
