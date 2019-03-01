@@ -151,7 +151,7 @@ GEM
     oj (3.7.9)
     orm_adapter (0.5.0)
     os (1.0.0)
-    parallel (1.13.0)
+    parallel (1.14.0)
     parser (2.6.0.0)
       ast (~> 2.4.0)
     pg (1.1.4)
@@ -166,6 +166,7 @@ GEM
       method_source (~> 0.9.0)
     pry-rails (0.3.9)
       pry (>= 0.10.4)
+    psych (3.1.0)
     public_suffix (3.0.3)
     puma (3.12.0)
     rack (2.0.6)
@@ -225,11 +226,12 @@ GEM
     resque-heroku-signals (1.27.4.3)
       resque (= 1.27.4)
     retriable (3.1.2)
-    rubocop (0.63.1)
+    rubocop (0.65.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.5, != 2.5.1.1)
       powerpack (~> 0.1)
+      psych (>= 3.1.0)
       rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.4.0)
@@ -322,7 +324,7 @@ DEPENDENCIES
   readthis
   resque
   resque-heroku-signals
-  rubocop (~> 0.63.1)
+  rubocop (~> 0.65.0)
   sass-rails (~> 5.0)
   sentry-raven
   spring
