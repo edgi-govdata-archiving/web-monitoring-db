@@ -147,8 +147,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     options[:methods] = methods
 
     # Don't expose the backend URI, expose the 'raw' route instead.
-    serialized_version = version.as_json(options)
-    serialized_version['uri'] = raw_api_v0_version_url(version)
-    return serialized_version
+    return version.as_json(options)
+     .update('uri' => raw_api_v0_version_url(version))
   end
 end
