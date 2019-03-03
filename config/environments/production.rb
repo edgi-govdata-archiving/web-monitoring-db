@@ -71,7 +71,7 @@ Rails.application.configure do
 
   # Action Mailer configuration
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org')
+    host: ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org').chomp('/')
   }
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_caching = false
