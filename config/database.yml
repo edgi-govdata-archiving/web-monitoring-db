@@ -5,10 +5,7 @@
 <%
   if Rails.env.development? || Rails.env.test?
     # Copy current environment and overlay test-specific config onto it
-    test_env = {}.update(ENV)
-    Dotenv::ignoring_nonexistent_files do
-      test_env.update(Dotenv::Environment.new('.env.test', true))
-    end
+    test_env = {}.update(ENV).update(Dotenv.parse('.env.test'))
 
     # Copy any `DATABASE_*` variables to current env as `DATABASE_*_TEST`
     test_env.each do |key, value|

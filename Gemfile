@@ -11,7 +11,7 @@ gem 'aws-sdk-s3', '~> 1.30'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.1'
-gem 'rails', '~> 5.2.2'
+gem 'rails', '~> 5.2.2.1'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 3.12'
 gem 'rack-cors', :require => 'rack/cors'
@@ -44,7 +44,7 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.63.1', require: false
+  gem 'rubocop', '~> 0.65.0', require: false
   gem 'dotenv-rails'
 end
 
