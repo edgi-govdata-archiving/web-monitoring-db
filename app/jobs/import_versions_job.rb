@@ -1,5 +1,25 @@
+require 'httparty'
+
+
+class ElasticLogger
+  include HTTParty
+  base_uri ENV.fetch('ELASTICSEARCH_URL')
+
+  def report_size(size)
+    response = self.class.post(
+      '/import_queue/_doc/',
+      :body => { size: size }.to_json,
+      :headers => {'Content-Type' => 'application/json'} )
+    puts response
+  end
+end
+
+
+
+
 class ImportVersionsJob < ApplicationJob
   queue_as :import
+  ELASTIC_LOGGER = ElasticLogger.new()
 
   # TODO: wrap in transaction?
   def perform(import)
@@ -24,6 +44,7 @@ class ImportVersionsJob < ApplicationJob
     ensure
       @import.status = :complete
       @import.save
+      ELASTIC_LOGGER.report_size(Resque.size(:import))
     end
   end
 
