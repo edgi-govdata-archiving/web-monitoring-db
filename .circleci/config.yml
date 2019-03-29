@@ -59,6 +59,29 @@ jobs:
           docker push envirodgi/db-import-worker:$CIRCLE_SHA1
           docker push envirodgi/db-import-worker:latest
 
+  test_job:
+    working_directory: ~/web-monitoring-db
+    docker:
+      - image: circleci/ruby:2.5.1-node
+        environment:
+          RAILS_ENV: test
+          RACK_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: root
+          HOST_URL: 'web-monitoring-db.test'
+          ALLOWED_ARCHIVE_HOSTS: 'https://edgi-wm-versionista.s3.amazonaws.com/ https://edgi-versionista-archive.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
+      - image: circleci/postgres:9.5-alpine-ram
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: circle-test_test
+    steps:
+      - checkout
+      - run:
+          name: Run something
+          command: |
+            echo 'Running the test_job job!'
+            which thisisgonnabreak
+
 workflows:
   version: 2
   build:
@@ -78,3 +101,10 @@ workflows:
       - publish_docker:
           requires:
             - build
+
+  test_filter:
+    filters:
+      branches:
+        ignore: test-workflow-filters
+    jobs:
+      - test_job
