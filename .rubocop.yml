@@ -47,10 +47,13 @@ Naming/UncommunicativeMethodParamName:
     - io
     - to
 
+Naming/RescuedExceptionsVariableName:
+  PreferredName: error
+
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
 Style/ClassAndModuleChildren:
