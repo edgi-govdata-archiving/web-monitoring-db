@@ -29,8 +29,9 @@ class ImportVersionsJob < ApplicationJob
 
   def import_raw_data(raw_data)
     last_update = Time.now
-    each_json_line(raw_data) do |record, row|
+    each_json_line(raw_data) do |record, row, row_count|
       begin
+        Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
         import_record(record)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
@@ -172,12 +173,13 @@ class ImportVersionsJob < ApplicationJob
       record_set = raw_json.split("\n")
     end
 
+    row_count = record_set.length
     record_set.each_with_index do |line, row|
       if line.is_a? String
         next if line.empty?
-        yield JSON.parse(line), row
+        yield JSON.parse(line), row, row_count
       else
-        yield line, row
+        yield line, row, row_count
       end
     end
   end
