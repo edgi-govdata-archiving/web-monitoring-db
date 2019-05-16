@@ -50,6 +50,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'letter_opener'
   gem 'listen', '~> 3.1'
   gem 'pry-rails'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
@@ -60,6 +61,8 @@ group :development do
 end
 
 group :test do
+  gem 'capybara'
+  gem 'capybara-email'
   gem 'webmock', '~> 3.5'
 end
 
