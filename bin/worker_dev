@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+
+QUEUE=* VERBOSE=1 RESQUE_PRE_SHUTDOWN_TIMEOUT=10 RESQUE_TERM_TIMEOUT=10 bundle exec rake environment resque:work

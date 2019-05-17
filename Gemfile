@@ -60,6 +60,8 @@ group :development do
 end
 
 group :test do
+  gem 'capybara'
+  gem 'capybara-email'
   gem 'webmock', '~> 3.5'
 end
 
