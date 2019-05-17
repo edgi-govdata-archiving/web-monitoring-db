@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/web-monitoring-db
     docker:
-      - image: circleci/ruby:2.5.1-node
+      - image: circleci/ruby:2.6.3-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test
