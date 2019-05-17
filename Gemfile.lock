@@ -131,10 +131,6 @@ GEM
     jmespath (1.4.0)
     json (2.2.0)
     jwt (2.1.0)
-    launchy (2.4.3)
-      addressable (~> 2.3)
-    letter_opener (1.7.0)
-      launchy (~> 2.2)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -332,7 +328,6 @@ DEPENDENCIES
   hiredis
   httparty
   jwt (~> 2.1)
-  letter_opener
   listen (~> 3.1)
   oj (~> 3.7)
   pg (~> 1.1)
