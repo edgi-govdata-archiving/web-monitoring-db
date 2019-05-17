@@ -109,7 +109,7 @@ class UsersTest < ApplicationSystemTestCase
       visit root_path
       refute page.has_content?("Logged in as #{viewer_email}"), "User should NOT have an active session"
 
-      # click_on 'Login'
+      click_on 'Login'
 
       fill_in 'Email', with: viewer_email
       fill_in 'Password', with: 'testpassword'
