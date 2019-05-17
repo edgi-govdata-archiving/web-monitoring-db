@@ -3,9 +3,12 @@ require "application_system_test_case"
 class UsersTest < ApplicationSystemTestCase
   test "Invite, register, confirm, promote, demote, delete" do
     admin = users(:admin_user)
-    viewer_email = 'viewer@example.com'
+    viewer_email = 'user@example.com'
 
-    Capybara.using_session(:admin) do
+    #
+    # Administrator sends a user invitation
+    #
+    Capybara.using_session('admin') do
       visit root_path
 
       click_on "Login"
@@ -14,7 +17,7 @@ class UsersTest < ApplicationSystemTestCase
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content? "Logged in as #{admin.email}"
+      assert page.has_content?("Logged in as #{admin.email}"), "Admin should have an active session"
       click_on 'Admin'
 
       perform_enqueued_jobs do
@@ -23,7 +26,10 @@ class UsersTest < ApplicationSystemTestCase
       end
     end
 
-    Capybara.using_session(:viewer) do
+    #
+    # User accepts the invitation and creates and confirms their account
+    #
+    Capybara.using_session('user') do
       open_email(viewer_email)
       current_email.find('a[href*="invitation"]').click
       clear_emails
@@ -40,12 +46,14 @@ class UsersTest < ApplicationSystemTestCase
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content? "Logged in as viewer@example.com"
+      assert page.has_content?("Logged in as #{viewer_email}"), "User should have an active session"
     end
 
-    Capybara.using_session(:admin) do
+    #
+    # Administrator promotes the User to have the "admin" permission
+    #
+    Capybara.using_session('admin') do
       visit admin_path
-      assert page.has_content? "Logged in as #{admin.email}"
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
       within user_row do
@@ -53,21 +61,20 @@ class UsersTest < ApplicationSystemTestCase
       end
     end
 
-    Capybara.using_session(:viewer) do
+    #
+    # User verifies that they have received the "admin" permission
+    #
+    Capybara.using_session('user') do
       visit root_path
 
-      # TODO: Signing in again should not be necessary.
-      click_on 'Login'
-      fill_in 'Email', with: viewer_email
-      fill_in 'Password', with: 'testpassword'
-      click_on 'Log in'
-
-      assert page.has_content? 'Admin'
+      assert page.has_link?('Admin'), "User should have admin permissions"
     end
 
-    Capybara.using_session(:admin) do
+    #
+    # Administrator removes the User's "admin" permission
+    #
+    Capybara.using_session('admin') do
       visit admin_path
-      assert page.has_content? "Logged in as #{admin.email}"
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
       within user_row do
@@ -75,12 +82,18 @@ class UsersTest < ApplicationSystemTestCase
       end
     end
 
-    Capybara.using_session(:viewer) do
+    #
+    # User verifies that the admin permission has been removed
+    #
+    Capybara.using_session('user') do
       visit root_path
-      refute page.has_content? 'Admin'
+      refute page.has_link?('Admin'), "User should not have admin permissions"
     end
 
-    Capybara.using_session(:admin) do
+    #
+    # Administrator deletes the User's account
+    #
+    Capybara.using_session('admin') do
       visit admin_path
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
@@ -89,15 +102,18 @@ class UsersTest < ApplicationSystemTestCase
       end
     end
 
-    Capybara.using_session(:viewer) do
+    #
+    # User is logged out from the deleted account and prevented from logging back in
+    #
+    Capybara.using_session('user') do
       visit root_path
-      click_on 'Login'
+      refute page.has_content?("Logged in as #{viewer_email}"), "User should NOT have an active session"
 
       fill_in 'Email', with: viewer_email
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content? 'Invalid Email or password.'
+      assert page.has_content?('Invalid Email or password.'), "User should not be able to log in"
     end
   end
 end

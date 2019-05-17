@@ -12,6 +12,9 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     @original_queue_adapter = ActiveJob::Base.queue_adapter
     ActiveJob::Base.queue_adapter = :test
 
+    @original_mailer_options = ActionMailer::Base.default_url_options
+    ActionMailer::Base.default_url_options = { host: Capybara.server_host }
+
     clear_enqueued_jobs
     clear_performed_jobs
     clear_emails
@@ -22,5 +25,6 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     clear_performed_jobs
     clear_emails
     ActiveJob::Base.queue_adapter = @original_queue_adapter
+    ActionMailer::Base.default_url_options = @original_mailer_options
   end
 end
