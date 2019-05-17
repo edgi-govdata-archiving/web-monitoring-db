@@ -8,7 +8,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # Administrator sends a user invitation
     #
-    Capybara.using_session('admin') do
+    Capybara.using_session(:admin) do
       visit root_path
 
       click_on "Login"
@@ -29,7 +29,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # User accepts the invitation and creates and confirms their account
     #
-    Capybara.using_session('user') do
+    Capybara.using_session(:user) do
       open_email(viewer_email)
       current_email.find('a[href*="invitation"]').click
       clear_emails
@@ -52,7 +52,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # Administrator promotes the User to have the "admin" permission
     #
-    Capybara.using_session('admin') do
+    Capybara.using_session(:admin) do
       visit admin_path
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
@@ -64,7 +64,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # User verifies that they have received the "admin" permission
     #
-    Capybara.using_session('user') do
+    Capybara.using_session(:user) do
       visit root_path
 
       assert page.has_link?('Admin'), "User should have admin permissions"
@@ -73,7 +73,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # Administrator removes the User's "admin" permission
     #
-    Capybara.using_session('admin') do
+    Capybara.using_session(:admin) do
       visit admin_path
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
@@ -85,7 +85,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # User verifies that the admin permission has been removed
     #
-    Capybara.using_session('user') do
+    Capybara.using_session(:user) do
       visit root_path
       refute page.has_link?('Admin'), "User should not have admin permissions"
     end
@@ -93,7 +93,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     # Administrator deletes the User's account
     #
-    Capybara.using_session('admin') do
+    Capybara.using_session(:admin) do
       visit admin_path
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
@@ -105,9 +105,11 @@ class UsersTest < ApplicationSystemTestCase
     #
     # User is logged out from the deleted account and prevented from logging back in
     #
-    Capybara.using_session('user') do
+    Capybara.using_session(:user) do
       visit root_path
       refute page.has_content?("Logged in as #{viewer_email}"), "User should NOT have an active session"
+
+      # click_on 'Login'
 
       fill_in 'Email', with: viewer_email
       fill_in 'Password', with: 'testpassword'

@@ -36,7 +36,7 @@ jobs:
             bundle exec rake db:schema:load
       - run:
           name: Tests
-          command: bundle exec rake test
+          command: bin/rails test:system test
       - run:
           name: Code linting
           command: bundle exec rubocop
