@@ -80,7 +80,7 @@ module Differ
           raise error if attempt >= tries
         end
 
-        sleep((attempt - 1) ** 2)
+        sleep((attempt - 1)**2)
       end
     end
 

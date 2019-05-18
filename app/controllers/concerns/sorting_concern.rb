@@ -19,6 +19,7 @@ module SortingConcern
     unless sanitized.match?(/^\w+$/)
       raise Api::InputError, "'#{field}' is not a valid attribute name for sorting"
     end
+
     sanitized.to_sym
   end
 
@@ -28,6 +29,7 @@ module SortingConcern
     unless ['asc', 'desc'].include?(sanitized)
       raise Api::InputError, "'#{direction}' is not a valid sort direction. It must be either 'asc' or 'desc'"
     end
+
     sanitized.to_sym
   end
 

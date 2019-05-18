@@ -75,9 +75,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include pages for the filtered site'
+                    'Results did not include pages for the filtered site'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages not matching filtered site'
+                        'Results included pages not matching filtered site'
   end
 
   test 'can filter pages by agency' do
@@ -88,9 +88,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:dot_home_page).uuid,
-      'Results did not include pages for the filtered agency'
+                    'Results did not include pages for the filtered agency'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages not matching filtered agency'
+                        'Results included pages not matching filtered agency'
   end
 
   test 'can filter pages by title' do
@@ -101,9 +101,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include pages for the filtered site'
+                    'Results did not include pages for the filtered site'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages not matching filtered site'
+                        'Results included pages not matching filtered site'
   end
 
   test 'can filter pages by URL' do
@@ -114,11 +114,11 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include the page with the filtered URL'
+                    'Results did not include the page with the filtered URL'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages not matching filtered URL'
+                        'Results included pages not matching filtered URL'
     assert_not_includes ids, pages(:sub_page).uuid,
-      'Results included pages with similar but not same filtered URL'
+                        'Results included pages with similar but not same filtered URL'
   end
 
   test 'can filter pages by URL with "*" wildcard' do
@@ -129,11 +129,11 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include the page with the filtered URL'
+                    'Results did not include the page with the filtered URL'
     assert_includes ids, pages(:sub_page).uuid,
-      'Results did not include the page with the filtered URL'
+                    'Results did not include the page with the filtered URL'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages not matching filtered URL'
+                        'Results included pages not matching filtered URL'
   end
 
   test 'can filter pages by version source_type' do
@@ -144,9 +144,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include pages with versions captured by pagefreezer'
+                    'Results did not include pages with versions captured by pagefreezer'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages with versions not captured by pagreezer'
+                        'Results included pages with versions not captured by pagreezer'
   end
 
   test 'can filter pages by version hash' do
@@ -156,9 +156,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body['data'].pluck 'uuid'
 
     assert_includes ids, pages(:sub_page).uuid,
-      'Results did not include pages with versions matching the given hash'
+                    'Results did not include pages with versions matching the given hash'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages with versions not matching the given hash'
+                        'Results included pages with versions not matching the given hash'
   end
 
   test 'can filter pages by version capture_time' do
@@ -170,9 +170,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-      'Results did not include pages with versions captured in the filtered date range'
+                    'Results did not include pages with versions captured in the filtered date range'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-      'Results included pages with versions not captured in the filtered date range'
+                        'Results included pages with versions not captured in the filtered date range'
   end
 
   test 'includes earliest version if include_earliest = true' do
@@ -210,7 +210,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
     home_page = results.find {|page| page['uuid'] == pages(:home_page).uuid}
     assert_equal pages(:home_page).versions.count, home_page['versions'].length,
-      '"Home page" didn’t include all versions'
+                 '"Home page" didn’t include all versions'
   end
 
   test 'includes only versions if include_versions = true and include_latest = true' do
@@ -721,7 +721,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response(:success)
     body = JSON.parse(@response.body)
     assert(body['data'].any? {|page| page['active'] == true})
-    assert(!body['data'].any? {|page| page['active'] == false})
+    assert(body['data'].none? {|page| page['active'] == false})
   end
 
   test 'includes only inactive pages if ?active=false' do
@@ -729,7 +729,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_pages_url(params: { active: false }))
     assert_response(:success)
     body = JSON.parse(@response.body)
-    assert(!body['data'].any? {|page| page['active'] == true})
+    assert(body['data'].none? {|page| page['active'] == true})
     assert(body['data'].any? {|page| page['active'] == false})
   end
 

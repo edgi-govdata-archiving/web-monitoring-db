@@ -46,8 +46,8 @@ class Api::V0::ApiController < ApplicationController
     code || begin
       error_name = error.class.name
       ActionDispatch::ExceptionWrapper.status_code_for_exception(error_name)
-    rescue StandardError => _
-      500
+            rescue StandardError => _error
+              500
     end
   end
 
@@ -59,8 +59,10 @@ class Api::V0::ApiController < ApplicationController
 
   def boolean_param(param, presence_implies_true: true, default: false)
     return default unless params.key?(param)
+
     value = params[param]
     return true if value.nil? && presence_implies_true
+
     /^(true|t|1)$/i.match? value
   end
 
@@ -76,8 +78,9 @@ class Api::V0::ApiController < ApplicationController
 
   def parse_date!(date)
     raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
+
     Time.parse date
-  rescue StandardError => _
+  rescue StandardError => _error
     raise Api::InputError, "Invalid date: '#{date}'"
   end
 

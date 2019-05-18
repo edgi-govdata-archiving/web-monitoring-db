@@ -1,6 +1,6 @@
-require "test_helper"
+require 'test_helper'
 
-Capybara::save_path = Rails.root.join('tmp')
+Capybara.save_path = Rails.root.join('tmp')
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   include ActiveJob::TestHelper

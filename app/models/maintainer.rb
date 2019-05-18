@@ -8,13 +8,13 @@ class Maintainer < ApplicationRecord
   has_many :pages, through: :maintainerships
 
   belongs_to :parent,
-    class_name: 'Maintainer',
-    foreign_key: :parent_uuid,
-    optional: true,
-    inverse_of: :children
+             class_name: 'Maintainer',
+             foreign_key: :parent_uuid,
+             optional: true,
+             inverse_of: :children
 
   has_many :children,
-    class_name: 'Maintainer',
-    foreign_key: :parent_uuid,
-    inverse_of: :parent
+           class_name: 'Maintainer',
+           foreign_key: :parent_uuid,
+           inverse_of: :parent
 end

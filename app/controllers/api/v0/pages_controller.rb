@@ -191,13 +191,13 @@ class Api::V0::PagesController < Api::V0::ApiController
   def format_page_json(page)
     page['maintainers'] = page.delete('maintainerships').collect do |item|
       item['maintainer']
-        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
+        .reject {|k, _| ['created_at', 'updated_at'].include?(k)}
         .merge('assigned_at' => item['created_at'])
     end
 
     page['tags'] = page.delete('taggings').collect do |item|
       item['tag']
-        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
+        .reject {|k, _| ['created_at', 'updated_at'].include?(k)}
         .merge('assigned_at' => item['created_at'])
     end
   end

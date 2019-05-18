@@ -4,33 +4,33 @@ class Page < ApplicationRecord
   include SimpleTitle
 
   has_many :versions,
-    -> { order(capture_time: :desc) },
-    foreign_key: 'page_uuid',
-    inverse_of: :page
+           -> { order(capture_time: :desc) },
+           foreign_key: 'page_uuid',
+           inverse_of: :page
   has_one :earliest,
-    (lambda do
-      # DISTINCT ON requires the first ORDER to be the distinct column(s)
-      relation = order('versions.page_uuid')
-      # HACK: This is not public API, but I couldn't find a better way. The
-      # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
-      # all public methods append to the end.
-      relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
-      relation.order('versions.capture_time ASC')
-    end),
-    foreign_key: 'page_uuid',
-    class_name: 'Version'
+          (lambda do
+            # DISTINCT ON requires the first ORDER to be the distinct column(s)
+            relation = order('versions.page_uuid')
+            # HACK: This is not public API, but I couldn't find a better way. The
+            # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
+            # all public methods append to the end.
+            relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
+            relation.order('versions.capture_time ASC')
+          end),
+          foreign_key: 'page_uuid',
+          class_name: 'Version'
   has_one :latest,
-    (lambda do
-      # DISTINCT ON requires the first ORDER to be the distinct column(s)
-      relation = order('versions.page_uuid')
-      # HACK: This is not public API, but I couldn't find a better way. The
-      # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
-      # all public methods append to the end.
-      relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
-      relation.order('versions.capture_time DESC').where(different: true)
-    end),
-    foreign_key: 'page_uuid',
-    class_name: 'Version'
+          (lambda do
+            # DISTINCT ON requires the first ORDER to be the distinct column(s)
+            relation = order('versions.page_uuid')
+            # HACK: This is not public API, but I couldn't find a better way. The
+            # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
+            # all public methods append to the end.
+            relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
+            relation.order('versions.capture_time DESC').where(different: true)
+          end),
+          foreign_key: 'page_uuid',
+          class_name: 'Version'
   # This needs a funky name because `changes` is a an activerecord method
   has_many :tracked_changes, through: :versions
 
@@ -42,8 +42,8 @@ class Page < ApplicationRecord
   before_save :normalize_url
   validate :url_must_have_domain
   validates :status,
-    allow_nil: true,
-    inclusion: { in: 100...600, message: 'is not between 100 and 599' }
+            allow_nil: true,
+            inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
   def self.find_by_url(raw_url)
     url = normalize_url(raw_url)
@@ -52,6 +52,7 @@ class Page < ApplicationRecord
 
   def self.normalize_url(url)
     return if url.nil?
+
     if url.match?(/^[\w\+\-\.]+:\/\//)
       url
     else

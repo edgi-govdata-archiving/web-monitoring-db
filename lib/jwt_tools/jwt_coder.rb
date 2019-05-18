@@ -38,7 +38,7 @@ module JwtTools
         # TODO: raise up expiration errors so we can return a special response?
         decoded = JWT.decode(token, @public_key, true, algorithm: 'RS256')
         decoded.first
-      rescue StandardError => _
+      rescue StandardError => _error
         nil
       end
     end

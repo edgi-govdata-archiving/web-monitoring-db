@@ -18,6 +18,7 @@ class CopyAgencyAndSiteFieldsToAssociatedModels < ActiveRecord::Migration[5.1]
       items = collection.limit(batch_size).offset(offset)
       items.each {|item| yield item}
       break if items.count.zero?
+
       offset += batch_size
     end
   end
