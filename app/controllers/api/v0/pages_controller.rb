@@ -193,12 +193,12 @@ class Api::V0::PagesController < Api::V0::ApiController
   def format_page_json(page)
     page['maintainers'] = page.delete('maintainerships').collect do |item|
       item['maintainer'].except!(OMITTABLE_ATTRIBUTES)
-                        .merge!('assigned_at' => item['created_at'])
+        .merge!('assigned_at' => item['created_at'])
     end
 
     page['tags'] = page.delete('taggings').collect do |item|
       item['tag'].except!(OMITTABLE_ATTRIBUTES)
-                 .merge!('assigned_at' => item['created_at'])
+        .merge!('assigned_at' => item['created_at'])
     end
   end
 
