@@ -1,4 +1,18 @@
 class User < ApplicationRecord
+  PERMISSIONS = [
+    VIEW_PERMISSION = 'view',
+    ANNOTATE_PERMISSION = 'annotate',
+    IMPORT_PERMISSION = 'import',
+    MANAGE_USERS_PERMISSION = 'manage_users',
+  ].freeze
+
+  PERMISSION_DESCRIPTIONS = {
+    VIEW_PERMISSION => 'See versions and pages',
+    ANNOTATE_PERMISSION => 'View and create annotations',
+    IMPORT_PERMISSION => 'Import or create versions and pages',
+    MANAGE_USERS_PERMISSION => 'Invite, and delete users and manage their permissions',
+  }
+
   # Built-in Devise user modules
   devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :confirmable, :registerable
 
@@ -6,6 +20,8 @@ class User < ApplicationRecord
   # their account, the associated invitation should be destroyed. (We keep
   # it around so that someone can re-use the invitation if they made a typo.)
   has_one :invitation, class_name: 'Invitation', foreign_key: 'redeemer_id', inverse_of: :redeemer
+
+  validates :permissions, contains_only: PERMISSIONS
 
   # We need to enforce some additional constraints on the invitation
   # relationship. This isn't great, but the best way I can see for now.
@@ -24,6 +40,17 @@ class User < ApplicationRecord
     end
     super(options)
   end
+
+  def permission?(permission)
+    permissions.include? permission
+  end
+
+  PERMISSIONS.each do |permission|
+    define_method "#{permission}?" do
+      permission?(permission)
+    end
+  end
+  alias admin? manage_users?
 
   protected
 

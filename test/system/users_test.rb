@@ -57,8 +57,11 @@ class UsersTest < ApplicationSystemTestCase
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
       within user_row do
-        click_on 'Promote to admin'
+        click_on 'Manage'
       end
+
+      check 'manage_users'
+      click_on "Update #{viewer_email}"
     end
 
     #
@@ -78,8 +81,11 @@ class UsersTest < ApplicationSystemTestCase
 
       user_row = page.all('tr').find { |tr| tr.has_content? viewer_email }
       within user_row do
-        click_on 'Demote from admin'
+        click_on 'Manage'
       end
+
+      uncheck 'manage_users'
+      click_on "Update #{viewer_email}"
     end
 
     #
