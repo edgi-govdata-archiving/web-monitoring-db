@@ -19,24 +19,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # These tests get network privileges (for now)
-  def setup
-    WebMock.allow_net_connect!
-    @original_allowed_hosts = Archiver.allowed_hosts
-    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
-    # Imports trigger analysis, which uses these diffs
-    Differ.register('html_source_dmp', MockDiffer.new)
-    Differ.register('html_text_dmp', MockDiffer.new)
-    Differ.register('links_json', MockDiffer.new)
-  end
-
-  def teardown
-    WebMock.disable_net_connect!
-    Archiver.allowed_hosts = @original_allowed_hosts
-  end
-
-  test 'can import data' do
-    import_data = [
+  def import_data
+    [
       {
         page_url: 'http://testsite.com/',
         title: 'Example Page',
@@ -60,7 +44,45 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       }
     ]
+  end
 
+  # These tests get network privileges (for now)
+  def setup
+    WebMock.allow_net_connect!
+    @original_allowed_hosts = Archiver.allowed_hosts
+    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+    # Imports trigger analysis, which uses these diffs
+    Differ.register('html_source_dmp', MockDiffer.new)
+    Differ.register('html_text_dmp', MockDiffer.new)
+    Differ.register('links_json', MockDiffer.new)
+  end
+
+  def teardown
+    WebMock.disable_net_connect!
+    Archiver.allowed_hosts = @original_allowed_hosts
+  end
+
+  test 'authorizations' do
+    post(
+      api_v0_imports_path,
+      headers: { 'Content-Type': 'application/x-json-stream' },
+      params: import_data.map(&:to_json).join("\n")
+    )
+    assert_response(:unauthorized)
+
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::IMPORT_PERMISSION])
+    sign_in user
+
+    post(
+      api_v0_imports_path,
+      headers: { 'Content-Type': 'application/x-json-stream' },
+      params: import_data.map(&:to_json).join("\n")
+    )
+    assert_response(:forbidden)
+  end
+
+  test 'can import data' do
     sign_in users(:alice)
 
     perform_enqueued_jobs do

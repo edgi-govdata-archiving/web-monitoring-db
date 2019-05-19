@@ -1,4 +1,6 @@
 class Api::V0::ImportsController < Api::V0::ApiController
+  before_action { authorize :api, :import? }
+
   def show
     @import ||= Import.find(params[:id])
     status_code = @import.complete? ? 200 : 202

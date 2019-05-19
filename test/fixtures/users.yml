@@ -8,10 +8,10 @@ alice:
   email: test1@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
   confirmed_at: <%= Time.now %>
-  permissions: <%= [User::VIEW_PERMISSION] %>
+  permissions: <%= [User::VIEW_PERMISSION, User::ANNOTATE_PERMISSION, User::IMPORT_PERMISSION] %>
 
 admin_user:
   email: test2@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
   confirmed_at: <%= Time.now %>
-  permissions: <%= [User::VIEW_PERMISSION, User::MANAGE_USERS_PERMISSION] %>
+  permissions: <%= [User::VIEW_PERMISSION, User::ANNOTATE_PERMISSION, User::IMPORT_PERMISSION, User::MANAGE_USERS_PERMISSION] %>

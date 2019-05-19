@@ -3,6 +3,26 @@ require 'test_helper'
 class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
+  test 'authorizations' do
+    get(api_v0_page_versions_url(pages(:home_page)))
+    assert_response :unauthorized
+    body_json = JSON.parse(@response.body)
+    assert_equal({ "errors" => [{ "status" => 401, "title" => "You must be logged in to perform this action." }] }, body_json)
+
+    user = users(:alice)
+
+    sign_in user
+    get(api_v0_page_versions_url(pages(:home_page)))
+    assert_response :success
+
+    user.update permissions: (user.permissions - [User::VIEW_PERMISSION])
+
+    get(api_v0_page_versions_url(pages(:home_page)))
+    assert_response :forbidden
+    body_json = JSON.parse(@response.body)
+    assert_equal({ "errors" => [{ "status" => 403, "title" => "You are not authorized to perform this action." }] }, body_json)
+  end
+
   test 'can list versions' do
     sign_in users(:alice)
     get(api_v0_page_versions_url(pages(:home_page)))
@@ -66,9 +86,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions by exact date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: '2017-03-01T00:00:00Z'
-    )
+          pages(:home_page),
+          capture_time: '2017-03-01T00:00:00Z'
+        )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -81,9 +101,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'returns meaningful error for bad dates' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: 'ugh'
-    )
+          pages(:home_page),
+          capture_time: 'ugh'
+        )
     assert_response :bad_request
 
     body_json = JSON.parse @response.body
@@ -95,9 +115,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions by date range' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
-    )
+          pages(:home_page),
+          capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
+        )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -110,9 +130,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions captured before a date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: '..2017-03-01T12:00:00Z'
-    )
+          pages(:home_page),
+          capture_time: '..2017-03-01T12:00:00Z'
+        )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -125,9 +145,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions captured after a date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: '2017-03-01T12:00:00Z..'
-    )
+          pages(:home_page),
+          capture_time: '2017-03-01T12:00:00Z..'
+        )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -140,9 +160,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'returns meaningful error for bad date ranges' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-      pages(:home_page),
-      capture_time: 'ugh..2017-03-04'
-    )
+          pages(:home_page),
+          capture_time: 'ugh..2017-03-04'
+        )
     assert_response :bad_request
 
     body_json = JSON.parse @response.body
@@ -156,7 +176,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get api_v0_page_versions_url(pages(:home_page), source_type: 'pagefreezer')
 
     body_json = JSON.parse @response.body
-    types = body_json['data'].collect {|v| v['source_type']}.uniq
+    types = body_json['data'].collect { |v| v['source_type'] }.uniq
 
     assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
   end
@@ -181,7 +201,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response(:success)
     body = JSON.parse(@response.body)
-    ids = body['data'].collect {|v| v['source_metadata']['version_id']}.uniq
+    ids = body['data'].collect { |v| v['source_metadata']['version_id'] }.uniq
     assert_equal(1, ids.length, 'Only one version ID should be included in results')
     assert_equal(
       version.source_metadata['version_id'],
@@ -226,14 +246,14 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page_versions = [
       { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
       { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
-    ].collect {|data| pages(:home_page).versions.create(data)}
+    ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)
 
     sign_in users(:alice)
     get(api_v0_versions_url)
     assert_response(:success)
     body = JSON.parse(@response.body)
-    uuids = body['data'].collect {|version| version['uuid']}
+    uuids = body['data'].collect { |version| version['uuid'] }
 
     assert_includes(uuids, page_versions[0].uuid)
     assert_not_includes(uuids, page_versions[1].uuid)
@@ -246,14 +266,14 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
       { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
       { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
-    ].collect {|data| pages(:home_page).versions.create(data)}
+    ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)
 
     sign_in users(:alice)
     get(api_v0_versions_url(params: { different: false }))
     assert_response(:success)
     body = JSON.parse(@response.body)
-    uuids = body['data'].collect {|version| version['uuid']}
+    uuids = body['data'].collect { |version| version['uuid'] }
 
     assert_includes(uuids, page_versions[0].uuid)
     assert_includes(uuids, page_versions[1].uuid)
@@ -266,7 +286,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_versions_url(params: { status: 404 }))
     assert_response(:success)
     body = JSON.parse(@response.body)
-    assert(body['data'].all? {|item| item['status'] == 404})
+    assert(body['data'].all? { |item| item['status'] == 404 })
   end
 
   test 'filters by status interval using ?status=interval' do
@@ -274,6 +294,6 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_versions_url(params: { status: '[400,500)' }))
     assert_response(:success)
     body = JSON.parse(@response.body)
-    assert(body['data'].all? {|item| item['status'] >= 400 && item['status'] < 500})
+    assert(body['data'].all? { |item| item['status'] >= 400 && item['status'] < 500 })
   end
 end

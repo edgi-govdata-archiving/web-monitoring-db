@@ -3,6 +3,32 @@ require 'test_helper'
 class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
+  test 'authorizations' do
+    page = pages(:home_page)
+    annotations(:annotation1).touch
+    get(
+      api_v0_page_change_annotations_url(
+        page,
+        changes(:page1_change_1_2),
+        params: { sort: 'updated_at:asc' }
+      )
+    )
+    assert_response(:unauthorized)
+
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    get(
+      api_v0_page_change_annotations_url(
+        page,
+        changes(:page1_change_1_2),
+        params: { sort: 'updated_at:asc' }
+      )
+    )
+    assert_response(:forbidden)
+  end
+
   test 'can annotate a version' do
     page = pages(:home_page)
     annotation = { 'test_key' => 'test_value' }
