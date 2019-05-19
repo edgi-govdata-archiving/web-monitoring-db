@@ -13,6 +13,7 @@ module Archiver
 
   def self.store
     raise StandardError, 'You must set store before archiving.' unless @store
+
     @store
   end
 
@@ -22,6 +23,7 @@ module Archiver
     unless hosts.is_a?(Enumerable) && hosts.all? {|host| host.is_a?(String)}
       raise StandardError, 'Allowed hosts must be a string or enumerable of strings'
     end
+
     @allowed_hosts = hosts
   end
 

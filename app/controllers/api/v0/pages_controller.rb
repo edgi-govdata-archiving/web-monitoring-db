@@ -1,6 +1,11 @@
 class Api::V0::PagesController < Api::V0::ApiController
   include SortingConcern
 
+  # Omit these attributes from tags and maintainers (we care about when the
+  # related item was *assigned*, not when it was created). Used only with
+  # lightweight_query.
+  OMITTABLE_ATTRIBUTES = ['created_at', 'updated_at'].freeze
+
   def index
     query = page_collection
     id_query = filter_maintainers_and_tags(query)
@@ -191,14 +196,14 @@ class Api::V0::PagesController < Api::V0::ApiController
   def format_page_json(page)
     page['maintainers'] = page.delete('maintainerships').collect do |item|
       item['maintainer']
-        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
-        .merge('assigned_at' => item['created_at'])
+        .except!(*OMITTABLE_ATTRIBUTES)
+        .merge!('assigned_at' => item['created_at'])
     end
 
     page['tags'] = page.delete('taggings').collect do |item|
       item['tag']
-        .reject {|k, _| k == 'created_at' || k == 'updated_at'}
-        .merge('assigned_at' => item['created_at'])
+        .except!(*OMITTABLE_ATTRIBUTES)
+        .merge!('assigned_at' => item['created_at'])
     end
   end
 

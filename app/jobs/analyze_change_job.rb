@@ -55,10 +55,10 @@ class AnalyzeChangeJob < ApplicationJob
     # This is a very narrow-purpose prototype! Most of the work should probably
     # move to web-monitoring-processing.
     change = if from_version
-      Change.between(from: from_version, to: to_version)
-    else
-      to_version.ensure_change_from_previous
-    end
+               Change.between(from: from_version, to: to_version)
+             else
+               to_version.ensure_change_from_previous
+             end
 
     return unless analyzable?(change)
 
@@ -77,35 +77,35 @@ class AnalyzeChangeJob < ApplicationJob
     priority = 0
 
     text_diff = Differ.for_type!('html_text_dmp').diff(change)['diff']
-    text_diff_changes = text_diff.select {|operation| operation[0] != 0}
+    text_diff_changes = text_diff.reject {|operation| operation[0] == 0}
     results[:text_diff_hash] = hash_changes(text_diff_changes)
     results[:text_diff_count] = text_diff_changes.length
-    results[:text_diff_length] = text_diff_changes.sum {|code, text| text.length}
+    results[:text_diff_length] = text_diff_changes.sum {|_code, text| text.length}
     results[:text_diff_ratio] = diff_ratio(text_diff)
 
     source_diff = Differ.for_type!('html_source_dmp').diff(change)['diff']
-    diff_changes = source_diff.select {|operation| operation[0] != 0}
+    diff_changes = source_diff.reject {|operation| operation[0] == 0}
     results[:source_diff_hash] = hash_changes(diff_changes)
     results[:source_diff_count] = diff_changes.length
-    results[:source_diff_length] = diff_changes.sum {|code, text| text.length}
+    results[:source_diff_length] = diff_changes.sum {|_code, text| text.length}
     results[:source_diff_ratio] = diff_ratio(source_diff)
 
     # A text diff change necessarily implies a source change; don't double-count
-    if text_diff_changes.length > 0
+    if !text_diff_changes.empty?
       # TODO: ignore stop words and also consider special terms more heavily, ignore punctuation
       priority += 0.1 + 0.3 * priority_factor(results[:text_diff_ratio])
-    elsif diff_changes.length > 0
+    elsif !diff_changes.empty?
       # TODO: eventually develop a more granular sense of change, either by
       # parsing or regex, where some source changes matter and some don't.
       priority += 0.1 * priority_factor(results[:source_diff_ratio])
     end
 
     links_diff = Differ.for_type!('links_json').diff(change)['diff']
-    diff_changes = links_diff.select {|operation| operation[0] != 0}
+    diff_changes = links_diff.reject {|operation| operation[0] == 0}
     results[:links_diff_hash] = hash_changes(diff_changes)
     results[:links_diff_count] = diff_changes.length
     results[:links_diff_ratio] = diff_ratio(links_diff)
-    if diff_changes.length > 0
+    unless diff_changes.empty?
       priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
     end
 
@@ -114,8 +114,8 @@ class AnalyzeChangeJob < ApplicationJob
     # TODO: can we look at past versions to see whether the error is sustained?
     # TODO: relatedly, bump up priority for sustained 4xx errors
     priority = [0.1, priority].min if version_status(change.version) >= 500 ||
-      version_status(change.from_version) >= 500 ||
-      looks_like_error(results[:text_diff_ratio], text_diff)
+                                      version_status(change.from_version) >= 500 ||
+                                      looks_like_error(results[:text_diff_ratio], text_diff)
 
     results[:priority] = priority.round(4)
 
@@ -130,13 +130,12 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def diff_ratio(operations)
-    return 0.0 if operations.length == 0 || operations.length == 1 && operations[0] == 0
+    return 0.0 if operations.empty? || operations.length == 1 && operations[0] == 0
 
-    characters = operations.reduce([0, 0]) do |counts, operation|
+    characters = operations.each_with_object([0, 0]) do |operation, counts|
       code, text = operation
       counts[0] += text.length if code != 0
       counts[1] += text.length
-      counts
     end
 
     characters[1] == 0 ? 0.0 : (characters[0] / characters[1].to_f).round(4)
@@ -167,7 +166,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def fetchable?(url)
-    url && (url.start_with?('http:') || url.start_with?('https:'))
+    url && url.start_with?('http:', 'https:')
   end
 
   def diffable_media?(version)
@@ -203,10 +202,10 @@ class AnalyzeChangeJob < ApplicationJob
   def annotator
     email = ENV['AUTO_ANNOTATION_USER']
     user = if email.present?
-      User.find_by(email: email)
-    elsif !Rails.env.production?
-      User.first
-    end
+             User.find_by(email: email)
+           elsif !Rails.env.production?
+             User.first
+           end
 
     raise StandardError, 'Could not find user to annotate changes' unless user
 
@@ -222,7 +221,7 @@ class AnalyzeChangeJob < ApplicationJob
 
   def to_bool(text)
     text = (text || '').downcase
-    text == 'true' || text == 't' || text == '1'
+    ['true', 't', '1'].include? text
   end
 
   # If present in the metadata, get the HTTP status code as a number
@@ -235,17 +234,16 @@ class AnalyzeChangeJob < ApplicationJob
   def looks_like_error(text_ratio, text_diff)
     return false if text_ratio < 0.9
 
-    texts = text_diff.reduce({old: '', new: ''}) do |texts, operation|
-      texts[:old] += operation[1] if operation[0] <= 0
-      texts[:new] += operation[1] if operation[0] >= 0
-      texts
+    texts = text_diff.each_with_object(old: '', new: '') do |operation, texts_memo|
+      texts_memo[:old] += operation[1] if operation[0] <= 0
+      texts_memo[:new] += operation[1] if operation[0] >= 0
     end
 
-    texts.each do |key, text|
+    texts.each do |_key, text|
       text = text.downcase
       # Based on version 8b52f47a-e1d7-4098-8087-87f71a9fc0b0
       return true if text.include?('error connecting to apache tomcat instance') &&
-        text.include?('no connection could be made')
+                     text.include?('no connection could be made')
     end
 
     false

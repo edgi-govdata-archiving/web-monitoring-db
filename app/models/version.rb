@@ -5,14 +5,14 @@ class Version < ApplicationRecord
   belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
   has_many :invalid_changes,
-    ->(version) { where.not(uuid_from: version.previous.uuid) },
-    class_name: 'Change',
-    foreign_key: 'uuid_to'
+           ->(version) { where.not(uuid_from: version.previous.uuid) },
+           class_name: 'Change',
+           foreign_key: 'uuid_to'
 
   after_create :sync_page_title
   validates :status,
-    allow_nil: true,
-    inclusion: { in: 100...600, message: 'is not between 100 and 599' }
+            allow_nil: true,
+            inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
   def earliest
     self.page.versions.reorder(capture_time: :asc).first

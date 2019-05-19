@@ -88,6 +88,7 @@ class Api::V0::MaintainersController < Api::V0::ApiController
 
   def page
     return nil unless params.key? :page_id
+
     @page ||= Page.find(params[:page_id])
   end
 

@@ -7,6 +7,7 @@ class NumericInterval
   def initialize(string_interval)
     components = string_interval.match(/^\s*(\[|\()?\s*(\d*(?:\.\d+)?)\s*(?:,|\.\.)\s*(\d*(?:\.\d+)?)\s*(\]|\))?\s*$/)
     raise ArgumentError, "Invalid interval format: '#{string_interval}'" unless components
+
     @start = components[2].present? ? components[2].to_f : nil
     @end = components[3].present? ? components[3].to_f : nil
     @start_open = components[1] == '('

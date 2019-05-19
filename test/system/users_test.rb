@@ -1,7 +1,7 @@
-require "application_system_test_case"
+require 'application_system_test_case'
 
 class UsersTest < ApplicationSystemTestCase
-  test "Invite, register, confirm, promote, demote, delete" do
+  test 'Invite, register, confirm, promote, demote, delete' do
     admin = users(:admin_user)
     viewer_email = 'user@example.com'
 
@@ -11,13 +11,13 @@ class UsersTest < ApplicationSystemTestCase
     Capybara.using_session(:admin) do
       visit root_path
 
-      click_on "Login"
+      click_on 'Login'
 
       fill_in 'Email', with: admin.email
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content?("Logged in as #{admin.email}"), "Admin should have an active session"
+      assert page.has_content?("Logged in as #{admin.email}"), 'Admin should have an active session'
       click_on 'Admin'
 
       perform_enqueued_jobs do
@@ -46,7 +46,7 @@ class UsersTest < ApplicationSystemTestCase
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content?("Logged in as #{viewer_email}"), "User should have an active session"
+      assert page.has_content?("Logged in as #{viewer_email}"), 'User should have an active session'
     end
 
     #
@@ -67,7 +67,7 @@ class UsersTest < ApplicationSystemTestCase
     Capybara.using_session(:user) do
       visit root_path
 
-      assert page.has_link?('Admin'), "User should have admin permissions"
+      assert page.has_link?('Admin'), 'User should have admin permissions'
     end
 
     #
@@ -87,7 +87,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     Capybara.using_session(:user) do
       visit root_path
-      refute page.has_link?('Admin'), "User should not have admin permissions"
+      refute page.has_link?('Admin'), 'User should not have admin permissions'
     end
 
     #
@@ -107,7 +107,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     Capybara.using_session(:user) do
       visit root_path
-      refute page.has_content?("Logged in as #{viewer_email}"), "User should NOT have an active session"
+      refute page.has_content?("Logged in as #{viewer_email}"), 'User should NOT have an active session'
 
       click_on 'Login'
 
@@ -115,7 +115,7 @@ class UsersTest < ApplicationSystemTestCase
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content?('Invalid Email or password.'), "User should not be able to log in"
+      assert page.has_content?('Invalid Email or password.'), 'User should not be able to log in'
     end
   end
 end

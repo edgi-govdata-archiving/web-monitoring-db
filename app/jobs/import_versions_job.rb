@@ -10,7 +10,7 @@ class ImportVersionsJob < ApplicationJob
 
     begin
       import_raw_data(@import.load_data)
-      @added.uniq {|version| version.uuid}.each do |version|
+      @added.uniq(&:uuid).each do |version|
         AnalyzeChangeJob.perform_later(version) if version.different?
       end
     rescue StandardError => error
@@ -75,6 +75,7 @@ class ImportVersionsJob < ApplicationJob
     )
 
     return if existing && @import.skip_existing_records?
+
     version = version_for_record(record, existing, @import.update_behavior)
     version.page = page
 
@@ -101,7 +102,7 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    @added << version if !existing
+    @added << version unless existing
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
@@ -177,6 +178,7 @@ class ImportVersionsJob < ApplicationJob
     record_set.each_with_index do |line, row|
       if line.is_a? String
         next if line.empty?
+
         yield JSON.parse(line), row, row_count
       else
         yield line, row, row_count

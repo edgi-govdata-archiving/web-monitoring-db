@@ -5,7 +5,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
   class MockDiffer
-    def diff(change, options = nil)
+    def diff(_change, _options = nil)
       {
         'change_count' => 2,
         'diff' => [

@@ -33,7 +33,7 @@ class Api::V0::DiffController < Api::V0::ApiController
 
     unless error_details.empty?
       raise Api::InputError,
-        "Raw content is not available for #{error_details.join ' and '}"
+            "Raw content is not available for #{error_details.join ' and '}"
     end
   end
 
