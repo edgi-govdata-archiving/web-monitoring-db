@@ -19,7 +19,7 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     put admin_user_path(user), params: { user: { permissions: permissions_payload } }
 
     assert_redirected_to admin_path
-    assert_equal [User::VIEW_PERMISSION, User::MANAGE_USERS_PERMISSION], user.reload.permissions, "User does not have correct permissions"
+    assert_equal [User::VIEW_PERMISSION, User::MANAGE_USERS_PERMISSION], user.reload.permissions, 'User does not have correct permissions'
   end
 
   test 'non-admin users cannot access' do

@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
     return render(json: {}, status: :unauthorized) if request.xhr?
 
     if current_user.present?
-      redirect_to root_path, alert: "You are not authorized to view this page"
+      redirect_to root_path, alert: 'You are not authorized to view this page'
     else
       store_location_for :user, request.url
       redirect_to new_user_session_path, notice: 'You must sign in to access this page.'

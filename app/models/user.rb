@@ -1,17 +1,17 @@
 class User < ApplicationRecord
   PERMISSIONS = [
-    VIEW_PERMISSION = 'view',
-    ANNOTATE_PERMISSION = 'annotate',
-    IMPORT_PERMISSION = 'import',
-    MANAGE_USERS_PERMISSION = 'manage_users',
+    VIEW_PERMISSION = 'view'.freeze,
+    ANNOTATE_PERMISSION = 'annotate'.freeze,
+    IMPORT_PERMISSION = 'import'.freeze,
+    MANAGE_USERS_PERMISSION = 'manage_users'.freeze
   ].freeze
 
   PERMISSION_DESCRIPTIONS = {
     VIEW_PERMISSION => 'See versions and pages',
     ANNOTATE_PERMISSION => 'View and create annotations',
     IMPORT_PERMISSION => 'Import or create versions and pages',
-    MANAGE_USERS_PERMISSION => 'Invite, and delete users and manage their permissions',
-  }
+    MANAGE_USERS_PERMISSION => 'Invite, and delete users and manage their permissions'
+  }.freeze
 
   # Built-in Devise user modules
   devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :confirmable, :registerable

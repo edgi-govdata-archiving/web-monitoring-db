@@ -7,7 +7,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response :unauthorized
     body_json = JSON.parse(@response.body)
-    assert_equal({ "errors" => [{ "status" => 401, "title" => "You must be logged in to perform this action." }] }, body_json)
+    assert_equal({ 'errors' => [{ 'status' => 401, 'title' => 'You must be logged in to perform this action.' }] }, body_json)
 
     user = users(:alice)
 
@@ -20,7 +20,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response :forbidden
     body_json = JSON.parse(@response.body)
-    assert_equal({ "errors" => [{ "status" => 403, "title" => "You are not authorized to perform this action." }] }, body_json)
+    assert_equal({ 'errors' => [{ 'status' => 403, 'title' => 'You are not authorized to perform this action.' }] }, body_json)
   end
 
   test 'can list versions' do
@@ -86,9 +86,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions by exact date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: '2017-03-01T00:00:00Z'
-        )
+      pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z'
+    )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -101,9 +101,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'returns meaningful error for bad dates' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: 'ugh'
-        )
+      pages(:home_page),
+      capture_time: 'ugh'
+    )
     assert_response :bad_request
 
     body_json = JSON.parse @response.body
@@ -115,9 +115,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions by date range' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
-        )
+      pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
+    )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -130,9 +130,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions captured before a date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: '..2017-03-01T12:00:00Z'
-        )
+      pages(:home_page),
+      capture_time: '..2017-03-01T12:00:00Z'
+    )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -145,9 +145,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions captured after a date' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: '2017-03-01T12:00:00Z..'
-        )
+      pages(:home_page),
+      capture_time: '2017-03-01T12:00:00Z..'
+    )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -160,9 +160,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'returns meaningful error for bad date ranges' do
     sign_in users(:alice)
     get api_v0_page_versions_url(
-          pages(:home_page),
-          capture_time: 'ugh..2017-03-04'
-        )
+      pages(:home_page),
+      capture_time: 'ugh..2017-03-04'
+    )
     assert_response :bad_request
 
     body_json = JSON.parse @response.body

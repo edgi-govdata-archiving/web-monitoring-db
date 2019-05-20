@@ -25,47 +25,47 @@ class UserTest < ActiveSupport::TestCase
     assert_not(invitation.persisted?, 'The invitation is still in the DB')
   end
 
-  test "#permissions validations" do
+  test '#permissions validations' do
     user = users(:alice)
-    assert user.valid?, "Fixture should be valid"
+    assert user.valid?, 'Fixture should be valid'
 
     user.permissions = User::PERMISSIONS
-    assert user.valid?, "All permission strings should be valid permissions"
+    assert user.valid?, 'All permission strings should be valid permissions'
 
     user.permissions = []
-    assert user.valid?, "Empty permissions array should be valid"
+    assert user.valid?, 'Empty permissions array should be valid'
 
     user.permissions = ['blargle']
-    refute user.valid?, "Invalid permission string should NOT be valid"
+    refute user.valid?, 'Invalid permission string should NOT be valid'
 
     user.permissions = nil
-    refute user.valid?, "Permission value should be an array"
+    refute user.valid?, 'Permission value should be an array'
 
     user.permissions = false
-    refute user.valid?, "Permission value should be an array"
+    refute user.valid?, 'Permission value should be an array'
   end
 
-  test "#admin? delegates to permissions" do
+  test '#admin? delegates to permissions' do
     user = users(:alice)
-    refute user.admin?, "User should not be an admin"
+    refute user.admin?, 'User should not be an admin'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
-    assert user.admin?, "User with manage_users should be admin"
+    assert user.admin?, 'User with manage_users should be admin'
   end
 
   test '#permission? describes whether use has permission' do
     user = users(:alice)
-    refute user.permission?(User::MANAGE_USERS_PERMISSION), "User should not be an admin"
+    refute user.permission?(User::MANAGE_USERS_PERMISSION), 'User should not be an admin'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
-    assert user.permission?(User::MANAGE_USERS_PERMISSION), "User with manage_users should be admin"
+    assert user.permission?(User::MANAGE_USERS_PERMISSION), 'User with manage_users should be admin'
   end
 
   test 'user has permission predicates' do
     user = users(:alice)
-    refute user.manage_users?, "User should not be able to manage users"
+    refute user.manage_users?, 'User should not be able to manage users'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
-    assert user.manage_users?, "User should be able to manage users"
+    assert user.manage_users?, 'User should be able to manage users'
   end
 end

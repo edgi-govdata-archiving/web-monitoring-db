@@ -10,6 +10,6 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     body = JSON.parse @response.body
-    assert_equal  ["view", "annotate", "import"], body['user']['permissions'], "User JSON contains permissions"
+    assert_equal ['view', 'annotate', 'import'], body['user']['permissions'], 'User JSON contains permissions'
   end
 end

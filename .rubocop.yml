@@ -23,6 +23,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - 'lib/tasks/data/*'
+    - 'test/system/**/*'
 
 Metrics/ClassLength:
   Enabled: false
