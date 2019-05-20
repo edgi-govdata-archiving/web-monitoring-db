@@ -133,9 +133,9 @@ ActiveRecord::Schema.define(version: 2019_05_18_154841) do
     t.string "unconfirmed_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "admin", default: false
     t.string "permissions", default: [], array: true
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["permissions"], name: "index_users_on_permissions", using: :gin
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
