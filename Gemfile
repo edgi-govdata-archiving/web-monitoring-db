@@ -5,19 +5,19 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby '2.5.1'
+ruby '2.6.3'
 
-gem 'aws-sdk-s3', '~> 1.30'
+gem 'aws-sdk-s3', '~> 1.36'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.1'
-gem 'rails', '~> 5.2.2.1'
+gem 'rails', '~> 5.2.3'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 3.12'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
 gem 'resque-heroku-signals'
-gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails', '~> 2.1.1'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.7'
 gem 'sentry-raven'
@@ -44,7 +44,8 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.65.0', require: false
+  gem 'rubocop', '~> 0.68.1', require: false
+  gem 'rubocop-performance'
   gem 'dotenv-rails'
 end
 
@@ -59,6 +60,8 @@ group :development do
 end
 
 group :test do
+  gem 'capybara'
+  gem 'capybara-email'
   gem 'webmock', '~> 3.5'
 end
 

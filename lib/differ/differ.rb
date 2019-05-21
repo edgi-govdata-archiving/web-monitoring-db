@@ -14,7 +14,7 @@ module Differ
 
   def self.for_type!(type)
     for_type(type) || (raise Api::NotImplementedError,
-      "There is no registered differ for '#{type}'")
+                             "There is no registered differ for '#{type}'")
   end
 
   # If configured, create a default/fallback differ for a given type.

@@ -13,7 +13,7 @@ It’s a Rails app that:
 
 ## Installation
 
-1. Ensure you have Ruby 2.5.1+.
+1. Ensure you have Ruby 2.6.3+.
 
     You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
 
@@ -88,13 +88,15 @@ It’s a Rails app that:
 
         If you’d like to do the setup manually or don’t want sample data, see [manual postgres setup](#manual-postgres-setup) below.
 
-    - If you’d like to configure your Postgres DB to be more secure and require a non-superuser for your databases, you’ll need to do a little more work:
+    - If you’d like to configure your Postgres DB to use a specific user, you’ll need to do a little more work:
 
         1. Log into `psql` and create a new user for your databases. Change the username and password to whatever you’d like:
 
             ```sql
-            CREATE USER wm_dev_user PASSWORD 'wm_dev_password';
+            CREATE USER wm_dev_user WITH SUPERUSER PASSWORD 'wm_dev_password';
             ```
+            Unfortunately,
+           [Rails' test fixtures require nothing less than superuser privileges in PostgreSQL](https://edgeguides.rubyonrails.org/testing.html#fixtures-in-action).
 
         2. (Still in `psql`) Create a development and a test database:
 
@@ -235,6 +237,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
+| [💻](# "Code") | [Ben Sheldon](https://github.com/bensheldon) |
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |

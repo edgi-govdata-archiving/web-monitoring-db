@@ -60,7 +60,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, target.uuid,
-      'Results did not include versions for the filtered hash'
+                    'Results did not include versions for the filtered hash'
   end
 
   test 'can filter versions by exact date' do
@@ -73,9 +73,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, versions(:page1_v1).uuid,
-      'Results did not include versions captured on the filtered date'
+                    'Results did not include versions captured on the filtered date'
     assert_not_includes ids, versions(:page1_v2).uuid,
-      'Results included versions not captured on the filtered date'
+                        'Results included versions not captured on the filtered date'
   end
 
   test 'returns meaningful error for bad dates' do
@@ -89,7 +89,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
     assert_match(/date/i, body_json['errors'][0]['title'],
-      'Error does not mention date')
+                 'Error does not mention date')
   end
 
   test 'can filter versions by date range' do
@@ -102,9 +102,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, versions(:page1_v1).uuid,
-      'Results did not include versions captured in the filtered date range'
+                    'Results did not include versions captured in the filtered date range'
     assert_not_includes ids, versions(:page1_v2).uuid,
-      'Results included versions not captured in the filtered date range'
+                        'Results included versions not captured in the filtered date range'
   end
 
   test 'can filter versions captured before a date' do
@@ -117,9 +117,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, versions(:page1_v1).uuid,
-      'Results did not include versions captured in the filtered date range'
+                    'Results did not include versions captured in the filtered date range'
     assert_not_includes ids, versions(:page1_v2).uuid,
-      'Results included versions not captured in the filtered date range'
+                        'Results included versions not captured in the filtered date range'
   end
 
   test 'can filter versions captured after a date' do
@@ -132,9 +132,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, versions(:page1_v2).uuid,
-      'Results did not include versions captured in the filtered date range'
+                    'Results did not include versions captured in the filtered date range'
     assert_not_includes ids, versions(:page1_v1).uuid,
-      'Results included versions not captured in the filtered date range'
+                        'Results included versions not captured in the filtered date range'
   end
 
   test 'returns meaningful error for bad date ranges' do
@@ -148,7 +148,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
     assert_match(/date/i, body_json['errors'][0]['title'],
-      'Error does not mention date')
+                 'Error does not mention date')
   end
 
   test 'can filter versions by source_type' do

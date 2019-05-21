@@ -40,6 +40,6 @@ class DedupePagesWithMultipleAgenciesOrSites < ActiveRecord::Migration[5.1]
 
   def down
     raise ActiveRecord::IrreversibleMigration,
-      'This migration removed information and cannot be reversed.'
+          'This migration removed information and cannot be reversed.'
   end
 end

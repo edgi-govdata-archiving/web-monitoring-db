@@ -61,8 +61,8 @@ module Surt::Canonicalize
     /^(.*)(?:xtor=[^&])(?:&(.*))?$/i
   ].freeze
 
-  OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/
-  WWW_SUBDOMAIN = /(^|\.)www\d*\./
+  OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/.freeze
+  WWW_SUBDOMAIN = /(^|\.)www\d*\./.freeze
 
 
   # TODO: Internet Archive's SURT uses this crazy charcater set, but only one

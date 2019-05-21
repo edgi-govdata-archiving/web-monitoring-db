@@ -19,6 +19,7 @@ class Change < ApplicationRecord
       create == :new || create == :create || create.nil?
 
     return nil if from.nil? || to.nil?
+
     change_definition = {
       uuid_from: from.is_a?(Version) ? from.uuid : from,
       uuid_to: to.is_a?(Version) ? to.uuid : to

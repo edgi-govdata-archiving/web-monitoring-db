@@ -7,3 +7,4 @@
 with_email:
   email: test-unknown@example.com
   code: abc
+  expires_on: <%= 10.days.from_now %>

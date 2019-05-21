@@ -33,5 +33,13 @@ import = Import.create(
 
 fs_default = FileStorage.default
 FileStorage.default = FileStorage::LocalFile.new(path: Rails.root.join('db'))
+
+logger = Logger.new(STDOUT)
+logger.level = Logger::INFO
+logger.formatter = ->(_severity, _time, _progname, msg) { "--- #{msg}\n" }
+Rails.logger.extend(ActiveSupport::Logger.broadcast(logger))
+
+Rails.logger.info 'Importing seeds from db/seed_import.json...'
 ImportVersionsJob.perform_now(import)
+
 FileStorage.default = fs_default

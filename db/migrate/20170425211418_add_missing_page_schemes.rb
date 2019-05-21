@@ -5,6 +5,6 @@ class AddMissingPageSchemes < ActiveRecord::Migration[5.0]
 
   def down
     raise ActiveRecord::IrreversibleMigration,
-      'This migration modifies existing bad data and cannot be reversed.'
+          'This migration modifies existing bad data and cannot be reversed.'
   end
 end

@@ -1,4 +1,10 @@
 inherit_from: .rubocop_todo.yml
+require: rubocop-performance
+inherit_mode:
+  merge:
+    - Exclude
+    - Include
+
 AllCops:
   Include:
     - Rakefile
@@ -33,6 +39,11 @@ Metrics/CyclomaticComplexity:
   Exclude:
     - 'app/controllers/api/v0/pages_controller.rb'
     - 'app/lib/surt/canonicalize.rb'
+    - 'app/jobs/import_versions_job.rb'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'app/jobs/import_versions_job.rb'
 
 Naming/MemoizedInstanceVariableName:
   Exclude:
@@ -47,13 +58,19 @@ Naming/UncommunicativeMethodParamName:
     - io
     - to
 
+Naming/RescuedExceptionsVariableName:
+  PreferredName: error
+
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
 Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/NumericPredicate:
   Enabled: false
 
 Layout/EmptyLines:

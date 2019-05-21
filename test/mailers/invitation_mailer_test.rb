@@ -7,23 +7,23 @@ class InvitationMailerTest < ActionMailer::TestCase
   include Rails.application.routes.url_helpers
   def mail_url(route, options = nil)
     url_for([
-      route,
-      Rails.application.config.action_mailer.default_url_options.merge(options)
-    ])
+              route,
+              Rails.application.config.action_mailer.default_url_options.merge(options)
+            ])
   end
 
   def test_send_invitation_email
-    invitation = Invitation.create(email: "test@email.com")
-    invitation.update_attributes(code: "eff7df8ccc0cd0256619")
+    invitation = Invitation.create(email: 'test@email.com')
+    invitation.update_attributes(code: 'eff7df8ccc0cd0256619')
     email = InvitationMailer.invitation_email(invitation)
 
     assert_emails 1 do
       email.deliver_now
     end
 
-    assert_equal "Welcome to EDGI web monitoring", email.subject
+    assert_equal 'Welcome to EDGI web monitoring', email.subject
     assert_equal [ENV.fetch('MAIL_SENDER', 'web-monitoring-db@envirodatagov.org')], email.from
-    assert_equal ["test@email.com"], email.to
+    assert_equal ['test@email.com'], email.to
 
     invite_url = mail_url(:new_user_registration, invitation: invitation.code)
     assert_includes email.html_part.body.to_s, invite_url
