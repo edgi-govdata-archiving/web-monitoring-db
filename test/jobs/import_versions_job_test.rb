@@ -39,6 +39,42 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(original_data['source_metadata'], versions(:page1_v1).source_metadata, 'source_metadata was changed')
   end
 
+  test 'does not add a page if there is an error processing versions' do
+    bad_page_url = 'http://badpage.com'
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: bad_page_url,
+          page_title: 'Bad Page',
+          site_agency: 'Bad Agency',
+          site_name: 'Bad Administration',
+          capture_time: 5.days.ago,
+          uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+          version_hash: 'INVALID_HASH',
+          source_type: 'versionista',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+
+    archive_stub = proc do |_url|
+      raise StandardError
+    end
+
+    Archiver.stub :already_archived?, false do
+      Archiver.stub :archive, archive_stub do
+        ImportVersionsJob.perform_now(import)
+
+        imported_page = Page.find_by(url: bad_page_url)
+        assert_nil imported_page, 'Should not import page with bad versions'
+      end
+    end
+  end
+
   test 'replaces an existing version if requested' do
     page_versions_count = pages(:home_page).versions.count
 

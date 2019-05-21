@@ -76,33 +76,43 @@ class ImportVersionsJob < ApplicationJob
 
     return if existing && @import.skip_existing_records?
 
-    version = version_for_record(record, existing, @import.update_behavior)
-    version.page = page
+    begin
+      version = version_for_record(record, existing, @import.update_behavior)
+      version.page = page
 
-    if version.uri.nil?
-      if record['content']
-        # TODO: upload content
-        raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
+      if version.uri.nil?
+        if record['content']
+          # TODO: upload content
+          raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
+        end
+      elsif !Archiver.already_archived?(version.uri) || !version.version_hash
+        result = Archiver.archive(version.uri, expected_hash: version.version_hash)
+        version.version_hash = result[:hash]
+        if result[:url] != version.uri
+          version.source_metadata['original_url'] = version.uri
+          version.uri = result[:url]
+        end
       end
-    elsif !Archiver.already_archived?(version.uri) || !version.version_hash
-      result = Archiver.archive(version.uri, expected_hash: version.version_hash)
-      version.version_hash = result[:hash]
-      if result[:url] != version.uri
-        version.source_metadata['original_url'] = version.uri
-        version.uri = result[:url]
+
+      if @import.skip_unchanged_versions? && version_changed?(version)
+        warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
+        return
       end
+
+      version.validate!
+      version.update_different_attribute(save: false)
+      version.save
+
+      @added << version unless existing
+    rescue StandardError
+      # Delete a newly created page if the version import fails
+      if page.uuid_previously_changed? && page.versions.empty?
+        page.maintainers = []
+        page.destroy!
+      end
+
+      raise
     end
-
-    if @import.skip_unchanged_versions? && version_changed?(version)
-      warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
-      return
-    end
-
-    version.validate!
-    version.update_different_attribute(save: false)
-    version.save
-
-    @added << version unless existing
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
