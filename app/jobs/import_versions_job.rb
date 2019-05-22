@@ -106,7 +106,7 @@ class ImportVersionsJob < ApplicationJob
       @added << version unless existing
     rescue StandardError
       # Delete a newly created page if the version import fails
-      if page.uuid_previously_changed? && page.versions.empty?
+      if page.uuid_previously_changed? && page.versions.count.zero?
         page.maintainers = []
         page.destroy!
       end

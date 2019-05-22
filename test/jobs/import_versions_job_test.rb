@@ -70,7 +70,13 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         ImportVersionsJob.perform_now(import)
 
         imported_page = Page.find_by(url: bad_page_url)
-        assert_nil imported_page, 'Should not import page with bad versions'
+        assert_nil imported_page, 'Should delete newly created page on version error'
+
+        Page.create! url: bad_page_url
+        ImportVersionsJob.perform_now(import)
+
+        imported_page = Page.find_by(url: bad_page_url)
+        assert imported_page, 'Should NOT delete existing page on version error'
       end
     end
   end
