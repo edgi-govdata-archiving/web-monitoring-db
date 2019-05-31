@@ -102,6 +102,7 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
+    log(object: version, operation: :created)
     @added << version unless existing
   end
 
@@ -151,6 +152,12 @@ class ImportVersionsJob < ApplicationJob
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
     page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
+    
+    if page.uuid_previously_changed?
+      log(object: page, operation: :created)
+    else
+      log(object: page, operation: :updated)
+    end
 
     page
   end
@@ -160,6 +167,15 @@ class ImportVersionsJob < ApplicationJob
   def warn(message)
     @import.processing_warnings << message
     Rails.logger.warn "Import #{@import.id} #{message}"
+  end
+
+  def log(object:, operation:)
+    @import.add_log(
+      uuid: object.uuid,
+      object: object.class.name.parameterize,
+      operation: operation,
+      at: object.updated_at
+    )
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects

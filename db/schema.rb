@@ -51,6 +51,7 @@ ActiveRecord::Schema.define(version: 2019_06_17_231901) do
     t.boolean "create_pages", default: true, null: false
     t.jsonb "processing_warnings"
     t.boolean "skip_unchanged_versions", default: false, null: false
+    t.string "log_file"
     t.index ["user_id"], name: "index_imports_on_user_id"
   end
 

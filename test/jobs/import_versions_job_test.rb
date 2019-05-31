@@ -70,6 +70,15 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_nil(version.uri, 'uri was not changed')
     assert_equal('INVALID_HASH', version.version_hash, 'version_hash was not changed')
     assert_equal({ 'test_meta' => 'data' }, version.source_metadata, 'source_metadata was not replaced')
+
+    logs = import.load_logs.split("\n").map { |line| JSON.parse(line) }
+    assert_equal(2, logs.size, 'Import logs were not created')
+
+    assert_equal('page', logs.first['object'], 'First log object should be a page')
+    assert_equal('updated', logs.first['operation'], 'First log object should be an edit event')
+
+    assert_equal('version', logs.second['object'], 'Second log object should be a version')
+    assert_equal('created', logs.second['operation'], 'Second log object should be a created event')
   end
 
   test 'merges with an existing version if requested' do
