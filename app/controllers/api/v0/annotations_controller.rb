@@ -1,5 +1,6 @@
 class Api::V0::AnnotationsController < Api::V0::ApiController
   include SortingConcern
+  before_action { authorize :api, :annotate? }
   before_action :set_annotation, only: [:show]
 
   def index

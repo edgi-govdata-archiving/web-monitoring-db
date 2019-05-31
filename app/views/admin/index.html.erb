@@ -4,10 +4,13 @@
       <th>ID</th>
       <th>E-mail</th>
       <th>Confirmed</th>
-      <th>Admin</th>
+      <th>View</th>
+      <th>Annotate</th>
+      <th>Import</th>
+      <th>Manage Users</th>
       <th>Added</th>
-      <th></th>
-      <th></th>
+      <th>Manage</th>
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody>
@@ -16,25 +19,16 @@
         <td><%= user.id %></td>
         <td><%= user.email %></td>
         <td><% if user.confirmed? %>✔︎<% end %></td>
-        <td><% if user.admin? %>✔︎<% end %></td>
+        <td><% if user.can_view? %>✔︎<% end %></td>
+        <td><% if user.can_annotate? %>✔︎<% end %></td>
+        <td><% if user.can_import? %>✔︎<% end %></td>
+        <td><% if user.can_manage_users? %>✔︎<% end %></td>
         <td><%= user.created_at %></td>
+        <td><%= link_to "Manage", edit_admin_user_path(user) %></td>
         <td>
           <%= form_tag(controller: "admin", action: "destroy_user", method: "delete") do %>
             <input type="hidden" name="id" value="<%= user.id %>">
             <input type="submit" value="Delete Account">
-          <% end %>
-        </td>
-        <td>
-          <% if user.admin? %>
-            <%= form_tag(controller: "admin", action: "demote_user_from_admin", method: :put) do %>
-              <input type="submit" value="Demote from admin">
-              <input type="hidden" name="id" value="<%= user.id %>">
-            <% end %>
-          <% else %>
-            <%= form_tag(controller: "admin", action: "promote_user_to_admin", method: "put") do %>
-              <input type="submit" value="Promote to admin" >
-              <input type="hidden" name="id" value="<%= user.id %>">
-            <% end %>
           <% end %>
         </td>
       </tr>
