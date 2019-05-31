@@ -1,10 +1,11 @@
 class Api::V0::ApiController < ApplicationController
   include PagingConcern
-  before_action :require_authentication!
+  before_action { authorize :api, :view? }
   before_action :set_environment_header
 
   rescue_from StandardError, with: :render_errors if Rails.env.production?
   rescue_from Api::ApiError, with: :render_errors
+  rescue_from Pundit::NotAuthorizedError, with: :pundit_auth_error
 
   rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
@@ -18,11 +19,15 @@ class Api::V0::ApiController < ApplicationController
     ''
   end
 
-  # This is different from Devise's authenticate_user! -- it does not redirect.
-  def require_authentication!
-    unless user_signed_in?
-      raise Api::AuthorizationError, 'You must be logged in to perform this action.'
-    end
+  def pundit_auth_error(error)
+    api_error = if user_signed_in?
+                  Api::ForbiddenError.new('You are not authorized to perform this action.')
+                else
+                  Api::AuthorizationError.new('You must be logged in to perform this action.')
+                end
+
+    api_error.set_backtrace(error.backtrace)
+    render_errors(api_error)
   end
 
   # Render an error or errors as a proper API response

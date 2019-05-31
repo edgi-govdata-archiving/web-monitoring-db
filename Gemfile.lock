@@ -179,6 +179,8 @@ GEM
       pry (>= 0.10.4)
     public_suffix (3.0.3)
     puma (3.12.1)
+    pundit (2.0.1)
+      activesupport (>= 3.0.0)
     rack (2.0.7)
     rack-cors (1.0.3)
     rack-protection (2.0.5)
@@ -332,6 +334,7 @@ DEPENDENCIES
   postmark-rails
   pry-rails
   puma (~> 3.12)
+  pundit
   rack-cors
   rails (~> 5.2.3)
   readthis

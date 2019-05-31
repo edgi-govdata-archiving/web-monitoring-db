@@ -29,6 +29,12 @@ module Api
     end
   end
 
+  class ForbiddenError < ApiError
+    def status_code
+      403
+    end
+  end
+
   class ResourceExistsError < ApiError
     def status_code
       409
