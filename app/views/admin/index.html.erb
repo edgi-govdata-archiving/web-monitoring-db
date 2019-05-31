@@ -7,7 +7,7 @@
       <th>View</th>
       <th>Annotate</th>
       <th>Import</th>
-      <th>Admin</th>
+      <th>Manage Users</th>
       <th>Added</th>
       <th>Manage</th>
       <th>Delete</th>
@@ -19,10 +19,10 @@
         <td><%= user.id %></td>
         <td><%= user.email %></td>
         <td><% if user.confirmed? %>✔︎<% end %></td>
-        <td><% if user.view? %>✔︎<% end %></td>
-        <td><% if user.annotate? %>✔︎<% end %></td>
-        <td><% if user.import? %>✔︎<% end %></td>
-        <td><% if user.manage_users? %>✔︎<% end %></td>
+        <td><% if user.can_view? %>✔︎<% end %></td>
+        <td><% if user.can_annotate? %>✔︎<% end %></td>
+        <td><% if user.can_import? %>✔︎<% end %></td>
+        <td><% if user.can_manage_users? %>✔︎<% end %></td>
         <td><%= user.created_at %></td>
         <td><%= link_to "Manage", edit_admin_user_path(user) %></td>
         <td>
