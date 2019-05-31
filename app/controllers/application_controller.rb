@@ -9,7 +9,7 @@ class ApplicationController < ActionController::Base
   private
 
   def not_authorized
-    return render(json: {}, status: :unauthorized) if request.xhr?
+    return render(json: {}, status: :unauthorized) if request.format == :json
 
     if current_user.present?
       redirect_to root_path, alert: 'You are not authorized to view this page'

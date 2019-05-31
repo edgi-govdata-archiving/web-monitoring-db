@@ -1,5 +1,5 @@
 class AdminPolicy < ApplicationPolicy
   def any?
-    user.manage_users?
+    user.can_manage_users?
   end
 end

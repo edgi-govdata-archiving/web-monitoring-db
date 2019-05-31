@@ -46,11 +46,10 @@ class User < ApplicationRecord
   end
 
   PERMISSIONS.each do |permission|
-    define_method "#{permission}?" do
+    define_method "can_#{permission}?" do
       permission?(permission)
     end
   end
-  alias admin? manage_users?
 
   protected
 

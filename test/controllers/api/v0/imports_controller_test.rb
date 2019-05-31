@@ -19,8 +19,24 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def import_data
-    [
+  # These tests get network privileges (for now)
+  def setup
+    WebMock.allow_net_connect!
+    @original_allowed_hosts = Archiver.allowed_hosts
+    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+    # Imports trigger analysis, which uses these diffs
+    Differ.register('html_source_dmp', MockDiffer.new)
+    Differ.register('html_text_dmp', MockDiffer.new)
+    Differ.register('links_json', MockDiffer.new)
+  end
+
+  def teardown
+    WebMock.disable_net_connect!
+    Archiver.allowed_hosts = @original_allowed_hosts
+  end
+
+  test 'authorizations' do
+    import_data = [
       {
         page_url: 'http://testsite.com/',
         title: 'Example Page',
@@ -44,25 +60,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       }
     ]
-  end
 
-  # These tests get network privileges (for now)
-  def setup
-    WebMock.allow_net_connect!
-    @original_allowed_hosts = Archiver.allowed_hosts
-    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
-    # Imports trigger analysis, which uses these diffs
-    Differ.register('html_source_dmp', MockDiffer.new)
-    Differ.register('html_text_dmp', MockDiffer.new)
-    Differ.register('links_json', MockDiffer.new)
-  end
-
-  def teardown
-    WebMock.disable_net_connect!
-    Archiver.allowed_hosts = @original_allowed_hosts
-  end
-
-  test 'authorizations' do
     post(
       api_v0_imports_path,
       headers: { 'Content-Type': 'application/x-json-stream' },
@@ -83,6 +81,31 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can import data' do
+    import_data = [
+      {
+        page_url: 'http://testsite.com/',
+        title: 'Example Page',
+        page_maintainers: ['The Federal Example Agency'],
+        page_tags: ['Example Site'],
+        capture_time: '2017-05-01T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      },
+      {
+        page_url: 'http://testsite.com/',
+        title: 'Example Page',
+        page_maintainers: ['The Federal Example Agency'],
+        page_tags: ['Test', 'Home Page'],
+        capture_time: '2017-05-02T12:33:01Z',
+        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
+        source_type: 'some_source',
+        source_metadata: { test_meta: 'data' }
+      }
+    ]
+
     sign_in users(:alice)
 
     perform_enqueued_jobs do

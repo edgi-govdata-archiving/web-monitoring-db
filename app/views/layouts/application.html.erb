@@ -21,7 +21,7 @@
     <header class="page-header">
       <div class="page-header-main">
         <p class="page-header-title"><%= link_to('EDGI Web-Monitoring Database', '/') %></p>
-        <% if user_signed_in? && current_user.admin? %>
+        <% if user_signed_in? && current_user.can_manage_users? %>
           <p><%= link_to('Admin', admin_path) %></p>
         <% end %>
 

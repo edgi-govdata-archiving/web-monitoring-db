@@ -45,14 +45,6 @@ class UserTest < ActiveSupport::TestCase
     refute user.valid?, 'Permission value should be an array'
   end
 
-  test '#admin? delegates to permissions' do
-    user = users(:alice)
-    refute user.admin?, 'User should not be an admin'
-
-    user.permissions << User::MANAGE_USERS_PERMISSION
-    assert user.admin?, 'User with manage_users should be admin'
-  end
-
   test '#permission? describes whether use has permission' do
     user = users(:alice)
     refute user.permission?(User::MANAGE_USERS_PERMISSION), 'User should not be an admin'
@@ -63,9 +55,9 @@ class UserTest < ActiveSupport::TestCase
 
   test 'user has permission predicates' do
     user = users(:alice)
-    refute user.manage_users?, 'User should not be able to manage users'
+    refute user.can_manage_users?, 'User should not be able to manage users'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
-    assert user.manage_users?, 'User should be able to manage users'
+    assert user.can_manage_users?, 'User should be able to manage users'
   end
 end
