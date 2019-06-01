@@ -130,7 +130,7 @@ GEM
     jaro_winkler (1.5.2)
     jmespath (1.4.0)
     json (2.2.0)
-    jwt (2.1.0)
+    jwt (2.2.1)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
@@ -327,7 +327,7 @@ DEPENDENCIES
   google-api-client
   hiredis
   httparty
-  jwt (~> 2.1)
+  jwt (~> 2.2)
   listen (~> 3.1)
   oj (~> 3.7)
   pg (~> 1.1)
