@@ -60,4 +60,16 @@ class UserTest < ActiveSupport::TestCase
     user.permissions << User::MANAGE_USERS_PERMISSION
     assert user.can_manage_users?, 'User should be able to manage users'
   end
+
+  test 'user has view and annotate permissions by default' do
+    user = User.create(email: 'new-user@example.com', password: 'PASSWORD')
+    assert user.can_view?
+    assert user.can_annotate?
+  end
+
+  test 'user default permissions do not override explicit permissions' do
+    user = User.create(email: 'new-user@example.com', password: 'PASSWORD', permissions: [User::VIEW_PERMISSION])
+    assert user.can_view?
+    assert !user.can_annotate?
+  end
 end

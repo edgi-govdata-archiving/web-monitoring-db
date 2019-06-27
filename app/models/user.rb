@@ -22,6 +22,7 @@ class User < ApplicationRecord
   has_one :invitation, class_name: 'Invitation', foreign_key: 'redeemer_id', inverse_of: :redeemer
 
   validates :permissions, contains_only: PERMISSIONS
+  attribute :permissions, :string, array: true, default: [VIEW_PERMISSION, ANNOTATE_PERMISSION]
 
   # We need to enforce some additional constraints on the invitation
   # relationship. This isn't great, but the best way I can see for now.

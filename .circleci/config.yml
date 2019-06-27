@@ -21,7 +21,11 @@ jobs:
           key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
 
       # Bundle install dependencies
-      - run: bundle install --path vendor/bundle
+      - run:
+          name: Install Dependencies
+          command: |
+            gem install bundler
+            bundle install --path vendor/bundle
 
       # Store bundle cache
       - save_cache:
