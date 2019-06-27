@@ -22,6 +22,7 @@ class User < ApplicationRecord
   has_one :invitation, class_name: 'Invitation', foreign_key: 'redeemer_id', inverse_of: :redeemer
 
   validates :permissions, contains_only: PERMISSIONS
+  before_create :set_defaults
 
   # We need to enforce some additional constraints on the invitation
   # relationship. This isn't great, but the best way I can see for now.
@@ -57,6 +58,12 @@ class User < ApplicationRecord
     if self.invitation
       self.invitation.destroy
       self.invitation = nil
+    end
+  end
+
+  def set_defaults
+    if self.permissions.empty?
+      self.permissions << VIEW_PERMISSION << ANNOTATE_PERMISSION
     end
   end
 end
