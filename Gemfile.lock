@@ -344,7 +344,7 @@ DEPENDENCIES
   resque
   resque-heroku-signals
   rubocop (~> 0.72.0)
-  rubocop-performance
+  rubocop-performance (~> 1.4.0)
   rubocop-rails (~> 2.2.0)
   sassc-rails (~> 2.1.2)
   sentry-raven
