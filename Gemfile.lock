@@ -249,6 +249,9 @@ GEM
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-performance (1.4.0)
       rubocop (>= 0.71.0)
+    rubocop-rails (2.2.0)
+      rack (>= 1.1)
+      rubocop (>= 0.72.0)
     ruby-progressbar (1.10.1)
     ruby_dep (1.5.0)
     safe_yaml (1.0.5)
@@ -342,6 +345,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 0.72.0)
   rubocop-performance
+  rubocop-rails (~> 2.2.0)
   sassc-rails (~> 2.1.2)
   sentry-raven
   spring
@@ -355,4 +359,4 @@ RUBY VERSION
    ruby 2.6.3p62
 
 BUNDLED WITH
-   2.0.1
+   2.0.2
