@@ -239,7 +239,7 @@ GEM
     resque-heroku-signals (2.0.0)
       resque (= 2.0.0)
     retriable (3.1.2)
-    rubocop (0.71.0)
+    rubocop (0.72.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.6)
@@ -340,7 +340,7 @@ DEPENDENCIES
   readthis
   resque
   resque-heroku-signals
-  rubocop (~> 0.71.0)
+  rubocop (~> 0.72.0)
   rubocop-performance
   sassc-rails (~> 2.1.2)
   sentry-raven
