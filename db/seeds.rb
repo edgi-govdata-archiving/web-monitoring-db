@@ -15,14 +15,18 @@ if Archiver.allowed_hosts.empty?
   end
 end
 
-admin = User.find_or_create_by(admin: true) do |user|
-  password = 'PASSWORD'
-  user.email = 'seed-admin@example.com'
-  user.password = password
-  user.confirmed_at = Time.now
 
+
+admin = User.where("permissions @> ?", '{manage_users}').first
+unless admin
+  admin = User.create
+  password = 'PASSWORD'
+  admin.email = 'seed-admin@example.com'
+  admin.password = password
+  admin.confirmed_at = Time.now
+  admin.permissions << 'manage_users'
   puts "\n\n------------------------------------------------------------"
-  puts "Admin user created with e-mail: #{user.email} and password: #{password}"
+  puts "Admin user created with e-mail: #{admin.email} and password: #{password}"
   puts "------------------------------------------------------------\n\n"
 end
 
