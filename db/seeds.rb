@@ -19,12 +19,14 @@ end
 
 admin = User.where('permissions @> ?', '{manage_users}').first
 unless admin
-  admin = User.create
+  admin = User.new
   password = 'PASSWORD'
   admin.email = 'seed-admin@example.com'
   admin.password = password
   admin.confirmed_at = Time.now
   admin.permissions << 'manage_users'
+  admin.save
+
   puts "\n\n------------------------------------------------------------"
   puts "Admin user created with e-mail: #{admin.email} and password: #{password}"
   puts "------------------------------------------------------------\n\n"
