@@ -17,7 +17,7 @@ end
 
 
 
-admin = User.where("permissions @> ?", '{manage_users}').first
+admin = User.where('permissions @> ?', '{manage_users}').first
 unless admin
   admin = User.create
   password = 'PASSWORD'
