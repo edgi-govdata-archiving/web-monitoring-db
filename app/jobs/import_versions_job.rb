@@ -32,7 +32,7 @@ class ImportVersionsJob < ApplicationJob
     each_json_line(raw_data) do |record, row, row_count|
       begin
         Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
-        import_record(record)
+        import_record(record, row)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
       rescue ActiveModel::ValidationError => error
@@ -58,7 +58,7 @@ class ImportVersionsJob < ApplicationJob
     end
   end
 
-  def import_record(record)
+  def import_record(record, row)
     page = page_for_record(record, create: @import.create_pages)
     unless page
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
@@ -67,6 +67,12 @@ class ImportVersionsJob < ApplicationJob
     unless page.active?
       warn "Skipped inactive URL: #{page.url}"
       return
+    end
+
+    if page.uuid_previously_changed?
+      log(object: page, operation: :created, row: row)
+    else
+      log(object: page, operation: :found, row: row, at: Time.current) # TODO: is it ok to use :found because the page is not updated
     end
 
     existing = page.versions.find_by(
@@ -102,7 +108,7 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    log(object: version, operation: :created)
+    log(object: version, operation: :created, row: row)
     @added << version unless existing
   end
 
@@ -152,12 +158,6 @@ class ImportVersionsJob < ApplicationJob
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
     page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
-    
-    if page.uuid_previously_changed?
-      log(object: page, operation: :created)
-    else
-      log(object: page, operation: :updated)
-    end
 
     page
   end
@@ -169,13 +169,17 @@ class ImportVersionsJob < ApplicationJob
     Rails.logger.warn "Import #{@import.id} #{message}"
   end
 
-  def log(object:, operation:)
-    @import.add_log(
+  def log(object:, operation:, **additional)
+    properties = {
       uuid: object.uuid,
       object: object.class.name.parameterize,
       operation: operation,
       at: object.updated_at
-    )
+    }
+
+    properties.merge!(additional) if additional.present?
+
+    @import.add_log(properties)
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects

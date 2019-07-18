@@ -61,7 +61,11 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         }
       ].map(&:to_json).join("\n")
     )
-    ImportVersionsJob.perform_now(import)
+
+    lock_time = Time.current.round(0)
+    travel_to(lock_time) do
+      ImportVersionsJob.perform_now(import)
+    end
 
     page = Page.find(pages(:home_page).uuid)
     version = Version.find(versions(:page1_v5).uuid)
@@ -71,14 +75,23 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal('INVALID_HASH', version.version_hash, 'version_hash was not changed')
     assert_equal({ 'test_meta' => 'data' }, version.source_metadata, 'source_metadata was not replaced')
 
-    logs = import.load_logs.split("\n").map { |line| JSON.parse(line) }
-    assert_equal(2, logs.size, 'Import logs were not created')
-
-    assert_equal('page', logs.first['object'], 'First log object should be a page')
-    assert_equal('updated', logs.first['operation'], 'First log object should be an edit event')
-
-    assert_equal('version', logs.second['object'], 'Second log object should be a version')
-    assert_equal('created', logs.second['operation'], 'Second log object should be a created event')
+    logs = import.load_logs.split("\n").map { |line| JSON.parse(line, symbolize_names: true) }
+    assert_equal([
+                   {
+                     uuid: page.uuid,
+                     object: 'page',
+                     operation: 'found',
+                     at: lock_time.iso8601(3),
+                     row: 0
+                   },
+                   {
+                     uuid: versions(:page1_v5).uuid,
+                     object: 'version',
+                     operation: 'created',
+                     at: version.updated_at.iso8601(3),
+                     row: 0
+                   }
+                 ], logs, 'Logs are not expected.')
   end
 
   test 'merges with an existing version if requested' do
@@ -165,6 +178,6 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
     assert_equal(page_versions_count, pages(:inactive_page).versions.count)
     assert_nil(pages(:inactive_page).versions.where(capture_time: now).first)
-    assert(import.processing_warnings.any? {|warning| warning.include?('inactive')})
+    assert(import.processing_warnings.any? { |warning| warning.include?('inactive') })
   end
 end
