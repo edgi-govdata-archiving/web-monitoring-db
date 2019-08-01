@@ -249,7 +249,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-performance (1.4.1)
       rubocop (>= 0.71.0)
-    rubocop-rails (2.2.0)
+    rubocop-rails (2.2.1)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     ruby-progressbar (1.10.1)
@@ -345,7 +345,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 0.74.0)
   rubocop-performance (~> 1.4.1)
-  rubocop-rails (~> 2.2.0)
+  rubocop-rails (~> 2.2.1)
   sassc-rails (~> 2.1.2)
   sentry-raven
   spring
