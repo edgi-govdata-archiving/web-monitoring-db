@@ -18,32 +18,38 @@ class Version < ApplicationRecord
     self.page.versions.reorder(capture_time: :asc).first
   end
 
-  def previous
-    self.page.versions.where('capture_time < ?', self.capture_time).first
+  def previous(different: true)
+    self.page.versions
+      .where('capture_time < ?', self.capture_time)
+      .where(different: different)
+      .first
   end
 
-  def next
-    self.page.versions.where('capture_time > ?', self.capture_time).last
+  def next(different: true)
+    self.page.versions
+      .where('capture_time > ?', self.capture_time)
+      .where(different: different)
+      .last
   end
 
-  def change_from_previous
-    Change.between(from: previous, to: self, create: nil)
+  def change_from_previous(different: true)
+    Change.between(from: previous(different: different), to: self, create: nil)
   end
 
-  def change_from_next
-    Change.between(from: self, to: self.next, create: nil)
+  def change_from_next(different: true)
+    Change.between(from: self, to: self.next(different: different), create: nil)
   end
 
   def change_from_earliest
     Change.between(from: earliest, to: self, create: nil)
   end
 
-  def ensure_change_from_previous
-    Change.between(from: previous, to: self, create: :new)
+  def ensure_change_from_previous(different: true)
+    Change.between(from: previous(different: different), to: self, create: :new)
   end
 
-  def ensure_change_from_next
-    Change.between(from: self, to: self.next, create: :new)
+  def ensure_change_from_next(different: true)
+    Change.between(from: self, to: self.next(different: different), create: :new)
   end
 
   def ensure_change_from_earliest
