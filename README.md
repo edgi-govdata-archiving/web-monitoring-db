@@ -240,6 +240,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") | [Ben Sheldon](https://github.com/bensheldon) |
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
+| [💻](# "Code") | [Eddie Tejeda](https://github.com/eddietejeda) |
 | [📖](# "Documentation") [📋](# "Organizer") | [Dawn Walker](https://github.com/dcwalk) |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 

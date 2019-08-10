@@ -7,19 +7,19 @@ end
 
 ruby '2.6.3'
 
-gem 'aws-sdk-s3', '~> 1.41'
+gem 'aws-sdk-s3', '~> 1.46'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.2'
 gem 'rails', '~> 5.2.3'
 gem 'pg', '~> 1.1'
-gem 'puma', '~> 3.12'
+gem 'puma', '~> 4.0'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
 gem 'resque-heroku-signals'
-gem 'sassc-rails', '~> 2.1.1'
+gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
-gem 'oj', '~> 3.7'
+gem 'oj', '~> 3.8'
 gem 'pundit'
 gem 'sentry-raven'
 gem 'readthis'
@@ -45,8 +45,9 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.71.0', require: false
-  gem 'rubocop-performance'
+  gem 'rubocop', '~> 0.74.0', require: false
+  gem 'rubocop-performance', '~> 1.4.1'
+  gem 'rubocop-rails', '~> 2.2.1'
   gem 'dotenv-rails'
 end
 
@@ -63,7 +64,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.5'
+  gem 'webmock', '~> 3.6'
 end
 
 group :production do
