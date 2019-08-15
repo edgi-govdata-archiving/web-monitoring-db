@@ -151,9 +151,10 @@ ActiveRecord::Schema.define(version: 2019_06_17_231901) do
     t.string "capture_url"
     t.boolean "different", default: true
     t.integer "status"
+    t.index ["capture_time"], name: "index_different_versions_on_capture_time", where: "(different = true)"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
+    t.index ["created_at"], name: "index_different_versions_on_created_at", where: "(different = true)"
     t.index ["created_at"], name: "index_versions_on_created_at"
-    t.index ["different"], name: "index_versions_on_different"
     t.index ["page_uuid"], name: "index_versions_on_page_uuid"
     t.index ["source_type"], name: "index_versions_on_source_type"
     t.index ["version_hash"], name: "index_versions_on_version_hash"
