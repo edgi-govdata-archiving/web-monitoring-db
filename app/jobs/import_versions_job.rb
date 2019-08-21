@@ -3,7 +3,7 @@ require 'httparty'
 
 class ElasticLogger
   include HTTParty
-  base_uri ENV.fetch('ELASTICSEARCH_URL')
+  base_uri ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200')
 
   def report_size(size)
     response = self.class.post(
