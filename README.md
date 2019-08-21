@@ -33,7 +33,22 @@ It’s a Rails app that:
     $ apt-get install redis
     ```
 
-4. Ensure you have a JavaScript Runtime
+4. Ensure you have [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html).
+
+    On MacOS:
+
+    ```sh
+    $ brew tap elastic/tap
+    $ brew install elastic/tap/elasticsearch-full
+    ```
+
+    On Debian Linux:
+
+    ```sh
+    $ apt-get install elasticsearch
+    ```
+
+5. Ensure you have a JavaScript Runtime
 
     On MacOS:
 
@@ -46,21 +61,21 @@ It’s a Rails app that:
     ```
     If you wish to use another runtime you can use one listed [here](https://github.com/rails/execjs/blob/master/README.md).
 
-5. Clone this repo
+6. Clone this repo
 
-6. If you don’t have the `bundler` Ruby gem, install it:
+7. If you don’t have the `bundler` Ruby gem, install it:
 
     ```sh
     $ gem install bundler
     ```
 
-7. Wherever you cloned the repo, go to that directory and install dependencies:
+8. Wherever you cloned the repo, go to that directory and install dependencies:
 
     ```sh
     $ bundle install --without production
     ```
 
-8. Copy the .env.example file to .env - this allows for easy configuration locally.
+9. Copy the .env.example file to .env - this allows for easy configuration locally.
 
     ```sh
     $ cp .env.example .env
@@ -68,7 +83,7 @@ It’s a Rails app that:
 
     Take a moment to look through the variables here and change any that make sense for your local environment. If you need set variables differently when running tests, make a `.env.test` file that has your test-specific variables.
 
-9. Set up your database.
+10. Set up your database.
 
     - If your Postgres install trusts local users and you have a superuser (this is the normal situation with Postgres.app), run:
 
@@ -140,7 +155,7 @@ It’s a Rails app that:
 
             For more on this last step, see [manual postgres setup](#manual-postgres-setup) below.
 
-10. Start the server!
+11. Start the server!
 
     ```sh
     $ bundle exec rails server
@@ -148,7 +163,7 @@ It’s a Rails app that:
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-11. Bulk importing, automated analysis, and e-mail invitations all run as asynchronous jobs, managed by a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
+12. Bulk importing, automated analysis, and e-mail invitations all run as asynchronous jobs, managed by a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
 
     Start redis:
 
