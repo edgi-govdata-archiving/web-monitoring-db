@@ -8,8 +8,9 @@ class ElasticLogger
   def report_size(size)
     response = self.class.post(
       '/import_queue/_doc/',
-      :body => { size: size }.to_json,
-      :headers => {'Content-Type' => 'application/json'} )
+      body: { size: size }.to_json,
+      headers: { 'Content-Type' => 'application/json' }
+    )
     puts response
   end
 end
@@ -19,7 +20,7 @@ end
 
 class ImportVersionsJob < ApplicationJob
   queue_as :import
-  ELASTIC_LOGGER = ElasticLogger.new()
+  ELASTIC_LOGGER = ElasticLogger.new
 
   # TODO: wrap in transaction?
   def perform(import)
