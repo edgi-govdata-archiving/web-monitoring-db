@@ -51,9 +51,10 @@ class Api::V0::PagesController < Api::V0::ApiController
             .where(uuid: page_ids)
             .includes(:tags, :maintainers)
             .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+            .index_by(&:uuid)
           # Join them up!
-          results.each_with_index do |page, index|
-            other_page = additions[index]
+          results.each do |page|
+            other_page = additions[page['uuid']]
             page['tags'] = other_page.taggings.as_json
             page['maintainers'] = other_page.maintainerships.as_json
           end
