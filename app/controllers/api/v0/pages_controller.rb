@@ -26,13 +26,42 @@ class Api::V0::PagesController < Api::V0::ApiController
       if !should_allow_versions && should_include_versions
         raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled.'
       elsif should_allow_versions && should_include_versions
-        results = query
-          .where(uuid: page_ids)
-          .includes(:versions)
-          .where(versions: { different: true })
-          .order('versions.capture_time DESC')
-        lightweight_query(results, &method(:format_page_json))
-      elsif should_include_latest || should_include_earliest
+        if use_lightweight_query
+          results = query
+            .where(uuid: page_ids)
+            .includes(:versions)
+            .where(versions: { different: true })
+            .order('versions.capture_time DESC')
+          lightweight_query(results, &method(:format_page_json))
+        else
+          oj_mode = :rails
+          # Including versions, tags, and maintainers is perfectly OK, but
+          # when you add the WHERE clause for versions, ActiveRecord issues
+          # one extra query per page for the tags and maintainers. Instead,
+          # issue two separate queries and manually plug them together.
+          results = Page
+            .where(uuid: page_ids)
+            .includes(:versions)
+            .where(versions: { different: true })
+            .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+            .order('versions.capture_time DESC')
+            .as_json(include: :versions)
+          # Tags and Maintainers
+          additions = Page
+            .where(uuid: page_ids)
+            .includes(:tags, :maintainers)
+            .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+            .index_by(&:uuid)
+          # Join them up!
+          results.each do |page|
+            other_page = additions[page['uuid']]
+            page['tags'] = other_page.taggings.as_json
+            page['maintainers'] = other_page.maintainerships.as_json
+          end
+
+          results
+        end
+      elsif should_include_latest || should_include_earliest || !use_lightweight_query
         # Filters from the original query should *not* affect what's "latest"
         # or "earliest" (though they do affect which *pages* get included), so
         # we build a whole new query from scratch here.
@@ -77,6 +106,16 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def paging_path_for_page(*args)
     api_v0_pages_url(*args)
+  end
+
+  # Whether to use `lightweight_query` when possible. That method is a low-
+  # memory/high-performance alternative to normal ActiveRecord queries with
+  # big joins, but it is overcomplicated, non-standard, and makes the
+  # codebase hard to work on. This switch lets us turn it off temporarily
+  # before removing it entirely.
+  # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/348
+  def use_lightweight_query
+    ActiveModel::Type::Boolean.new.cast(ENV['USE_LIGHTWEIGHT_QUERY'])
   end
 
   # NOTE: This check can be removed once this issue is resolved.
