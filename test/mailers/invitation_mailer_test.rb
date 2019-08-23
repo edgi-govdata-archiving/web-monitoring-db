@@ -14,7 +14,7 @@ class InvitationMailerTest < ActionMailer::TestCase
 
   def test_send_invitation_email
     invitation = Invitation.create(email: 'test@email.com')
-    invitation.update_attributes(code: 'eff7df8ccc0cd0256619')
+    invitation.update(code: 'eff7df8ccc0cd0256619')
     email = InvitationMailer.invitation_email(invitation)
 
     assert_emails 1 do
