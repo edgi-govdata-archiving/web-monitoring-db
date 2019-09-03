@@ -2,13 +2,22 @@
 
 # web-monitoring-db
 
-This repository is the database and API underlying the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring).
+This repository is the database and API underlying the EDGI [Web Monitoring Project](https://github.com/edgi-govdata-archiving/web-monitoring). It’s a Rails app that:
 
-It’s a Rails app that:
+- Acts as a database of monitored pages and captured versions of those pages over time.
 
-- Acts as a database of monitored pages and revisions that have been made to them
-- Allows other services to add new tracked pages/versions (we are currently focused on Versionista, but this database will soon host data from other sources, such as the Internet Archive)
-- Provides an API to get that version data and allow analysts or other automated tools to annotate those versions with metadata
+    *(The application does not record new versions itself, but relies on importing data from external services, like [the Internet Archive](https://archive.org) or [Versionista](https://versionista.com). See [“How Data Gets Loaded”](#how-data-gets-loaded) below for more.)*
+
+- Provides an API to get that page and version data, and to allow analysts or other automated tools to annotate those versions with metadata about what has changed from version to version.
+
+For more about how data is modeled in this project, see [“Data Model”](#data-model) below.
+
+API documentation is available from the homepage of the application, e.g. by pointing your browser to http://localhost:3000/ or https://api.monitoring.envirodatagov.org. It’s generated from our OpenAPI docs in [`swagger.yml`](./swagger.yml).
+
+We maintain a publicly available *staging server* at https://api-staging.monitoring.envirodatagov.org that you can test against. It runs the latest code and has non-production data — it’s safe to modify or post new versions or annotations to, but you should not rely on that data sticking around; it may get reset at any time. **For access, ask for an account on Slack or use the public user credentials:**
+
+- Username: `public.access@envirodatagov.org`
+- Password: `PUBLIC_ACCESS`
 
 
 ## Installation
@@ -175,7 +184,7 @@ It’s a Rails app that:
     - `analysis`: Auto-analyze changes between versions and create annotations with the results.
 
 
-## Manual Postgres Setup
+### Manual Postgres Setup
 
 If you don’t want to populate your DB with seed data, want to manage creation of the database yourself, or otherwise manually do database setup, run any of the following commands as desired instead of `rake db:setup`:
 
@@ -197,7 +206,7 @@ User.create(
 ```
 
 
-## Docker
+### Docker
 
 The Dockerfile runs the rails server on port 3000 in the container. To build
 and run:
@@ -210,6 +219,55 @@ docker run -p 6379:6379 envirodgi/db-import-worker -e <ENVIRONMENT VARIABLES> .
 ```
 
 Point your browser or ``curl`` at ``http://localhost:3000``.
+
+
+## Data Model
+
+The database models three main types of data:
+
+- **Pages**, which represent a page on the internet. Pages are identified by a unique ID rather than their URL because pages can move or be available from multiple URLs. *(Note: we don't actually model that yet, though! See [#492](https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/492) for more.)*
+
+- **Versions**, which represent a particular page at a particular point in time. We use the term “version” instead of others more common in the archival space because we attempt to only represent *different* versions. That is, if a page changed on Wednesday and we captured copies of it on Monday, Tuesday, and Wednesday, we only make version records for Monday and Wednesday (because Tuesday was the same as Monday).
+
+    *(Note: because of technical issues around imported data, we often store more versions than we should according to the above definition [e.g. we might still have a record for Tuesday]. Versions have a `different` field that indicates whether a version is different from the previous one, and the API only returns versions that are `different` unless you explicitly request otherwise.)*
+
+- **Annotations**, which represent an analysis about what’s changed between any two *versions* of a *page*. Annotations have a specialized `priority` and `significance`, which are numbers between 0 and 1, an `author`, indicating who made the analysis (it could be a bot account), and an `annotation` field, which is a JSON object with no specified structure (inside this field, annotations can include any data desired).
+
+There are several other kinds of objects, but they are subservient to the ones above:
+
+- **Changes**, which serve to connect any two *versions* of a *page*. *Annotations* are actually connected to *changes*, rather than directly to two *versions*. You can also generate diffs for a given *change*.
+
+- **Tags**, which can be applied to pages. They help sort and categorize things. Most tags are manually applied, but the application auto-generates a few:
+    - `domain:<domain name>`, e.g. `domain:www.epa.gov` for a page at `https://www.epa.gov/citizen-science`
+    - `2l-domain:<second-level domain name>` e.g. `2l-domain:epa.gov` for a page at `https://www.epa.gov/citizen-science`
+
+- **Maintainers**, which can be applied to pages. They represent organizations that maintain a given page. For example, the page at `https://www.epa.gov/citizen-science` is maintained by `EPA`.
+
+- **Imports** model requests to import new data and the results of the import operation.
+
+- **Users** model people (both human and bots) who can view, import, and annotate data. You currently have to have a user account to do anything in  the application, though we hope accounts will not be needed to view public data in the future.
+
+
+### How Data Gets Loaded
+
+The web-monitoring-db project does not actually monitor or scrape actual pages on the web. Instead, we rely on importing data from other services, like [the Internet Archive](https://archive.org). Each day, a script queries other services for historical snapshots and sends the results to the `/api/v0/imports` endpoint.
+
+Most of the data sent to `/api/v0/imports` matches up directly with the structure of the [`Version` model](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/app/models/version.rb). However, the `uri` field in an import is treated specially. If the `uri` host matches one of the hosts listed in the [`ALLOWED_ARCHIVE_HOSTS` environment variable](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/.env.example), the application simply stores that as the version’s `uri`. If it doesn’t match, the application downloads the content from `uri` and stores it in its `FileStorage`. The intent is to make sure data winds up at a reliably available location, ensuring that anyone who can access the API can also access the raw response body for any version. The application’s storage area can be the local disk or it can be S3, depending on configuration. The component can take pluggable configurations, so we can support other storage types or locations in the future.
+
+You can see more about this process in the overview repo’s [“architecture” document](https://github.com/edgi-govdata-archiving/web-monitoring/blob/master/ARCHITECTURE.md#web-page-snapshottingcapturing-workflow)
+
+
+### File Storage
+
+The application needs to store files for several different purposes (storing raw import data, archiving HTTP response bodies as described in the previous section, specialized logs, etc). To do this, it uses the [`FileStorage`](https://github.com/edgi-govdata-archiving/web-monitoring-db/tree/master/lib/file_storage) module, which has different implementations for different types of storage, such as [the local disk](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/lib/file_storage/local_file.rb) or [Amazon S3](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/lib/file_storage/s3.rb).
+
+At current, the application creates two `FileStorage` instances:
+
+1. “Archival storage” is used to store raw HTTP response bodies for each version of a page. See the [“how data gets loaded” section](#how-data-gets-loaded) for more details. Under a default configuration, this is your local disk in development and S3 in production. You can configure the S3 bucket used for it with the `AWS_ARCHIVE_BUCKET` environment variable. **Everything in this storage area is publicly available.**
+
+2. “Working storage” is used to store internal data, such as raw import data and import logs. Under a default configuration, this is your local disk in development and S3 in production. You can configure the S3 bucket used for it with the `AWS_WORKING_BUCKET` environment variable. **Everything in this storage area should be considered private and you should not expose it to the public web.**
+
+3. For historical reasons, EDGI’s deployment includes a third S3 bucket that is not directly accessed by the application. It’s where we store HTTP response bodies collected from [Versionista][https://versionista.com], a service we previously used for scraping government web pages. You can see it listed in [the example settings for `ALLOWED_ARCHIVE_HOSTS`](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/.env.example).
 
 
 ## Code of Conduct
