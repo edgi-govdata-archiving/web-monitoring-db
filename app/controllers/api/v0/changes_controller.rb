@@ -4,11 +4,11 @@ class Api::V0::ChangesController < Api::V0::ApiController
   def index
     query = changes_collection
     paging = pagination(query)
-    changes = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    changes = paging[:query]
 
     render json: {
       links: paging[:links],
-      meta: { total_results: paging[:total_items] },
+      meta: paging[:meta],
       data: changes.as_json(methods: :current_annotation)
     }
   end

@@ -4,11 +4,11 @@ class Api::V0::MaintainersController < Api::V0::ApiController
   def index
     query = maintainer_collection
     paging = pagination(query)
-    maintainers = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    maintainers = paging[:query]
 
     render json: {
       links: paging[:links],
-      meta: { total_results: paging[:total_items] },
+      meta: paging[:meta],
       data: maintainers
     }
   end

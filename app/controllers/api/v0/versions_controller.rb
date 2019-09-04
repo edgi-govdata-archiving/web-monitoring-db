@@ -4,11 +4,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def index
     query = version_collection
     paging = pagination(query)
-    versions = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    versions = paging[:query]
 
     render json: {
       links: paging[:links],
-      meta: { total_results: paging[:total_items] },
+      meta: paging[:meta],
       data: versions.collect {|version| serialize_version(version)}
     }
   end

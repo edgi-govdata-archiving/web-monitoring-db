@@ -409,9 +409,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'meta property should have a total_results field that contains total results across all chunks' do
+  test 'meta.total_results should be the total results across all chunks' do
     sign_in users(:alice)
-    get api_v0_pages_path
+    get api_v0_pages_path, params: { include_total: true }
     assert_response :success
     assert_equal 'application/json', @response.content_type
     body_json = JSON.parse @response.body
@@ -506,7 +506,6 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     get api_v0_pages_path(params: { tags: ['frequently updated'] })
     assert_response :success
     body = JSON.parse(@response.body)
-    assert_equal(2, body['meta']['total_results'])
     assert_equal(2, body['data'].length)
 
     sub_page = body['data'].find {|page| page['uuid'] == pages(:sub_page).uuid}
@@ -524,7 +523,10 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     pages(:home_page_site2).add_tag('home page')
 
     sign_in users(:alice)
-    get api_v0_pages_path(params: { tags: ['frequently updated', 'home page'] })
+    get api_v0_pages_path(params: {
+      tags: ['frequently updated', 'home page'],
+      include_total: true
+    })
     assert_response :success
     body = JSON.parse(@response.body)
     assert_equal(3, body['meta']['total_results'])
@@ -539,7 +541,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     pages(:home_page_site2).add_maintainer('Unicorn Department')
 
     sign_in users(:alice)
-    get api_v0_pages_path(params: { maintainers: ['Unicorn Department'] })
+    get api_v0_pages_path(params: { maintainers: ['Unicorn Department'], include_total: true })
     assert_response :success
     body = JSON.parse(@response.body)
     assert_equal(2, body['meta']['total_results'])
@@ -561,7 +563,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
 
     sign_in users(:alice)
     get api_v0_pages_path(params: {
-      maintainers: ['Unicorn Department', 'EPA']
+      maintainers: ['Unicorn Department', 'EPA'],
+      include_total: true
     })
     assert_response :success
     body = JSON.parse(@response.body)

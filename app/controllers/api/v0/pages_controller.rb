@@ -10,9 +10,10 @@ class Api::V0::PagesController < Api::V0::ApiController
     query = page_collection
     id_query = filter_maintainers_and_tags(query)
     paging = pagination(id_query)
-    id_query = id_query.limit(paging[:chunk_size]).offset(paging[:offset])
+    id_query = paging[:query]
 
     # NOTE: need to get :updated_at here because it's used for ordering
+    # We've already applied the actual sorting in page_collection.
     order_attributes =
       if sorting_params.present?
         sorting_params.collect {|sorting| sorting.keys.first}
@@ -88,7 +89,7 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     render json: Oj.dump({
       links: paging[:links],
-      meta: { total_results: paging[:total_items] },
+      meta: paging[:meta],
       data: result_data
     }, mode: oj_mode)
   end
