@@ -247,14 +247,23 @@ There are several other kinds of objects, but they are subservient to the ones a
 
 - **Users** model people (both human and bots) who can view, import, and annotate data. You currently have to have a user account to do anything in the application, though we hope accounts will not be needed to view public data in the future.
 
+Actual database schemas for each of these tables is listed in [`db/schema.rb`](./db/schema.rb).
+
 
 ### How Data Gets Loaded
 
 The web-monitoring-db project does not actually monitor or scrape pages on the web. Instead, we rely on importing data from other services, like [the Internet Archive](https://archive.org). Each day, a script queries other services for historical snapshots and sends the results to the `/api/v0/imports` endpoint.
 
-Most of the data sent to `/api/v0/imports` matches up directly with the structure of the [`Version` model](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/app/models/version.rb). However, the `uri` field in an import is treated specially. If the `uri` host matches one of the hosts listed in the [`ALLOWED_ARCHIVE_HOSTS` environment variable](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/.env.example), the application simply stores that as the version’s `uri`. If it doesn’t match, the application downloads the content from `uri` and stores it in its `FileStorage`. The intent is to make sure data winds up at a reliably available location, ensuring that anyone who can access the API can also access the raw response body for any version. The application’s storage area can be the local disk or it can be S3, depending on configuration. The component can take pluggable configurations, so we can support other storage types or locations in the future.
+Most of the data sent to `/api/v0/imports` matches up directly with the structure of the [`Version` model](./db/schema.rb). However, the `uri` field in an import is treated specially.
 
-You can see more about this process in the overview repo’s [“architecture” document](https://github.com/edgi-govdata-archiving/web-monitoring/blob/master/ARCHITECTURE.md#web-page-snapshottingcapturing-workflow).
+When new page or version data is imported, the `uri` field points to a location where the raw HTTP response body can be retrieved. If the `uri` host matches one of the values in the [`ALLOWED_ARCHIVE_HOSTS` environment variable](./.env.example), the version record that gets added to the database will simply point to that external location as a source of raw response data. Otherwise, the application downloads the data from `uri` and stores it in its `FileStorage`.
+
+The intent is to make sure data winds up at a reliably available location, ensuring that anyone who can access the API can also access the raw response body for any version. Hosts should be listed in `ALLOWED_ARCHIVE_HOSTS` if they meet this criteria better than the application’s own file storage. The application’s storage area can be the local disk or it can be S3, depending on configuration. The component can take pluggable configurations, so we can support other storage types or locations in the future.
+
+You can see more about this process in:
+- The overview repo’s [“architecture” document](https://github.com/edgi-govdata-archiving/web-monitoring/blob/master/ARCHITECTURE.md#web-page-snapshottingcapturing-workflow)
+- The [import job code](./app/jobs/import_versions_job.rb), where imports are processed.
+- The [`Archiver` module code](./lib/archiver/archiver.rb), where raw HTTP response data is saved.
 
 
 ### File Storage
