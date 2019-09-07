@@ -28,10 +28,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
   def raw
     @version ||= version_collection.find(params[:id])
 
-    expires_in 1.year, :public => true
+    expires_in 1.year, public: true
 
     if Archiver.external_archive_url?(@version.uri)
-      redirect_to @version.uri, status: 301 and return
+      redirect_to @version.uri, status: 301 && return
     elsif Archiver.store.contains_url?(@version.uri)
       upstream = Archiver.store.get_file(@version.uri)
 
@@ -149,7 +149,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
     options[:methods] = methods
 
     # Don't expose the backend URI, expose the 'raw' route instead.
-    return version.as_json(options)
-     .update('uri' => raw_api_v0_version_url(version))
+    return version.as_json(options).update('uri' => raw_api_v0_version_url(version))
   end
 end
