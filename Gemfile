@@ -7,25 +7,25 @@ end
 
 ruby '2.6.3'
 
-gem 'aws-sdk-s3', '~> 1.46'
+gem 'aws-sdk-s3', '~> 1.48'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.2'
 gem 'rails', '~> 5.2.3'
 gem 'pg', '~> 1.1'
-gem 'puma', '~> 4.0'
+gem 'puma', '~> 4.1'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
 gem 'resque-heroku-signals'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
-gem 'oj', '~> 3.8'
+gem 'oj', '~> 3.9'
 gem 'pundit'
 gem 'sentry-raven'
 gem 'readthis'
 gem 'hiredis'
 gem 'google-api-client'
-gem 'addressable', '~> 2.6'
+gem 'addressable', '~> 2.7'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -64,7 +64,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.6'
+  gem 'webmock', '~> 3.7'
 end
 
 group :production do
