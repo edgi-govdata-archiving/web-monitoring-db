@@ -29,6 +29,7 @@ class ImportVersionsJob < ApplicationJob
 
   def import_raw_data(raw_data)
     last_update = Time.now
+    log(object: @import, operation: :started, at: Time.now.utc)
     each_json_line(raw_data) do |record, row, row_count|
       begin
         Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
@@ -56,6 +57,7 @@ class ImportVersionsJob < ApplicationJob
         last_update = Time.now
       end
     end
+    log(object: @import, operation: :finished, at: Time.now.utc)
   end
 
   def import_record(record, row)
@@ -170,12 +172,19 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def log(object:, operation:, **additional)
-    properties = {
-      uuid: object.uuid,
+    properties = {}
+
+    if object.respond_to? :uuid
+      properties[:uuid] = object.uuid
+    else
+      properties[:id] = object.id
+    end
+
+    properties.merge!(
       object: object.class.name.parameterize,
       operation: operation,
       at: object.updated_at
-    }
+    )
 
     properties.merge!(additional) if additional.present?
 

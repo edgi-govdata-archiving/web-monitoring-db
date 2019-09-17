@@ -78,6 +78,12 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     logs = import.load_logs.split("\n").map { |line| JSON.parse(line, symbolize_names: true) }
     assert_equal([
                    {
+                     id: import.id,
+                     object: 'import',
+                     operation: 'started',
+                     at: lock_time.iso8601(3),
+                   },
+                   {
                      uuid: page.uuid,
                      object: 'page',
                      operation: 'found',
@@ -90,8 +96,14 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                      operation: 'created',
                      at: version.updated_at.iso8601(3),
                      row: 0
-                   }
-                 ], logs, 'Logs are not expected.')
+                   },
+                   {
+                     id: import.id,
+                     object: 'import',
+                     operation: 'finished',
+                     at: lock_time.iso8601(3),
+                   },
+                 ], logs, 'Logs are not as expected.')
   end
 
   test 'merges with an existing version if requested' do
