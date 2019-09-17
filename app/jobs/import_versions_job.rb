@@ -102,6 +102,7 @@ class ImportVersionsJob < ApplicationJob
     end
 
     if @import.skip_unchanged_versions? && version_changed?(version)
+      log(object: version, operation: :skipped, row: row)
       warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
       return
     end
@@ -110,7 +111,13 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    log(object: version, operation: :created, row: row)
+    if version.uuid_previously_changed?
+      log(object: version, operation: :created, row: row)
+    else
+      log_version_operation = { 'merge' => 'merged', 'replace' => 'replaced' }.fetch(@import.update_behavior) { @import.update_behavior }
+      log(object: version, operation: log_version_operation, row: row, at: Time.current)
+    end
+
     @added << version unless existing
   end
 

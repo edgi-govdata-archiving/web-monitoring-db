@@ -81,7 +81,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                      id: import.id,
                      object: 'import',
                      operation: 'started',
-                     at: lock_time.iso8601(3),
+                     at: lock_time.iso8601(3)
                    },
                    {
                      uuid: page.uuid,
@@ -93,7 +93,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                    {
                      uuid: versions(:page1_v5).uuid,
                      object: 'version',
-                     operation: 'created',
+                     operation: 'replaced',
                      at: version.updated_at.iso8601(3),
                      row: 0
                    },
@@ -101,8 +101,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                      id: import.id,
                      object: 'import',
                      operation: 'finished',
-                     at: lock_time.iso8601(3),
-                   },
+                     at: lock_time.iso8601(3)
+                   }
                  ], logs, 'Logs are not as expected.')
   end
 
