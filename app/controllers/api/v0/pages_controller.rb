@@ -1,11 +1,6 @@
 class Api::V0::PagesController < Api::V0::ApiController
   include SortingConcern
 
-  # Omit these attributes from tags and maintainers (we care about when the
-  # related item was *assigned*, not when it was created). Used only with
-  # lightweight_query.
-  OMITTABLE_ATTRIBUTES = ['created_at', 'updated_at'].freeze
-
   def index
     query = page_collection
     id_query = filter_maintainers_and_tags(query)
@@ -27,48 +22,36 @@ class Api::V0::PagesController < Api::V0::ApiController
       if !should_allow_versions && should_include_versions
         raise Api::NotImplementedError, 'The ?include_versions query argument has been disabled.'
       elsif should_allow_versions && should_include_versions
-        if use_lightweight_query
-          results = query
-            .where(uuid: page_ids)
-            .includes(:versions)
-            .where(versions: { different: true })
-            .order('versions.capture_time DESC')
-          lightweight_query(results, &method(:format_page_json))
-        else
-          oj_mode = :rails
-          # Including versions, tags, and maintainers is perfectly OK, but
-          # when you add the WHERE clause for versions, ActiveRecord issues
-          # one extra query per page for the tags and maintainers. Instead,
-          # issue two separate queries and manually plug them together.
-          results = Page
-            .where(uuid: page_ids)
-            .includes(:versions)
-            .where(versions: { different: true })
-            .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
-            .order('versions.capture_time DESC')
-            .as_json(include: :versions)
-          # Tags and Maintainers
-          additions = Page
-            .where(uuid: page_ids)
-            .includes(:tags, :maintainers)
-            .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
-            .index_by(&:uuid)
-          # Join them up!
-          results.each do |page|
-            other_page = additions[page['uuid']]
-            page['tags'] = other_page.taggings.as_json
-            page['maintainers'] = other_page.maintainerships.as_json
-          end
-
-          results
+        oj_mode = :rails
+        # Including versions, tags, and maintainers is perfectly OK, but
+        # when you add the WHERE clause for versions, ActiveRecord issues
+        # one extra query per page for the tags and maintainers. Instead,
+        # issue two separate queries and manually plug them together.
+        results = Page
+          .where(uuid: page_ids)
+          .includes(:versions)
+          .where(versions: { different: true })
+          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .order('versions.capture_time DESC')
+          .as_json(include: :versions)
+        # Tags and Maintainers
+        additions = Page
+          .where(uuid: page_ids)
+          .includes(:tags, :maintainers)
+          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .index_by(&:uuid)
+        # Join them up!
+        results.each do |page|
+          other_page = additions[page['uuid']]
+          page['tags'] = other_page.taggings.as_json
+          page['maintainers'] = other_page.maintainerships.as_json
         end
-      elsif should_include_latest || should_include_earliest || !use_lightweight_query
+
+        results
+      else
         # Filters from the original query should *not* affect what's "latest"
         # or "earliest" (though they do affect which *pages* get included), so
         # we build a whole new query from scratch here.
-        # NOTE: lightweight_query can't handle the series of N queries this
-        # actually generates, but the result set is not as insanely huge as
-        # when versions are included, so it's ok to just use ActiveRecord here.
         oj_mode = :rails
         relations = [:maintainers, :tags]
         relations << :earliest if should_include_earliest
@@ -78,13 +61,6 @@ class Api::V0::PagesController < Api::V0::ApiController
           .order(sorting_params.present? ? sorting_params : 'updated_at DESC')
           .includes(*relations)
           .as_json(include: relations)
-      else
-        # TODO: we could optimize and not do the page IDs check for this case
-        # if we aren't also filtering by maintainers or tags.
-        lightweight_query(
-          query.where(uuid: page_ids),
-          &method(:format_page_json)
-        )
       end
 
     render json: Oj.dump({
@@ -107,16 +83,6 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   def paging_path_for_page(*args)
     api_v0_pages_url(*args)
-  end
-
-  # Whether to use `lightweight_query` when possible. That method is a low-
-  # memory/high-performance alternative to normal ActiveRecord queries with
-  # big joins, but it is overcomplicated, non-standard, and makes the
-  # codebase hard to work on. This switch lets us turn it off temporarily
-  # before removing it entirely.
-  # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/348
-  def use_lightweight_query
-    ActiveModel::Type::Boolean.new.cast(ENV['USE_LIGHTWEIGHT_QUERY'])
   end
 
   # NOTE: This check can be removed once this issue is resolved.
@@ -209,14 +175,6 @@ class Api::V0::PagesController < Api::V0::ApiController
     sort_using_params(collection)
   end
 
-  # Determine whether results should be limited to pages with certain
-  # associations. Required because we still want the actual results to have all
-  # the relevant associations for selected pages; the filters only change
-  # which *pages* we select.
-  def should_filter_by_associations
-    params[:maintainers].is_a?(Array) || params[:tags].is_a?(Array)
-  end
-
   # This is separate from the page_collection method because we want to make
   # sure this filtering is only used to select which *pages* are in the result;
   # we want actual output to include *all* the maintainers/tags on the pages
@@ -231,155 +189,5 @@ class Api::V0::PagesController < Api::V0::ApiController
     end
 
     collection
-  end
-
-  def format_page_json(page)
-    page['maintainers'] = page.delete('maintainerships').collect do |item|
-      item['maintainer']
-        .except!(*OMITTABLE_ATTRIBUTES)
-        .merge!('assigned_at' => item['created_at'])
-    end
-
-    page['tags'] = page.delete('taggings').collect do |item|
-      item['tag']
-        .except!(*OMITTABLE_ATTRIBUTES)
-        .merge!('assigned_at' => item['created_at'])
-    end
-  end
-
-  # Get the results of an ActiveRecord query as a simple JSON-compatible
-  # structure without instantiating actual models. This is generally way
-  # fancier footwork that one should be performing and should only be used for
-  # extremely hot (in speed or memory) queries.
-  #
-  # It makes a number of assumptions about the structure of queries and only
-  # works with some kinds of associations. Queries with associations that
-  # require more than one actual SQL call are not supported. This is also
-  # likely sensitive to underlying changes in ActiveRecord.
-  def lightweight_query(relation)
-    primary_type = relation.model
-
-    # Hold information about associations in arrays indexed by the association
-    # for later quick lookup when working with segments of each result row.
-    associations = relation.eager_load_values + relation.includes_values
-
-    # Each entry in parent_types is the index of the type (in `types`, below)
-    # that is the parent object of the association for that index
-    parent_types = [nil]
-
-    # Get the reflection for each association to be included; handles one-level
-    # deep nesting, e.g. `includes(some_model: [:some_child])`
-    reflections = associations.collect do |association|
-      if association.is_a?(Hash)
-        # We're only going one level deep, otherwise this should be a separate
-        # method and also we should just give up and write SQL at that point.
-        # (Maybe we should already have been doing that.)
-        association.collect do |parent_name, child_names|
-          parent_types << 0
-          parent_association = primary_type._reflections.try(:[], parent_name.to_s)
-          child_associations = child_names.collect do |name|
-            parent_types << parent_types.length - 1
-            parent_association.klass._reflections.try(:[], name.to_s)
-          end
-          [parent_association, *child_associations]
-        end
-      else
-        parent_types << 0
-        primary_type._reflections.try(:[], association.to_s)
-      end
-    end.flatten
-
-    association_names = [nil] + reflections.collect {|r| r.name.to_s}
-    types = [primary_type] + reflections.collect(&:klass)
-    attribute_names = types.collect(&:attribute_names)
-
-    # Run the actual query
-    raw = ActiveRecord::Base.connection.exec_query(relation.to_sql)
-
-    parsers = raw.columns.collect do |column|
-      PrimitiveParser.for(raw.column_types[column])
-    end
-
-    # List of final resulting hashes for each primary model
-    results = []
-    # Hashes that map IDs to previously built objects for each association
-    object_maps = association_names.collect {|_| {}}
-    # A cached range for iterating through associations on each row
-    model_range = 0...association_names.count
-
-    raw.rows.each do |row|
-      primary_record = nil
-      row_records = []
-      column_index = 0
-      model_range.each do |model_index|
-        model_id = row[column_index]
-        record_exists = model_id.present?
-        if types[model_index].primary_key.nil?
-          model_id = row.slice(column_index, attribute_names[model_index].length)
-          record_exists = model_id.all?(&:present?)
-        end
-        record = object_maps[model_index][model_id]
-        record_is_new = record.nil?
-
-        # Create and read record data or skip ahead if we already have a copy
-        if record
-          column_index += attribute_names[model_index].count
-        else
-          record = {}
-          object_maps[model_index][model_id] = record
-
-          attribute_names[model_index].each do |name|
-            value = row[column_index]
-            parser = parsers[column_index]
-            record[name] = parser ? parser.deserialize(value) : value
-            column_index += 1
-          end
-        end
-
-        row_records << record
-
-        # Add the record to the right association/list
-        if model_index.zero?
-          primary_record = record
-          results << record if record_is_new
-        else
-          parent = row_records[parent_types[model_index]]
-          field_name = association_names[model_index]
-
-          reflection = reflections[model_index - 1]
-          if reflection.is_a?(ActiveRecord::Reflection::HasOneReflection) || reflection.is_a?(ActiveRecord::Reflection::BelongsToReflection)
-            parent[field_name] = record_exists ? record : nil
-          else
-            field = (parent[field_name] ||= [])
-            field << record unless !record_exists || field.include?(record)
-          end
-        end
-      end
-    end
-
-    results.collect {|record| yield record} if block_given?
-    results
-  end
-
-  # A simple wrapper for parsing data from the DB into a primitive,
-  # JSON-compatible type. Given a DB parser, it will deserialize with that
-  # parser and then further parse to a primitive.
-  class PrimitiveParser
-    def self.for(parser)
-      if parser.class.name.ends_with?('::DateTime')
-        new(parser)
-      elsif parser.class.name.starts_with?('ActiveRecord::ConnectionAdapters')
-        parser
-      end
-    end
-
-    def initialize(parser)
-      @parser = parser
-    end
-
-    def deserialize(value)
-      result = @parser.deserialize(value)
-      result.is_a?(Time) ? result.iso8601 : result
-    end
   end
 end
