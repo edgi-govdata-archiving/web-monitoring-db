@@ -51,7 +51,7 @@ class Import < ApplicationRecord
       existing_logs << "\n" + unpersisted_logs.join("\n")
       FileStorage.default.save_file(log_file, existing_logs)
     else
-      self.log_file = SecureRandom.uuid
+      self.log_file = "import-#{id}.log" # TODO: have file storage allow subdirectories e.g. `import-logs/import-id.log`
       FileStorage.default.save_file(log_file, unpersisted_logs.join("\n"))
     end
 
