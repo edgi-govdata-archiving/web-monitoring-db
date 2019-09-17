@@ -4,11 +4,11 @@ class Api::V0::TagsController < Api::V0::ApiController
   def index
     query = tag_collection
     paging = pagination(query)
-    tags = query.limit(paging[:chunk_size]).offset(paging[:offset])
+    tags = paging[:query]
 
     render json: {
       links: paging[:links],
-      meta: { total_results: paging[:total_items] },
+      meta: paging[:meta],
       data: tags
     }
   end

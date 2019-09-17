@@ -30,6 +30,38 @@ parameters:
       `title:asc,url:desc`. You can sort by any field on the result
       objects.
 
+  chunk:
+    name: chunk
+    in: query
+    description: pagination parameter
+    required: false
+    type: integer
+    default: 1
+
+  chunk_size:
+    name: chunk_size
+    in: query
+    description: number of items per chunk
+    required: false
+    type: integer
+    default: 100
+
+  include_total:
+    name: include_total
+    in: query
+    required: false
+    type: boolean
+    default: false
+    description: >
+      If true, inlude the number of total results across all chunks as a field
+      called `meta.total_results`. For example, querying
+      `/api/v0/pages?include_total` would show the total number of page
+      records in the database in that field.
+
+      Note that `links.last` will only be populated if you are already on the
+      last chunk *unless this parameter is set to true* (the URL of the
+      “last” chunk can’t be determined without counting all possible results).
+
 paths:
   /pages:
     get:
@@ -42,18 +74,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: site
           in: query
@@ -214,18 +237,9 @@ paths:
           required: true
           type: string
           format: uuid4
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
@@ -408,19 +422,10 @@ paths:
           required: true
           type: string
           format: uuid4
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
         - name: priority
           in: query
           description: Only include changes with a matching `priority`. This can be a number (to get an exact match) or an interval using standard mathematical syntax, e.g. `[0.3,0.6)` for `0.3 <= priority < 0.6`. You can leave out the start or end, e.g. `[0.3,]` for `priority >= 0.3`.
@@ -501,6 +506,9 @@ paths:
           required: true
           type: string
           format: uuid4
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
       responses:
         '200':
@@ -694,18 +702,9 @@ paths:
           required: true
           type: string
           format: uuid4
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: parent
           in: query
@@ -824,18 +823,9 @@ paths:
           required: true
           type: string
           format: uuid4
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
       responses:
         '200':
@@ -941,18 +931,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
@@ -1145,18 +1126,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: parent
           in: query
@@ -1267,18 +1239,9 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: chunk
-          in: query
-          description: pagination parameter
-          required: false
-          type: integer
-          default: 1
-        - name: chunk_size
-          in: query
-          description: number of items per chunk
-          required: false
-          type: integer
-          default: 100
+        - $ref: '#/parameters/chunk'
+        - $ref: '#/parameters/chunk_size'
+        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
       responses:
         '200':

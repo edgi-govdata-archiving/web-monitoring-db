@@ -210,11 +210,11 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'meta property should have a total_results field that contains total results across all chunks' do
+  test 'meta.total_results should be the total results across all chunks' do
     sign_in users(:alice)
     page = pages(:home_page)
 
-    get(api_v0_page_versions_url(page))
+    get(api_v0_page_versions_url(page, params: { include_total: true }))
     assert_response(:success)
     assert_equal('application/json', @response.content_type)
     body_json = JSON.parse(@response.body)
