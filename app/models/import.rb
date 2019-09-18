@@ -23,7 +23,7 @@ class Import < ApplicationRecord
   def load_logs
     return if log_file.blank?
 
-    FileStorage.default.get_file(log_file)
+    @cached_log_file ||= FileStorage.default.get_file(log_file) # rubocop:disable Naming/MemoizedInstanceVariableName
   end
 
   def add_log(obj)
@@ -50,9 +50,12 @@ class Import < ApplicationRecord
       existing_logs = load_logs
       existing_logs << "\n" + unpersisted_logs.join("\n")
       FileStorage.default.save_file(log_file, existing_logs)
+      @cached_log_file = existing_logs
     else
       self.log_file = "import-#{id}.log" # TODO: have file storage allow subdirectories e.g. `import-logs/import-id.log`
-      FileStorage.default.save_file(log_file, unpersisted_logs.join("\n"))
+      new_logs = unpersisted_logs.join("\n")
+      FileStorage.default.save_file(log_file, new_logs)
+      @cached_log_file = new_logs
     end
 
     @unpersisted_logs = []
