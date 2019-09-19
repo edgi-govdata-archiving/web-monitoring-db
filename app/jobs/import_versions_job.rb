@@ -61,7 +61,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_record(record, row)
-    page = page_for_record(record, create: @import.create_pages)
+    page = page_for_record(record, create: @import.create_pages, row: row)
     unless page
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
       return
@@ -71,20 +71,17 @@ class ImportVersionsJob < ApplicationJob
       return
     end
 
-    if page.uuid_previously_changed?
-      log(object: page, operation: :created, row: row)
-    else
-      log(object: page, operation: :found, row: row, at: Time.current) # TODO: is it ok to use :found because the page is not updated
-    end
-
-    existing = page.versions.find_by(
+    existing_version = page.versions.find_by(
       capture_time: record['capture_time'],
       source_type: record['source_type']
     )
 
-    return if existing && @import.skip_existing_records?
+    if existing_version && @import.skip_existing_records?
+      log(object: existing_version, operation: :skipped_existing, row: row, at: Time.current)
+      return
+    end
 
-    version = version_for_record(record, existing, @import.update_behavior)
+    version = version_for_record(record, existing_version, @import.update_behavior)
     version.page = page
 
     if version.uri.nil?
@@ -102,7 +99,7 @@ class ImportVersionsJob < ApplicationJob
     end
 
     if @import.skip_unchanged_versions? && version_changed?(version)
-      log(object: version, operation: :skipped, row: row)
+      log(object: version, operation: :skipped_identical, row: row)
       warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
       return
     end
@@ -111,14 +108,13 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    if version.uuid_previously_changed?
-      log(object: version, operation: :created, row: row)
+    if existing_version
+      log(object: version, operation: @import.update_behavior, row: row, at: Time.current)
     else
-      log_version_operation = { 'merge' => 'merged', 'replace' => 'replaced' }.fetch(@import.update_behavior) { @import.update_behavior }
-      log(object: version, operation: log_version_operation, row: row, at: Time.current)
+      log(object: version, operation: :created, row: row)
     end
 
-    @added << version unless existing
+    @added << version unless existing_version
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
@@ -150,18 +146,25 @@ class ImportVersionsJob < ApplicationJob
     end
   end
 
-  def page_for_record(record, create: true)
+  def page_for_record(record, create: true, row:)
     validate_present!(record, 'page_url')
     validate_kind!([String], record, 'page_url')
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
 
     url = record['page_url']
-    page = Page.find_by_url(url) || if create
-                                      Page.create!(url: url)
-                                    else
-                                      return nil
-                                    end
+
+    existing_page = Page.find_by_url(url)
+    page = if existing_page
+             log(object: existing_page, operation: :found, row: row, at: Time.current)
+             existing_page
+           elsif create
+             new_page = Page.create!(url: url)
+             log(object: new_page, operation: :created, row: row)
+             new_page
+           end
+
+    return nil unless page
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')

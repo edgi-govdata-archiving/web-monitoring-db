@@ -93,7 +93,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                    {
                      uuid: versions(:page1_v5).uuid,
                      object: 'version',
-                     operation: 'replaced',
+                     operation: 'replace',
                      at: version.updated_at.iso8601(3),
                      row: 0
                    },
