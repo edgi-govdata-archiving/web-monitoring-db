@@ -1,12 +1,31 @@
 desc 'Copy pages from another web-monitoring-db instance.'
-task :copy_page, [:url, :username, :password, :page_uuid] => [:environment] do |_t, args|
+task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |_t, args|
   verbose = ENV['VERBOSE']
+  begin
+    options = {
+      url: args[:url] || ENV.fetch('WEB_MONITORING_DB_URL'),
+      username: args[:username] || ENV.fetch('WEB_MONITORING_DB_EMAIL'),
+      password: args[:password] || ENV.fetch('WEB_MONITORING_DB_PASSWORD')
+    }
+  rescue
+    error = <<~MESSAGE
+      You must provide a remote API URL and credentials to copy from, either
+      as environment variables:
+        WEB_MONITORING_DB_URL='{URL of remote API}'
+        WEB_MONITORING_DB_EMAIL='{account e-mail to log in with}'
+        WEB_MONITORING_DB_PASSWORD='{account password}'
+
+      Or as command-line arguments:
+        rake copy_page['{page ID}','{URL of remote API}','{e-mail}','{password}']
+    MESSAGE
+    abort(error)
+  end
 
   page_count = 0
   version_count = 0
   skipped_version_count = 0
 
-  data = api_request("/api/v0/pages/#{args[:page_uuid]}", args)['data']
+  data = api_request("/api/v0/pages/#{args[:page_uuid]}", options)['data']
   page_data = data.clone
 
   page = Page.find_by(uuid: data['uuid'])
@@ -24,7 +43,7 @@ task :copy_page, [:url, :username, :password, :page_uuid] => [:environment] do |
   end
 
   version_errors = []
-  api_paginated_request("/api/v0/pages/#{args[:page_uuid]}/versions?chunk_size=1000", args) do |version_data|
+  api_paginated_request("/api/v0/pages/#{args[:page_uuid]}/versions?chunk_size=1000", options) do |version_data|
     if Version.find_by(uuid: version_data['uuid'])
       skipped_version_count += 1
       next
