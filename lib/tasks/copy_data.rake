@@ -7,8 +7,8 @@ task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |
       username: args[:username] || ENV.fetch('WEB_MONITORING_DB_EMAIL'),
       password: args[:password] || ENV.fetch('WEB_MONITORING_DB_PASSWORD')
     }
-  rescue
-    error = <<~MESSAGE
+  rescue KeyError
+    instructions = <<~MESSAGE
       You must provide a remote API URL and credentials to copy from, either
       as environment variables:
         WEB_MONITORING_DB_URL='{URL of remote API}'
@@ -18,7 +18,7 @@ task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |
       Or as command-line arguments:
         rake copy_page['{page ID}','{URL of remote API}','{e-mail}','{password}']
     MESSAGE
-    abort(error)
+    abort(instructions)
   end
 
   page_count = 0
@@ -86,11 +86,11 @@ def api_request(path, options)
   end
 end
 
-def api_paginated_request(path, options, &block)
+def api_paginated_request(path, options)
   next_url = path
   while next_url.present?
     chunk = api_request(next_url, options)
-    chunk['data'].each { |item| block.call(item) }
+    chunk['data'].each { |item| yield item }
     next_url = chunk['links']['next']
   end
 end
