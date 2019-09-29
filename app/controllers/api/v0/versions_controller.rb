@@ -34,24 +34,28 @@ class Api::V0::VersionsController < Api::V0::ApiController
       redirect_to @version.uri, status: 301 && return
     elsif Archiver.store.contains_url?(@version.uri)
       upstream = Archiver.store.get_file(@version.uri)
-
-      # Media type logic mostly cribbed from
-      # web-monitoring-db/app/jobs/analyze_change_job.rb
-      # Lines 176 to 180 in 658ae8c
-      # TODO: this will eventually be a proper field on `version`:
-      # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-      meta = @version.source_metadata || {}
-      media = meta['media_type'] || meta['content_type'] || meta['mime_type']
-      if !media && meta['headers'].is_a?(Hash)
-        media = meta['headers']['content-type'] || meta['headers']['Content-Type']
-      elsif !media
-        media = upstream.content_type
-      end
+      media = version_media_type(@version)
 
       send_data(upstream, type: media, disposition: 'inline')
     else
       raise ActiveRecord::RecordNotFound, "No raw content for #{@version.uuid}."
     end
+  end
+
+  def version_media_type(version)
+    # Media type logic mostly cribbed from
+    # web-monitoring-db/app/jobs/analyze_change_job.rb
+    # Lines 176 to 180 in 658ae8c
+    # TODO: this will eventually be a proper field on `version`:
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
+    meta = version.source_metadata || {}
+    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
+    if !media && meta['headers'].is_a?(Hash)
+      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
+    elsif !media
+      media = upstream.content_type
+    end
+    media
   end
 
   def create
