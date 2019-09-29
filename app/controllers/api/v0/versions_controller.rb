@@ -38,7 +38,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
       send_data(upstream, type: media, disposition: 'inline')
     else
-      raise ActiveRecord::RecordNotFound, "No raw content for #{@version.uuid}."
+      raise ApiError::NotFoundError, "No raw content for #{@version.uuid}."
     end
   end
 
