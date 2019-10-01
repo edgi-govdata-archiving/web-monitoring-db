@@ -262,7 +262,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    sentry-raven (2.11.0)
+    sentry-raven (2.11.3)
       faraday (>= 0.7.6, < 1.0)
     signet (0.11.0)
       addressable (~> 2.3)
