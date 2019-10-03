@@ -24,7 +24,7 @@ WORKDIR /app
 # will be cached unless changes to one of those two files
 # are made.
 COPY Gemfile Gemfile.lock ./
-RUN gem install bundler && bundle install --jobs 20 --retry 5
+RUN gem install bundler && bundle install --jobs 20 --retry 5 --without development test
 
 # Copy the main application.
 COPY . ./
@@ -50,10 +50,7 @@ WORKDIR /app
 # from the outside.
 EXPOSE 3000
 
-# Pre-compile static assets.
-RUN bundle exec rake assets:precompile
-
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by
 # default.
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+CMD ["./docker-start.sh"]
