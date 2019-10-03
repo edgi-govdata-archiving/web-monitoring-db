@@ -163,7 +163,7 @@ GEM
     orm_adapter (0.5.0)
     os (1.0.1)
     parallel (1.17.0)
-    parser (2.6.4.1)
+    parser (2.6.5.0)
       ast (~> 2.4.0)
     pg (1.1.4)
     postmark (1.15.0)
@@ -248,7 +248,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-performance (1.4.1)
       rubocop (>= 0.71.0)
-    rubocop-rails (2.2.1)
+    rubocop-rails (2.3.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     ruby-progressbar (1.10.1)
@@ -343,7 +343,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 0.75.0)
   rubocop-performance (~> 1.4.1)
-  rubocop-rails (~> 2.2.1)
+  rubocop-rails (~> 2.3.2)
   sassc-rails (~> 2.1.2)
   sentry-raven
   spring
