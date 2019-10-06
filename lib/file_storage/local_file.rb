@@ -1,3 +1,5 @@
+require 'filemagic'
+
 module FileStorage
   # Store and retrieve files from the local filesystem.
   class LocalFile
@@ -17,7 +19,12 @@ module FileStorage
     end
 
     def get_file(path)
-      File.read(full_path(path))
+      file_read = File.read(full_path(path))
+      # s3 filetype provides this method. We use it as a fallback and for mime_type
+      file_read.define_singleton_method(:content_type) do
+        FileMagic.new(FileMagic::MAGIC_MIME).file(file_read)
+      end
+      file_read
     end
 
     def save_file(path, content, _options = nil)
