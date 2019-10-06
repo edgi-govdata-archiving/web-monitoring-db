@@ -33,9 +33,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     if Archiver.external_archive_url?(@version.uri)
       redirect_to @version.uri, status: 301 && return
     elsif Archiver.store.contains_url?(@version.uri)
-      upstream = Archiver.store.get_file(@version.uri)
-      media = version_media_type(@version)
-
+      upstream = Archiver.store.get_file(File.basename(@version.uri))
+      media = version_media_type(@version) || upstream.content_type
       send_data(upstream, type: media, disposition: 'inline')
     else
       raise ApiError::NotFoundError, "No raw content for #{@version.uuid}."
@@ -52,8 +51,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
     media = meta['media_type'] || meta['content_type'] || meta['mime_type']
     if !media && meta['headers'].is_a?(Hash)
       media = meta['headers']['content-type'] || meta['headers']['Content-Type']
-    elsif !media
-      media = upstream.content_type
     end
     media
   end
