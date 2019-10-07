@@ -37,7 +37,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       media = version_media_type(@version) || upstream.content_type
       send_data(upstream, type: media, disposition: 'inline')
     else
-      raise ApiError::NotFoundError, "No raw content for #{@version.uuid}."
+      raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     end
   end
 
