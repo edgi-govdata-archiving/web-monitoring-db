@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Install Dependencies
           command: |
-            apt install -y libmagic-dev
+            sudo apt install -y libmagic-dev
             gem install bundler
             bundle install --path vendor/bundle
 
