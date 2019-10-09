@@ -3,11 +3,8 @@ class Api::V0::ApiController < ApplicationController
   before_action { authorize :api, :view? }
   before_action :set_environment_header
 
-  rescue_from StandardError, with: :render_errors if Rails.env.production?
-  rescue_from Api::ApiError, with: :render_errors
+  rescue_from StandardError, with: :render_errors
   rescue_from Pundit::NotAuthorizedError, with: :pundit_auth_error
-
-  rescue_from ActiveRecord::RecordInvalid, with: :render_errors
   rescue_from ActiveModel::ValidationError do |error|
     render_errors(error.model.errors.full_messages, 422)
   end
@@ -33,6 +30,9 @@ class Api::V0::ApiController < ApplicationController
   # Render an error or errors as a proper API response
   def render_errors(errors, status_code = nil)
     errors = [errors] unless errors.is_a?(Array)
+    # Bail out and let Rails present a nice debugging page if using a *browser*.
+    raise errors.first if Rails.env.development? && request.format.html? && errors.length == 1
+
     status_code ||= status_code_for(errors.first)
 
     render status: status_code, json: {
