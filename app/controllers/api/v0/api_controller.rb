@@ -37,10 +37,12 @@ class Api::V0::ApiController < ApplicationController
 
     render status: status_code, json: {
       errors: errors.collect do |error|
-        {
+        formatted = {
           status: status_code,
           title: message_for(error)
         }
+        formatted[:stack] = error.try(:backtrace) || [] if Rails.env.development?
+        formatted
       end
     }
   end
