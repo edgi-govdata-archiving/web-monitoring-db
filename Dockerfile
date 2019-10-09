@@ -3,7 +3,7 @@
 
 ### BASE ENVIRONMENT STAGE ###
 FROM ruby:2.6.3-slim as base
-MAINTAINER enviroDGI@gmail.com
+LABEL maintainer="enviroDGI@gmail.com"
 
 # Install apt based dependencies required to run Rails as
 # well as RubyGems. As the Ruby image itself is based on a
@@ -32,7 +32,7 @@ COPY . ./
 
 ### IMPORT WORKER TARGET ###
 FROM base as import-worker
-MAINTAINER enviroDGI@gmail.com
+LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
 ENV QUEUES=import,analysis
@@ -43,7 +43,7 @@ CMD ["bundle", "exec", "rake", "environment", "resque:work"]
 
 ### RAILS SERVER TARGET ###
 FROM base as rails-server
-MAINTAINER enviroDGI@gmail.com
+LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
 # Expose port 3000 to the Docker host, so we can access it
