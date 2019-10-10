@@ -1,4 +1,4 @@
-[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md)
+[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md) &nbsp;[![Project Status Board](https://img.shields.io/badge/✔-Project%20Status%20Board-green.svg?style=flat)](https://github.com/orgs/edgi-govdata-archiving/projects/4)
 
 # web-monitoring-db
 
@@ -277,6 +277,15 @@ At current, the application creates two `FileStorage` instances:
 2. “Working storage” is used to store internal data, such as raw import data and import logs. Under a default configuration, this is your local disk in development and S3 in production. You can configure the S3 bucket used for it with the `AWS_WORKING_BUCKET` environment variable. **Everything in this storage area should be considered private and you should not expose it to the public web.**
 
 3. For historical reasons, EDGI’s deployment includes a third S3 bucket that is not directly accessed by the application. It’s where we store HTTP response bodies collected from [Versionista](https://versionista.com), a service we previously used for scraping government web pages. You can see it listed in [the example settings for `ALLOWED_ARCHIVE_HOSTS`](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/.env.example).
+
+
+## Releases
+
+New releases of the app are published automatically as Docker images by CircleCI when someone pushes to the `release` branch. They are availble at https://hub.docker.com/r/envirodgi. See [web-monitoring-ops](https://github.com/edgi-govdata-archiving/web-monitoring-ops) for how we deploy releases to actual web servers.
+
+Images are tagged with the SHA-1 of the git commit they were built from. For example, the image `envirodgi/db-rails-server:ddc246819a039465e7711a1abd61f67c14b7a320` was built from [commit `ddc246819a039465e7711a1abd61f67c14b7a320`](https://github.com/edgi-govdata-archiving/web-monitoring-db/commit/ddc246819a039465e7711a1abd61f67c14b7a320).
+
+We usually create *merge commits* on the `release` branch that note the PRs included in the release or any other relevant notes (e.g. [`Release #503, #504`](https://github.com/edgi-govdata-archiving/web-monitoring-db/commit/67e4510d1f2a8c7f01542cc86a6361539ef77fa5)).
 
 
 ## Code of Conduct
