@@ -140,10 +140,22 @@ class PageTest < ActiveSupport::TestCase
     assert_not(page.valid?, 'A text status was valid')
   end
 
-  test 'pages tag themselves by domain when created' do
+  test 'pages tag themselves by domain or news when created' do
     new_page = Page.create(url: 'https://whatever.subdmain.noaa.gov/something')
     tags = new_page.tags.pluck(:name)
     assert_includes(tags, 'domain:whatever.subdmain.noaa.gov')
     assert_includes(tags, '2l-domain:noaa.gov')
+
+    new_page_with_news = Page.create(url: 'https://whatever.subdmain.noaa/news/2')
+    tags = new_page_with_news.tags.pluck(:name)
+    assert_includes(tags, 'news')
+
+    new_page_with_blog = Page.create(url: 'https://whatever.subdmain.noaa/blog/2')
+    tags = new_page_with_blog.tags.pluck(:name)
+    assert_includes(tags, 'news')
+
+    new_page_with_press = Page.create(url: 'https://whatever.subdmain.noaa/press/2')
+    tags = new_page_with_press.tags.pluck(:name)
+    assert_includes(tags, 'news')
   end
 end

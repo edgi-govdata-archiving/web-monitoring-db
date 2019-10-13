@@ -315,6 +315,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
 | [💻](# "Code") | [Ben Sheldon](https://github.com/bensheldon) |
+| [💻](# "Code") | [Ewelina Sobora](https://github.com/ewelinasobora) |
 | [🚇](# "Infrastructure")  | [Frederik Spang](https://github.com/frederikspang) |
 | [💻](# "Code") | [Max Tedford](https://github.com/maxtedford) |
 | [💻](# "Code") | [Eddie Tejeda](https://github.com/eddietejeda) |
