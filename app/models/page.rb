@@ -38,7 +38,7 @@ class Page < ApplicationRecord
   has_many :maintainers, through: :maintainerships
 
   before_create :ensure_url_key
-  after_create :ensure_domain_tags
+  after_create :ensure_domain_and_news_tags
   before_save :normalize_url
   validate :url_must_have_domain
   validates :status,
@@ -119,12 +119,17 @@ class Page < ApplicationRecord
     update(url_key: Page.create_url_key(url))
   end
 
-  def ensure_domain_tags
+  def ensure_domain_and_news_tags
     self.add_tag("domain:#{domain}")
     self.add_tag("2l-domain:#{second_level_domain}")
+    self.add_tag('news') if news?
   end
 
   protected
+
+  def news?
+    url.include?('/news') || url.include?('/blog') || url.include?('/press')
+  end
 
   def ensure_url_key
     self.url_key ||= Page.create_url_key(url)
