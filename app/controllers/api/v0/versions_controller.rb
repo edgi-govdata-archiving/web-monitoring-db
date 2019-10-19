@@ -33,11 +33,15 @@ class Api::V0::VersionsController < Api::V0::ApiController
     if Archiver.external_archive_url?(@version.uri)
       redirect_to @version.uri, status: 301 && return
     elsif Archiver.store.contains_url?(@version.uri)
+      # Get the file
       filename = File.basename(@version.uri)
       upstream = Archiver.store.get_file(filename)
-      media = version_media_type(@version) || upstream.content_type || 'application/octet-stream'
-      disposition = media == 'application/octet-stream' ? 'attachment' : 'inline'
-      send_data(upstream, type: media, filename: filename, disposition: disposition)
+      # Try to get the filetype, fall back on binary.
+      type = version_media_type(@version) || upstream.content_type || 'application/octet-stream'
+      # Set binary file disposition to attachment; anything else is inine.
+      disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
+
+      send_data(upstream, type: type, filename: filename, disposition: disposition)
     else
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     end
