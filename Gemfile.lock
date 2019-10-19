@@ -264,7 +264,6 @@ GEM
     rubocop-rails (2.4.1)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
-    ruby-filemagic (0.7.2)
     ruby-progressbar (1.10.1)
     rubyzip (2.0.0)
     safe_yaml (1.0.5)
