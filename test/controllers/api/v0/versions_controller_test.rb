@@ -3,6 +3,23 @@ require 'test_helper'
 class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
+  def setup
+    @original_store = Archiver.store
+    Archiver.store = FileStorage::S3.new(
+      key: 'whatever',
+      secret: 'test',
+      bucket: 'test-bucket',
+      region: 'us-west-2'
+    )
+    @original_allowed_hosts = Archiver.allowed_hosts
+    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+  end
+
+  def teardown
+    Archiver.allowed_hosts = @original_allowed_hosts
+    Archiver.store = @original_store
+  end
+
   test 'authorizations' do
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response :unauthorized
@@ -190,6 +207,13 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert(body.key?('links'), 'Response should have a "links" property')
     assert(body.key?('data'), 'Response should have a "data" property')
+  end
+
+  test 'can return the raw response body for a single version' do
+    sign_in users(:alice)
+    version = versions(:page1_v5)
+    get raw_api_v0_version_url(version)
+    assert_response(:redirect)
   end
 
   test 'can query by source_metadata fields' do
