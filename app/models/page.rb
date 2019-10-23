@@ -3,6 +3,15 @@ class Page < ApplicationRecord
   include Taggable
   include SimpleTitle
 
+  # TODO: pull these from environment variables
+  # Timeframe over which to calculate a page's status code. Because a single
+  # version could be an intermittent failure, we don't just use the latest
+  # version's status, but instead look at all the versions of the past N days.
+  STATUS_TIMEFRAME = 14.days
+  # What percentage (between 0 and 1) of versions must have a successful
+  # status code for the page's status to be `200`.
+  STATUS_SUCCESS_THRESHOLD = 0.75
+
   has_many :versions,
            -> { order(capture_time: :desc) },
            foreign_key: 'page_uuid',
@@ -125,6 +134,12 @@ class Page < ApplicationRecord
     self.add_tag('news') if news?
   end
 
+  def update_status
+    new_status = calculate_status
+    self.update(status: new_status) unless new_status.zero?
+    self.status
+  end
+
   protected
 
   def news?
@@ -152,5 +167,63 @@ class Page < ApplicationRecord
     unless domain.present?
       errors.add(:url, 'must have a domain')
     end
+  end
+
+  # Calculate the effective HTTP status code for this page. Because the
+  # occasional failure might happen when capturing a version, we don't
+  # just take the latest status. Instead, we only treat failures as real
+  # if they account for a certain percentage of the last N days.
+  def calculate_status(relative_to: nil)
+    now = relative_to || Time.now
+    start_time = now - STATUS_TIMEFRAME
+    latest_with_status = versions
+      .where('status IS NOT NULL')
+      .order(capture_time: :desc).first
+
+    # Bail out if we have no versions with a status!
+    return 0 unless latest_with_status
+
+    if latest_with_status.status < 400 || latest_with_status.capture_time < start_time
+      return latest_with_status.status
+    end
+
+    success_time = 0.seconds
+    total_time = 0.seconds
+    last_time = now
+    last_error = 0
+    candidates = versions
+      .where('status IS NOT NULL')
+      .where('capture_time >= ?', start_time)
+      .order(capture_time: :desc)
+    candidates.each do |version|
+      version_time = last_time - version.capture_time
+      total_time += version_time
+      if version.status < 400
+        success_time += version_time
+      elsif last_error == 0
+        last_error = version.status
+      end
+      last_time = version.capture_time
+    end
+
+    base_version = versions
+      .where('status IS NOT NULL')
+      .where('capture_time < ?', start_time)
+      .order(capture_time: :desc).first
+    if base_version
+      version_time = last_time - start_time
+      total_time += version_time
+      if base_version.status < 400
+        success_time += version_time
+      elsif last_error == 0
+        last_error = base_version.status
+      end
+    end
+
+    # Bail out if we didn't actually cover any meaningful timeframe.
+    return 0 if total_time == 0
+
+    success_rate = success_time.to_f / total_time
+    success_rate < STATUS_SUCCESS_THRESHOLD ? last_error : 200
   end
 end
