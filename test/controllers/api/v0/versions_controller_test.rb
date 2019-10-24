@@ -218,6 +218,14 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:missing)
   end
 
+  test 'can return 404 when uri for raw response body is null' do
+    Archiver.allowed_hosts = []
+    sign_in users(:alice)
+    version = versions(:page1_v6)
+    get raw_api_v0_version_url(version)
+    assert_response(:missing)
+  end
+
   test 'can return raw response body for a single version' do
     Archiver.allowed_hosts = []
     Archiver.store = FileStorage::S3.new(

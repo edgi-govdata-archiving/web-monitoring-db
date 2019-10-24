@@ -30,7 +30,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     expires_in 1.year, public: true
 
-    if Archiver.external_archive_url?(@version.uri)
+    if @version.uri.nil?
+      raise Api::NotFoundError, "No raw content for #{@version.uuid}."
+    elsif Archiver.external_archive_url?(@version.uri)
       redirect_to @version.uri, status: 301
     elsif Archiver.store.contains_url?(@version.uri)
       # Get the file
