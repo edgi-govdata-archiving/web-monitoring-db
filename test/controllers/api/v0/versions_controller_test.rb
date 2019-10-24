@@ -5,14 +5,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     @original_store = Archiver.store
-    Archiver.store = FileStorage::S3.new(
-      key: 'whatever',
-      secret: 'test',
-      bucket: 'test-bucket',
-      region: 'us-west-2'
-    )
     @original_allowed_hosts = Archiver.allowed_hosts
-    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
   end
 
   def teardown
@@ -209,11 +202,20 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert(body.key?('data'), 'Response should have a "data" property')
   end
 
-  test 'can return the raw response body for a single version' do
+  test 'can redirect when the raw response body for a single version is in ALLOWED_ARCHIVE_HOSTS' do
+    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
     sign_in users(:alice)
     version = versions(:page1_v5)
     get raw_api_v0_version_url(version)
     assert_response(:redirect)
+  end
+
+  test 'can return 404 when raw response body for a single version is missing' do
+    Archiver.allowed_hosts = []
+    sign_in users(:alice)
+    version = versions(:page1_v5)
+    get raw_api_v0_version_url(version)
+    assert_response(:missing)
   end
 
   test 'can query by source_metadata fields' do
