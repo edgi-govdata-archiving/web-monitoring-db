@@ -22,7 +22,8 @@ module FileStorage
       false
     end
 
-    def get_file(path)
+    def get_file(path_or_url_string)
+      path = parse_s3_url(path_or_url_string)[:path] || path_or_url_string
       @client.get_object(bucket: @bucket, key: path).body.read
     end
 
