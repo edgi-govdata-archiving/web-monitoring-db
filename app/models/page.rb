@@ -176,54 +176,32 @@ class Page < ApplicationRecord
   def calculate_status(relative_to: nil)
     now = relative_to || Time.now
     start_time = now - STATUS_TIMEFRAME
-    latest_with_status = versions
-      .where('status IS NOT NULL')
-      .order(capture_time: :desc).first
-
-    # Bail out if we have no versions with a status!
-    return 0 unless latest_with_status
-
-    if latest_with_status.status < 400 || latest_with_status.capture_time < start_time
-      return latest_with_status.status
-    end
-
-    success_time = 0.seconds
-    total_time = 0.seconds
     last_time = now
-    last_error = 0
-    candidates = versions
-      .where('status IS NOT NULL')
-      .where('capture_time >= ?', start_time)
-      .order(capture_time: :desc)
+    latest_error = nil
+    total_time = 0.seconds
+    error_time = 0.seconds
+
+    status_query = versions.where('status IS NOT NULL').order(capture_time: :desc)
+    candidates = status_query.where('capture_time >= ?', start_time).to_a
+    base_version = status_query.where('capture_time < ?', start_time).first
+    candidates << base_version if base_version
+
     candidates.each do |version|
-      version_time = last_time - version.capture_time
+      # We only want to consider the part of our timeframe that the version covers
+      capture_time = [version.capture_time, start_time].max
+      version_time = last_time - capture_time
       total_time += version_time
-      if version.status < 400
-        success_time += version_time
-      elsif last_error == 0
-        last_error = version.status
+
+      if version.status >= 400
+        error_time += version_time
+        latest_error ||= version.status
       end
       last_time = version.capture_time
     end
 
-    base_version = versions
-      .where('status IS NOT NULL')
-      .where('capture_time < ?', start_time)
-      .order(capture_time: :desc).first
-    if base_version
-      version_time = last_time - start_time
-      total_time += version_time
-      if base_version.status < 400
-        success_time += version_time
-      elsif last_error == 0
-        last_error = base_version.status
-      end
-    end
-
-    # Bail out if we didn't actually cover any meaningful timeframe.
     return 0 if total_time == 0
 
-    success_rate = success_time.to_f / total_time
-    success_rate < STATUS_SUCCESS_THRESHOLD ? last_error : 200
+    success_rate = 1 - (error_time.to_f / total_time)
+    success_rate < STATUS_SUCCESS_THRESHOLD ? latest_error : 200
   end
 end
