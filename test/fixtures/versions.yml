@@ -163,10 +163,9 @@ page1_v6:
   page: home_page
   uri: !!null
   capture_time: '2017-03-05T00:00:00Z'
-  version_hash: 'stu'
   source_type: 'pagefreezer'
   source_metadata:
     account: 'test@example.com'
     site_id: 1
     page_id: 11
-    version_id: 115
+    version_id: 116
