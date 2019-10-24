@@ -13,7 +13,7 @@ gem 'httparty'
 gem 'jwt', '~> 2.2'
 gem 'rails', '~> 5.2.3'
 gem 'pg', '~> 1.1'
-gem 'puma', '~> 4.1'
+gem 'puma', '~> 4.2'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
 gem 'resque-heroku-signals'
@@ -45,14 +45,14 @@ gem 'bootsnap', '>= 1.3.1', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.74.0', require: false
-  gem 'rubocop-performance', '~> 1.4.1'
-  gem 'rubocop-rails', '~> 2.2.1'
+  gem 'rubocop', '~> 0.75.0', require: false
+  gem 'rubocop-performance', '~> 1.5.0'
+  gem 'rubocop-rails', '~> 2.3.2'
   gem 'dotenv-rails'
 end
 
 group :development do
-  gem 'listen', '~> 3.1'
+  gem 'listen', '~> 3.2'
   gem 'pry-rails'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
