@@ -226,17 +226,16 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       bucket: 'test-bucket',
       region: 'us-west-2'
     )
-    path = 'page1_v5.html'
     content = '<html>html content</html>'
     stub_request(:head, 'https://test-bucket.s3.us-west-2.amazonaws.com/page1_v5.html')
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: '', headers: {})
     stub_request(:get, 'https://test-bucket.s3.us-west-2.amazonaws.com/page1_v5.html')
       .to_return(status: 200, body: content, headers: {})
     sign_in users(:alice)
     version = versions(:page1_v5)
     get raw_api_v0_version_url(version)
     assert_response(:success)
-    assert_equal(content, response.body)
+    assert_equal(content, @response.body)
   end
 
   test 'can query by source_metadata fields' do
