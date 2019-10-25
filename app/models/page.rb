@@ -47,9 +47,10 @@ class Page < ApplicationRecord
   has_many :maintainers, through: :maintainerships
 
   scope :needing_status_update, -> {
+    # NOTE: pages.status can be NULL, so use DISTINCT FROM instead of <>/!= to compare.
     joins(:versions)
       .where('versions.capture_time >= ?', (STATUS_TIMEFRAME * STATUS_SUCCESS_THRESHOLD).ago)
-      .where('versions.status <> pages.status')
+      .where('versions.status IS DISTINCT FROM pages.status')
   }
 
   before_create :ensure_url_key
