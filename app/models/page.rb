@@ -46,6 +46,12 @@ class Page < ApplicationRecord
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
 
+  scope :needing_status_update, -> {
+    joins(:versions)
+      .where('versions.capture_time >= ?', (STATUS_TIMEFRAME * STATUS_SUCCESS_THRESHOLD).ago)
+      .where('versions.status <> pages.status')
+  }
+
   before_create :ensure_url_key
   after_create :ensure_domain_and_news_tags
   before_save :normalize_url
