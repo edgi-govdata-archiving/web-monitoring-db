@@ -22,7 +22,7 @@ namespace :data do
 
     ActiveRecord::Migration.say_with_time('Updating `uri` on versions to new S3 buckets') do
       count = 0
-      with_activerecord_log_level(:error) do
+      DataHelpers.with_activerecord_log_level(:error) do
         old_versionista_prefixes.each do |prefix|
           count += replace_uri_prefix(prefix, new_versionista_prefix, start_date, end_date)
         end
@@ -77,13 +77,5 @@ namespace :data do
     end
 
     updated
-  end
-
-  def with_activerecord_log_level(level = :error)
-    original_level = ActiveRecord::Base.logger.level
-    ActiveRecord::Base.logger.level = level
-    yield
-  ensure
-    ActiveRecord::Base.logger.level = original_level
   end
 end

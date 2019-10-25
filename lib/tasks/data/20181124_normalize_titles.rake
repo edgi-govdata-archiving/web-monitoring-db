@@ -3,7 +3,7 @@ namespace :data do
   task :'20181124_normalize_titles', [] => [:environment] do |_t|
     ActiveRecord::Migration.say_with_time('Updating `uri` on versions to new S3 buckets') do
       count = 0
-      with_activerecord_log_level(:error) do
+      DataHelpers.with_activerecord_log_level(:error) do
         count += clean_titles(Version)
         count += clean_titles(Page)
       end
@@ -51,13 +51,5 @@ namespace :data do
     end
 
     updated
-  end
-
-  def with_activerecord_log_level(level = :error)
-    original_level = ActiveRecord::Base.logger.level
-    ActiveRecord::Base.logger.level = level
-    yield
-  ensure
-    ActiveRecord::Base.logger.level = original_level
   end
 end

@@ -20,7 +20,7 @@ task :update_page_statuses, [:where] => [:environment] do |_t, args|
       completed = 0
       total = page_set.size
 
-      DataHelpers.iterate_each(page_set) do |page|
+      DataHelpers.iterate_each(page_set, batch_size: 500) do |page|
         page.update_status
         completed += 1
         if Time.now - last_update > 2
