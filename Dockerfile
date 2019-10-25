@@ -57,3 +57,11 @@ RUN bundle exec rake assets:precompile
 # tell the Rails dev server to bind to all interfaces by
 # default.
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
+
+### STATUS UPDATE JOB TARGET ###
+FROM base as status-update-job
+LABEL maintainer="enviroDGI@gmail.com"
+WORKDIR /app
+
+CMD ["bundle", "exec", "rake", "update_page_statuses"]

@@ -53,15 +53,20 @@ jobs:
           docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: |
           docker build --target rails-server -t envirodgi/db-rails-server:$CIRCLE_SHA1 .
-          docker build --target rails-server -t envirodgi/db-rails-server:latest .
+          docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
       - run: |
           docker build --target import-worker -t envirodgi/db-import-worker:$CIRCLE_SHA1 .
-          docker build --target import-worker -t envirodgi/db-import-worker:latest .
+          docker image tag envirodgi/db-import-worker:$CIRCLE_SHA1 envirodgi/db-import-worker:latest
+      - run: |
+          docker build --target status-update-job -t envirodgi/db-status-update-job:$CIRCLE_SHA1 .
+          docker image tag envirodgi/db-status-update-job:$CIRCLE_SHA1 envirodgi/db-status-update-job:latest
       - run: |
           docker push envirodgi/db-rails-server:$CIRCLE_SHA1
           docker push envirodgi/db-rails-server:latest
           docker push envirodgi/db-import-worker:$CIRCLE_SHA1
           docker push envirodgi/db-import-worker:latest
+          docker push envirodgi/db-status-update-job:$CIRCLE_SHA1
+          docker push envirodgi/db-status-update-job:latest
 
 workflows:
   version: 2
