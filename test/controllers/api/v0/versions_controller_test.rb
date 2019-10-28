@@ -208,6 +208,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     version = versions(:page3_v1)
     get raw_api_v0_version_url(version)
     assert_response(:redirect)
+    Archiver.allowed_hosts = @original_allowed_hosts
   end
 
   test 'can return 404 when raw response body for a single version is missing' do
@@ -216,6 +217,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     version = versions(:page3_v1)
     get raw_api_v0_version_url(version)
     assert_response(:missing)
+    Archiver.allowed_hosts = @original_allowed_hosts
   end
 
   test 'can return 404 when uri for raw response body is null' do
@@ -224,6 +226,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     version = versions(:page3_v2)
     get raw_api_v0_version_url(version)
     assert_response(:missing)
+    Archiver.allowed_hosts = @original_allowed_hosts
   end
 
   test 'can return raw response body for a single version in S3' do
@@ -244,6 +247,8 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get raw_api_v0_version_url(version)
     assert_response(:success)
     assert_equal(content, @response.body)
+    Archiver.allowed_hosts = @original_allowed_hosts
+    Archiver.store = @original_store
   end
 
   test 'can return raw response body for a single version in local storage' do
@@ -257,6 +262,8 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get raw_api_v0_version_url(version)
     assert_response(:success)
     assert_equal(content, @response.body)
+    Archiver.allowed_hosts = @original_allowed_hosts
+    Archiver.store = @original_store
   end
 
   test 'can query by source_metadata fields' do
