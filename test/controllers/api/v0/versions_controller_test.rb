@@ -205,7 +205,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can redirect when the raw response body for a single version is in ALLOWED_ARCHIVE_HOSTS' do
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
     sign_in users(:alice)
-    version = versions(:page1_v5)
+    version = versions(:page3_v1)
     get raw_api_v0_version_url(version)
     assert_response(:redirect)
   end
@@ -213,7 +213,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can return 404 when raw response body for a single version is missing' do
     Archiver.allowed_hosts = []
     sign_in users(:alice)
-    version = versions(:page1_v5)
+    version = versions(:page3_v1)
     get raw_api_v0_version_url(version)
     assert_response(:missing)
   end
@@ -221,7 +221,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can return 404 when uri for raw response body is null' do
     Archiver.allowed_hosts = []
     sign_in users(:alice)
-    version = versions(:page1_v6)
+    version = versions(:page3_v2)
     get raw_api_v0_version_url(version)
     assert_response(:missing)
   end
@@ -235,12 +235,12 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       region: 'us-west-2'
     )
     content = '<html>html content</html>'
-    stub_request(:head, 'https://test-bucket.s3.us-west-2.amazonaws.com/page1_v5.html')
+    stub_request(:head, 'https://test-bucket.s3.us-west-2.amazonaws.com/page3_v1.html')
       .to_return(status: 200, body: '', headers: {})
-    stub_request(:get, 'https://test-bucket.s3.us-west-2.amazonaws.com/page1_v5.html')
+    stub_request(:get, 'https://test-bucket.s3.us-west-2.amazonaws.com/page3_v1.html')
       .to_return(status: 200, body: content, headers: {})
     sign_in users(:alice)
-    version = versions(:page1_v5)
+    version = versions(:page3_v1)
     get raw_api_v0_version_url(version)
     assert_response(:success)
     assert_equal(content, @response.body)
@@ -253,7 +253,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     content = '<html>html content</html>'
     Archiver.store.save_file 'cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d', content
     sign_in users(:alice)
-    version = versions(:page1_v7)
+    version = versions(:page3_v3)
     get raw_api_v0_version_url(version)
     assert_response(:success)
     assert_equal(content, @response.body)
