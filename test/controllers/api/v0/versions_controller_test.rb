@@ -226,7 +226,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:missing)
   end
 
-  test 'can return raw response body for a single version' do
+  test 'can return raw response body for a single version in S3' do
     Archiver.allowed_hosts = []
     Archiver.store = FileStorage::S3.new(
       key: 'whatever',
@@ -241,6 +241,19 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       .to_return(status: 200, body: content, headers: {})
     sign_in users(:alice)
     version = versions(:page1_v5)
+    get raw_api_v0_version_url(version)
+    assert_response(:success)
+    assert_equal(content, @response.body)
+  end
+
+  test 'can return raw response body for a single version in local storage' do
+    storage_path = Rails.root.join('tmp/test/storage')
+    Archiver.allowed_hosts = []
+    Archiver.store = FileStorage::LocalFile.new(path: storage_path)
+    content = '<html>html content</html>'
+    Archiver.store.save_file 'cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d', content
+    sign_in users(:alice)
+    version = versions(:page1_v7)
     get raw_api_v0_version_url(version)
     assert_response(:success)
     assert_equal(content, @response.body)
