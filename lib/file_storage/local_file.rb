@@ -16,24 +16,7 @@ module FileStorage
       @directory ||= Dir.mktmpdir "web-monitoring-db--#{@tag}"
     end
 
-    def get_path_from_url(url_string)
-      if url_string.starts_with? 'file://'
-        fullpath = url_string[7..-1]
-        dir_str_len = directory.to_s.length
-        path = fullpath[dir_str_len..-1]
-        if path
-          if File.exist? File.join(directory, path)
-            return path
-          end
-        end
-      else
-        false
-      end
-    end
-
-    def get_file(path_or_url_string)
-      path_from_url = get_path_from_url(path_or_url_string)
-      path = path_from_url || path_or_url_string
+    def get_file(path)
       File.read(full_path(path))
     end
 
@@ -50,8 +33,9 @@ module FileStorage
     end
 
     def contains_url?(url_string)
-      if get_path_from_url(url_string)
-        true
+      if url_string.starts_with? 'file://'
+        path = url_string[7..-1]
+        File.exist? path
       else
         false
       end
