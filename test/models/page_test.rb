@@ -158,4 +158,33 @@ class PageTest < ActiveSupport::TestCase
     tags = new_page_with_press.tags.pluck(:name)
     assert_includes(tags, 'news')
   end
+
+  test 'pages can calculate their effective status code' do
+    page = Page.create(url: 'https://example.gov/')
+    page.versions.create(capture_time: Time.now - 15.days, status: 200)
+    page.versions.create(capture_time: Time.now - 12.days, status: 500)
+    page.versions.create(capture_time: Time.now - 10.days, status: 200)
+    page.versions.create(capture_time: Time.now - 1.day, status: 404)
+    assert_equal(page.update_status, 200, 'Status should be 200 when most of the timeframe was non-error versions')
+  end
+
+  test 'pages use the latest error code for their status when there is an error' do
+    page = Page.create(url: 'https://example.gov/')
+    page.versions.create(capture_time: Time.now - 15.days, status: 200)
+    page.versions.create(capture_time: Time.now - 12.days, status: 500)
+    page.versions.create(capture_time: Time.now - 10.days, status: 403)
+    assert_equal(page.update_status, 403, 'Status should match the latest error code')
+
+    page.latest.update(status: 404)
+    assert_equal(page.update_status, 404, 'Status should match the latest error code')
+  end
+
+  test 'pages can calculate a status even when some versions have no status' do
+    page = Page.create(url: 'https://example.gov/')
+    page.versions.create(capture_time: Time.now - 12.days)
+    assert_nil(page.update_status, 'Status should be nil if no versions have status')
+
+    page.versions.create(capture_time: Time.now - 15.days, status: 200)
+    assert_equal(page.update_status, 200, 'Status should be based only on versions with status codes')
+  end
 end
