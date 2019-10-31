@@ -3,8 +3,8 @@ class ImportVersionsJob < ApplicationJob
 
   # TODO: wrap in transaction?
   def perform(import)
-    Rails.logger.debug "Running Import \##{import.id}"
     @import = import
+    log(object: @import, operation: :started)
     @import.update(status: :processing)
     @added = []
 
@@ -32,7 +32,7 @@ class ImportVersionsJob < ApplicationJob
     each_json_line(raw_data) do |record, row, row_count|
       begin
         Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
-        import_record(record)
+        import_record(record, row)
       rescue Api::ApiError => error
         @import.processing_errors << "Row #{row}: #{error.message}"
       rescue ActiveModel::ValidationError => error
@@ -56,10 +56,11 @@ class ImportVersionsJob < ApplicationJob
         last_update = Time.now
       end
     end
+    log(object: @import, operation: :finished)
   end
 
-  def import_record(record)
-    page = page_for_record(record, create: @import.create_pages)
+  def import_record(record, row)
+    page = page_for_record(record, create: @import.create_pages, row: row)
     unless page
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
       return
@@ -69,14 +70,17 @@ class ImportVersionsJob < ApplicationJob
       return
     end
 
-    existing = page.versions.find_by(
+    existing_version = page.versions.find_by(
       capture_time: record['capture_time'],
       source_type: record['source_type']
     )
 
-    return if existing && @import.skip_existing_records?
+    if existing_version && @import.skip_existing_records?
+      log(object: existing_version, operation: :skipped_existing, row: row)
+      return
+    end
 
-    version = version_for_record(record, existing, @import.update_behavior)
+    version = version_for_record(record, existing_version, @import.update_behavior)
     version.page = page
 
     if version.uri.nil?
@@ -94,6 +98,7 @@ class ImportVersionsJob < ApplicationJob
     end
 
     if @import.skip_unchanged_versions? && version_changed?(version)
+      log(object: version, operation: :skipped_identical, row: row)
       warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
       return
     end
@@ -102,7 +107,13 @@ class ImportVersionsJob < ApplicationJob
     version.update_different_attribute(save: false)
     version.save
 
-    @added << version unless existing
+    if existing_version
+      log(object: version, operation: @import.update_behavior, row: row)
+    else
+      log(object: version, operation: :created, row: row)
+    end
+
+    @added << version unless existing_version
   end
 
   def version_for_record(record, existing_version = nil, update_behavior = 'replace')
@@ -134,18 +145,25 @@ class ImportVersionsJob < ApplicationJob
     end
   end
 
-  def page_for_record(record, create: true)
+  def page_for_record(record, create: true, row:)
     validate_present!(record, 'page_url')
     validate_kind!([String], record, 'page_url')
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
 
     url = record['page_url']
-    page = Page.find_by_url(url) || if create
-                                      Page.create!(url: url)
-                                    else
-                                      return nil
-                                    end
+
+    existing_page = Page.find_by_url(url)
+    page = if existing_page
+             log(object: existing_page, operation: :found, row: row)
+             existing_page
+           elsif create
+             new_page = Page.create!(url: url)
+             log(object: new_page, operation: :created, row: row)
+             new_page
+           end
+
+    return nil unless page
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     page.add_maintainer(record['site_agency']) if record.key?('site_agency')
@@ -160,6 +178,23 @@ class ImportVersionsJob < ApplicationJob
   def warn(message)
     @import.processing_warnings << message
     Rails.logger.warn "Import #{@import.id} #{message}"
+  end
+
+  def log(object:, operation:, row: nil)
+    object_name = object.class.name
+    object_id = if object.respond_to? :uuid
+                  object.uuid
+                else
+                  object.id
+                end
+
+    conjugated_operation = {
+      'merge' => 'merged',
+      'replace' => 'replaced',
+      'skip' => 'skipped'
+    }.fetch(operation, operation)
+
+    Rails.logger.debug("[import=#{@import.id}]#{row ? "[row=#{row}]" : ''} #{conjugated_operation.capitalize} #{object_name} #{object_id}")
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects
