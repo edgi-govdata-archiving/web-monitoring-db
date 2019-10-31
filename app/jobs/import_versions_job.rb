@@ -3,8 +3,8 @@ class ImportVersionsJob < ApplicationJob
 
   # TODO: wrap in transaction?
   def perform(import)
-    Rails.logger.debug "Running Import \##{import.id}"
     @import = import
+    log(object: @import, operation: :started)
     @import.update(status: :processing)
     @added = []
 
@@ -29,7 +29,6 @@ class ImportVersionsJob < ApplicationJob
 
   def import_raw_data(raw_data)
     last_update = Time.now
-    log(object: @import, operation: :started, at: Time.now.utc)
     each_json_line(raw_data) do |record, row, row_count|
       begin
         Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
@@ -57,7 +56,7 @@ class ImportVersionsJob < ApplicationJob
         last_update = Time.now
       end
     end
-    log(object: @import, operation: :finished, at: Time.now.utc)
+    log(object: @import, operation: :finished)
   end
 
   def import_record(record, row)
@@ -77,7 +76,7 @@ class ImportVersionsJob < ApplicationJob
     )
 
     if existing_version && @import.skip_existing_records?
-      log(object: existing_version, operation: :skipped_existing, row: row, at: Time.current)
+      log(object: existing_version, operation: :skipped_existing, row: row)
       return
     end
 
@@ -109,7 +108,7 @@ class ImportVersionsJob < ApplicationJob
     version.save
 
     if existing_version
-      log(object: version, operation: @import.update_behavior, row: row, at: Time.current)
+      log(object: version, operation: @import.update_behavior, row: row)
     else
       log(object: version, operation: :created, row: row)
     end
@@ -156,7 +155,7 @@ class ImportVersionsJob < ApplicationJob
 
     existing_page = Page.find_by_url(url)
     page = if existing_page
-             log(object: existing_page, operation: :found, row: row, at: Time.current)
+             log(object: existing_page, operation: :found, row: row)
              existing_page
            elsif create
              new_page = Page.create!(url: url)
@@ -181,24 +180,21 @@ class ImportVersionsJob < ApplicationJob
     Rails.logger.warn "Import #{@import.id} #{message}"
   end
 
-  def log(object:, operation:, **additional)
-    properties = {}
+  def log(object:, operation:, row: nil)
+    object_name = object.class.name
+    object_id = if object.respond_to? :uuid
+                  object.uuid
+                else
+                  object.id
+                end
 
-    if object.respond_to? :uuid
-      properties[:uuid] = object.uuid
-    else
-      properties[:id] = object.id
-    end
+    conjugated_operation = {
+      'merge' => 'merged',
+      'replace' => 'replaced',
+      'skip' => 'skipped'
+    }.fetch(operation, operation)
 
-    properties.merge!(
-      object: object.class.name.parameterize,
-      operation: operation,
-      at: object.updated_at
-    )
-
-    properties.merge!(additional) if additional.present?
-
-    @import.add_log(properties)
+    Rails.logger.debug("[import=#{@import.id}]#{row ? "[row=#{row}]" : ''} #{conjugated_operation.capitalize} #{object_name} #{object_id}")
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects

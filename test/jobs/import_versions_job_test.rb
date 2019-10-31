@@ -1,13 +1,39 @@
 require 'test_helper'
 
 class ImportVersionsJobTest < ActiveJob::TestCase
+  class FakeLogger
+    def logs
+      @logs ||= []
+    end
+
+    def debug(message)
+      logs.push(message)
+    end
+
+    def info(message)
+      logs.push(message)
+    end
+
+    def warn(message)
+      logs.push(message)
+    end
+
+    def error(message)
+      logs.push(message)
+    end
+  end
+
   def setup
     @original_allowed_hosts = Archiver.allowed_hosts
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+
+    @original_logger = Rails.logger
+    Rails.logger = FakeLogger.new
   end
 
   def teardown
     Archiver.allowed_hosts = @original_allowed_hosts
+    Rails.logger = @original_logger
   end
 
   test 'does not add or modify a version if it already exists' do
@@ -62,10 +88,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       ].map(&:to_json).join("\n")
     )
 
-    lock_time = Time.current.round(0)
-    travel_to(lock_time) do
-      ImportVersionsJob.perform_now(import)
-    end
+    ImportVersionsJob.perform_now(import)
 
     page = Page.find(pages(:home_page).uuid)
     version = Version.find(versions(:page1_v5).uuid)
@@ -75,35 +98,12 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal('INVALID_HASH', version.version_hash, 'version_hash was not changed')
     assert_equal({ 'test_meta' => 'data' }, version.source_metadata, 'source_metadata was not replaced')
 
-    logs = import.load_logs.split("\n").map { |line| JSON.parse(line, symbolize_names: true) }
     assert_equal([
-                   {
-                     id: import.id,
-                     object: 'import',
-                     operation: 'started',
-                     at: lock_time.iso8601(3)
-                   },
-                   {
-                     uuid: page.uuid,
-                     object: 'page',
-                     operation: 'found',
-                     at: lock_time.iso8601(3),
-                     row: 0
-                   },
-                   {
-                     uuid: versions(:page1_v5).uuid,
-                     object: 'version',
-                     operation: 'replace',
-                     at: version.updated_at.iso8601(3),
-                     row: 0
-                   },
-                   {
-                     id: import.id,
-                     object: 'import',
-                     operation: 'finished',
-                     at: lock_time.iso8601(3)
-                   }
-                 ], logs, 'Logs are not as expected.')
+                   "[import=#{import.id}] Started Import #{import.id}",
+                   "[import=#{import.id}][row=0] Found Page #{page.uuid}",
+                   "[import=#{import.id}][row=0] Replaced Version #{versions(:page1_v5).uuid}",
+                   "[import=#{import.id}] Finished Import #{import.id}"
+                 ], Rails.logger.logs, 'Logs are not as expected.')
   end
 
   test 'merges with an existing version if requested' do

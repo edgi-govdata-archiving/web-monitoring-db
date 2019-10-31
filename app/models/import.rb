@@ -4,7 +4,6 @@ class Import < ApplicationRecord
   enum update_behavior: [:skip, :replace, :merge], _suffix: :existing_records
   validates :file, presence: true
   after_initialize :ensure_processing_errors_and_warnings
-  before_save :persist_logs
 
   def self.create_with_data(attributes, data)
     create(attributes.merge(file: create_data_file(data)))
@@ -20,44 +19,10 @@ class Import < ApplicationRecord
     FileStorage.default.get_file(file)
   end
 
-  def load_logs
-    return if log_file.blank?
-
-    @cached_log_file ||= FileStorage.default.get_file(log_file) # rubocop:disable Naming/MemoizedInstanceVariableName
-  end
-
-  def add_log(obj)
-    unpersisted_logs << obj.to_json
-  end
-
   protected
 
   def ensure_processing_errors_and_warnings
     self.processing_errors ||= []
     self.processing_warnings ||= []
-  end
-
-  private
-
-  def unpersisted_logs
-    @unpersisted_logs ||= []
-  end
-
-  def persist_logs
-    return if unpersisted_logs.empty?
-
-    if log_file.present?
-      existing_logs = load_logs
-      existing_logs << "\n" + unpersisted_logs.join("\n")
-      FileStorage.default.save_file(log_file, existing_logs)
-      @cached_log_file = existing_logs
-    else
-      self.log_file = "import-#{id}.log" # TODO: have file storage allow subdirectories e.g. `import-logs/import-id.log`
-      new_logs = unpersisted_logs.join("\n")
-      FileStorage.default.save_file(log_file, new_logs)
-      @cached_log_file = new_logs
-    end
-
-    @unpersisted_logs = []
   end
 end
