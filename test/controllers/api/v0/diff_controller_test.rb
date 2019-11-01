@@ -24,7 +24,7 @@ class Api::V0::DiffControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
     assert body.key?('data'), 'Response should have a "data" property'
     assert_equal 'Diff!', body['data']

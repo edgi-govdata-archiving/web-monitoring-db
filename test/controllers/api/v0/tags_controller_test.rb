@@ -12,7 +12,7 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_tags_path
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
 
     assert body.key?('links'), 'Response should have a "links" property'
@@ -30,7 +30,7 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_tag_path(tags(:frequently_updated))
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
 
     assert body.key?('data'), 'Response should have a "data" property'

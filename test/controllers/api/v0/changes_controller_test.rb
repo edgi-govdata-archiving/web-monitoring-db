@@ -8,7 +8,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_changes_path(page))
 
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
     assert body.key?('links'), 'Response should have a "links" property'
     assert body.key?('data'), 'Response should have a "data" property'
@@ -30,7 +30,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_change_path(page, "#{from_version.id}..#{to_version.id}"))
 
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
     assert body.key?('links'), 'Response should have a "links" property'
     assert body.key?('data'), 'Response should have a "data" property'
@@ -126,7 +126,7 @@ class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_changes_path(page, params: { include_total: true }))
 
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
     assert_equal(
       page.tracked_changes.count,
