@@ -92,6 +92,7 @@ GEM
     capybara-email (3.0.1)
       capybara (>= 2.4, < 4.0)
       mail
+    childprocess (3.0.0)
     coderay (1.1.2)
     concurrent-ruby (1.1.5)
     connection_pool (2.2.2)
@@ -268,6 +269,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     ruby-progressbar (1.10.1)
+    rubyzip (2.0.0)
     safe_yaml (1.0.5)
     sassc (2.0.1)
       ffi (~> 1.9)
@@ -278,6 +280,9 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    selenium-webdriver (3.142.6)
+      childprocess (>= 0.5, < 4.0)
+      rubyzip (>= 1.2.2)
     sentry-raven (2.12.2)
       faraday (>= 0.7.6, < 1.0)
     signet (0.12.0)
@@ -362,6 +367,7 @@ DEPENDENCIES
   rubocop-performance (~> 1.5.0)
   rubocop-rails (~> 2.3.2)
   sassc-rails (~> 2.1.2)
+  selenium-webdriver
   sentry-raven
   spring
   spring-watcher-listen (~> 2.0)
