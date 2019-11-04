@@ -1,4 +1,6 @@
 class Api::V0::ApiController < ApplicationController
+  skip_forgery_protection
+
   include PagingConcern
   before_action { authorize :api, :view? }
   before_action :set_environment_header
