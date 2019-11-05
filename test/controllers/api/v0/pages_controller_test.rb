@@ -164,15 +164,34 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'can filter pages by version capture_time' do
     sign_in users(:alice)
     get api_v0_pages_url(
-      capture_time: '2017-03-01T00:00:00Z..2017-03-01T12:00:00Z'
+      capture_time: '2017-03-04T00:00:00Z..'
     )
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-                    'Results did not include pages with versions captured in the filtered date range'
+                    'Results should include pages with versions captured in the filtered date range'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-                        'Results included pages with versions not captured in the filtered date range'
+                        'Results should not include pages with no versions in the filtered date range'
+    assert_not_includes ids, pages(:sub_page).uuid,
+                        'Results should not include pages with non-different versions in the filtered date range'
+  end
+
+  test 'includes pages with non-different captures when using capture_time AND different=false' do
+    sign_in users(:alice)
+    get api_v0_pages_url(
+      capture_time: '2017-03-04T00:00:00Z..',
+      different: false
+    )
+    body_json = JSON.parse @response.body
+    ids = body_json['data'].pluck 'uuid'
+
+    assert_includes ids, pages(:home_page).uuid,
+                    'Results should include pages with versions captured in the filtered date range'
+    assert_not_includes ids, pages(:home_page_site2).uuid,
+                        'Results should not include pages with no versions in the filtered date range'
+    assert_includes ids, pages(:sub_page).uuid,
+                    'Results should include pages with non-different versions in the filtered date range'
   end
 
   test 'includes earliest version if include_earliest = true' do
