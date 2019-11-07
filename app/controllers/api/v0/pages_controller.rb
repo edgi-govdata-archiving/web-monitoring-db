@@ -140,12 +140,19 @@ class Api::V0::PagesController < Api::V0::ApiController
       taggings: [:tag]
     )
 
-    collection = where_in_range_param(
-      collection,
-      :capture_time,
-      'versions.capture_time',
-      &method(:parse_date!)
-    )
+    if params.key?(:capture_time)
+      collection = where_in_range_param(
+        collection,
+        :capture_time,
+        'versions.capture_time',
+        &method(:parse_date!)
+      )
+
+      if boolean_param(:different, default: true)
+        collection = collection.where(versions: { different: true })
+      end
+    end
+
     collection = where_in_interval_param(collection, :status)
 
     version_params = params.permit(:hash, :source_type)
