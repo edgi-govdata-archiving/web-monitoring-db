@@ -128,6 +128,25 @@ page1_v4:
     version_id: 114
   }
 
+page2_v4:
+  page: sub_page
+  capture_time: '2017-03-04T00:00:00Z'
+  version_hash: 'vwx'
+  different: false
+  status: 200
+  source_type: 'versionista'
+  source_metadata: {
+    account: 'test@example.com',
+    site_id: 1,
+    page_id: 12,
+    version_id: 124,
+    page_url: 'http://versionista.com/1/12/',
+    diff_with_previous_url: 'http://versionista.com/1/12/124/',
+    diff_with_first_url: nil,
+    diff_length: 1234678,
+    diff_hash: 'vwx'
+  }
+
 page1_v5:
   page: home_page
   uri: https://test-bucket.s3.amazonaws.com/page1_v5.html
