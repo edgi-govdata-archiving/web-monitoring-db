@@ -121,6 +121,7 @@ class ImportVersionsJob < ApplicationJob
     # is complete
     record['title'] = record['page_title'] if record.key?('page_title')
     record['capture_url'] = record['page_url'] if record.key?('page_url')
+    record['version_hash'] = record['hash'] if record.key?('hash')
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
     allowed = Version.attribute_names - disallowed
 
