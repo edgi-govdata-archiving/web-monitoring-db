@@ -190,6 +190,65 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
     assert_equal(page_versions_count, pages(:inactive_page).versions.count)
     assert_nil(pages(:inactive_page).versions.where(capture_time: now).first)
-    assert(import.processing_warnings.any? { |warning| warning.include?('inactive') })
+    assert_any_includes(import.processing_warnings, 'inactive')
+  end
+
+  test 'does not import versions if URL did not match version_hash' do
+    page_versions_count = pages(:home_page).versions.count
+    now = Time.now
+
+    stub_request(:any, 'http://example.com')
+      .to_return(body: 'Hello!', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          uri: 'http://example.com',
+          version_hash: 'abc',
+          source_type: 'test_source',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    assert_equal(page_versions_count, pages(:home_page).versions.count)
+    assert_nil(pages(:home_page).versions.where(capture_time: now).first)
+    assert_any_includes(import.processing_errors, 'hash')
+  end
+
+  test 'allows "hash" instead of "version_hash"' do
+    page_versions_count = pages(:home_page).versions.count
+    now = Time.now
+
+    stub_request(:any, 'http://example.com')
+      .to_return(body: 'Hello!', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          uri: 'http://example.com',
+          # Use an invalid hash to test that it was actually read and verified.
+          hash: 'abc',
+          source_type: 'test_source',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    assert_equal(page_versions_count, pages(:home_page).versions.count)
+    assert_nil(pages(:home_page).versions.where(capture_time: now).first)
+    assert_any_includes(import.processing_errors, 'hash')
   end
 end

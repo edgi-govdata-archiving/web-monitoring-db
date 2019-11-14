@@ -29,4 +29,15 @@ class ActiveSupport::TestCase
 
     assert_equal(sorted, list, "#{name} were not in ordered by: #{orderings}")
   end
+
+  def assert_any(list, predicate, message = nil)
+    message ||= "Expected #{list} to have a matching item"
+    assert_respond_to(list, :any?)
+    assert(list.any? {|item| predicate.call(item)}, message)
+  end
+
+  def assert_any_includes(list, value, message = nil)
+    message ||= "Expected #{list} to have an item that includes '#{value}'"
+    assert_any(list, ->(item) { item.include?(value) }, message)
+  end
 end
