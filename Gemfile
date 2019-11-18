@@ -11,7 +11,7 @@ gem 'aws-sdk-s3', '~> 1.53'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.2'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 6.0.1'
 gem 'pg', '~> 1.1'
 gem 'puma', '~> 4.2'
 gem 'rack-cors', :require => 'rack/cors'
@@ -40,7 +40,7 @@ gem 'addressable', '~> 2.7'
 # gem 'capistrano-rails', group: :development
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.3.1', require: false
+gem 'bootsnap', '>= 1.4.5', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -65,6 +65,9 @@ group :test do
   gem 'capybara'
   gem 'capybara-email'
   gem 'webmock', '~> 3.7'
+  # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
+  # you're actually using. See also https://github.com/rails/rails/issues/37410
+  gem 'selenium-webdriver'
 end
 
 group :production do

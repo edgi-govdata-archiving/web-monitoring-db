@@ -1,4 +1,6 @@
 class Users::SessionsController < Devise::SessionsController
+  skip_forgery_protection
+
   # Allow sign-in requests to get JSON, not just HTML
   respond_to :json
 

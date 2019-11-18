@@ -27,7 +27,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response(:success)
-    assert_equal('application/json', @response.content_type)
+    assert_equal('application/json', @response.media_type)
     body_json = JSON.parse(@response.body)
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
@@ -186,7 +186,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     version = versions(:page1_v1)
     get api_v0_page_version_path(version.page, version)
     assert_response(:success)
-    assert_equal('application/json', @response.content_type)
+    assert_equal('application/json', @response.media_type)
     body = JSON.parse(@response.body)
     assert(body.key?('links'), 'Response should have a "links" property')
     assert(body.key?('data'), 'Response should have a "data" property')
@@ -216,7 +216,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
     get(api_v0_page_versions_url(page, params: { include_total: true }))
     assert_response(:success)
-    assert_equal('application/json', @response.content_type)
+    assert_equal('application/json', @response.media_type)
     body_json = JSON.parse(@response.body)
     assert_equal(
       page.versions.count,
