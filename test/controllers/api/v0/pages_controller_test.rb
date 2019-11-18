@@ -12,7 +12,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get '/api/v0/pages/'
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body_json = JSON.parse @response.body
     assert body_json.key?('links'), 'Response should have a "links" property'
     assert body_json.key?('data'), 'Response should have a "data" property'
@@ -345,7 +345,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_page_path(pages(:home_page))
     assert_response(:success)
-    assert_equal('application/json', @response.content_type)
+    assert_equal('application/json', @response.media_type)
     body = JSON.parse(@response.body)
     assert(body.key?('data'), 'Response should have a "data" property')
   end
@@ -432,7 +432,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_pages_path, params: { include_total: true }
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body_json = JSON.parse @response.body
     assert_equal(
       Page.count,

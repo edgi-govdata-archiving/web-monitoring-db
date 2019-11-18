@@ -12,7 +12,7 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_maintainers_path
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
 
     assert body.key?('links'), 'Response should have a "links" property'
@@ -31,7 +31,7 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:alice)
     get api_v0_maintainer_path(maintainers(:someone))
     assert_response :success
-    assert_equal 'application/json', @response.content_type
+    assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
 
     assert body.key?('links'), 'Response should have a "links" property'
