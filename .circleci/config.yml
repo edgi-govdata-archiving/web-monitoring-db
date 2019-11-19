@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   build:
     working_directory: ~/web-monitoring-db
@@ -69,7 +69,7 @@ jobs:
           docker push envirodgi/db-status-update-job:latest
 
 workflows:
-  version: 2
+  version: 2.1
   build:
     jobs:
       - build:
