@@ -39,10 +39,19 @@ module WebpageVersionsDb
 
     # Optional caching via Redis
     if ENV['REDIS_CACHE_URL']
-      config.cache_store = :readthis_store, {
+      config.cache_store = :redis_cache_store, {
+        url: ENV.fetch('REDIS_CACHE_URL'),
         expires_in: 2.weeks.to_i,
+        race_condition_ttl: 20.seconds,
         namespace: 'wmdbcache',
-        redis: { url: ENV.fetch('REDIS_CACHE_URL'), driver: :hiredis }
+        error_handler: -> (method:, returning:, exception:) {
+          # Rails cache fails silently without raising exceptions (which is
+          # generally good), but we still want to know if it can't connect.
+          Raven.capture_exception(exception, level: 'warning', tags: {
+            method: method,
+            returning: returning
+          })
+        }
       }
     end
   end
