@@ -51,21 +51,13 @@ Naming/MemoizedInstanceVariableName:
     # There are some good reasons not to apply this in Rails controllers
     - 'app/controllers/**/*'
 
-Naming/UncommunicativeMethodParamName:
-  # TODO: remove this; `to` is going to be added to the default list soon (?)
-  # https://github.com/bbatsov/rubocop/pull/5626
-  AllowedNames:
-    - id
-    - io
-    - to
-
 Naming/RescuedExceptionsVariableName:
   PreferredName: error
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Style/ClassAndModuleChildren:
