@@ -176,7 +176,7 @@ GEM
     orm_adapter (0.5.0)
     os (1.0.1)
     parallel (1.19.1)
-    parser (2.6.5.0)
+    parser (2.7.0.1)
       ast (~> 2.4.0)
     pg (1.1.4)
     postmark (1.15.0)
@@ -252,7 +252,7 @@ GEM
     resque-heroku-signals (2.0.0)
       resque (= 2.0.0)
     retriable (3.1.2)
-    rubocop (0.77.0)
+    rubocop (0.78.0)
       jaro_winkler (~> 1.5.1)
       parallel (~> 1.10)
       parser (>= 2.6)
@@ -359,7 +359,7 @@ DEPENDENCIES
   redis
   resque
   resque-heroku-signals
-  rubocop (~> 0.77.0)
+  rubocop (~> 0.78.0)
   rubocop-performance (~> 1.5.1)
   rubocop-rails (~> 2.4.0)
   sassc-rails (~> 2.1.2)
