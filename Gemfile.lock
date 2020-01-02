@@ -178,7 +178,7 @@ GEM
     parallel (1.19.1)
     parser (2.7.0.1)
       ast (~> 2.4.0)
-    pg (1.1.4)
+    pg (1.2.0)
     postmark (1.15.0)
       json
     postmark-rails (0.19.0)
@@ -349,7 +349,7 @@ DEPENDENCIES
   jwt (~> 2.2)
   listen (~> 3.2)
   oj (~> 3.10)
-  pg (~> 1.1)
+  pg (~> 1.2)
   postmark-rails
   pry-rails
   puma (~> 4.3)
