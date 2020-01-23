@@ -41,7 +41,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       upstream = Archiver.store.get_file(filename)
       # Try to get the filetype, fall back on binary.
       type = version_media_type(@version) || 'application/octet-stream'
-      # Set binary file disposition to attachment; anything else is inine.
+      # Set binary file disposition to attachment; anything else is inline.
       disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
 
       send_data(upstream, type: type, filename: filename, disposition: disposition)
@@ -160,7 +160,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     # Don't expose the backend URI, expose the 'raw' route instead.
     result = version.as_json(options)
-    result.update('uri' => raw_api_v0_version_url(version)) unless version.uri && Archiver.external_archive_url?(version.uri)
+    unless version.uri && Archiver.external_archive_url?(version.uri)
+      result.update('uri' => raw_api_v0_version_url(version))
+    end
+
     result
   end
 end
