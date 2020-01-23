@@ -3,6 +3,16 @@ require 'test_helper'
 class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
+  def setup
+    @original_store = Archiver.store
+    @original_allowed_hosts = Archiver.allowed_hosts
+  end
+
+  def teardown
+    Archiver.allowed_hosts = @original_allowed_hosts
+    Archiver.store = @original_store
+  end
+
   test 'authorizations' do
     get(api_v0_page_versions_url(pages(:home_page)))
     assert_response :unauthorized
@@ -190,6 +200,63 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert(body.key?('links'), 'Response should have a "links" property')
     assert(body.key?('data'), 'Response should have a "data" property')
+  end
+
+  test 'can redirect when the raw response body for a single version is in ALLOWED_ARCHIVE_HOSTS' do
+    Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
+    sign_in users(:alice)
+    version = versions(:page3_v1)
+    get raw_api_v0_version_url(version)
+    assert_response(:redirect)
+  end
+
+  test 'can return 404 when raw response body for a single version is missing' do
+    Archiver.allowed_hosts = []
+    sign_in users(:alice)
+    version = versions(:page3_v1)
+    get raw_api_v0_version_url(version)
+    assert_response(:missing)
+  end
+
+  test 'can return 404 when uri for raw response body is null' do
+    Archiver.allowed_hosts = []
+    sign_in users(:alice)
+    version = versions(:page3_v2)
+    get raw_api_v0_version_url(version)
+    assert_response(:missing)
+  end
+
+  test 'can return raw response body for a single version in S3' do
+    Archiver.allowed_hosts = []
+    Archiver.store = FileStorage::S3.new(
+      key: 'whatever',
+      secret: 'test',
+      bucket: 'test-bucket',
+      region: 'us-west-2'
+    )
+    content = '<html>html content</html>'
+    stub_request(:head, 'https://test-bucket.s3.us-west-2.amazonaws.com/page3_v1.html')
+      .to_return(status: 200, body: '', headers: {})
+    stub_request(:get, 'https://test-bucket.s3.us-west-2.amazonaws.com/page3_v1.html')
+      .to_return(status: 200, body: content, headers: {})
+    sign_in users(:alice)
+    version = versions(:page3_v1)
+    get raw_api_v0_version_url(version)
+    assert_response(:success)
+    assert_equal(content, @response.body)
+  end
+
+  test 'can return raw response body for a single version in local storage' do
+    storage_path = Rails.root.join('tmp/test/storage')
+    Archiver.allowed_hosts = []
+    Archiver.store = FileStorage::LocalFile.new(path: storage_path)
+    content = '<html>html content</html>'
+    Archiver.store.save_file 'cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d', content
+    sign_in users(:alice)
+    version = versions(:page3_v3)
+    get raw_api_v0_version_url(version)
+    assert_response(:success)
+    assert_equal(content, @response.body)
   end
 
   test 'can query by source_metadata fields' do

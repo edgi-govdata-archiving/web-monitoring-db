@@ -25,6 +25,45 @@ class Api::V0::VersionsController < Api::V0::ApiController
     }
   end
 
+  def raw
+    @version ||= version_collection.find(params[:id])
+
+    expires_in 1.year, public: true
+
+    if @version.uri.nil?
+      raise Api::NotFoundError, "No raw content for #{@version.uuid}."
+    elsif Archiver.external_archive_url?(@version.uri)
+      redirect_to @version.uri, status: 301
+    elsif Archiver.store.contains_url?(@version.uri)
+      # Get the file
+      filename = File.basename(@version.uri)
+      upstream = Archiver.store.get_file(@version.uri)
+
+      # Try to get the filetype, fall back on binary.
+      type = version_media_type(@version) || 'application/octet-stream'
+      # Set binary file disposition to attachment; anything else is inline.
+      disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
+
+      send_data(upstream, type: type, filename: filename, disposition: disposition)
+    else
+      raise Api::NotFoundError, "No raw content for #{@version.uuid}."
+    end
+  end
+
+  def version_media_type(version)
+    # Media type logic mostly cribbed from
+    # web-monitoring-db/app/jobs/analyze_change_job.rb
+    # Lines 176 to 180 in 658ae8c
+    # TODO: this will eventually be a proper field on `version`:
+    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
+    meta = version.source_metadata || {}
+    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
+    if !media && meta['headers'].is_a?(Hash)
+      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
+    end
+    media
+  end
+
   def create
     # TODO: unify this with import code in ImportVersionsJob#import_record
     @version = page.versions.new(version_params)
@@ -119,6 +158,12 @@ class Api::V0::VersionsController < Api::V0::ApiController
     methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
     options[:methods] = methods
 
-    version.as_json(options)
+    # Don't expose the backend URI, expose the 'raw' route instead.
+    result = version.as_json(options)
+    unless version.uri && Archiver.external_archive_url?(version.uri)
+      result.update('uri' => raw_api_v0_version_url(version))
+    end
+
+    result
   end
 end
