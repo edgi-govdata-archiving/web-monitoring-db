@@ -60,6 +60,7 @@ module FileStorage
           # FIXME: raise a more specific error type!
           raise ArgumentError, "The path '#{path}' does not belong to this storage object"
         end
+
         path
       else
         full_path(path)
