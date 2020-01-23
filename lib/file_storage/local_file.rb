@@ -17,7 +17,7 @@ module FileStorage
     end
 
     def get_file(path)
-      File.read(full_path(path))
+      File.read(normalize_full_path(path))
     end
 
     def save_file(path, content, _options = nil)
@@ -45,6 +45,26 @@ module FileStorage
 
     def full_path(path)
       File.join(directory, path)
+    end
+
+    # Normalize a file URI or path to an absolute path to the file.
+    # If the path specifies a directory outside this storage area, this raises
+    # ArgumentError.
+    def normalize_full_path(path)
+      # If it's a file URL, extract the path
+      path = path[7..-1] if path.starts_with? 'file://'
+
+      # If it's absolute, make sure it's in this storage's directory
+      if path.starts_with?('/')
+        unless path.starts_with?(File.join(directory, ''))
+          # FIXME: raise a more specific error type!
+          raise ArgumentError, "The path '#{path}' does not belong to this storage object"
+        end
+
+        path
+      else
+        full_path(path)
+      end
     end
 
     def ensure_directory

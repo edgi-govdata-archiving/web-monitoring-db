@@ -32,6 +32,13 @@ other_page_one:
   site: 'http://example3.com/'
   status: 500
 
+home_page_site3:
+  url: 'http://example3.com/'
+  title: 'Site 3 Home Page'
+  agency: 'Bureau of Monitoring'
+  site: 'http://example3.com/'
+  status: 200
+
 inactive_page:
   url: 'http://example-inactive.com/'
   title: 'Some Page We Do Not Want!'

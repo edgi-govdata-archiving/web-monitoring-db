@@ -35,6 +35,12 @@ module Api
     end
   end
 
+  class NotFoundError < ApiError
+    def status_code
+      404
+    end
+  end
+
   class ResourceExistsError < ApiError
     def status_code
       409

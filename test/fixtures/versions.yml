@@ -158,3 +158,37 @@ page1_v5:
     site_id: 1
     page_id: 11
     version_id: 115
+
+page3_v1:
+  page: home_page_site3
+  uri: https://test-bucket.s3.amazonaws.com/page3_v1.html
+  capture_time: '2017-03-05T00:00:00Z'
+  version_hash: 'stu'
+  source_type: 'pagefreezer'
+  source_metadata:
+    account: 'test@example.com'
+    site_id: 1
+    page_id: 13
+    version_id: 115
+
+page3_v2:
+  page: home_page_site3
+  uri: !!null
+  capture_time: '2017-03-07T00:00:00Z'
+  source_type: 'pagefreezer'
+  source_metadata:
+    account: 'test@example.com'
+    site_id: 1
+    page_id: 13
+    version_id: 116
+
+page3_v3:
+  page: home_page_site3
+  uri: "file://<%= Rails.root.join('tmp/test/storage') %>/cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d"
+  capture_time: '2017-03-09T00:00:00Z'
+  source_type: 'pagefreezer'
+  source_metadata:
+    account: 'test@example.com'
+    site_id: 1
+    page_id: 13
+    version_id: 117

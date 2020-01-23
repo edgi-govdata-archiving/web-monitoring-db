@@ -14,16 +14,22 @@ module FileStorage
     end
 
     def contains_url?(url_string)
-      details = parse_s3_url(url_string)
-      return false if details.nil? || details[:bucket] != @bucket
+      # details = parse_s3_url(url_string)
+      # return false if details.nil? || details[:bucket] != @bucket
+      bucket_path = normalize_full_path(url_string)
 
-      @client.head_object(bucket: @bucket, key: details[:path]).present?
+      @client.head_object(bucket: @bucket, key: bucket_path).present?
     rescue Aws::S3::Errors::NotFound
+      false
+    # FIXME: should have a more specific error class here; we could
+    # catch errors we don't want to.
+    rescue ArgumentError
       false
     end
 
     def get_file(path)
-      @client.get_object(bucket: @bucket, key: path).body.read
+      bucket_path = normalize_full_path(path)
+      @client.get_object(bucket: @bucket, key: bucket_path).body.read
     end
 
     def save_file(path, content, options = nil)
@@ -64,6 +70,21 @@ module FileStorage
           paths = uri.path.split('/', 3)
           { bucket: paths[1], path: paths[2], region: aws_host[2] }
         end
+      end
+    end
+
+    # Get a valid bucket path from a complete URL, S3 URI, or path. If a URL
+    # or S3 URI for a different bucket, this raises ArgumentError.
+    def normalize_full_path(path)
+      if path.match?(/^\w+:\/\//)
+        details = parse_s3_url(path)
+        if details.nil? || details[:bucket] != @bucket
+          raise ArgumentError, "The URL '#{path}' does not belong to this storage object"
+        end
+
+        details[:path]
+      else
+        path
       end
     end
   end
