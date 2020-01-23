@@ -36,9 +36,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
       redirect_to @version.uri, status: 301
     elsif Archiver.store.contains_url?(@version.uri)
       # Get the file
-      path = URI.parse(@version.uri).path
-      filename = File.basename(path)
-      upstream = Archiver.store.get_file(filename)
+      filename = File.basename(@version.uri)
+      upstream = Archiver.store.get_file(@version.uri)
+
       # Try to get the filetype, fall back on binary.
       type = version_media_type(@version) || 'application/octet-stream'
       # Set binary file disposition to attachment; anything else is inline.
