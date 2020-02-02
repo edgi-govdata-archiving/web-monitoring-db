@@ -5,6 +5,7 @@ jobs:
     docker:
       - image: circleci/ruby:2.6.3-node
         environment:
+          BUNDLE_PATH: 'vendor/bundle'
           RAILS_ENV: test
           RACK_ENV: test
           PGHOST: 127.0.0.1
@@ -18,14 +19,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          keys:
+            - web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - web-monitoring-db-{{ arch }}-
 
       # Bundle install dependencies
       - run:
           name: Install Dependencies
           command: |
             gem install bundler
-            bundle install --path vendor/bundle
+            bundle install
 
       # Store bundle cache
       - save_cache:
