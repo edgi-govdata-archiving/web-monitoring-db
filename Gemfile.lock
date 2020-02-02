@@ -194,7 +194,7 @@ GEM
       nio4r (~> 2.0)
     pundit (2.1.0)
       activesupport (>= 3.0.0)
-    rack (2.0.8)
+    rack (2.1.2)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-protection (2.0.5)
@@ -261,7 +261,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 1.7)
     rubocop-performance (1.5.2)
       rubocop (>= 0.71.0)
-    rubocop-rails (2.4.1)
+    rubocop-rails (2.4.2)
       rack (>= 1.1)
       rubocop (>= 0.72.0)
     ruby-progressbar (1.10.1)
@@ -361,7 +361,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 0.79.0)
   rubocop-performance (~> 1.5.2)
-  rubocop-rails (~> 2.4.1)
+  rubocop-rails (~> 2.4.2)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-raven
