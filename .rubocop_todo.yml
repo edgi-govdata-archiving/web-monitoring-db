@@ -84,7 +84,7 @@ Style/HashSyntax:
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
   # TURNING THIS OFF UNTIL WE GET Layout/LineLength under control
-  Enabled: true
+  Enabled: false
   Exclude:
     - 'app/controllers/concerns/paging_concern.rb'
     - 'app/controllers/pages_controller.rb'
