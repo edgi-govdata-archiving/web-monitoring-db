@@ -93,6 +93,7 @@ jobs:
           docker push envirodgi/db-status-update-job:$CIRCLE_SHA1
           docker push envirodgi/db-status-update-job:latest
 
+
 workflows:
   version: 2.1
   build:
