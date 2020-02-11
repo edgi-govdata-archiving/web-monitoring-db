@@ -51,6 +51,14 @@ class AnalyzeChangeJob < ApplicationJob
     '.zip'
   ].freeze
 
+  # Determine whether this job is supported with the current configuration
+  def self.supported?
+    ENV['AUTO_ANNOTATION_USER'].present? &&
+      Differ.for_type('html_text_dmp').present? &&
+      Differ.for_type('html_source_dmp').present? &&
+      Differ.for_type('links_json').present?
+  end
+
   def perform(to_version, from_version = nil, compare_earliest = true)
     # This is a very narrow-purpose prototype! Most of the work should probably
     # move to web-monitoring-processing.

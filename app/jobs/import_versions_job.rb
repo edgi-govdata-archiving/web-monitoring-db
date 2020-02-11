@@ -10,9 +10,6 @@ class ImportVersionsJob < ApplicationJob
 
     begin
       import_raw_data(@import.load_data)
-      @added.uniq(&:uuid).each do |version|
-        AnalyzeChangeJob.perform_later(version) if version.different?
-      end
     rescue StandardError => error
       @import.processing_errors << if Rails.env.development?
                                      "Import #{import.id}: #{error.message}"
@@ -24,6 +21,16 @@ class ImportVersionsJob < ApplicationJob
     ensure
       @import.status = :complete
       @import.save
+    end
+
+    if AnalyzeChangeJob.supported?
+      begin
+        @added.uniq(&:uuid).each do |version|
+          AnalyzeChangeJob.perform_later(version) if version.different?
+        end
+      rescue Redis::CannotConnectError => error
+        Rails.logger.error "Import #{import.id}: Cannot queue AnalyzeChangeJob -- #{error.message}"
+      end
     end
   end
 
