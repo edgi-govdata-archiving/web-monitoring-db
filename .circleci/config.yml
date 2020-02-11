@@ -1,12 +1,14 @@
 version: 2.1
-jobs:
-  build:
+
+executors:
+  rails_executor:
     working_directory: ~/web-monitoring-db
     docker:
       - image: circleci/ruby:2.6.3-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test
+          BUNDLE_PATH: vendor/bundle
           PGHOST: 127.0.0.1
           PGUSER: root
           HOST_URL: 'web-monitoring-db.test'
@@ -15,35 +17,58 @@ jobs:
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle-test_test
+
+commands:
+  setup_bundler:
+    description: "Set up Bundler dependencies"
+    steps:
+      - run:
+          name: Install bundler with appropriate version
+          command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
+      - restore_cache:
+          keys:
+            - v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v1-bundler-{{ arch }}-
+      - run: bundle install --frozen && bundle clean
+      - save_cache:
+          key: v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          paths:
+            - ~/.bundle
+            - ./vendor/bundle
+
+jobs:
+  install_dependencies:
+    executor: rails_executor
     steps:
       - checkout
-      - restore_cache:
-          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+      - setup_bundler
 
-      # Bundle install dependencies
+  build:
+    executor: rails_executor
+    steps:
+      - checkout
+      - setup_bundler
       - run:
-          name: Install Dependencies
-          command: |
-            gem install bundler
-            bundle install --path vendor/bundle
-
-      # Store bundle cache
-      - save_cache:
-          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
-      # Database setup
-      - run:
-          name: Setup Database Setup
-          command: |
-            bundle exec rake db:create
-            bundle exec rake db:schema:load
+          name: Setup Database
+          command: bin/rails db:create db:schema:load
       - run:
           name: Tests
           command: bin/rails test:system test
       - run:
           name: Code linting
           command: bundle exec rubocop
+
+  test_seed:
+    executor: rails_executor
+    steps:
+      - checkout
+      - setup_bundler
+      - run:
+          name: Setup Database
+          command: bin/rails db:create db:schema:load
+      - run:
+          name: Test seeds setup
+          command: bin/rails db:seed
 
   publish_docker:
     machine: true
@@ -72,7 +97,19 @@ workflows:
   version: 2.1
   build:
     jobs:
+      - install_dependencies:
+          filters:
+            branches:
+              ignore: release
       - build:
+          requires:
+            - install_dependencies
+          filters:
+            branches:
+              ignore: release
+      - test_seed:
+          requires:
+            - install_dependencies
           filters:
             branches:
               ignore: release

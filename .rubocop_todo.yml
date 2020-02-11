@@ -34,7 +34,7 @@ Metrics/CyclomaticComplexity:
 # Offense count: 95
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
-Metrics/LineLength:
+Layout/LineLength:
   Max: 335
 
 # Offense count: 28
@@ -83,7 +83,7 @@ Style/HashSyntax:
 # Cop supports --auto-correct.
 # Configuration parameters: MaxLineLength.
 Style/IfUnlessModifier:
-  # TURNING THIS OFF UNTIL WE GET Metrics/LineLength under control
+  # TURNING THIS OFF UNTIL WE GET Layout/LineLength under control
   Enabled: false
   Exclude:
     - 'app/controllers/concerns/paging_concern.rb'

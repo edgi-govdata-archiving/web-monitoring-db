@@ -45,9 +45,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.78.0', require: false
+  gem 'rubocop', '~> 0.79.0', require: false
   gem 'rubocop-performance', '~> 1.5.2'
-  gem 'rubocop-rails', '~> 2.4.1'
+  gem 'rubocop-rails', '~> 2.4.2'
   gem 'dotenv-rails'
 end
 
@@ -64,7 +64,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.7'
+  gem 'webmock', '~> 3.8'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410
   gem 'selenium-webdriver'
