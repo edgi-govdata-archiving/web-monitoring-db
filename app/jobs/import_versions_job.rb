@@ -31,6 +31,8 @@ class ImportVersionsJob < ApplicationJob
       rescue Redis::CannotConnectError => error
         Rails.logger.error "Import #{import.id}: Cannot queue AnalyzeChangeJob -- #{error.message}"
       end
+    else
+      Rails.logger.warn "Import #{import.id}: Auto-analysis requirements are not configured and AnalyzeChangeJobs were not scheduled for imported versions."
     end
   end
 
