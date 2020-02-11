@@ -27,11 +27,11 @@ commands:
           command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
       - restore_cache:
           keys:
-            - web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - web-monitoring-db-{{ arch }}-
+            - v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v1-bundler-{{ arch }}-
       - run: bundle install --frozen && bundle clean
       - save_cache:
-          key: web-monitoring-db-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - ~/.bundle
             - ./vendor/bundle
