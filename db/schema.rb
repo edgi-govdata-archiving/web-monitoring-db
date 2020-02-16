@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_01_194241) do
+ActiveRecord::Schema.define(version: 2020_02_16_215324) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -151,6 +151,9 @@ ActiveRecord::Schema.define(version: 2019_11_01_194241) do
     t.string "capture_url"
     t.boolean "different", default: true
     t.integer "status"
+    t.integer "length"
+    t.string "media_type"
+    t.string "media_type_parameters"
     t.index ["capture_time"], name: "index_different_versions_on_capture_time", where: "(different = true)"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["created_at"], name: "index_different_versions_on_created_at", where: "(different = true)"

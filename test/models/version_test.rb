@@ -60,4 +60,32 @@ class VersionTest < ActiveSupport::TestCase
     version.status = 'whats this now'
     assert_not(version.valid?, 'A text status was valid')
   end
+
+  test 'basic media types are valid' do
+    version = Version.new(page: Page.new, media_type: 'text/plain')
+    assert(version.valid?, 'A common media type should be valid')
+  end
+
+  test 'media_type cannot include parameters' do
+    version = Version.new(page: Page.new, media_type: 'text/plain; charset=utf-8')
+    assert_not(version.valid?, 'A media type with parameters should not be valid')
+    assert_includes(version.errors, :media_type)
+  end
+
+  test 'content_type getter/setter handles parameters' do
+    version = Version.new(page: Page.new)
+    version.content_type = 'text/plain; charset=utf-8'
+    assert_equal('text/plain', version.media_type)
+    assert_equal('charset=utf-8', version.media_type_parameters)
+    assert_equal('text/plain; charset=utf-8', version.content_type)
+  end
+
+  test 'length cannot be negative' do
+    version = Version.new(page: Page.new, length: 10)
+    assert(version.valid?, 'A positive length should be valid')
+
+    version = Version.new(page: Page.new, length: -10)
+    assert_not(version.valid?, 'A negative length should not be valid')
+    assert_includes(version.errors, :length)
+  end
 end
