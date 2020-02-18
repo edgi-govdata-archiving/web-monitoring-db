@@ -18,7 +18,7 @@ module FileStorage
     end
 
     def get_metadata(path)
-      return get_metadata!(path)
+      get_metadata!(path)
     rescue Aws::S3::Errors::NotFound
       nil
     # FIXME: should have a more specific error class here; we could

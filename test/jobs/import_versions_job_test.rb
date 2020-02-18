@@ -34,6 +34,11 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   def teardown
     Archiver.allowed_hosts = @original_allowed_hosts
     Rails.logger = @original_logger
+
+    # Clear any stored files.
+    if Archiver.store.is_a?(FileStorage::LocalFile)
+      FileUtils.remove_dir(Archiver.store.directory, true)
+    end
   end
 
   test 'does not add or modify a version if it already exists' do
@@ -258,13 +263,6 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     now = Time.now
     hash = 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
 
-    # Clear any copies of the file in storage.
-    begin
-      File.delete(File.join(Archiver.store.directory, hash))
-    rescue
-      # Nothing to do here
-    end
-
     stub_request(:any, 'http://example.com')
       .to_return(body: 'Hello!😀', status: 200)
 
@@ -279,13 +277,13 @@ class ImportVersionsJobTest < ActiveJob::TestCase
           page_url: pages(:home_page).url,
           capture_time: now - 1.second,
           uri: 'http://example.com',
-          version_hash: 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
+          version_hash: hash
         },
         {
           page_url: pages(:home_page).url,
           capture_time: now,
           uri: 'http://example.com',
-          version_hash: 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
+          version_hash: hash
         }
       ].map(&:to_json).join("\n")
     )
