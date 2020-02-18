@@ -37,7 +37,8 @@ module Archiver
     # If the hash is already in the store, there's no reason to load & verify.
     if expected_hash && !force
       hash_url = store.url_for_file(expected_hash)
-      return { url: hash_url, hash: expected_hash } if store.contains_url?(hash_url)
+      meta = store.get_metadata(hash_url)
+      return { url: hash_url, hash: expected_hash, length: meta[:size] } if meta
     end
 
     response = retry_request do
@@ -61,7 +62,7 @@ module Archiver
         store.url_for_file(hash)
       end
 
-    { url: url, hash: hash }
+    { url: url, hash: hash, length: response.body.bytes.length }
   end
 
   def self.already_archived?(url)
