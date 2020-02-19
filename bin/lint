@@ -1,6 +1,35 @@
 #!/usr/bin/env ruby
 require 'fileutils'
+require 'optparse'
+
 include FileUtils
+
+options = {}
+OptionParser.new do |opt|
+  opt.on('-d', '--diff', 'Only changed files') { |option| options[:diff] = option }
+end.parse!
+
+changed_files = if options[:diff]
+  `git diff --name-status origin/master`.split("\n").map do |line|
+    action, file, newfile = line.split("\t")
+
+    case action
+    when /^R/
+      newfile
+    when 'D'
+      nil
+    else
+      file
+    end
+  end.compact
+else
+  []
+end
+
+if options[:diff] && changed_files.empty?
+  puts "No files changed."
+  exit 0
+end
 
 # path to your application root.
 APP_ROOT = File.expand_path('..', __dir__)
@@ -11,5 +40,5 @@ end
 
 chdir APP_ROOT do
   puts '== Rubocop Auto Correct =='
-  system! 'bundle exec rubocop --safe-auto-correct'
+  system! "bundle exec rubocop --safe-auto-correct --force-exclusion #{changed_files.join(' ')}"
 end
