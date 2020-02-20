@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'optparse'
-
-include FileUtils
+include FileUtils # rubocop:disable Style/MixinUsage
 
 options = {}
 OptionParser.new do |opt|
@@ -10,24 +9,24 @@ OptionParser.new do |opt|
 end.parse!
 
 changed_files = if options[:diff]
-  `git diff --name-status origin/master`.split("\n").map do |line|
-    action, file, newfile = line.split("\t")
+                  `git diff --name-status origin/master`.split("\n").map do |line|
+                    action, file, newfile = line.split("\t")
 
-    case action
-    when /^R/
-      newfile
-    when 'D'
-      nil
-    else
-      file
-    end
-  end.compact
-else
-  []
-end
+                    case action
+                    when /^R/
+                      newfile
+                    when 'D'
+                      nil
+                    else
+                      file
+                    end
+                  end.compact
+                else
+                  []
+                end
 
 if options[:diff] && changed_files.empty?
-  puts "No files changed."
+  puts 'No files changed.'
   exit 0
 end
 
