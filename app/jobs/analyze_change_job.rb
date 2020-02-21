@@ -81,13 +81,11 @@ class AnalyzeChangeJob < ApplicationJob
   # This may shortly become a simple call to some processing server endpoint:
   # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/404
   def analyze_change(change)
-    text_diff_promise = schedule_diff('html_text_dmp', change)
-    source_diff_promise = schedule_diff('html_source_dmp', change)
-    links_diff_promise = schedule_diff('links_json', change)
-
-    text_diff = text_diff_promise.value!
-    source_diff = source_diff_promise.value!
-    links_diff = links_diff_promise.value!
+    text_diff, source_diff, links_diff = Concurrent::Promises.zip(
+      schedule_diff('html_text_dmp', change),
+      schedule_diff('html_source_dmp', change),
+      schedule_diff('links_json', change)
+    ).value!
 
     results = {}.with_indifferent_access
     priority = 0
