@@ -341,6 +341,7 @@ DEPENDENCIES
   byebug
   capybara
   capybara-email
+  concurrent-ruby (~> 1.1)
   devise
   dotenv-rails
   google-api-client

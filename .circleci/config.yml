@@ -56,7 +56,7 @@ jobs:
           command: bin/rails test:system test
       - run:
           name: Code linting
-          command: bundle exec rubocop
+          command: bundle exec rubocop --parallel
 
   test_seed:
     executor: rails_executor
