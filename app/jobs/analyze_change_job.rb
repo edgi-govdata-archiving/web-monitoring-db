@@ -81,39 +81,44 @@ class AnalyzeChangeJob < ApplicationJob
   # This may shortly become a simple call to some processing server endpoint:
   # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/404
   def analyze_change(change)
+    text_diff_promise = schedule_diff('html_text_dmp', change)
+    source_diff_promise = schedule_diff('html_source_dmp', change)
+    links_diff_promise = schedule_diff('links_json', change)
+
+    text_diff = text_diff_promise.value!
+    source_diff = source_diff_promise.value!
+    links_diff = links_diff_promise.value!
+
     results = {}.with_indifferent_access
     priority = 0
 
-    text_diff = Differ.for_type!('html_text_dmp').diff(change)['diff']
-    text_diff_changes = text_diff.reject {|operation| operation[0] == 0}
+    text_diff_changes = diff_changes(text_diff)
     results[:text_diff_hash] = hash_changes(text_diff_changes)
     results[:text_diff_count] = text_diff_changes.length
     results[:text_diff_length] = text_diff_changes.sum {|_code, text| text.length}
     results[:text_diff_ratio] = diff_ratio(text_diff)
 
-    source_diff = Differ.for_type!('html_source_dmp').diff(change)['diff']
-    diff_changes = source_diff.reject {|operation| operation[0] == 0}
-    results[:source_diff_hash] = hash_changes(diff_changes)
-    results[:source_diff_count] = diff_changes.length
-    results[:source_diff_length] = diff_changes.sum {|_code, text| text.length}
+    source_diff_changes = diff_changes(source_diff)
+    results[:source_diff_hash] = hash_changes(source_diff_changes)
+    results[:source_diff_count] = source_diff_changes.length
+    results[:source_diff_length] = source_diff_changes.sum {|_code, text| text.length}
     results[:source_diff_ratio] = diff_ratio(source_diff)
 
     # A text diff change necessarily implies a source change; don't double-count
     if !text_diff_changes.empty?
       # TODO: ignore stop words and also consider special terms more heavily, ignore punctuation
       priority += 0.1 + 0.3 * priority_factor(results[:text_diff_ratio])
-    elsif !diff_changes.empty?
+    elsif !source_diff_changes.empty?
       # TODO: eventually develop a more granular sense of change, either by
       # parsing or regex, where some source changes matter and some don't.
       priority += 0.1 * priority_factor(results[:source_diff_ratio])
     end
 
-    links_diff = Differ.for_type!('links_json').diff(change)['diff']
-    diff_changes = links_diff.reject {|operation| operation[0] == 0}
-    results[:links_diff_hash] = hash_changes(diff_changes)
-    results[:links_diff_count] = diff_changes.length
+    links_diff_changes = diff_changes(links_diff)
+    results[:links_diff_hash] = hash_changes(links_diff_changes)
+    results[:links_diff_count] = links_diff_changes.length
     results[:links_diff_ratio] = diff_ratio(links_diff)
-    unless diff_changes.empty?
+    unless links_diff_changes.empty?
       priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
     end
 
@@ -135,6 +140,10 @@ class AnalyzeChangeJob < ApplicationJob
   # of change. This is basically applying a logorithmic curve to the ratio.
   def priority_factor(ratio)
     Math.log(1 + (Math::E - 1) * ratio)
+  end
+
+  def diff_changes(diff)
+    diff.reject {|operation| operation[0] == 0}
   end
 
   def diff_ratio(operations)
@@ -255,5 +264,9 @@ class AnalyzeChangeJob < ApplicationJob
     end
 
     false
+  end
+
+  def schedule_diff(type, change)
+    Concurrent::Promises.future(type, change) { |t, c| Differ.for_type!(t).diff(c)['diff'] }
   end
 end
