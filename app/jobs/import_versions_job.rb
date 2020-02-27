@@ -102,7 +102,7 @@ class ImportVersionsJob < ApplicationJob
       version.version_hash = result[:hash]
       version.length = result[:length]
       if result[:url] != version.uri
-        version.source_metadata = {} if version.source_metadata.nil?
+        version.source_metadata ||= {}
         version.source_metadata['original_url'] = version.uri
         version.uri = result[:url]
       end
