@@ -13,6 +13,16 @@ class Version < ApplicationRecord
   validates :status,
             allow_nil: true,
             inclusion: { in: 100...600, message: 'is not between 100 and 599' }
+  validates :media_type,
+            allow_nil: true,
+            format: {
+              with: /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/,
+              message: 'must be a media type, like `text/plain`, and *not* ' \
+                       'include parameters, like `; charset=utf-8`'
+            }
+  validates :content_length,
+            allow_nil: true,
+            numericality: { greater_than_or_equal_to: 0 }
 
   def earliest
     self.page.versions.reorder(capture_time: :asc).first
@@ -76,6 +86,20 @@ class Version < ApplicationRecord
         end
       end
     end
+  end
+
+  def content_type
+    return nil unless self.media_type
+
+    value = self.media_type
+    value += "; #{self.media_type_parameters}" if self.media_type_parameters
+    value
+  end
+
+  def content_type=(value)
+    type_only, type_parameters = value.split(';', 2)
+    self.media_type = type_only
+    self.media_type_parameters = type_parameters.strip if type_parameters
   end
 
   private

@@ -34,6 +34,11 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   def teardown
     Archiver.allowed_hosts = @original_allowed_hosts
     Rails.logger = @original_logger
+
+    # Clear any stored files.
+    if Archiver.store.is_a?(FileStorage::LocalFile)
+      FileUtils.remove_dir(Archiver.store.directory, true)
+    end
   end
 
   test 'does not add or modify a version if it already exists' do
@@ -251,5 +256,43 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(page_versions_count, pages(:home_page).versions.count)
     assert_nil(pages(:home_page).versions.where(capture_time: now).first)
     assert_any_includes(import.processing_errors, 'hash')
+  end
+
+  test 'gets content_length from archiver' do
+    page_versions_count = pages(:home_page).versions.count
+    now = Time.now
+    hash = 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
+
+    stub_request(:any, 'http://example.com')
+      .to_return(body: 'Hello!😀', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        # Import two versions with the same hash to make sure we get the right
+        # length regardless of whether we downloaded fresh content.
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now - 1.second,
+          uri: 'http://example.com',
+          version_hash: hash
+        },
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          uri: 'http://example.com',
+          version_hash: hash
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+    puts import.processing_errors
+    assert_equal(page_versions_count + 2, pages(:home_page).versions.count)
+
+    version_b, version_a = pages(:home_page).versions.order(created_at: :desc).limit(2)
+    assert_equal(10, version_a.content_length, 'the `content_length` property should match the body byte length')
+    assert_equal(10, version_b.content_length, 'the `content_length` property should match the body byte length when loaded from storage')
   end
 end
