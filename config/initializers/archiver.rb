@@ -19,7 +19,8 @@ if ENV['AWS_ARCHIVE_BUCKET']
     bucket: aws_bucket
   )
 elsif !Rails.env.production?
-  storage_path = Rails.root.join 'tmp/storage/archive'
+  directory = Rails.env.test? ? 'archive-test' : 'archive'
+  storage_path = Rails.root.join("tmp/storage/#{directory}")
   Archiver.store = FileStorage::LocalFile.new(path: storage_path)
 end
 

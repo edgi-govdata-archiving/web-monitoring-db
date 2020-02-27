@@ -14,17 +14,27 @@ module FileStorage
     end
 
     def contains_url?(url_string)
-      # details = parse_s3_url(url_string)
-      # return false if details.nil? || details[:bucket] != @bucket
-      bucket_path = normalize_full_path(url_string)
+      get_metadata(url_string).present?
+    end
 
-      @client.head_object(bucket: @bucket, key: bucket_path).present?
+    def get_metadata(path)
+      get_metadata!(path)
     rescue Aws::S3::Errors::NotFound
-      false
+      nil
     # FIXME: should have a more specific error class here; we could
     # catch errors we don't want to.
     rescue ArgumentError
-      false
+      nil
+    end
+
+    def get_metadata!(path)
+      bucket_path = normalize_full_path(path)
+      data = @client.head_object(bucket: @bucket, key: bucket_path)
+      {
+        last_modified: data.last_modified,
+        size: data.content_length,
+        content_type: data.content_type
+      }
     end
 
     def get_file(path)

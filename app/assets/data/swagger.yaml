@@ -1388,6 +1388,15 @@ definitions:
       version_hash:
         type: string
         description: A SHA-256 hash of the version’s raw content.
+      content_length:
+        type: integer
+        description: Number of bytes in the version's HTTP response body.
+      media_type:
+        type: string
+        description: The media type of the version, e.g. `text/html`.
+      media_type_parameters:
+        type: string
+        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
       source_metadata:
@@ -1916,6 +1925,15 @@ definitions:
       version_hash:
         type: string
         description: A hex-encoded SHA-256 hash of the response body of the version.
+      content_length:
+        type: integer
+        description: Number of bytes in the version's HTTP response body.
+      media_type:
+        type: string
+        description: The media type of the version, e.g. `text/html`.
+      media_type_parameters:
+        type: string
+        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
         description: An identifier for the source of this version data, e.g. `versionista`, `internet_archive`, etc.

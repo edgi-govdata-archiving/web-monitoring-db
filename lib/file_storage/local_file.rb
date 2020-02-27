@@ -16,6 +16,25 @@ module FileStorage
       @directory ||= Dir.mktmpdir "web-monitoring-db--#{@tag}"
     end
 
+    def get_metadata(path)
+      get_metadata!(path)
+    rescue Errno::ENOENT
+      nil
+    # FIXME: should have a more specific error class here; we could
+    # catch errors we don't want to.
+    rescue ArgumentError
+      nil
+    end
+
+    def get_metadata!(path)
+      data = File.stat(normalize_full_path(path))
+      {
+        last_modified: data.mtime,
+        size: data.size,
+        content_type: nil
+      }
+    end
+
     def get_file(path)
       File.read(normalize_full_path(path))
     end
@@ -33,12 +52,7 @@ module FileStorage
     end
 
     def contains_url?(url_string)
-      if url_string.starts_with? 'file://'
-        path = url_string[7..-1]
-        File.exist? path
-      else
-        false
-      end
+      get_metadata(url_string).present?
     end
 
     private
