@@ -1,9 +1,9 @@
 namespace :data do
-  desc 'Set `length`, `media_type`, and `media_type_parameters` on all versions.'
+  desc 'Set `content_length`, `media_type`, and `media_type_parameters` on all versions.'
   task :'20200218_add_version_length_media_type', [:force] => [:environment] do |_t, args|
     force = ['t', 'true', '1'].include? args.fetch(:force, '').downcase
 
-    ActiveRecord::Migration.say_with_time('Updating length and media_type on versions...') do
+    ActiveRecord::Migration.say_with_time('Updating content_length and media_type on versions...') do
       DataHelpers.with_activerecord_log_level(:error) do
         last_update = Time.now
         completed = 0
@@ -46,14 +46,14 @@ namespace :data do
   end
 
   def set_version_length(version, meta, force)
-    return if !version.uri || (version.length && !force)
+    return if !version.uri || (version.content_length && !force)
 
     stored_meta = Archiver.store.get_metadata(version.uri)
     if stored_meta
-      version.length = stored_meta[:size]
+      version.content_length = stored_meta[:size]
     elsif meta && meta['headers'].is_a?(Hash)
       header_length = meta['headers']['content-length'] || meta['headers']['Content-Length']
-      version.length = header_length if header_length
+      version.content_length = header_length if header_length
     end
   end
 end

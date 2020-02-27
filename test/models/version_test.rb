@@ -80,12 +80,12 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal('text/plain; charset=utf-8', version.content_type)
   end
 
-  test 'length cannot be negative' do
-    version = Version.new(page: Page.new, length: 10)
-    assert(version.valid?, 'A positive length should be valid')
+  test 'content_length cannot be negative' do
+    version = Version.new(page: Page.new, content_length: 10)
+    assert(version.valid?, 'A positive content_length should be valid')
 
-    version = Version.new(page: Page.new, length: -10)
-    assert_not(version.valid?, 'A negative length should not be valid')
-    assert_includes(version.errors, :length)
+    version = Version.new(page: Page.new, content_length: -10)
+    assert_not(version.valid?, 'A negative content_length should not be valid')
+    assert_includes(version.errors, :content_length)
   end
 end

@@ -20,7 +20,7 @@ class Version < ApplicationRecord
               message: 'must be a media type, like `text/plain`, and *not* ' \
                        'include parameters, like `; charset=utf-8`'
             }
-  validates :length,
+  validates :content_length,
             allow_nil: true,
             numericality: { greater_than_or_equal_to: 0 }
 

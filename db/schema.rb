@@ -151,7 +151,7 @@ ActiveRecord::Schema.define(version: 2020_02_16_215324) do
     t.string "capture_url"
     t.boolean "different", default: true
     t.integer "status"
-    t.integer "length"
+    t.integer "content_length"
     t.string "media_type"
     t.string "media_type_parameters"
     t.index ["capture_time"], name: "index_different_versions_on_capture_time", where: "(different = true)"

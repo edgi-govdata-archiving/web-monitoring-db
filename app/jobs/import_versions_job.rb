@@ -100,7 +100,7 @@ class ImportVersionsJob < ApplicationJob
     elsif !Archiver.already_archived?(version.uri) || !version.version_hash
       result = Archiver.archive(version.uri, expected_hash: version.version_hash)
       version.version_hash = result[:hash]
-      version.length = result[:length]
+      version.content_length = result[:length]
       if result[:url] != version.uri
         version.source_metadata ||= {}
         version.source_metadata['original_url'] = version.uri
@@ -137,9 +137,9 @@ class ImportVersionsJob < ApplicationJob
       meta = record['source_metadata']
       record['media_type'] = meta['mime_type'] if meta.key?('mime_type')
       record['media_type_parameters'] = "charset=#{meta['encoding']}" if meta.key?('encoding')
-      unless record.key?('length')
+      unless record.key?('content_length')
         length = meta.dig('headers', 'Content-Length')
-        record['length'] = length if length.present?
+        record['content_length'] = length if length.present?
       end
     end
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']

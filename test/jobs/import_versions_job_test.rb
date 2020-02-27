@@ -258,7 +258,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_any_includes(import.processing_errors, 'hash')
   end
 
-  test 'gets length from archiver' do
+  test 'gets content_length from archiver' do
     page_versions_count = pages(:home_page).versions.count
     now = Time.now
     hash = 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
@@ -292,7 +292,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(page_versions_count + 2, pages(:home_page).versions.count)
 
     version_b, version_a = pages(:home_page).versions.order(created_at: :desc).limit(2)
-    assert_equal(10, version_a.length, 'the `length` property should match the body byte length')
-    assert_equal(10, version_b.length, 'the `length` property should match the body byte length when loaded from storage')
+    assert_equal(10, version_a.content_length, 'the `content_length` property should match the body byte length')
+    assert_equal(10, version_b.content_length, 'the `content_length` property should match the body byte length when loaded from storage')
   end
 end
