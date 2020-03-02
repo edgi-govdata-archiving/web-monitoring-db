@@ -2,7 +2,7 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
 ### BASE ENVIRONMENT STAGE ###
-FROM ruby:2.6.3-slim as base
+FROM ruby:2.6.5-slim as base
 LABEL maintainer="enviroDGI@gmail.com"
 
 # Install apt based dependencies required to run Rails as

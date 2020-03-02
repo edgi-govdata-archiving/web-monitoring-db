@@ -49,15 +49,6 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/api/v0/pages_controller.rb'
     - 'app/lib/surt/canonicalize.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: braces, no_braces, context_dependent
-Style/BracesAroundHashParameters:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'test/models/change_test.rb'
-
 # Offense count: 37
 Style/Documentation:
   Enabled: false
