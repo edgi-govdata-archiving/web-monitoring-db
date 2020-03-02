@@ -4,7 +4,7 @@ executors:
   rails_executor:
     working_directory: ~/web-monitoring-db
     docker:
-      - image: circleci/ruby:2.6.3-node
+      - image: circleci/ruby:2.6.5-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test

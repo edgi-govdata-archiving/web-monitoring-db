@@ -22,7 +22,7 @@ We maintain a publicly available *staging server* at https://api-staging.monitor
 
 ## Installation
 
-1. Ensure you have Ruby 2.6.3+.
+1. Ensure you have Ruby 2.6.5+.
 
     You can use [rbenv](https://github.com/rbenv/rbenv) to manage multiple Ruby versions
 
