@@ -131,14 +131,6 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     # TODO: remove agency and site here
     collection = Page.where(params.permit(:agency, :site, :title))
-    # NOTE: You *can't* use left_outer_joins here because ActiveRecord screws
-    # up and tries to join the tables *twice* in the query. I think this is
-    # probably because it is a has_and_belongs_to_many, but have not had time
-    # to break down exactly what is going wrong. In any case, `includes` works.
-    collection = collection.eager_load(
-      maintainerships: [:maintainer],
-      taggings: [:tag]
-    )
 
     if params.key?(:capture_time)
       collection = where_in_range_param(
@@ -188,11 +180,15 @@ class Api::V0::PagesController < Api::V0::ApiController
   # that were matched, not just the ones asked for.
   def filter_maintainers_and_tags(collection)
     if params[:maintainers].is_a?(Array)
-      collection = collection.where(maintainers: { name: params[:maintainers] })
+      collection = collection
+        .left_outer_joins(maintainerships: [:maintainer])
+        .where(maintainers: { name: params[:maintainers] })
     end
 
     if params[:tags].is_a?(Array)
-      collection = collection.where(tags: { name: params[:tags] })
+      collection = collection
+        .left_outer_joins(taggings: [:tag])
+        .where(tags: { name: params[:tags] })
     end
 
     collection
