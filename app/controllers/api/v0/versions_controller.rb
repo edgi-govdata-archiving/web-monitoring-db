@@ -40,7 +40,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       upstream = Archiver.store.get_file(@version.uri)
 
       # Try to get the filetype, fall back on binary.
-      type = version_media_type(@version) || 'application/octet-stream'
+      type = @version.media_type || 'application/octet-stream'
       # Set binary file disposition to attachment; anything else is inline.
       disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
 
@@ -48,20 +48,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
     else
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     end
-  end
-
-  def version_media_type(version)
-    # Media type logic mostly cribbed from
-    # web-monitoring-db/app/jobs/analyze_change_job.rb
-    # Lines 176 to 180 in 658ae8c
-    # TODO: this will eventually be a proper field on `version`:
-    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-    meta = version.source_metadata || {}
-    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
-    if !media && meta['headers'].is_a?(Hash)
-      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
-    end
-    media
   end
 
   def create

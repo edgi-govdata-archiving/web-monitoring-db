@@ -185,16 +185,8 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def diffable_media?(version)
-    # TODO: this will eventually be a proper field on `version`:
-    # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/199
-    meta = version.source_metadata || {}
-    media = meta['media_type'] || meta['content_type'] || meta['mime_type']
-    if !media && meta['headers'].is_a?(Hash)
-      media = meta['headers']['content-type'] || meta['headers']['Content-Type']
-    end
-
+    media = version.media_type
     if media
-      media = media.split(';', 2)[0]
       ALLOWED_MEDIA.include?(media) || (
         media.start_with?('text/') && !DISALLOWED_MEDIA.include?(media)
       )
