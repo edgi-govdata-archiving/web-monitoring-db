@@ -40,7 +40,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       upstream = Archiver.store.get_file(@version.uri)
 
       # Try to get the filetype, fall back on binary.
-      type = version.media_type || 'application/octet-stream'
+      type = @version.media_type || 'application/octet-stream'
       # Set binary file disposition to attachment; anything else is inline.
       disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
 
