@@ -7,12 +7,12 @@ end
 
 ruby '2.6.5'
 
-gem 'aws-sdk-s3', '~> 1.61'
+gem 'aws-sdk-s3', '~> 1.63'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.2'
-gem 'rails', '~> 6.0.2.2'
+gem 'rails', '~> 6.0.3.1'
 gem 'pg', '~> 1.2'
 gem 'puma', '~> 4.3'
 gem 'rack-cors', :require => 'rack/cors'
@@ -46,9 +46,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.81.0', require: false
+  gem 'rubocop', '~> 0.84.0', require: false
   gem 'rubocop-performance', '~> 1.5.2'
-  gem 'rubocop-rails', '~> 2.5.0'
+  gem 'rubocop-rails', '~> 2.5.2'
   gem 'dotenv-rails'
 end
 
@@ -59,7 +59,7 @@ group :development do
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
-  gem 'web-console', '>= 3.3.0'
+  gem 'web-console', '>= 4.0.2'
 end
 
 group :test do
