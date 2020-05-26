@@ -53,19 +53,46 @@ Naming/MemoizedInstanceVariableName:
 Naming/RescuedExceptionsVariableName:
   PreferredName: error
 
-Layout/ParameterAlignment:
-  EnforcedStyle: with_fixed_indentation
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
 
 Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Layout/SpaceInsideBlockBraces:
+  Enabled: false
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
 Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/ExponentialNotation:
   Enabled: false
 
 Style/NumericPredicate:
   Enabled: false
 
-Layout/EmptyLines:
+Style/SlicingWithRange:
   Enabled: false
 
 Style/AsciiComments:
@@ -78,16 +105,10 @@ Style/FormatStringToken:
 Style/GuardClause:
   Enabled: false
 
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
 Style/RegexpLiteral:
   AllowInnerSlashes: true
 
 Style/SafeNavigation:
-  Enabled: false
-
-Layout/SpaceInsideBlockBraces:
   Enabled: false
 
 Style/SymbolArray:
