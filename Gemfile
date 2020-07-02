@@ -7,7 +7,7 @@ end
 
 ruby '2.6.5'
 
-gem 'aws-sdk-s3', '~> 1.67'
+gem 'aws-sdk-s3', '~> 1.72'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
@@ -46,9 +46,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 0.84.0', require: false
-  gem 'rubocop-performance', '~> 1.6.0'
-  gem 'rubocop-rails', '~> 2.5.2'
+  gem 'rubocop', '~> 0.86.0', require: false
+  gem 'rubocop-performance', '~> 1.6.1'
+  gem 'rubocop-rails', '~> 2.6.0'
   gem 'dotenv-rails'
 end
 
