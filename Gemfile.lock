@@ -265,10 +265,10 @@ GEM
       parser (>= 2.7.0.1)
     rubocop-performance (1.6.1)
       rubocop (>= 0.71.0)
-    rubocop-rails (2.5.2)
-      activesupport
+    rubocop-rails (2.6.0)
+      activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 0.72.0)
+      rubocop (>= 0.82.0)
     ruby-progressbar (1.10.1)
     ruby2_keywords (0.0.2)
     rubyzip (2.3.0)
@@ -367,7 +367,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 0.84.0)
   rubocop-performance (~> 1.6.1)
-  rubocop-rails (~> 2.5.2)
+  rubocop-rails (~> 2.6.0)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-raven
