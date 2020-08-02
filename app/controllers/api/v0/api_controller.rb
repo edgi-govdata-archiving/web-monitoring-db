@@ -86,7 +86,7 @@ class Api::V0::ApiController < ApplicationController
   end
 
   def parse_date!(date)
-    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
+    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
 
     Time.parse date
   rescue StandardError => _error

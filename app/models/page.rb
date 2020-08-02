@@ -69,7 +69,7 @@ class Page < ApplicationRecord
   def self.normalize_url(url)
     return if url.nil?
 
-    if url.match?(/^[\w\+\-\.]+:\/\//)
+    if url.match?(/^[\w+\-.]+:\/\//)
       url
     else
       "http://#{url}"
@@ -162,7 +162,7 @@ class Page < ApplicationRecord
   end
 
   def domain
-    url.match(/^([\w\+\-\.]+:\/\/)?([^\/]+\.[^\/]{2,})/).try(:[], 2)
+    url.match(/^([\w+\-.]+:\/\/)?([^\/]+\.[^\/]{2,})/).try(:[], 2)
   end
 
   def second_level_domain

@@ -36,8 +36,8 @@ module Surt::Canonicalize
   }.freeze
 
   PATH_SESSION_IDS = [
-    /^(.*\/)(\((?:[a-z]\([0-9a-z]{24}\))+\)\/)([^\?]+\.aspx.*)$/i,
-    /^(.*\/)(\([0-9a-z]{24}\)\/)([^\?]+\.aspx.*)$/i
+    /^(.*\/)(\((?:[a-z]\([0-9a-z]{24}\))+\)\/)([^?]+\.aspx.*)$/i,
+    /^(.*\/)(\([0-9a-z]{24}\)\/)([^?]+\.aspx.*)$/i
   ].freeze
 
   # TODO: should we refactor this into a more readable format? e.g:
