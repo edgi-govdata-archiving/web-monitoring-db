@@ -1,8 +1,6 @@
 class NumericInterval
-  attr_reader :start
-  attr_reader :start_open
-  attr_reader :end
-  attr_reader :end_open
+  attr_reader :start, :start_open
+  attr_reader :end, :end_open
 
   def initialize(string_interval)
     components = string_interval.match(/^\s*(\[|\()?\s*(\d*(?:\.\d+)?)\s*(?:,|\.\.)\s*(\d*(?:\.\d+)?)\s*(\]|\))?\s*$/)

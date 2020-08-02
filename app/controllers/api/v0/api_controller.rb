@@ -31,7 +31,7 @@ class Api::V0::ApiController < ApplicationController
 
   # Render an error or errors as a proper API response
   def render_errors(errors, status_code = nil)
-    errors = [errors] unless errors.is_a?(Array)
+    errors = Array(errors)
     # Bail out and let Rails present a nice debugging page if using a *browser*.
     raise errors.first if Rails.env.development? && request.format.html? && errors.length == 1
 
@@ -86,7 +86,7 @@ class Api::V0::ApiController < ApplicationController
   end
 
   def parse_date!(date)
-    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d\:\d\d(\:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
+    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|([+\-]\d\d:?\d\d)))?$/)
 
     Time.parse date
   rescue StandardError => _error
