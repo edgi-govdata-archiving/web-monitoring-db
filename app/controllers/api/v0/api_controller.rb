@@ -31,7 +31,7 @@ class Api::V0::ApiController < ApplicationController
 
   # Render an error or errors as a proper API response
   def render_errors(errors, status_code = nil)
-    errors = [errors] unless errors.is_a?(Array)
+    errors = Array(errors)
     # Bail out and let Rails present a nice debugging page if using a *browser*.
     raise errors.first if Rails.env.development? && request.format.html? && errors.length == 1
 

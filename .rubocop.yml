@@ -74,6 +74,9 @@ Layout/SpaceAroundMethodCallOperator:
 Layout/SpaceInsideBlockBraces:
   Enabled: false
 
+Lint/DuplicateElsifCondition:
+  Enabled: true
+
 Lint/DeprecatedOpenSSLConstant:
   Enabled: true
 
@@ -110,19 +113,30 @@ Performance/Squeeze:
 Performance/StringInclude:
   Enabled: true
 
+Style/AccessorGrouping:
+  Enabled: false
+
+# There are major cases where this cop is just completely wrong. E.g:
+#   Array(a_hash)
+# Is very much not the same as:
+#   [a_hash] unless a_hash.is_a?(Array)
+# And will cause you to have a very bad day.
+Style/ArrayCoercion:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/BisectedAttrAccessor:
+  Enabled: true
+
+Style/CaseLikeIf:
+  Enabled: false
+
 Style/ClassAndModuleChildren:
   Enabled: false
 
 Style/ExponentialNotation:
-  Enabled: false
-
-Style/NumericPredicate:
-  Enabled: false
-
-Style/SlicingWithRange:
-  Enabled: false
-
-Style/AsciiComments:
   Enabled: false
 
 # This was mostly all false positives.
@@ -132,7 +146,31 @@ Style/FormatStringToken:
 Style/GuardClause:
   Enabled: false
 
+Style/HashAsLastArrayItem:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashLikeCase:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Enabled: true
+
 Style/RedundantFetchBlock:
+  Enabled: true
+
+Style/RedundantFileExtensionInRequire:
   Enabled: true
 
 Style/RedundantRegexpCharacterClass:
@@ -147,17 +185,11 @@ Style/RegexpLiteral:
 Style/SafeNavigation:
   Enabled: false
 
+Style/SlicingWithRange:
+  Enabled: false
+
 Style/SymbolArray:
   Enabled: false
 
 Style/WordArray:
   Enabled: false
-
-Style/HashEachMethods:
-  Enabled: true
-
-Style/HashTransformKeys:
-  Enabled: true
-
-Style/HashTransformValues:
-  Enabled: true

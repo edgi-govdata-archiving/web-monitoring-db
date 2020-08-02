@@ -7,9 +7,10 @@ task :update_page_statuses, [:where] => [:environment] do |_t, args|
   ActiveRecord::Migration.say_with_time('Updating status codes on pages...') do
     DataHelpers.with_activerecord_log_level(:error) do
       page_set = Page.all.order(created_at: :asc)
-      if where == 'recent'
+      case where
+      when 'recent'
         page_set = page_set.needing_status_update
-      elsif where == 'unknown'
+      when 'unknown'
         page_set = page_set
           .joins(:versions)
           .where('pages.status IS NULL')
