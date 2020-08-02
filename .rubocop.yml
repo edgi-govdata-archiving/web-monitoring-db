@@ -116,8 +116,13 @@ Performance/StringInclude:
 Style/AccessorGrouping:
   Enabled: false
 
+# There are major cases where this cop is just completely wrong. E.g:
+#   Array(a_hash)
+# Is very much not the same as:
+#   [a_hash] unless a_hash.is_a?(Array)
+# And will cause you to have a very bad day.
 Style/ArrayCoercion:
-  Enabled: true
+  Enabled: false
 
 Style/AsciiComments:
   Enabled: false
