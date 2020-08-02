@@ -223,9 +223,8 @@ class ImportVersionsJob < ApplicationJob
     record_set = nil
 
     begin
-      record_set = JSON.parse(raw_json)
-      # If could have been a JSON stream with only a single record
-      record_set = [record_set] unless record_set.is_a?(Array)
+      # Coerce to array in case it was a JSON stream with only a single record
+      record_set = Array(JSON.parse(raw_json))
     rescue JSON::ParserError
       record_set = raw_json.split("\n")
     end
