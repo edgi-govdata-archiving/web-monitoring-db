@@ -6,7 +6,7 @@ if Archiver.allowed_hosts.empty?
 
     Do you want to continue? [Y]/n
   WARN
-  response = STDIN.gets.strip.downcase
+  response = $stdin.gets.strip.downcase
   response = response.empty? ? 'y' : response
   if response == 'y'
     puts 'Proceeding'
@@ -40,7 +40,7 @@ import = Import.create(
 fs_default = FileStorage.default
 FileStorage.default = FileStorage::LocalFile.new(path: Rails.root.join('db'))
 
-logger = Logger.new(STDOUT)
+logger = Logger.new($stdout)
 logger.level = Logger::INFO
 logger.formatter = ->(_severity, _time, _progname, msg) { "--- #{msg}\n" }
 Rails.logger.extend(ActiveSupport::Logger.broadcast(logger))

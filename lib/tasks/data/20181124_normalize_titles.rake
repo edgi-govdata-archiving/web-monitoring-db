@@ -27,7 +27,7 @@ namespace :data do
 
       updated += values.length
       print "   Updating #{updated} #{model_type.to_s.pluralize} with malformed titles...\r"
-      STDOUT.flush
+      $stdout.flush
 
       if values.empty?
         # We have to print here to clear the \r at end of the last line

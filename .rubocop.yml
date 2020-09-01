@@ -6,6 +6,7 @@ inherit_mode:
     - Include
 
 AllCops:
+  NewCops: enable
   Include:
     - Rakefile
     - config.ru
@@ -42,6 +43,7 @@ Metrics/CyclomaticComplexity:
     - 'app/jobs/import_versions_job.rb'
 
 Metrics/PerceivedComplexity:
+  Max: 15
   Exclude:
     - 'app/jobs/import_versions_job.rb'
 
@@ -160,6 +162,9 @@ Style/HashTransformKeys:
 
 Style/HashTransformValues:
   Enabled: true
+
+Style/KeywordParametersOrder:
+  Enabled: false
 
 Style/NumericPredicate:
   Enabled: false

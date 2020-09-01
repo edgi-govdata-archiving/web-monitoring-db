@@ -53,6 +53,12 @@ Metrics/PerceivedComplexity:
 Style/Documentation:
   Enabled: false
 
+Style/OptionalBooleanParameter:
+  Enabled: true
+  Exclude:
+    - 'app/jobs/analyze_change_job.rb'
+    - 'app/models/application_record.rb'
+
 # Offense count: 67
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
