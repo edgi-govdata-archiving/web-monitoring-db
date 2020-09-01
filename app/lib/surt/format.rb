@@ -44,6 +44,6 @@ module Surt::Format
     host = "#{url.userinfo}@#{host}" if url.userinfo
     host = "#{host}:#{url.port}" if url.port
     host += ',' if options[:include_trailing_comma]
-    host + ')'
+    "#{host})"
   end
 end

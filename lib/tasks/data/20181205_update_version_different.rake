@@ -39,7 +39,7 @@ namespace :data do
       page_count += 1
       if page_count == total_pages || Time.now - last_update > 2
         print "  Updated #{page_count} of #{total_pages} pages (#{version_count} versions, date: #{page.created_at})\r"
-        STDOUT.flush
+        $stdout.flush
         last_update = Time.now
       end
     end

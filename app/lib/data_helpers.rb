@@ -3,7 +3,7 @@ module DataHelpers
   # Log and rewrite a progress indicator like "  x/y completed"
   def self.log_progress(completed, total, description: 'completed', end_line: false)
     ending = end_line ? "\n" : "\r"
-    STDOUT.write("   #{completed}/#{total} #{description}#{ending}")
+    $stdout.write("   #{completed}/#{total} #{description}#{ending}")
   end
 
   # Modify ActiveRecord logging for the duration of a block. Usage:
@@ -22,11 +22,11 @@ module DataHelpers
 
   # Kind of like find_each, but allows for ordered queries. We need this since
   # a) UUIDs are not really ordered and b) we are still live inserting data.
-  def self.iterate_each(collection, batch_size: 1000)
+  def self.iterate_each(collection, batch_size: 1000, &block)
     offset = 0
     loop do
       items = collection.limit(batch_size).offset(offset)
-      items.each {|item| yield item}
+      items.each(&block)
       break if items.count.zero?
 
       offset += batch_size

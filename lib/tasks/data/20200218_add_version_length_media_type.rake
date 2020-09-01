@@ -5,10 +5,10 @@ namespace :data do
     start_date = args[:start_date] ? Time.parse(args[:start_date]) : Time.new(2016, 1, 1)
     end_date = args[:end_date] && Time.parse(args[:end_date])
 
-    update_version_length_media_type(start_date, end_date, force)
+    update_version_length_media_type(start_date, end_date, force: force)
   end
 
-  def update_version_length_media_type(start_date, end_date = nil, force = false)
+  def update_version_length_media_type(start_date, end_date = nil, force: false)
     end_date ||= start_date + 1.month
 
     ActiveRecord::Migration.say_with_time('Updating content_length and media_type on versions...') do

@@ -53,7 +53,7 @@ namespace :data do
 
       updated += values.length
       print "   Updating #{updated} with prefix '#{old_prefix}'...\r"
-      STDOUT.flush
+      $stdout.flush
 
       if values.empty?
         # We have to print here to clear the \r at end of the last line

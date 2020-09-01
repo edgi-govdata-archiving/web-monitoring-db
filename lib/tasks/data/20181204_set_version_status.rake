@@ -54,7 +54,7 @@ namespace :data do
         else
           print "\n"
         end
-        STDOUT.flush
+        $stdout.flush
       end
 
       break if count.zero?
