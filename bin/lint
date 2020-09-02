@@ -9,7 +9,7 @@ OptionParser.new do |opt|
 end.parse!
 
 changed_files = if options[:diff]
-                  `git diff --name-status origin/master`.split("\n").map do |line|
+                  `git diff --name-status origin/main`.split("\n").map do |line|
                     action, file, newfile = line.split("\t")
 
                     case action

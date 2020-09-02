@@ -1,4 +1,4 @@
-[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md) &nbsp;[![Project Status Board](https://img.shields.io/badge/✔-Project%20Status%20Board-green.svg?style=flat)](https://github.com/orgs/edgi-govdata-archiving/projects/4)
+[![Code of Conduct](https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg?style=flat)](https://github.com/edgi-govdata-archiving/overview/blob/main/CONDUCT.md) &nbsp;[![Project Status Board](https://img.shields.io/badge/✔-Project%20Status%20Board-green.svg?style=flat)](https://github.com/orgs/edgi-govdata-archiving/projects/4)
 
 # web-monitoring-db
 
@@ -261,14 +261,14 @@ When new page or version data is imported, the `uri` field points to a location 
 The intent is to make sure data winds up at a reliably available location, ensuring that anyone who can access the API can also access the raw response body for any version. Hosts should be listed in `ALLOWED_ARCHIVE_HOSTS` if they meet this criteria better than the application’s own file storage. The application’s storage area can be the local disk or it can be S3, depending on configuration. The component can take pluggable configurations, so we can support other storage types or locations in the future.
 
 You can see more about this process in:
-- The overview repo’s [“architecture” document](https://github.com/edgi-govdata-archiving/web-monitoring/blob/master/ARCHITECTURE.md#web-page-snapshottingcapturing-workflow)
+- The overview repo’s [“architecture” document](https://github.com/edgi-govdata-archiving/web-monitoring/blob/main/ARCHITECTURE.md#web-page-snapshottingcapturing-workflow)
 - The [import job code](./app/jobs/import_versions_job.rb), where imports are processed.
 - The [`Archiver` module code](./lib/archiver/archiver.rb), where raw HTTP response data is saved.
 
 
 ### File Storage
 
-The application needs to store files for several different purposes (storing raw import data, archiving HTTP response bodies as described in the previous section, specialized logs, etc). To do this, it uses the [`FileStorage`](https://github.com/edgi-govdata-archiving/web-monitoring-db/tree/master/lib/file_storage) module, which has different implementations for different types of storage, such as [the local disk](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/lib/file_storage/local_file.rb) or [Amazon S3](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/lib/file_storage/s3.rb).
+The application needs to store files for several different purposes (storing raw import data, archiving HTTP response bodies as described in the previous section, specialized logs, etc). To do this, it uses the [`FileStorage`](https://github.com/edgi-govdata-archiving/web-monitoring-db/tree/main/lib/file_storage) module, which has different implementations for different types of storage, such as [the local disk](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/main/lib/file_storage/local_file.rb) or [Amazon S3](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/main/lib/file_storage/s3.rb).
 
 At current, the application creates two `FileStorage` instances:
 
@@ -276,7 +276,7 @@ At current, the application creates two `FileStorage` instances:
 
 2. “Working storage” is used to store internal data, such as raw import data and import logs. Under a default configuration, this is your local disk in development and S3 in production. You can configure the S3 bucket used for it with the `AWS_WORKING_BUCKET` environment variable. **Everything in this storage area should be considered private and you should not expose it to the public web.**
 
-3. For historical reasons, EDGI’s deployment includes a third S3 bucket that is not directly accessed by the application. It’s where we store HTTP response bodies collected from [Versionista](https://versionista.com), a service we previously used for scraping government web pages. You can see it listed in [the example settings for `ALLOWED_ARCHIVE_HOSTS`](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/.env.example).
+3. For historical reasons, EDGI’s deployment includes a third S3 bucket that is not directly accessed by the application. It’s where we store HTTP response bodies collected from [Versionista](https://versionista.com), a service we previously used for scraping government web pages. You can see it listed in [the example settings for `ALLOWED_ARCHIVE_HOSTS`](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/main/.env.example).
 
 
 ## Releases
@@ -290,12 +290,12 @@ We usually create *merge commits* on the `release` branch that note the PRs incl
 
 ## Code of Conduct
 
-This repository falls under EDGI's [Code of Conduct](https://github.com/edgi-govdata-archiving/overview/blob/master/CONDUCT.md).
+This repository falls under EDGI's [Code of Conduct](https://github.com/edgi-govdata-archiving/overview/blob/main/CONDUCT.md).
 
 
 ## Contributors
 
-This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions! See our [contributing guidelines](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/master/CONTRIBUTING.md) to find out how you can help.
+This project wouldn’t exist without a lot of amazing people’s help. Thanks to the following for all their contributions! See our [contributing guidelines](https://github.com/edgi-govdata-archiving/web-monitoring-db/blob/main/CONTRIBUTING.md) to find out how you can help.
 
 <!-- ALL-CONTRIBUTORS-LIST:START -->
 | Contributions | Name |
@@ -333,4 +333,4 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the [`LICENSE`](https://github.com/edgi-govdata-archiving/webpage-versions-db/blob/master/LICENSE) file for details.
+See the [`LICENSE`](https://github.com/edgi-govdata-archiving/webpage-versions-db/blob/main/LICENSE) file for details.

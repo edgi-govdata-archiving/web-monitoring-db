@@ -163,7 +163,7 @@ def authorize_google
     puts 'Open the following URL in your browser and enter the ' \
          'resulting code after authorization:'
     puts url
-    code = STDIN.gets.strip
+    code = $stdin.gets.strip
     credentials = authorizer.get_and_store_credentials_from_code(
       user_id: user_id,
       code: code,
