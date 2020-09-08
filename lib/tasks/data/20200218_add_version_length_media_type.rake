@@ -2,8 +2,8 @@ namespace :data do
   desc 'Set `content_length`, `media_type`, and `media_type_parameters` on all versions.'
   task :'20200218_add_version_length_media_type', [:force, :start_date, :end_date] => [:environment] do |_t, args|
     force = ['t', 'true', '1'].include? args.fetch(:force, '').downcase
-    start_date = args[:start_date] ? Time.parse(args[:start_date]) : Time.new(2016, 1, 1)
-    end_date = args[:end_date] && Time.parse(args[:end_date])
+    start_date = parse_time(args[:start_date], Time.new(2016, 1, 1))
+    end_date = parse_time(args[:end_date], Time.now + 1.day)
 
     update_version_length_media_type(start_date, end_date, force: force)
   end
@@ -14,14 +14,15 @@ namespace :data do
     ActiveRecord::Migration.say_with_time('Updating content_length and media_type on versions...') do
       DataHelpers.with_activerecord_log_level(:error) do
         query = Version
-          .where('created_at >= ? AND created_at < ?', start_date, end_date)
-          .order(created_at: :asc)
         last_update = Time.now
         completed = 0
         fixed = 0
-        total = query.count
+        total = query
+          .where('created_at >= ? AND created_at < ?', start_date, end_date)
+          .order(created_at: :asc)
+          .count
 
-        DataHelpers.iterate_each(query, batch_size: 500) do |version|
+        DataHelpers.iterate_time(query, start_time: start_date, end_time: end_date) do |version|
           changed = update_version_media_length(version, force: force)
           fixed += 1 if changed
           completed += 1
@@ -98,7 +99,12 @@ namespace :data do
     elsif meta && meta['headers'].is_a?(Hash)
       header_length = meta['headers']['content-length'] ||
                       meta['headers']['Content-Length']
-      version.content_length = header_length if header_length
+      if header_length
+        # Some records have `Content-Length: -1`, e.g:
+        # http://web.archive.org/web/20161209185238id_/https://www.blm.gov/about/our-mission
+        length = header_length.to_i
+        version.content_length = length if length >= 0
+      end
     end
   end
 
@@ -131,10 +137,14 @@ namespace :data do
              elsif response.body
                response.body.bytes.length
              else
-               puts "No response body for #{version.uri} (UUID: #{version.uuid})"
+               puts "No response body for #{url}"
                nil
              end
       { size: size, content_type: response.headers['content-type'] }
     end
+  end
+
+  def parse_time(value, default)
+    value ? Time.parse(value) : default
   end
 end
