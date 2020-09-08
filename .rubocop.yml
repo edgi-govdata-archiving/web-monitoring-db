@@ -32,6 +32,7 @@ Metrics/ModuleLength:
   Enabled: false
 
 Metrics/ParameterLists:
+  CountKeywordArgs: false
   Exclude:
     - 'lib/versionista_service/*'
 
