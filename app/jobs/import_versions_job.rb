@@ -61,8 +61,8 @@ class ImportVersionsJob < ApplicationJob
 
       # Jobs can be *long*, so make sure updates are persisted periodically.
       if Time.now - last_update > 5
-        @import.save
-        last_update = Time.now
+        @import.updated_at = last_update = Time.now
+        @import.save!
       end
     end
     log(object: @import, operation: :finished)
