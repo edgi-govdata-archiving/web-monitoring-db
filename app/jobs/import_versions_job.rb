@@ -60,10 +60,13 @@ class ImportVersionsJob < ApplicationJob
       end
 
       # Jobs can be *long*, so make sure updates are persisted periodically.
-      if Time.now - last_update > 5
-        @import.save
-        last_update = Time.now
-      end
+      next unless Time.now - last_update > 5
+
+      # save! will set updated_at, but only if something else has changed.
+      # Explicitly change updated_at so it always gets set, even if we don't
+      # have any other messages to persist.
+      @import.updated_at = last_update = Time.now
+      @import.save!
     end
     log(object: @import, operation: :finished)
   end

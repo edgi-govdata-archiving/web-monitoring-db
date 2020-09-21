@@ -2,8 +2,8 @@
 module DataHelpers
   # Log and rewrite a progress indicator like "  x/y completed"
   def self.log_progress(completed, total, description: 'completed', end_line: false)
-    ending = end_line ? "\n" : "\r"
-    $stdout.write("   #{completed}/#{total} #{description}#{ending}")
+    ending = end_line ? "\n" : ''
+    $stdout.write("\r   #{completed}/#{total} #{description}#{ending}")
   end
 
   # Modify ActiveRecord logging for the duration of a block. Usage:
@@ -31,6 +31,28 @@ module DataHelpers
 
       offset += batch_size
     end
+  end
+
+  # Extremely large offset values can cause poor query performance, so if
+  # iterate_each is used to iterate through an extremely large table, it can
+  # get very slow as you proceed through. This breaks up calls to iterate_each
+  # into smaller, time-bounded chunks (only useful if you have a time-based
+  # column, like :created_at, indexed).
+  def self.iterate_time(collection, interval: nil, start_time: nil, end_time: nil, field: :created_at, &block)
+    interval ||= 15.days
+    start_time ||= Time.new(2016, 1, 1)
+    batch_size = 500
+    total = 0
+
+    while start_time < (end_time || Time.now)
+      iterable = collection.order({ field => :asc }).where_in_unbounded_range(
+        field,
+        [start_time, start_time + interval]
+      )
+      total = iterate_each(iterable, batch_size: batch_size, &block)
+      start_time += interval
+    end
+    total
   end
 
   # Update many records with different values at once. (But it must update the

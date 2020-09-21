@@ -295,4 +295,29 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(10, version_a.content_length, 'the `content_length` property should match the body byte length')
     assert_equal(10, version_b.content_length, 'the `content_length` property should match the body byte length when loaded from storage')
   end
+
+  test 'normalizes media_type and media_type_parameters' do
+    now = Time.now
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now - 1.second,
+          uri: 'https://test-bucket.s3.amazonaws.com/whatever',
+          version_hash: 'abc',
+          media_type: 'text/HTML',
+          media_type_parameters: 'cHarSet=UTf-8;    param2=OK; Param3=ok'
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+    puts import.processing_errors
+
+    version = pages(:home_page).latest
+    assert_equal('text/html', version.media_type)
+    assert_equal('charset=utf-8; param2=OK; param3=ok', version.media_type_parameters)
+  end
 end

@@ -16,7 +16,6 @@ AllCops:
     - config/**/*
     - scratch*.rb
     - Gemfile
-    - lib/versionista_service/scraper.rb # This is likely going away anyhow
     # Don't attempt to lint third-party code
     - vendor/**/*
 
@@ -32,8 +31,7 @@ Metrics/ModuleLength:
   Enabled: false
 
 Metrics/ParameterLists:
-  Exclude:
-    - 'lib/versionista_service/*'
+  CountKeywordArgs: false
 
 Metrics/CyclomaticComplexity:
   Max: 12

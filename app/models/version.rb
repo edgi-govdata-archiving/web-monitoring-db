@@ -102,6 +102,16 @@ class Version < ApplicationRecord
     self.media_type_parameters = type_parameters.strip if type_parameters
   end
 
+  def media_type=(value)
+    value = normalize_media_type(value) if value.present?
+    super(value)
+  end
+
+  def media_type_parameters=(value)
+    value = normalize_media_parameters(value) if value.present?
+    super(value)
+  end
+
   private
 
   def sync_page_title
@@ -109,5 +119,30 @@ class Version < ApplicationRecord
       most_recent_capture_time = page.latest.capture_time
       page.update(title: title) if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
     end
+  end
+
+  def normalize_media_type(text)
+    text.strip.downcase
+  end
+
+  def parse_media_parameters(text)
+    text
+      .strip
+      .split(/\s*;\s*/)
+      .collect do |param|
+        name, value = param.split('=', 2)
+        # Parameter names are not case-sensitive, so always surface them as
+        # lower-case. Values *may be* case-sensitive, so don't touch them.
+        # (The value of `charset` is special and is always insensitive.)
+        name = name.strip.downcase
+        value = value.downcase if name == 'charset' && value.present?
+        [name, value]
+      end
+  end
+
+  def normalize_media_parameters(text)
+    parse_media_parameters(text)
+      .collect {|name, value| "#{name}=#{value}"}
+      .join('; ')
   end
 end

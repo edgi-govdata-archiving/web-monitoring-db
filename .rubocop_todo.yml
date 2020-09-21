@@ -6,16 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-Lint/NestedMethodDefinition:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 1
-Lint/ParenthesesAsGroupedExpression:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
-
 # Offense count: 16
 Metrics/AbcSize:
   Max: 77
@@ -74,7 +64,6 @@ Style/HashSyntax:
   Exclude:
     - 'Gemfile'
     - 'app/models/invitation.rb'
-    - 'lib/tasks/versionista.rake'
 
 # Offense count: 18
 # Cop supports --auto-correct.
@@ -91,7 +80,6 @@ Style/IfUnlessModifier:
     - 'app/models/invitation.rb'
     - 'app/models/page.rb'
     - 'app/models/user.rb'
-    - 'lib/tasks/versionista.rake'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -101,19 +89,6 @@ Style/Lambda:
   Exclude:
     - 'app/controllers/concerns/paging_concern.rb'
     - 'app/controllers/pages_controller.rb'
-
-# Offense count: 1
-Style/MultilineBlockChain:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: symmetrical, new_line, same_line
-Layout/MultilineMethodCallBraceLayout:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -138,13 +113,6 @@ Style/NegatedIf:
 Style/Next:
   Exclude:
     - 'db/migrate/20170314195641_populate_generic_models_from_versionista_models.rb'
-    - 'lib/tasks/versionista.rake'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'lib/tasks/versionista.rake'
 
 # Offense count: 33
 # Cop supports --auto-correct.
