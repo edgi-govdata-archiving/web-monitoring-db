@@ -103,7 +103,7 @@ class Version < ApplicationRecord
   end
 
   def media_type=(value)
-    value = value.downcase if value.present?
+    value = normalize_media_type(value) if value.present?
     super(value)
   end
 
@@ -121,14 +121,19 @@ class Version < ApplicationRecord
     end
   end
 
+  def normalize_media_type(text)
+    text.strip.downcase
+  end
+
   def parse_media_parameters(text)
     text
       .strip
       .split(/\s*;\s*/)
       .collect do |param|
         name, value = param.split('=', 2)
-        # Parameter names are case-insensitive, so always surface them as
-        # lower-case. Same for the value of `charset`.
+        # Parameter names are not case-sensitive, so always surface them as
+        # lower-case. Values *may be* case-sensitive, so don't touch them.
+        # (The value of `charset` is special and is always insensitive.)
         name = name.strip.downcase
         value = value.downcase if name == 'charset' && value.present?
         [name, value]
