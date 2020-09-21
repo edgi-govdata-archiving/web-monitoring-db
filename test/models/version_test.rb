@@ -72,6 +72,18 @@ class VersionTest < ActiveSupport::TestCase
     assert_includes(version.errors, :media_type)
   end
 
+  test 'media_type is always lower-case' do
+    version = Version.new
+    version.media_type = 'text/HTML'
+    assert_equal('text/html', version.media_type)
+  end
+
+  test 'media_type_parameters is set to a normalized form' do
+    version = Version.new
+    version.media_type_parameters = 'cHarSet=UTf-8;    param2=OK; Param3=ok'
+    assert_equal('charset=utf-8; param2=OK; param3=ok', version.media_type_parameters)
+  end
+
   test 'content_type getter/setter handles parameters' do
     version = Version.new(page: Page.new)
     version.content_type = 'text/plain; charset=utf-8'
