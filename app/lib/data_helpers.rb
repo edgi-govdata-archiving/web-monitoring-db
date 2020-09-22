@@ -2,7 +2,11 @@
 module DataHelpers
   # Log and rewrite a progress indicator like "  x/y completed"
   def self.log_progress(completed, total, description: 'completed', end_line: false)
-    ending = end_line ? "\n" : ''
+    ending = if $stdout.isatty
+               end_line ? "\n" : ''
+             else
+               " (#{Time.now})\n"
+             end
     $stdout.write("\r   #{completed}/#{total} #{description}#{ending}")
   end
 
