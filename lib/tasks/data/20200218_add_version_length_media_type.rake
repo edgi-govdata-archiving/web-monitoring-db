@@ -10,6 +10,7 @@ namespace :data do
 
   def update_version_length_media_type(start_date, end_date = nil, force: false)
     end_date ||= start_date + 1.month
+    progress_interval = $stdout.isatty ? 2 : 10
 
     ActiveRecord::Migration.say_with_time('Updating content_length and media_type on versions...') do
       DataHelpers.with_activerecord_log_level(:error) do
@@ -26,7 +27,7 @@ namespace :data do
           changed = update_version_media_length(version, force: force)
           fixed += 1 if changed
           completed += 1
-          if Time.now - last_update > 2
+          if Time.now - last_update > progress_interval
             message = "#{fixed} updated, #{completed}"
             DataHelpers.log_progress(message, total, description: 'versions processed')
             last_update = Time.now
