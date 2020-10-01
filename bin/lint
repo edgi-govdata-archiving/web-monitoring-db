@@ -39,5 +39,5 @@ end
 
 chdir APP_ROOT do
   puts '== Rubocop Auto Correct =='
-  system! "bundle exec rubocop --safe-auto-correct --force-exclusion #{changed_files.join(' ')}"
+  system! "bundle exec rubocop --auto-correct --force-exclusion #{changed_files.join(' ')}"
 end

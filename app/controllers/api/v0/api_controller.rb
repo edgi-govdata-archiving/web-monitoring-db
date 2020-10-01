@@ -53,11 +53,11 @@ class Api::V0::ApiController < ApplicationController
     code = error.try(:status_code)
 
     code || begin
-              error_name = error.class.name
-              ActionDispatch::ExceptionWrapper.status_code_for_exception(error_name)
-            rescue StandardError => _error
-              500
-            end
+      error_name = error.class.name
+      ActionDispatch::ExceptionWrapper.status_code_for_exception(error_name)
+    rescue StandardError => _error
+      500
+    end
   end
 
   def message_for(error)
