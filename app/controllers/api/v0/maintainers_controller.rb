@@ -63,9 +63,7 @@ class Api::V0::MaintainersController < Api::V0::ApiController
 
   def update
     @maintainer = (page ? page.maintainers : Maintainer).find(params[:id])
-    data = JSON.parse(request.body.read).select do |key|
-      ['name', 'parent_uuid'].include?(key)
-    end
+    data = JSON.parse(request.body.read).slice('name', 'parent_id')
     @maintainer.update!(data)
     show
   end
