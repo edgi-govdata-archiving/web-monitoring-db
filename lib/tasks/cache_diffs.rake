@@ -12,12 +12,16 @@ task :cache_page_diffs, [:page_uuid] => [:environment] do |_t, args|
   page = Page.find(args[:page_uuid])
   next unless page.versions.count > 1
 
+  # We're actually using reduce as a shortcut for iterating through pairs,
+  # rather than reducing the collection to some single value.
+  # rubocop:disable Lint/UnmodifiedReduceAccumulator
   page.versions.reduce do |a, b|
     change = Change.between(to: a, from: b)
     cache_change_diffs(change, diff_types)
     puts "Cached #{change.api_id}"
     b
   end
+  # rubocop:enable Lint/UnmodifiedReduceAccumulator
 
   next unless page.versions.count > 2
 
