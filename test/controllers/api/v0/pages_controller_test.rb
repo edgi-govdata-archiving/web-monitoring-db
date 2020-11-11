@@ -67,32 +67,6 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal PagingConcern::MAX_PAGE_SIZE, last_size
   end
 
-  test 'can filter pages by site' do
-    sign_in users(:alice)
-    site = 'http://example1.com/'
-    get "/api/v0/pages/?site=#{URI.encode_www_form_component site}"
-    body_json = JSON.parse @response.body
-    ids = body_json['data'].pluck 'uuid'
-
-    assert_includes ids, pages(:home_page).uuid,
-                    'Results did not include pages for the filtered site'
-    assert_not_includes ids, pages(:home_page_site2).uuid,
-                        'Results included pages not matching filtered site'
-  end
-
-  test 'can filter pages by agency' do
-    sign_in users(:alice)
-    agency = 'Department of Testing'
-    get "/api/v0/pages/?agency=#{URI.encode_www_form_component agency}"
-    body_json = JSON.parse @response.body
-    ids = body_json['data'].pluck 'uuid'
-
-    assert_includes ids, pages(:dot_home_page).uuid,
-                    'Results did not include pages for the filtered agency'
-    assert_not_includes ids, pages(:home_page_site2).uuid,
-                        'Results included pages not matching filtered agency'
-  end
-
   test 'can filter pages by title' do
     sign_in users(:alice)
     title = 'Page One'
@@ -101,9 +75,9 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     ids = body_json['data'].pluck 'uuid'
 
     assert_includes ids, pages(:home_page).uuid,
-                    'Results did not include pages for the filtered site'
+                    'Results did not include pages for the filtered title'
     assert_not_includes ids, pages(:home_page_site2).uuid,
-                        'Results included pages not matching filtered site'
+                        'Results included pages not matching filtered title'
   end
 
   test 'can filter pages by URL' do

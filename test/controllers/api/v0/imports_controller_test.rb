@@ -149,65 +149,6 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal(import_data[1][:page_url], versions[0].capture_url)
   end
 
-  test 'can import data with deprecated `site_agency`, `site_name` fields' do
-    import_data = [
-      {
-        page_url: 'http://testsite.com/',
-        title: 'Example Page',
-        site_agency: 'The Federal Example Agency',
-        site_name: 'Example Site',
-        capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
-        source_type: 'some_source',
-        source_metadata: { test_meta: 'data' }
-      },
-      {
-        page_url: 'http://testsite.com/',
-        title: 'Example Page',
-        site_agency: 'The Federal Example Agency',
-        site_name: 'Example Site',
-        capture_time: '2017-05-02T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
-        source_type: 'some_source',
-        source_metadata: { test_meta: 'data' }
-      }
-    ]
-
-    sign_in users(:alice)
-
-    perform_enqueued_jobs do
-      post(
-        api_v0_imports_path,
-        headers: { 'Content-Type': 'application/x-json-stream' },
-        params: import_data.map(&:to_json).join("\n")
-      )
-    end
-
-    assert_response :success
-    body_json = JSON.parse(@response.body)
-    job_id = body_json['data']['id']
-    assert_equal 'pending', body_json['data']['status']
-
-    get api_v0_import_path(id: job_id)
-    body_json = JSON.parse(@response.body)
-    assert_equal 'complete', body_json['data']['status']
-    assert_equal 0, body_json['data']['processing_errors'].length
-
-    pages = Page.where(url: 'http://testsite.com/')
-    assert_equal 1, pages.length
-    assert_equal import_data[0][:title], pages[0].title
-
-    maintainer_names = pages[0].maintainers.pluck(:name)
-    tag_names = pages[0].tags.pluck(:name).collect(&:downcase)
-    assert_includes(maintainer_names, 'The Federal Example Agency')
-    assert_includes(tag_names, 'site:example site')
-
-    versions = pages[0].versions
-    assert_equal 2, versions.length
-  end
-
   test 'does not add or modify a version if it already exists' do
     page_versions_count = pages(:home_page).versions.count
     original_data = versions(:page1_v1).as_json

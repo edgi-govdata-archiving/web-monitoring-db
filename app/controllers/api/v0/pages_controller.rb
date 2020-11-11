@@ -129,8 +129,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     #   ) match_tags ON match_tags.inner_t_uuid = pages.uuid
     # SQL).all
 
-    # TODO: remove agency and site here
-    collection = Page.where(params.permit(:agency, :site, :title))
+    collection = Page.where(params.permit(:title))
 
     if params.key?(:capture_time)
       collection = where_in_range_param(
