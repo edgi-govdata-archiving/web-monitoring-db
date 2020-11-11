@@ -53,8 +53,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names(),
           capture_time: versions(:page1_v1).capture_time,
           uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
           version_hash: 'INVALID_HASH',
@@ -82,8 +82,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names(),
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: `uri` is left out intentionally; it should get set to nil
           version_hash: 'INVALID_HASH',
@@ -126,8 +126,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names(),
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: uri is intentionally left out; it should not get set to nil
           version_hash: 'INVALID_HASH',
@@ -158,8 +158,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           # omitted page_url
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names(),
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: uri is intentionally left out; it should not get set to nil
           version_hash: 'INVALID_HASH',

@@ -14,11 +14,15 @@ class ActiveSupport::TestCase
     assert_equal(sorted, list, "#{name} were not in order: #{list}")
   end
 
-  def assert_ordered_by(list, orderings, name: 'Items')
+  def assert_ordered_by(list, orderings, name: 'Items', case_sensitive: false)
     sorted = list.sort do |a, b|
       result = 0
       orderings.each do |ordering|
-        result = a[ordering[0]] <=> b[ordering[0]]
+        if a[ordering[0]].is_a?(String) && !case_sensitive
+          result = a[ordering[0]].casecmp(b[ordering[0]])
+        else
+          result = a[ordering[0]] <=> b[ordering[0]]
+        end
         unless result.zero?
           result *= -1 if ordering[1] && ordering[1].casecmp?('desc')
           break
@@ -27,7 +31,7 @@ class ActiveSupport::TestCase
       result
     end
 
-    assert_equal(sorted, list, "#{name} were not in ordered by: #{orderings}")
+    assert_equal(sorted, list, "#{name} were not in order by: #{orderings}")
   end
 
   def assert_any(list, predicate, message = nil)
