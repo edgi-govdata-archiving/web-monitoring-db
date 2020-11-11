@@ -18,11 +18,11 @@ class ActiveSupport::TestCase
     sorted = list.sort do |a, b|
       result = 0
       orderings.each do |ordering|
-        if a[ordering[0]].is_a?(String) && !case_sensitive
-          result = a[ordering[0]].casecmp(b[ordering[0]])
-        else
-          result = a[ordering[0]] <=> b[ordering[0]]
-        end
+        result = if a[ordering[0]].is_a?(String) && !case_sensitive
+                   a[ordering[0]].casecmp(b[ordering[0]])
+                 else
+                   a[ordering[0]] <=> b[ordering[0]]
+                 end
         unless result.zero?
           result *= -1 if ordering[1] && ordering[1].casecmp?('desc')
           break
