@@ -2,6 +2,8 @@ class Version < ApplicationRecord
   include UuidPrimaryKey
   include SimpleTitle
 
+  MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/
+
   belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
   has_many :invalid_changes,
@@ -9,6 +11,7 @@ class Version < ApplicationRecord
            class_name: 'Change',
            foreign_key: 'uuid_to'
 
+  before_create :derive_media_type
   after_create :sync_page_title
   validates :status,
             allow_nil: true,
@@ -16,7 +19,7 @@ class Version < ApplicationRecord
   validates :media_type,
             allow_nil: true,
             format: {
-              with: /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/,
+              with: MEDIA_TYPE_PATTERN,
               message: 'must be a media type, like `text/plain`, and *not* ' \
                        'include parameters, like `; charset=utf-8`'
             }
@@ -88,28 +91,27 @@ class Version < ApplicationRecord
     end
   end
 
-  def content_type
-    return nil unless self.media_type
-
-    value = self.media_type
-    value += "; #{self.media_type_parameters}" if self.media_type_parameters
-    value
-  end
-
-  def content_type=(value)
-    type_only, type_parameters = value.split(';', 2)
-    self.media_type = type_only
-    self.media_type_parameters = type_parameters.strip if type_parameters
-  end
-
   def media_type=(value)
     value = normalize_media_type(value) if value.present?
     super(value)
   end
 
-  def media_type_parameters=(value)
-    value = normalize_media_parameters(value) if value.present?
-    super(value)
+  # TODO: Consider falling back to sniffing the content at `uri`?
+  def derive_media_type(force: false, value: nil)
+    return if self.media_type && !force
+
+    meta = source_metadata || {}
+    content_type = value ||
+                   meta.dig('headers', 'Content-Type') ||
+                   meta.dig('headers', 'content-type') ||
+                   meta['content_type'] ||
+                   meta['media_type'] ||
+                   meta['media'] ||
+                   meta['mime_type']
+    return unless content_type
+
+    media = parse_media_type(content_type)
+    self.media_type = media if media
   end
 
   private
@@ -125,24 +127,10 @@ class Version < ApplicationRecord
     text.strip.downcase
   end
 
-  def parse_media_parameters(text)
-    text
-      .strip
-      .split(/\s*;\s*/)
-      .collect do |param|
-        name, value = param.split('=', 2)
-        # Parameter names are not case-sensitive, so always surface them as
-        # lower-case. Values *may be* case-sensitive, so don't touch them.
-        # (The value of `charset` is special and is always insensitive.)
-        name = name.strip.downcase
-        value = value.downcase if name == 'charset' && value.present?
-        [name, value]
-      end
-  end
+  def parse_media_type(text)
+    media = text.split(';', 2)[0]
+    return nil unless media.present? && media.match?(MEDIA_TYPE_PATTERN)
 
-  def normalize_media_parameters(text)
-    parse_media_parameters(text)
-      .collect {|name, value| "#{name}=#{value}"}
-      .join('; ')
+    normalize_media_type(media)
   end
 end

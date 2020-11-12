@@ -78,18 +78,15 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal('text/html', version.media_type)
   end
 
-  test 'media_type_parameters is set to a normalized form' do
-    version = Version.new
-    version.media_type_parameters = 'cHarSet=UTf-8;    param2=OK; Param3=ok'
-    assert_equal('charset=utf-8; param2=OK; param3=ok', version.media_type_parameters)
-  end
-
-  test 'content_type getter/setter handles parameters' do
-    version = Version.new(page: Page.new)
-    version.content_type = 'text/plain; charset=utf-8'
+  test 'media_type is extracted from headers if not set' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      source_metadata: {
+        'headers' => { 'Content-Type' => 'text/plain; charset=utf-8' }
+      }
+    )
     assert_equal('text/plain', version.media_type)
-    assert_equal('charset=utf-8', version.media_type_parameters)
-    assert_equal('text/plain; charset=utf-8', version.content_type)
   end
 
   test 'content_length cannot be negative' do
