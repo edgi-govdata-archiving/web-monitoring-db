@@ -78,6 +78,14 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal('text/html', version.media_type)
   end
 
+  test 'media_type changes known synonyms to their canonical version' do
+    version = Version.new(media_type: 'application/html')
+    assert_equal('text/html', version.media_type)
+
+    version.media_type = 'application/xhtml'
+    assert_equal('application/xhtml+xml', version.media_type)
+  end
+
   test 'media_type is extracted from headers if not set' do
     version = Version.create(
       page: pages(:home_page),

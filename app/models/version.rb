@@ -4,6 +4,39 @@ class Version < ApplicationRecord
 
   MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/.freeze
 
+  # Commonly used, but not quite correct media types.
+  MEDIA_TYPE_SYNONYMS = {
+    # HTML
+    'application/html' => 'text/html',
+    # XHTML (it would be nice to combine this with HTML most of the time, but alas, not always)
+    'application/xhtml' => 'application/xhtml+xml',
+    'application/xml+html' => 'application/xhtml+xml',
+    'application/xml+xhtml' => 'application/xhtml+xml',
+    'text/xhtml' => 'application/xhtml+xml',
+    'text/xhtml+xml' => 'application/xhtml+xml',
+    'text/xml+html' => 'application/xhtml+xml',
+    'text/xml+xhtml' => 'application/xhtml+xml',
+    # PDF
+    'application/x-pdf' => 'application/pdf',
+    # JS
+    'application/javascript' => 'text/javascript',
+    'application/x-javascript' => 'text/javascript',
+    'text/x-javascript' => 'text/javascript',
+    # JSON
+    'text/x-json' => 'application/json',
+    'text/json' => 'application/json',
+    # WOFF
+    'application/font-woff' => 'font/woff', # Used to be standard, now deprecated
+    'application/x-font-woff' => 'font/woff', # Used by Chrome pre-standardization
+    # JPEG
+    'image/jpg' => 'image/jpeg',
+    # MS Office
+    # https://docs.microsoft.com/en-us/previous-versions/office/office-2007-resource-kit/ee309278(v=office.12)
+    # This is the only mis-named one we've seen, and I'm wary of setting
+    # similar ones because they might override future legitimate types.
+    'application/xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  }.freeze
+
   belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
   has_many :invalid_changes,
@@ -124,7 +157,8 @@ class Version < ApplicationRecord
   end
 
   def normalize_media_type(text)
-    text.strip.downcase
+    normal = text.strip.downcase
+    MEDIA_TYPE_SYNONYMS[normal] || normal
   end
 
   def parse_media_type(text)

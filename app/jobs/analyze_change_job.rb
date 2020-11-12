@@ -4,13 +4,8 @@ class AnalyzeChangeJob < ApplicationJob
   # text/* media types are allowed, so only non-text types need be explicitly
   # allowed and only text types need be explicitly disallowed.
   ALLOWED_MEDIA = [
-    # HTML should be text/html, but these are also common.
-    'appliction/html',
-    'application/xhtml',
-    'application/xhtml+xml',
-    'application/xml',
-    'application/xml+html',
-    'application/xml+xhtml'
+    'text/html',
+    'application/xhtml+xml'
   ].freeze
 
   DISALLOWED_MEDIA = [
