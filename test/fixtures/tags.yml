@@ -9,3 +9,12 @@ frequently_updated:
 
 home_page:
   name: 'Home Page'
+
+site_1:
+  name: 'site:Site1 (http://example1.com/)'
+
+site_2:
+  name: 'site:Site2 (http://example2.com/)'
+
+site_3:
+  name: 'site:Site3 (http://example3.com/)'

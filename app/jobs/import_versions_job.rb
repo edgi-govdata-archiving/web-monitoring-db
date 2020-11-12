@@ -190,9 +190,7 @@ class ImportVersionsJob < ApplicationJob
     return nil unless page
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
-    page.add_maintainer(record['site_agency']) if record.key?('site_agency')
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
-    page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
 
     page
   end

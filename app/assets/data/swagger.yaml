@@ -78,16 +78,6 @@ paths:
         - $ref: '#/parameters/chunk_size'
         - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
-        - name: site
-          in: query
-          description: Filter results by site.
-          required: false
-          type: string
-        - name: agency
-          in: query
-          description: Filter results by agency.
-          required: false
-          type: string
         - name: url
           in: query
           description: Match Page url (may include wildcard *).
@@ -1424,10 +1414,6 @@ definitions:
           about the SURT format, see:
           http://crawler.archive.org/articles/user_manual/glossary.html#surt
       title:
-        type: string
-      site:
-        type: string
-      agency:
         type: string
       created_at:
         type: string
