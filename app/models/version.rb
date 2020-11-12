@@ -2,7 +2,7 @@ class Version < ApplicationRecord
   include UuidPrimaryKey
   include SimpleTitle
 
-  MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/
+  MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/.freeze
 
   belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
