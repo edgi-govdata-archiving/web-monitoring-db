@@ -6,3 +6,15 @@ doi:
 
 someone:
   name: Someone
+
+dept_of_testing:
+  name: Department of Testing
+
+dept_of_examples:
+  name: Department of Examples
+
+dept_of_whatever:
+  name: Department of Whatever
+
+bureau_of_monitoring:
+  name: Bureau of Monitoring

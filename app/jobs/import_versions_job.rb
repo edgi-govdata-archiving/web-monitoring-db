@@ -139,7 +139,6 @@ class ImportVersionsJob < ApplicationJob
     if record.key?('source_metadata')
       meta = record['source_metadata']
       record['media_type'] = meta['mime_type'] if meta.key?('mime_type')
-      record['media_type_parameters'] = "charset=#{meta['encoding']}" if meta.key?('encoding')
       unless record.key?('content_length')
         length = meta.dig('headers', 'Content-Length')
         record['content_length'] = length if length.present?
@@ -190,9 +189,7 @@ class ImportVersionsJob < ApplicationJob
     return nil unless page
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
-    page.add_maintainer(record['site_agency']) if record.key?('site_agency')
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
-    page.add_tag("site:#{record['site_name']}") if record.key?('site_name')
 
     page
   end

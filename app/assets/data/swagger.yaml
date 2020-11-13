@@ -78,16 +78,6 @@ paths:
         - $ref: '#/parameters/chunk_size'
         - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
-        - name: site
-          in: query
-          description: Filter results by site.
-          required: false
-          type: string
-        - name: agency
-          in: query
-          description: Filter results by agency.
-          required: false
-          type: string
         - name: url
           in: query
           description: Match Page url (may include wildcard *).
@@ -1394,9 +1384,6 @@ definitions:
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
-      media_type_parameters:
-        type: string
-        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
       source_metadata:
@@ -1424,10 +1411,6 @@ definitions:
           about the SURT format, see:
           http://crawler.archive.org/articles/user_manual/glossary.html#surt
       title:
-        type: string
-      site:
-        type: string
-      agency:
         type: string
       created_at:
         type: string
@@ -1931,9 +1914,6 @@ definitions:
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
-      media_type_parameters:
-        type: string
-        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
         description: An identifier for the source of this version data, e.g. `versionista`, `internet_archive`, etc.

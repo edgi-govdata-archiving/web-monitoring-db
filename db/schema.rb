@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_16_215324) do
+ActiveRecord::Schema.define(version: 2020_11_12_194523) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -87,14 +87,11 @@ ActiveRecord::Schema.define(version: 2020_02_16_215324) do
   create_table "pages", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "url", null: false
     t.string "title"
-    t.string "agency"
-    t.string "site"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "url_key"
     t.boolean "active", default: true
     t.integer "status"
-    t.index ["site"], name: "index_pages_on_site"
     t.index ["url"], name: "index_pages_on_url"
     t.index ["url_key"], name: "index_pages_on_url_key"
   end
@@ -153,7 +150,6 @@ ActiveRecord::Schema.define(version: 2020_02_16_215324) do
     t.integer "status"
     t.integer "content_length"
     t.string "media_type"
-    t.string "media_type_parameters"
     t.index ["capture_time"], name: "index_different_versions_on_capture_time", where: "(different = true)"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["created_at"], name: "index_different_versions_on_created_at", where: "(different = true)"

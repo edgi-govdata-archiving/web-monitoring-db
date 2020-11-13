@@ -53,8 +53,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v1).capture_time,
           uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
           version_hash: 'INVALID_HASH',
@@ -82,8 +82,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: `uri` is left out intentionally; it should get set to nil
           version_hash: 'INVALID_HASH',
@@ -126,8 +126,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           page_url: pages(:home_page).url,
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: uri is intentionally left out; it should not get set to nil
           version_hash: 'INVALID_HASH',
@@ -158,8 +158,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         {
           # omitted page_url
           page_title: pages(:home_page).title,
-          site_agency: 'The Federal Example Agency',
-          site_name: pages(:home_page).site,
+          page_maintainers: ['The Federal Example Agency'],
+          page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
           # NOTE: uri is intentionally left out; it should not get set to nil
           version_hash: 'INVALID_HASH',
@@ -296,7 +296,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(10, version_b.content_length, 'the `content_length` property should match the body byte length when loaded from storage')
   end
 
-  test 'normalizes media_type and media_type_parameters' do
+  test 'normalizes media_type' do
     now = Time.now
     import = Import.create_with_data(
       {
@@ -308,8 +308,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
           capture_time: now - 1.second,
           uri: 'https://test-bucket.s3.amazonaws.com/whatever',
           version_hash: 'abc',
-          media_type: 'text/HTML',
-          media_type_parameters: 'cHarSet=UTf-8;    param2=OK; Param3=ok'
+          media_type: 'text/HTML'
         }
       ].map(&:to_json).join("\n")
     )
@@ -318,6 +317,5 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
     version = pages(:home_page).latest
     assert_equal('text/html', version.media_type)
-    assert_equal('charset=utf-8; param2=OK; param3=ok', version.media_type_parameters)
   end
 end

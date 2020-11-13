@@ -1,0 +1,19 @@
+home_page__site_1:
+  taggable: home_page
+  tag: site_1
+
+sub_page__site_1:
+  taggable: sub_page
+  tag: site_1
+
+home_page_site2__site_2:
+  taggable: home_page_site2
+  tag: site_2
+
+other_page_one__site_3:
+  taggable: other_page_one
+  tag: site_3
+
+home_page_site3__site_3:
+  taggable: home_page_site3
+  tag: site_3
