@@ -1384,9 +1384,6 @@ definitions:
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
-      media_type_parameters:
-        type: string
-        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
       source_metadata:
@@ -1917,9 +1914,6 @@ definitions:
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
-      media_type_parameters:
-        type: string
-        description: Parameters to the media type, e.g. `encoding=utf-8`.
       source_type:
         type: string
         description: An identifier for the source of this version data, e.g. `versionista`, `internet_archive`, etc.

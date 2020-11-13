@@ -1,5 +1,5 @@
 namespace :data do
-  desc 'Set `content_length`, `media_type`, and `media_type_parameters` on all versions.'
+  desc 'Set `content_length`, and `media_type` on all versions.'
   task :'20200218_add_version_length_media_type', [:force, :start_date, :end_date] => [:environment] do |_t, args|
     force = ['t', 'true', '1'].include? args.fetch(:force, '').downcase
     start_date = parse_time(args[:start_date], Time.new(2016, 1, 1))
@@ -58,7 +58,7 @@ namespace :data do
 
   def update_version_media_length(version, force: false)
     meta = version.source_metadata || {}
-    set_version_media(version, meta, force)
+    version.derive_media_type(force: force)
     set_version_length(version, meta, force)
     get_metadata_from_archive(version, force)
     if version.changed?
@@ -71,23 +71,6 @@ namespace :data do
       true
     else
       false
-    end
-  end
-
-  def set_version_media(version, meta, force)
-    return if version.media_type && !force
-
-    media = media_type_or_nil(meta['media_type']) ||
-            media_type_or_nil(meta['content_type']) ||
-            media_type_or_nil(meta['mime_type'])
-    encoding = meta['encoding']
-    if media
-      version.media_type = media
-      version.media_type_parameters = "charset=#{encoding}" if encoding
-    elsif meta['headers'].is_a?(Hash)
-      media = media_type_or_nil(meta['headers']['content-type']) ||
-              media_type_or_nil(meta['headers']['Content-Type'])
-      version.content_type = media if media
     end
   end
 
@@ -114,9 +97,7 @@ namespace :data do
       data = get_metadata_from_url(version.uri)
       version.content_length = data[:size] unless version.content_length
       if data[:content_type] && !version.media_type
-        version.content_type = data[:content_type]
-        # Reset the media type if not valid so we can save.
-        version.media_type = nil unless version.valid?
+        version.derive_media_type(value: data[:content_type])
       end
     end
   end
