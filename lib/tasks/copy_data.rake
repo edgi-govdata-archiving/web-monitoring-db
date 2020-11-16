@@ -1,5 +1,5 @@
 desc 'Copy pages from another web-monitoring-db instance.'
-task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |_t, args|
+task :copy_page, [:page_uuid, :include_changes, :url, :username, :password] => [:environment] do |_t, args|
   verbose = ENV['VERBOSE']
   begin
     options = {
@@ -24,6 +24,9 @@ task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |
   page_count = 0
   version_count = 0
   skipped_version_count = 0
+  include_changes = !['', 'f', 'false', '0'].include?((args[:include_changes] || '').strip.downcase)
+  change_count = 0
+  skipped_change_count = 0
 
   data = api_request("/api/v0/pages/#{args[:page_uuid]}", options)['data']
   page_data = data.clone
@@ -60,11 +63,38 @@ task :copy_page, [:page_uuid, :url, :username, :password] => [:environment] do |
     end
   end
 
-  puts "Copied #{page_count} pages and #{version_count} versions from #{args[:url]}"
+  annotation_user = User.all.first
+  change_errors = []
+  if include_changes
+    api_paginated_request("/api/v0/pages/#{args[:page_uuid]}/changes?chunk_size=1000", options) do |change_data|
+      change = Change.between(from: change_data['uuid_from'], to: change_data['uuid_to'])
+      if change.persisted?
+        skipped_change_count += 1
+        next
+      end
+
+      begin
+        change.annotate(change_data['current_annotation'], annotation_user)
+        change_count += 1
+        puts "  Copied change #{change.api_id}" if verbose
+      rescue
+        change_errors << change.api_id
+        puts "  Failed to copy change #{change.api_id}:"
+        change.errors.full_messages.each { |error| puts "    #{error}" }
+      end
+    end
+  end
+
+  puts "Copied #{page_count} pages, #{version_count} versions, #{change_count} changes from #{args[:url]}"
   puts "Skipped #{skipped_version_count} pre-existing versions" unless skipped_version_count.zero?
+  puts "Skipped #{skipped_change_count} pre-existing changes" unless skipped_change_count.zero?
   unless version_errors.empty?
     puts "Failed on #{version_errors.length} versions:"
     version_errors.each { |uuid| puts "  #{uuid}" }
+  end
+  unless change_errors.empty?
+    puts "Failed on #{change_errors.length} changes:"
+    change_errors.each { |uuid| puts "  #{uuid}" }
   end
 end
 
