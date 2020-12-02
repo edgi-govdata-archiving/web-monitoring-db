@@ -114,7 +114,7 @@ GEM
     faraday (1.1.0)
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
-    ffi (1.12.2)
+    ffi (1.13.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     google-api-client (0.47.0)
@@ -144,7 +144,7 @@ GEM
     jmespath (1.4.0)
     json (2.3.0)
     jwt (2.2.2)
-    listen (3.2.1)
+    listen (3.3.3)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     loofah (2.8.0)
@@ -355,7 +355,7 @@ DEPENDENCIES
   hiredis
   httparty
   jwt (~> 2.2)
-  listen (~> 3.2)
+  listen (~> 3.3)
   oj (~> 3.10)
   pg (~> 1.2)
   postmark-rails
