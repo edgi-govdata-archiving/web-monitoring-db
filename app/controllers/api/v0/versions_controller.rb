@@ -132,7 +132,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
     end
 
-    collection = where_in_range_param(collection, :capture_time, &method(:parse_date!))
+    collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
     collection = where_in_interval_param(collection, :status)
 
     sort_using_params(collection)

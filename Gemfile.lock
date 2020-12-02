@@ -60,8 +60,8 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.1)
     aws-eventstream (1.1.0)
-    aws-partitions (1.388.0)
-    aws-sdk-core (3.109.1)
+    aws-partitions (1.400.0)
+    aws-sdk-core (3.109.3)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -69,7 +69,7 @@ GEM
     aws-sdk-kms (1.39.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.83.1)
+    aws-sdk-s3 (1.85.0)
       aws-sdk-core (~> 3, >= 3.109.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -77,11 +77,11 @@ GEM
       aws-eventstream (~> 1, >= 1.0.2)
     bcrypt (3.1.16)
     bindex (0.8.1)
-    bootsnap (1.4.9)
+    bootsnap (1.5.1)
       msgpack (~> 1.0)
     builder (3.2.4)
     byebug (11.1.3)
-    capybara (3.33.0)
+    capybara (3.34.0)
       addressable
       mini_mime (>= 0.1.3)
       nokogiri (~> 1.8)
@@ -109,15 +109,15 @@ GEM
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
       railties (>= 3.2)
-    erubi (1.9.0)
+    erubi (1.10.0)
     execjs (2.7.0)
     faraday (1.1.0)
       multipart-post (>= 1.2, < 3)
       ruby2_keywords
-    ffi (1.12.2)
+    ffi (1.13.1)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    google-api-client (0.47.0)
+    google-api-client (0.50.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 0.9)
       httpclient (>= 2.8.1, < 3.0)
@@ -144,10 +144,10 @@ GEM
     jmespath (1.4.0)
     json (2.3.0)
     jwt (2.2.2)
-    listen (3.2.1)
+    listen (3.3.3)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
-    loofah (2.7.0)
+    loofah (2.8.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -173,10 +173,10 @@ GEM
     nio4r (2.5.4)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
-    oj (3.10.15)
+    oj (3.10.16)
     orm_adapter (0.5.0)
     os (1.1.1)
-    parallel (1.19.2)
+    parallel (1.20.1)
     parser (2.7.2.0)
       ast (~> 2.4.1)
     pg (1.2.3)
@@ -191,7 +191,7 @@ GEM
     pry-rails (0.3.9)
       pry (>= 0.10.4)
     public_suffix (4.0.6)
-    puma (5.0.4)
+    puma (5.1.0)
       nio4r (~> 2.0)
     pundit (2.1.0)
       activesupport (>= 3.0.0)
@@ -263,10 +263,10 @@ GEM
       rubocop-ast (>= 1.0.1)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (1.1.0)
+    rubocop-ast (1.3.0)
       parser (>= 2.7.1.5)
-    rubocop-performance (1.8.1)
-      rubocop (>= 0.87.0)
+    rubocop-performance (1.9.1)
+      rubocop (>= 0.90.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     rubocop-rails (2.8.1)
       activesupport (>= 4.2.0)
@@ -312,7 +312,7 @@ GEM
     thor (1.0.1)
     thread_safe (0.3.6)
     tilt (2.0.10)
-    tzinfo (1.2.7)
+    tzinfo (1.2.8)
       thread_safe (~> 0.1)
     uber (0.1.0)
     uglifier (4.2.0)
@@ -322,12 +322,12 @@ GEM
       rack (>= 1.0.0)
     warden (1.2.9)
       rack (>= 2.0.9)
-    web-console (4.0.4)
+    web-console (4.1.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.9.3)
+    webmock (3.10.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -336,14 +336,14 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.4.1)
+    zeitwerk (2.4.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   addressable (~> 2.7)
-  aws-sdk-s3 (~> 1.83)
+  aws-sdk-s3 (~> 1.85)
   bootsnap (>= 1.4.5)
   byebug
   capybara
@@ -355,12 +355,12 @@ DEPENDENCIES
   hiredis
   httparty
   jwt (~> 2.2)
-  listen (~> 3.2)
+  listen (~> 3.3)
   oj (~> 3.10)
   pg (~> 1.2)
   postmark-rails
   pry-rails
-  puma (~> 5.0)
+  puma (~> 5.1)
   pundit
   rack-cors
   rails (~> 6.0.3.4)
@@ -368,7 +368,7 @@ DEPENDENCIES
   resque
   resque-heroku-signals
   rubocop (~> 1.1.0)
-  rubocop-performance (~> 1.8.1)
+  rubocop-performance (~> 1.9.1)
   rubocop-rails (~> 2.8.1)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
@@ -378,7 +378,7 @@ DEPENDENCIES
   tzinfo-data
   uglifier (>= 1.3.0)
   web-console (>= 4.0.2)
-  webmock (~> 3.9)
+  webmock (~> 3.10)
 
 RUBY VERSION
    ruby 2.6.5p114

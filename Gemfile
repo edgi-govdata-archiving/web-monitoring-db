@@ -7,14 +7,14 @@ end
 
 ruby '2.6.5'
 
-gem 'aws-sdk-s3', '~> 1.83'
+gem 'aws-sdk-s3', '~> 1.85'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.2'
 gem 'rails', '~> 6.0.3.4'
 gem 'pg', '~> 1.2'
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 5.1'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'resque'
 gem 'resque-heroku-signals'
@@ -47,13 +47,13 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 1.1.0', require: false
-  gem 'rubocop-performance', '~> 1.8.1'
+  gem 'rubocop-performance', '~> 1.9.1'
   gem 'rubocop-rails', '~> 2.8.1'
   gem 'dotenv-rails'
 end
 
 group :development do
-  gem 'listen', '~> 3.2'
+  gem 'listen', '~> 3.3'
   gem 'pry-rails'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
@@ -65,7 +65,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.9'
+  gem 'webmock', '~> 3.10'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410
   gem 'selenium-webdriver'
