@@ -5,13 +5,10 @@ module SortingConcern
 
   def sorting_params
     raw = params[:sort] || ''
-    raw.split(',').collect(&method(:sql_order_for_param))
-  end
-
-  def sql_order_for_param(param)
-    field, direction = param.split(':')
-    { sanitize_field_name!(field) => sanitize_direction!(direction) }
-    # "#{sanitize_field_name!(field)} #{sanitize_direction!(direction)}"
+    raw.split(',').collect do |param|
+      field, direction = param.split(':')
+      { sanitize_field_name!(field) => sanitize_direction!(direction) }
+    end
   end
 
   def sanitize_field_name!(field)

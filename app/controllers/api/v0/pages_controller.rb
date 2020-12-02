@@ -135,9 +135,8 @@ class Api::V0::PagesController < Api::V0::ApiController
       collection = where_in_range_param(
         collection,
         :capture_time,
-        'versions.capture_time',
-        &method(:parse_date!)
-      )
+        'versions.capture_time'
+      ) { |date_string| parse_date!(date_string) }
 
       if boolean_param(:different, default: true)
         collection = collection.where(versions: { different: true })

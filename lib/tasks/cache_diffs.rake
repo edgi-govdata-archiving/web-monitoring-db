@@ -54,7 +54,7 @@ def parse_diff_types(type_list)
 
     uri = URI.parse(type_string)
     options = uri.query.split('&').collect do |raw_item|
-      raw_item.split('=').collect(&URI.method(:decode_www_form_component))
+      raw_item.split('=').collect { |x| URI.decode_www_form_component(x) }
     end
 
     [uri.path, Hash[options]]
