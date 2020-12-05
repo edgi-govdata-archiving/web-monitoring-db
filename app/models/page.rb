@@ -42,6 +42,11 @@ class Page < ApplicationRecord
           class_name: 'Version'
   # This needs a funky name because `changes` is a an activerecord method
   has_many :tracked_changes, through: :versions
+  has_many :urls,
+           class_name: 'PageUrl',
+           foreign_key: 'page_uuid',
+           inverse_of: :page,
+           dependent: :destroy
 
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
@@ -54,7 +59,7 @@ class Page < ApplicationRecord
   end)
 
   before_create :ensure_url_key
-  after_create :ensure_domain_and_news_tags
+  after_create :ensure_domain_and_news_tags, :ensure_page_urls
   before_save :normalize_url
   validate :url_must_have_domain
   validates :status,
@@ -63,7 +68,9 @@ class Page < ApplicationRecord
 
   def self.find_by_url(raw_url)
     url = normalize_url(raw_url)
-    Page.find_by(url: url) || Page.find_by(url_key: create_url_key(url))
+    with_urls = Page.joins(:urls)
+    with_urls.find_by(page_urls: { url: url }) ||
+      with_urls.find_by(page_urls: { url_key: PageUrl.create_url_key(url) })
   end
 
   def self.normalize_url(url)
@@ -74,10 +81,6 @@ class Page < ApplicationRecord
     else
       "http://#{url}"
     end
-  end
-
-  def self.create_url_key(url)
-    Surt.surt(url)
   end
 
   def add_maintainer(maintainer)
@@ -132,13 +135,21 @@ class Page < ApplicationRecord
   end
 
   def update_url_key
-    update(url_key: Page.create_url_key(url))
+    update(url_key: PageUrl.create_url_key(url))
   end
 
   def ensure_domain_and_news_tags
     self.add_tag("domain:#{domain}")
     self.add_tag("2l-domain:#{second_level_domain}")
     self.add_tag('news') if news?
+  end
+
+  # Keep page creation relatively simple by automatically creating a PageUrl
+  # for the page's current URL when creating a page. (Page#url is the current
+  # canonical Url of the page, the true list of URLs associated with the page
+  # should always be the list of PageUrls in Page#urls).
+  def ensure_page_urls
+    urls.find_or_create_by(url: url)
   end
 
   def update_status
@@ -154,7 +165,7 @@ class Page < ApplicationRecord
   end
 
   def ensure_url_key
-    self.url_key ||= Page.create_url_key(url)
+    self.url_key ||= PageUrl.create_url_key(url)
   end
 
   def normalize_url

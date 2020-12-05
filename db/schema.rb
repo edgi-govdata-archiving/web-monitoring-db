@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_12_194523) do
+ActiveRecord::Schema.define(version: 2020_11_16_224426) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -82,6 +82,20 @@ ActiveRecord::Schema.define(version: 2020_11_12_194523) do
     t.index ["maintainer_uuid", "page_uuid"], name: "index_maintainerships_on_maintainer_uuid_and_page_uuid", unique: true
     t.index ["maintainer_uuid"], name: "index_maintainerships_on_maintainer_uuid"
     t.index ["page_uuid"], name: "index_maintainerships_on_page_uuid"
+  end
+
+  create_table "page_urls", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "page_uuid", null: false
+    t.string "url", null: false
+    t.string "url_key", null: false
+    t.datetime "from_time", default: -::Float::INFINITY, null: false
+    t.datetime "to_time", default: ::Float::INFINITY, null: false
+    t.string "notes"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["page_uuid", "url", "from_time", "to_time"], name: "index_page_urls_on_page_uuid_and_url_and_from_time_and_to_time", unique: true
+    t.index ["url"], name: "index_page_urls_on_url"
+    t.index ["url_key"], name: "index_page_urls_on_url_key"
   end
 
   create_table "pages", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -167,6 +181,7 @@ ActiveRecord::Schema.define(version: 2020_11_12_194523) do
   add_foreign_key "invitations", "users", column: "redeemer_id"
   add_foreign_key "maintainerships", "maintainers", column: "maintainer_uuid", primary_key: "uuid"
   add_foreign_key "maintainerships", "pages", column: "page_uuid", primary_key: "uuid"
+  add_foreign_key "page_urls", "pages", column: "page_uuid", primary_key: "uuid"
   add_foreign_key "taggings", "tags", column: "tag_uuid", primary_key: "uuid"
   add_foreign_key "versions", "pages", column: "page_uuid", primary_key: "uuid"
 end
