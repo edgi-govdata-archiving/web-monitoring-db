@@ -47,6 +47,10 @@ class Page < ApplicationRecord
            foreign_key: 'page_uuid',
            inverse_of: :page,
            dependent: :destroy
+  has_many :current_urls,
+           -> { current },
+           class_name: 'PageUrl',
+           foreign_key: 'page_uuid'
 
   has_many :maintainerships, foreign_key: :page_uuid
   has_many :maintainers, through: :maintainerships
@@ -68,9 +72,18 @@ class Page < ApplicationRecord
 
   def self.find_by_url(raw_url)
     url = normalize_url(raw_url)
-    with_urls = Page.joins(:urls)
+
+    with_urls = Page.includes(:current_urls)
+    found = with_urls.find_by(page_urls: { url: url })
+    return found if found
+
+    key = PageUrl.create_url_key(url)
+    found = with_urls.find_by(page_urls: { url_key: key })
+    return found if found
+
+    with_urls = Page.includes(:urls).order('page_urls.to_time DESC')
     with_urls.find_by(page_urls: { url: url }) ||
-      with_urls.find_by(page_urls: { url_key: PageUrl.create_url_key(url) })
+      with_urls.find_by(page_urls: { url_key: key })
   end
 
   def self.normalize_url(url)

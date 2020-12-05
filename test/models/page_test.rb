@@ -187,4 +187,45 @@ class PageTest < ActiveSupport::TestCase
     page.versions.create(capture_time: Time.now - 15.days, status: 200)
     assert_equal(page.update_status, 200, 'Status should be based only on versions with status codes')
   end
+
+  test 'pages populate urls automatically' do
+    page = Page.create(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 1, 'There should only be one URL for the page')
+    assert_equal(page.urls.first.url, page.url)
+    assert_equal(page.uuid, PageUrl.current.find_by_url(page.url).page_uuid, 'find_by_url() should return the page')
+  end
+
+  test 'find_by_url matches by url_key if there is no URL match' do
+    page = Page.create(title: 'Test Page', url: 'https://example.gov/some_page')
+    found = Page.find_by_url('http://example.gov/some_page/')
+    assert_equal(page, found)
+  end
+
+  test 'find_by_url prefers pages currently at the given URL' do
+    url = 'https://example.gov/'
+    old_page = Page.create(title: 'Old page', url: url)
+    old_page.urls.first.update(to_time: Time.now - 5.days)
+
+    new_page = Page.create(title: 'New Page', url: url)
+    new_page.urls.first.update(from_time: Time.now - 5.days)
+
+    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page.urls.first.update(to_time: Time.now - 10.days)
+
+    assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
+  end
+
+  test 'find_by_url returns latest non-current page if no current match is found' do
+    url = 'https://example.gov/'
+    old_page = Page.create(title: 'Old page', url: url)
+    old_page.urls.first.update(to_time: Time.now - 5.days)
+
+    new_page = Page.create(title: 'New Page', url: url)
+    new_page.urls.first.update(to_time: Time.now - 2.days)
+
+    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page.urls.first.update(to_time: Time.now - 10.days)
+
+    assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
+  end
 end
