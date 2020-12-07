@@ -83,8 +83,12 @@ class Page < ApplicationRecord
     return found if found
 
     with_urls = Page.includes(:urls).order('page_urls.to_time DESC')
-    with_urls.find_by(page_urls: { url: url }) ||
+    found = with_urls.find_by(page_urls: { url: url }) ||
       with_urls.find_by(page_urls: { url_key: key })
+    return found if found
+
+    # TODO: remove this fallback when data is migrated over to Page.urls.
+    Page.find_by(url: url) || Page.find_by(url_key: key)
   end
 
   def self.normalize_url(url)
