@@ -195,6 +195,19 @@ class PageTest < ActiveSupport::TestCase
     assert_equal(page.uuid, PageUrl.current.find_by_url(page.url).page_uuid, 'find_by_url() should return the page')
   end
 
+  test 'pages populate urls when page.url is updated' do
+    page = Page.create(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 1, 'There should only be one URL for the page')
+    assert_equal(page.urls.first.url, page.url)
+
+    page.update(url: 'https://www.example.gov/')
+    assert_equal(page.urls.count, 2, 'There should be two URLs for the page after updating page.url')
+    assert_includes(page.urls.pluck(:url), 'https://www.example.gov/', 'New URL should be in the page\'s list of URLs')
+
+    page.update(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 2, 'Changing page.url back to a previous value should not add a new PageUrl')
+  end
+
   test 'find_by_url matches by url_key if there is no URL match' do
     page = Page.create(title: 'Test Page', url: 'https://example.gov/some_page')
     found = Page.find_by_url('http://example.gov/some_page/')
