@@ -17,15 +17,6 @@ class PageUrl < ApplicationRecord
 
   belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :urls
 
-  # NOTE: consider switching to a tsrange instead of two columns for the
-  # timeframe here if Rails decides on a plan for:
-  #   https://github.com/rails/rails/issues/39833
-  # Then this can just be: `where('timeframe @> ?::timestamp', Time.now)`
-  scope(:current, lambda do
-    now = Time.now
-    where('from_time <= ?', now).where('to_time > ?', now)
-  end)
-
   validates :url,
             allow_nil: false,
             format: {
@@ -41,7 +32,23 @@ class PageUrl < ApplicationRecord
     Surt.surt(url)
   end
 
+  # NOTE: consider switching to a tsrange instead of two columns for the
+  # timeframe here if Rails decides on a plan for:
+  #   https://github.com/rails/rails/issues/39833
+  # Then this can just be: `where('timeframe @> ?::timestamp', Time.now)`
+  def self.current(at_time = nil)
+    at_time ||= Time.now
+    where('from_time <= ?', at_time).where('to_time > ?', at_time)
+  end
+
+  # url is immutable -- the whole reason for this record is to map a URL to a
+  # page, so the URL cannot be updated. Once the record has been created,
+  # you should delete the record and create a new one instead.
   def url=(value)
+    if persisted? && value != url
+      raise TypeError, '`url` can\'t be modified after a PageUrl has been created'
+    end
+
     # Reset url_key to ensure it gets recalculated
     self.url_key = nil if value != url
     super(value)
