@@ -177,13 +177,13 @@ class Page < ApplicationRecord
   end
 
   def merge(*other_pages)
-    earliest_version_time = nil
+    first_version_time = nil
     other_pages.each do |other|
       # Move versions from other page.
       other.versions.each do |version|
         version.update(page_uuid: uuid)
-        if earliest_version_time.nil? || earliest_version_time > version.capture_time
-          earliest_version_time = version.capture_time
+        if first_version_time.nil? || first_version_time > version.capture_time
+          first_version_time = version.capture_time
         end
       end
 
@@ -191,34 +191,18 @@ class Page < ApplicationRecord
       other.tags.each {|tag| add_tag(tag)}
       other.maintainers.each {|maintainer| add_maintainer(maintainer)}
       other.urls.each do |page_url|
-        begin
-          page_url.update(page_uuid: self.uuid)
-        rescue ActiveRecord::RecordNotUnique
-          page_url.destroy
-        end
+        page_url.update(page_uuid: self.uuid)
+      rescue ActiveRecord::RecordNotUnique
+        page_url.destroy
       end
 
-      # TODO: flag `other` as merged into this one so we can support old links
+      # TODO: flag `other` as merged into this one so we can support old links.
       other.update(active: false)
     end
 
-    new_versions = self.versions.where('capture_time >= ?', earliest_version_time)
-
-    # Recalculate title
-    new_versions.reorder(capture_time: :desc).each do |version|
-      break if version.sync_page_title
-    end
-
-    # Recalculate page.versions.different
-    # TODO: figure out whether there's a reasonable way to merge this logic
-    # with `Version#update_different_attribute`.
-    previous_hash = nil
-    new_versions.reorder(capture_time: :asc).each do |version|
-      previous_hash = version.previous(different: false).try(:version_hash) if previous_hash.nil?
-      version.update(different: version.version_hash != previous_hash)
-      previous_hash = version.version_hash
-    end
-
+    # Recalculate denormalized attributes
+    update_page_title(first_version_time)
+    update_versions_different(first_version_time)
     # TODO: it might be neat to clean up overlapping URL timeframes
   end
 
@@ -285,5 +269,31 @@ class Page < ApplicationRecord
 
     success_rate = 1 - (error_time.to_f / total_time)
     success_rate < STATUS_SUCCESS_THRESHOLD ? latest_error : 200
+  end
+
+  def update_page_title(from_time = nil)
+    candidates = versions.reorder(capture_time: :desc)
+    candidates = candidates.where('capture_time >= ?', from_time) if from_time
+    candidates.each do |version|
+      break if version.sync_page_title
+    end
+  end
+
+  # TODO: figure out whether there's a reasonable way to merge this logic with
+  # `Version#update_different_attribute`.
+  def update_versions_different(from_time)
+    previous_hash = nil
+    candidates = versions
+      .where('capture_time >= ?', from_time)
+      .reorder(capture_time: :asc)
+
+    candidates.each do |version|
+      if previous_hash.nil?
+        previous_hash = version.previous(different: false).try(:version_hash)
+      end
+
+      version.update(different: version.version_hash != previous_hash)
+      previous_hash = version.version_hash
+    end
   end
 end
