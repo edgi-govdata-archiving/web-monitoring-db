@@ -15,6 +15,15 @@ module ActiveRecord
               else super
             end
           end
+
+          # Convert from input to Ruby value
+          def serialize(value)
+            case value
+              when ::Float::INFINITY then "'infinity'::timestamp"
+              when -::Float::INFINITY then "'-infinity'::timestamp"
+              else super
+            end
+          end
         end
       end
     end

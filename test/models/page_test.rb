@@ -241,4 +241,43 @@ class PageTest < ActiveSupport::TestCase
 
     assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
   end
+
+  test 'merge adds attributes and versions from another page' do
+    now = Time.zone.now.utc
+    page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
+    page1.urls.create(url: 'https://example.gov/index.html')
+    page1.add_tag('tag1')
+    page1.add_tag('tag2')
+    page1.add_maintainer('maintainer1')
+    page1.add_maintainer('maintainer2')
+    page1.versions.create(capture_time: now - 5.days, capture_url: 'https://example.gov/', version_hash: 'abc')
+    page1.versions.create(capture_time: now - 4.days, capture_url: 'https://example.gov/', version_hash: 'abc')
+    page1.versions.create(capture_time: now - 3.days, capture_url: 'https://example.gov/index.html', version_hash: 'def', title: 'Title from p1 v3')
+
+    page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
+    page2.urls.create(url: 'https://example.gov/')
+    page2.add_tag('tag1')
+    page2.add_tag('tag3')
+    page2.add_maintainer('maintainer1')
+    page2.add_maintainer('maintainer3')
+    page2.versions.create(capture_time: now - 4.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'def')
+    page2.versions.create(capture_time: now - 3.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'abc')
+    page2.versions.create(capture_time: now - 2.5.days, capture_url: 'https://example.gov/', version_hash: 'def', title: 'Title from p2 v3')
+
+    page1.merge(page2)
+    assert_equal('Title from p2 v3', page1.title)
+    assert_equal(['domain:example.gov', '2l-domain:example.gov', 'tag1', 'tag2', 'tag3'], page1.tags.pluck(:name))
+    assert_equal(['maintainer1', 'maintainer2', 'maintainer3'], page1.maintainers.pluck(:name))
+    assert_equal(3, page1.urls.count, 'Page1 has all the unique URLs from the pages')
+    assert_equal(0, page2.urls.count, 'Page2 has no more URLs')
+    assert_equal([
+      [now - 2.5.days, 'https://example.gov/', false],
+      [now - 3.0.days, 'https://example.gov/index.html', true],
+      [now - 3.5.days, 'https://example.gov/subpage', false],
+      [now - 4.0.days, 'https://example.gov/', true],
+      [now - 4.5.days, 'https://example.gov/subpage', true],
+      [now - 5.0.days, 'https://example.gov/', true]
+    ], page1.versions.pluck(:capture_time, :capture_url, :different))
+    assert_not_predicate(page2, :active?)
+  end
 end
