@@ -167,7 +167,7 @@ class Page < ApplicationRecord
   # canonical Url of the page, the true list of URLs associated with the page
   # should always be the list of PageUrls in Page#urls).
   def ensure_page_urls
-    urls.find_or_create_by(url: url) if saved_change_to_attribute?('url')
+    urls.find_or_create_by!(url: url) if saved_change_to_attribute?('url')
   end
 
   def update_status
