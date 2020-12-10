@@ -191,6 +191,20 @@ class ImportVersionsJob < ApplicationJob
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
 
+    # If the page was not an *exact* URL match, add the URL to the page.
+    # (`page.find_by_url` used above will match by `url_key`, too.)
+    page.urls.find_or_create_by(url: url)
+    # TODO: Add URLs from redirects automatically. The main blocker for
+    # this at the moment is the following situation:
+    #
+    #   Two pages, A=https://example.com/about
+    #              B=https://example.com/about/locations
+    #   Page B is removed, but instead of returning a 404 or 403 status
+    #     code, it starts redirecting to Page A.
+    #
+    # This is unfortunately not uncommon, so we need some heuristics to
+    # account for it, e.g. URL does not already belong to another page.
+
     page
   end
 
