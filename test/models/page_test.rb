@@ -270,16 +270,19 @@ class PageTest < ActiveSupport::TestCase
     assert_equal(['maintainer1', 'maintainer2', 'maintainer3'], page1.maintainers.pluck(:name))
     assert_equal(3, page1.urls.count, 'Page1 has all the unique URLs from the pages')
     assert_equal(0, page2.urls.count, 'Page2 has no more URLs')
+    # NOTE: depending on the system and on PG, there may be precision issues
+    # data, so round before checking them.
     assert_equal(
       [
-        [now - 2.5.days, 'https://example.gov/', false],
-        [now - 3.0.days, 'https://example.gov/index.html', true],
-        [now - 3.5.days, 'https://example.gov/subpage', false],
-        [now - 4.0.days, 'https://example.gov/', true],
-        [now - 4.5.days, 'https://example.gov/subpage', true],
-        [now - 5.0.days, 'https://example.gov/', true]
+        [(now - 2.5.days).round, 'https://example.gov/', false],
+        [(now - 3.0.days).round, 'https://example.gov/index.html', true],
+        [(now - 3.5.days).round, 'https://example.gov/subpage', false],
+        [(now - 4.0.days).round, 'https://example.gov/', true],
+        [(now - 4.5.days).round, 'https://example.gov/subpage', true],
+        [(now - 5.0.days).round, 'https://example.gov/', true]
       ],
       page1.versions.pluck(:capture_time, :capture_url, :different)
+        .map { |row| [row[0].round, row[1], row[2]] }
     )
     assert_not_predicate(page2, :active?)
   end
