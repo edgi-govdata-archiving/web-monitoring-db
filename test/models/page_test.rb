@@ -243,7 +243,7 @@ class PageTest < ActiveSupport::TestCase
   end
 
   test 'merge adds attributes and versions from another page' do
-    now = Time.zone.now.utc
+    now = Time.zone.now
     page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
     page1.urls.create(url: 'https://example.gov/index.html')
     page1.add_tag('tag1')
