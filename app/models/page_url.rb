@@ -55,20 +55,23 @@ class PageUrl < ApplicationRecord
   end
 
   # To simplify query logic, we want to make sure `from_time` and `to_time`
-  # always have a value. Unfortunately, Rails doesn't deal too well with
-  # Postgres's +/-infinity dates. You can only set them as a string (not a
-  # float) even though they read back as +/-Float::INFINITY!
-  # These custom setters let us set floats for sanity, and also converts
-  # `nil` to +/-infinity as appropriate, since they have the same meaning as
-  # far as we're concerned.
+  # always have a value. Convert `nil` to the appropriate +/-infinity value
+  # here as a convenience.
+  #
+  # NOTE: Rails has a bug with setting +/-Float::INFINITY for timestamp
+  # fields, even though that's the type of value it gives you when it reads
+  # +/-infinity dates out of the database. ¯\_(ツ)_/¯
+  # However, a hacky fix we've implemented to solve another bug also solves
+  # this, so we can safely use Float::INFINITY in this project.
+  # See `config/initializers/active_record_extras.rb` for more.
   def from_time=(value)
-    value = '-infinity' if value.nil? || value == -Float::INFINITY
+    value = -Float::INFINITY if value.nil?
     super(value)
   end
 
   # See note above on `from_time=()`.
   def to_time=(value)
-    value = 'infinity' if value.nil? || value == Float::INFINITY
+    value = Float::INFINITY if value.nil?
     super(value)
   end
 
