@@ -744,4 +744,15 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert(body['data'].all? {|page| page['status'] >= 400 && page['status'] < 500})
   end
+
+  test 'redirects to new page if requested page was merged away' do
+    page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
+    page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
+    page1.merge(page2)
+
+    sign_in users(:alice)
+    get(api_v0_page_url(page2))
+    assert_response(:permanent_redirect)
+    assert_redirected_to(api_v0_page_url(page1.uuid))
+  end
 end

@@ -71,7 +71,16 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def show
-    page = Page.find(params[:id])
+    begin
+      page = Page.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      merge = MergedPage.find(params[:id])
+      redirect_to(
+        api_v0_page_url(merge.target_uuid),
+        status: :permanent_redirect
+      ) and return
+    end
+
     data = page.as_json(include: [:maintainers, :tags])
     if should_allow_versions
       data['versions'] = page.versions.where(different: true).as_json
