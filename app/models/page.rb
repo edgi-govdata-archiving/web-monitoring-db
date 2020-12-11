@@ -17,6 +17,8 @@ class Page < ApplicationRecord
            foreign_key: 'page_uuid',
            inverse_of: :page,
            # You must explcitly dissociate or move versions before destroying.
+           # It's OK for a version to be orphaned from all pages, but we want
+           # to make sure that's an intentional action and not accidental.
            dependent: :restrict_with_error
   has_one :earliest,
           (lambda do

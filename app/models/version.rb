@@ -37,7 +37,9 @@ class Version < ApplicationRecord
     'application/xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   }.freeze
 
-  belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
+  # NOTE: Versions *may* be orphaned from pages. This is pretty rare, but is a
+  # legitimate scenario.
+  belongs_to :page, foreign_key: :page_uuid, optional: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
   has_many :invalid_changes,
            ->(version) { where.not(uuid_from: version.previous.uuid) },

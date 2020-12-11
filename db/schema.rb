@@ -150,7 +150,7 @@ ActiveRecord::Schema.define(version: 2020_11_16_224426) do
   end
 
   create_table "versions", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "page_uuid", null: false
+    t.uuid "page_uuid"
     t.datetime "capture_time", null: false
     t.string "uri"
     t.string "version_hash"

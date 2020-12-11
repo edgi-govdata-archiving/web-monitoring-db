@@ -32,6 +32,7 @@ class AddPageUrlModel < ActiveRecord::Migration[6.0]
       # If we ever make them nullable, the index will need to use:
       #   `coalesce(from_time, '-infinity'::timestamp)`
       # Because otherwise Postgres will ignore NULLs in the index.
+      #
       # NOTE: the unique index helps make sure we don't make really
       # bone-headed mistakes, but it does not prevent us from creating
       # problematic, overlapping timeframes.
@@ -43,5 +44,38 @@ class AddPageUrlModel < ActiveRecord::Migration[6.0]
       #     overlapping timeframes may not be reasonable or feasible anyway.
       t.index [:page_uuid, :url, :from_time, :to_time], unique: true
     end
+
+    # As part of this, we anticipate orphaning some version records. That's
+    # OK -- we've been slowly loosening the conceptual model from Pages-with-
+    # -Versions-of-those-pages to Versions-are-records-of-urls-at-a-point-in-
+    # time-and-Pages-are-conceptual-models-by-which-they-might-be-grouped.
+    #
+    # They no longer have an especially strict relationship to each other, and
+    # Pages are less a technical reflection of web mechanics and more a
+    # conceptual tool for analysis. (Hopefully that makes some sense.)
+    #
+    # Here's an example scenario where we may need to orphan some Versions...
+    # Consider two pages we might have today:
+    #
+    #   Page A=https://example.gov/a
+    #   Page B=https://example.gov/b
+    #
+    # 1. Page B didn't originally exist, but was created when Page A was
+    #    moved to that URL.
+    # 2. For a while, Page A redirected to Page B, versions attached to each
+    #    of them have the same content.
+    # 3. Then Page A became a 404 page, so versions attached to A have
+    #    different content than those attached to B.
+    #
+    # A and B are the same conceptual page here, and now that we can support
+    # multiple URLs, we'd like to merge them. However, putting all the
+    # versions together would work fine right up until the point in time where
+    # A started responding with a 404 status code. Versions after that time
+    # will show up in our new, unified page's timeline as interleaved 200 and
+    # 404 responses, which is very confusing. To handle this, it should be
+    # possible to remove those 404 versions from the page. However, they have
+    # nowhere to go at this point, and no conceptual "page" that they really
+    # belong to.
+    change_column_null(:versions, :page_uuid, true)
   end
 end
