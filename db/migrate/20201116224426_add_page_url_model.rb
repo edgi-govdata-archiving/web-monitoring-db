@@ -45,6 +45,18 @@ class AddPageUrlModel < ActiveRecord::Migration[6.0]
       t.index [:page_uuid, :url, :from_time, :to_time], unique: true
     end
 
+    # Stores information about pages that have been merged into others so we
+    # can support old links by redirecting the new page.
+    create_table :merged_pages, id: false do |t|
+      t.primary_key :uuid, :uuid
+      t.uuid :target_uuid, null: false
+      t.jsonb :audit_data
+
+      # Needed for reverse lookups to update references if a page that was
+      # previously merged into is itself later merged into another page.
+      t.index :target_uuid
+    end
+
     # As part of this, we anticipate orphaning some version records. That's
     # OK -- we've been slowly loosening the conceptual model from Pages-with-
     # -Versions-of-those-pages to Versions-are-records-of-urls-at-a-point-in-

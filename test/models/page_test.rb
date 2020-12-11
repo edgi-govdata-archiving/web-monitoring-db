@@ -263,6 +263,7 @@ class PageTest < ActiveSupport::TestCase
     page2.versions.create(capture_time: now - 4.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'def')
     page2.versions.create(capture_time: now - 3.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'abc')
     page2.versions.create(capture_time: now - 2.5.days, capture_url: 'https://example.gov/', version_hash: 'def', title: 'Title from p2 v3')
+    page2_version_ids = page2.versions.collect { |v| v.uuid }
 
     page1.merge(page2)
     assert_equal('Title from p2 v3', page1.title)
@@ -284,6 +285,50 @@ class PageTest < ActiveSupport::TestCase
       page1.versions.pluck(:capture_time, :capture_url, :different)
         .map { |row| [row[0].round, row[1], row[2]] }
     )
-    assert_not_predicate(page2, :active?)
+    assert_raises(ActiveRecord::RecordNotFound) do
+      Page.find(page2.uuid)
+    end
+
+    merge_record = MergedPage.find(page2.uuid)
+    assert_equal(page1.uuid, merge_record.target.uuid)
+
+    # Round the times, since precision seems to be lost in the DB.
+    merge_audit = merge_record.audit_data
+    merge_audit.update({
+      'created_at' => Time.zone.parse(merge_audit['created_at']).round.as_json,
+      'updated_at' => Time.zone.parse(merge_audit['updated_at']).round.as_json
+    })
+    assert_equal(
+      {
+        'uuid' => page2.uuid,
+        'title' => 'Title from p2 v3',
+        'url' => 'https://example.gov/subpage',
+        'url_key' => 'gov,example)/subpage',
+        'urls' => [
+          {'url' => 'https://example.gov/subpage', 'from_time' => nil, 'to_time' => nil, 'notes' => nil},
+          {'url' => 'https://example.gov/', 'notes' => nil, 'to_time' => nil, 'from_time' => nil}
+        ],
+        'tags' => ['domain:example.gov', '2l-domain:example.gov', 'tag1', 'tag3'],
+        'maintainers' => ['maintainer1', 'maintainer3'],
+        'versions' => page2_version_ids,
+        'active' => true,
+        'status' => nil,
+        'created_at' => page2.created_at.round.as_json,
+        'updated_at' => page2.updated_at.round.as_json
+      },
+      merge_audit
+    )
+  end
+
+  test 'merging a page that was already merged into updates target references' do
+    page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
+    page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
+    page3 = Page.create(title: 'Third Page', url: 'https://example.gov/another_page')
+
+    page2.merge(page3)
+    assert_equal(page2.uuid, MergedPage.find(page3.uuid).target_uuid)
+
+    page1.merge(page2)
+    assert_equal(page1.uuid, MergedPage.find(page3.uuid).target_uuid, 'Page 3 merge target was updated')
   end
 end

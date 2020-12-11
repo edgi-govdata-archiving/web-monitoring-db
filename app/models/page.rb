@@ -184,13 +184,17 @@ class Page < ApplicationRecord
     Page.transaction do
       first_version_time = nil
       other_pages.each do |other|
+        audit_data = other.create_audit_record
+
         # Move versions from other page.
-        other.versions.each do |version|
-          version.update(page_uuid: uuid)
+        other.versions.to_a.each do |version|
+          self.versions << version
           if first_version_time.nil? || first_version_time > version.capture_time
             first_version_time = version.capture_time
           end
         end
+        # The above doesn't update the source page's `versions`, so reload.
+        other.versions.reload
 
         # Copy other attributes from other page.
         other.tags.each {|tag| add_tag(tag)}
@@ -216,11 +220,17 @@ class Page < ApplicationRecord
           end
         end
 
-        # TODO: flag `other` as merged into this one so we can support old links.
-        other.update(active: false)
-        # XXX: we will probably be deleting the old page records by the time
-        # this PR is done, so this may be something we can drop:
-        other.urls.delete_all
+        # Keep a record so we can redirect requests for the merged page.
+        # Delete the actual page record rather than keep it around so we don't
+        # have to worry about messy partial indexes and querying around URLs.
+        MergedPage.create!(uuid: other.uuid, target: self, audit_data: audit_data)
+        other.destroy!
+
+        # If the page we're removing was previously a merge target, update
+        # its references.
+        MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: self.uuid)
+
+        Rails.logger.info("Merged page #{other.uuid} into #{uuid}. Old data: #{audit_data}")
       end
 
       # Recalculate denormalized attributes
@@ -319,5 +329,22 @@ class Page < ApplicationRecord
       version.update(different: version.version_hash != previous_hash)
       previous_hash = version.version_hash
     end
+  end
+
+  # Creates a hash representing the current state of a page. Used for logging
+  # and other audit related purposes when deleting/merging pages.
+  def create_audit_record
+    # URLs are entirely unique to the page, so have to be recorded
+    # completely rather than referenced by ID.
+    urls_data = urls.collect do |page_url|
+      page_url.attributes.slice('url', 'from_time', 'to_time', 'notes')
+    end
+
+    attributes.merge({
+      'tags' => tags.collect { |t| t.name },
+      'maintainers' => maintainers.collect { |m| m.name },
+      'versions' => versions.collect { |v| v.uuid },
+      'urls' => urls_data
+    })
   end
 end

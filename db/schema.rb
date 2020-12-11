@@ -84,6 +84,12 @@ ActiveRecord::Schema.define(version: 2020_11_16_224426) do
     t.index ["page_uuid"], name: "index_maintainerships_on_page_uuid"
   end
 
+  create_table "merged_pages", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "target_uuid", null: false
+    t.jsonb "audit_data"
+    t.index ["target_uuid"], name: "index_merged_pages_on_target_uuid"
+  end
+
   create_table "page_urls", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "page_uuid", null: false
     t.string "url", null: false
