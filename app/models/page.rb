@@ -15,7 +15,9 @@ class Page < ApplicationRecord
   has_many :versions,
            -> { order(capture_time: :desc) },
            foreign_key: 'page_uuid',
-           inverse_of: :page
+           inverse_of: :page,
+           # You must explcitly dissociate or move versions before destroying.
+           dependent: :restrict_with_error
   has_one :earliest,
           (lambda do
             # DISTINCT ON requires the first ORDER to be the distinct column(s)
@@ -46,14 +48,14 @@ class Page < ApplicationRecord
            class_name: 'PageUrl',
            foreign_key: 'page_uuid',
            inverse_of: :page,
-           dependent: :destroy
+           dependent: :delete_all
   has_many :current_urls,
            -> { current },
            class_name: 'PageUrl',
            foreign_key: 'page_uuid'
 
-  has_many :maintainerships, foreign_key: :page_uuid
-  has_many :maintainers, through: :maintainerships
+  has_many :maintainerships, foreign_key: :page_uuid, dependent: :delete_all
+  has_many :maintainers, through: :maintainerships, dependent: nil
 
   scope(:needing_status_update, lambda do
     # NOTE: pages.status can be NULL, so use DISTINCT FROM instead of <>/!= to compare.
@@ -177,33 +179,53 @@ class Page < ApplicationRecord
   end
 
   def merge(*other_pages)
-    first_version_time = nil
-    other_pages.each do |other|
-      # Move versions from other page.
-      other.versions.each do |version|
-        version.update(page_uuid: uuid)
-        if first_version_time.nil? || first_version_time > version.capture_time
-          first_version_time = version.capture_time
+    Page.transaction do
+      first_version_time = nil
+      other_pages.each do |other|
+        # Move versions from other page.
+        other.versions.each do |version|
+          version.update(page_uuid: uuid)
+          if first_version_time.nil? || first_version_time > version.capture_time
+            first_version_time = version.capture_time
+          end
         end
+
+        # Copy other attributes from other page.
+        other.tags.each {|tag| add_tag(tag)}
+        other.maintainers.each {|maintainer| add_maintainer(maintainer)}
+        other.urls.each do |page_url|
+          # TODO: it would be slightly nicer to collapse/merge PageUrls with
+          # overlapping or intersecting time ranges here.
+          # NOTE: we have to be careful not to trip the DB's uniqueness
+          # constraints here or we hose the transaction.
+          just_created = false
+          merged_url = urls.find_or_create_by(
+            url: page_url.url,
+            from_time: page_url.from_time,
+            to_time: page_url.to_time
+          ) do |new_url|
+            new_url.notes = page_url.notes
+            just_created = true
+          end
+
+          unless just_created
+            new_notes = [merged_url.notes, page_url.notes].compact.join(' ')
+            merged_url.update(notes: new_notes)
+          end
+        end
+
+        # TODO: flag `other` as merged into this one so we can support old links.
+        other.update(active: false)
+        # XXX: we will probably be deleting the old page records by the time
+        # this PR is done, so this may be something we can drop:
+        other.urls.delete_all
       end
 
-      # Copy other attributes from other page.
-      other.tags.each {|tag| add_tag(tag)}
-      other.maintainers.each {|maintainer| add_maintainer(maintainer)}
-      other.urls.each do |page_url|
-        page_url.update(page_uuid: self.uuid)
-      rescue ActiveRecord::RecordNotUnique
-        page_url.destroy
-      end
-
-      # TODO: flag `other` as merged into this one so we can support old links.
-      other.update(active: false)
+      # Recalculate denormalized attributes
+      update_page_title(first_version_time)
+      update_versions_different(first_version_time)
+      # TODO: it might be neat to clean up overlapping URL timeframes
     end
-
-    # Recalculate denormalized attributes
-    update_page_title(first_version_time)
-    update_versions_different(first_version_time)
-    # TODO: it might be neat to clean up overlapping URL timeframes
   end
 
   protected
