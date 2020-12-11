@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         end
         resources :maintainers, except: [:new, :edit], format: :json
         resources :tags, except: [:new, :edit], format: :json
+        resources :urls
       end
 
       resources :versions, only: [:index, :show], format: :json do
@@ -47,6 +48,6 @@ Rails.application.routes.draw do
   post 'admin/cancel_invitation'
   delete 'admin/destroy_user'
   post 'admin/destroy_user'
-  
+
   get 'healthcheck', to: 'healthcheck#index'
 end
