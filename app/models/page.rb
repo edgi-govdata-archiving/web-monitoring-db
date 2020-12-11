@@ -75,21 +75,21 @@ class Page < ApplicationRecord
             allow_nil: true,
             inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
-  def self.find_by_url(raw_url)
+  def self.find_by_url(raw_url, at_time: nil)
     url = normalize_url(raw_url)
 
-    with_urls = Page.includes(:current_urls)
-    found = with_urls.find_by(page_urls: { url: url })
-    return found if found
+    current = PageUrl.eager_load(:page).current(at_time)
+    found = current.find_by(url: url)
+    return found.page if found
 
     key = PageUrl.create_url_key(url)
-    found = with_urls.find_by(page_urls: { url_key: key })
-    return found if found
+    found = current.find_by(url_key: key)
+    return found.page if found
 
-    with_urls = Page.includes(:urls).order('page_urls.to_time DESC')
-    found = with_urls.find_by(page_urls: { url: url }) ||
-            with_urls.find_by(page_urls: { url_key: key })
-    return found if found
+    with_pages = PageUrl.eager_load(:page).order(to_time: :desc)
+    found = with_pages.find_by(url: url) ||
+            with_pages.find_by(url_key: key)
+    return found.page if found
 
     # TODO: remove this fallback when data is migrated over to Page.urls.
     Page.find_by(url: url) || Page.find_by(url_key: key)
