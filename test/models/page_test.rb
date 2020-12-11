@@ -263,7 +263,7 @@ class PageTest < ActiveSupport::TestCase
     page2.versions.create(capture_time: now - 4.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'def')
     page2.versions.create(capture_time: now - 3.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'abc')
     page2.versions.create(capture_time: now - 2.5.days, capture_url: 'https://example.gov/', version_hash: 'def', title: 'Title from p2 v3')
-    page2_version_ids = page2.versions.collect { |v| v.uuid }
+    page2_version_ids = page2.versions.collect(&:uuid)
 
     page1.merge(page2)
     assert_equal('Title from p2 v3', page1.title)
@@ -305,8 +305,8 @@ class PageTest < ActiveSupport::TestCase
         'url' => 'https://example.gov/subpage',
         'url_key' => 'gov,example)/subpage',
         'urls' => [
-          {'url' => 'https://example.gov/subpage', 'from_time' => nil, 'to_time' => nil, 'notes' => nil},
-          {'url' => 'https://example.gov/', 'notes' => nil, 'to_time' => nil, 'from_time' => nil}
+          { 'url' => 'https://example.gov/subpage', 'from_time' => nil, 'to_time' => nil, 'notes' => nil },
+          { 'url' => 'https://example.gov/', 'notes' => nil, 'to_time' => nil, 'from_time' => nil }
         ],
         'tags' => ['domain:example.gov', '2l-domain:example.gov', 'tag1', 'tag3'],
         'maintainers' => ['maintainer1', 'maintainer3'],

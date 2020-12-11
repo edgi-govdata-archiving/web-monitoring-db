@@ -341,9 +341,9 @@ class Page < ApplicationRecord
     end
 
     attributes.merge({
-      'tags' => tags.collect { |t| t.name },
-      'maintainers' => maintainers.collect { |m| m.name },
-      'versions' => versions.collect { |v| v.uuid },
+      'tags' => tags.collect(&:name),
+      'maintainers' => maintainers.collect(&:name),
+      'versions' => versions.collect(&:uuid),
       'urls' => urls_data
     })
   end
