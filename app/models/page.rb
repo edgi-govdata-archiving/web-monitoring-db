@@ -224,13 +224,14 @@ class Page < ApplicationRecord
         # Delete the actual page record rather than keep it around so we don't
         # have to worry about messy partial indexes and querying around URLs.
         MergedPage.create!(uuid: other.uuid, target: self, audit_data: audit_data)
-        other.destroy!
-
         # If the page we're removing was previously a merge target, update
         # its references.
         MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: self.uuid)
+        # And finally drop the merged page.
+        other.destroy!
 
-        Rails.logger.info("Merged page #{other.uuid} into #{uuid}. Old data: #{audit_data}")
+        audit_json = Oj.dump(audit_data, mode: :rails)
+        Rails.logger.info("Merged page #{other.uuid} into #{uuid}. Old data: #{audit_json}")
       end
 
       # Recalculate denormalized attributes
