@@ -173,10 +173,13 @@ class ImportVersionsJob < ApplicationJob
     validate_kind!([String], record, 'page_url')
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
+    validate_present!(record, 'capture_time')
+    validate_kind!([String], record, 'capture_time')
 
     url = record['page_url']
 
-    existing_page = Page.find_by_url(url)
+    capture_time = Time.parse(record['capture_time'])
+    existing_page = Page.find_by_url(url, at_time: capture_time)
     page = if existing_page
              log(object: existing_page, operation: :found, row: row)
              existing_page
@@ -190,6 +193,20 @@ class ImportVersionsJob < ApplicationJob
 
     (record['page_maintainers'] || []).each {|name| page.add_maintainer(name)}
     (record['page_tags'] || []).each {|name| page.add_tag(name)}
+
+    # If the page was not an *exact* URL match, add the URL to the page.
+    # (`page.find_by_url` used above will match by `url_key`, too.)
+    page.urls.find_or_create_by(url: url)
+    # TODO: Add URLs from redirects automatically. The main blocker for
+    # this at the moment is the following situation:
+    #
+    #   Two pages, A=https://example.com/about
+    #              B=https://example.com/about/locations
+    #   Page B is removed, but instead of returning a 404 or 403 status
+    #     code, it starts redirecting to Page A.
+    #
+    # This is unfortunately not uncommon, so we need some heuristics to
+    # account for it, e.g. URL does not already belong to another page.
 
     page
   end

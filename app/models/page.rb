@@ -15,7 +15,11 @@ class Page < ApplicationRecord
   has_many :versions,
            -> { order(capture_time: :desc) },
            foreign_key: 'page_uuid',
-           inverse_of: :page
+           inverse_of: :page,
+           # You must explcitly dissociate or move versions before destroying.
+           # It's OK for a version to be orphaned from all pages, but we want
+           # to make sure that's an intentional action and not accidental.
+           dependent: :restrict_with_error
   has_one :earliest,
           (lambda do
             # DISTINCT ON requires the first ORDER to be the distinct column(s)
@@ -42,9 +46,18 @@ class Page < ApplicationRecord
           class_name: 'Version'
   # This needs a funky name because `changes` is a an activerecord method
   has_many :tracked_changes, through: :versions
+  has_many :urls,
+           class_name: 'PageUrl',
+           foreign_key: 'page_uuid',
+           inverse_of: :page,
+           dependent: :delete_all
+  has_many :current_urls,
+           -> { current },
+           class_name: 'PageUrl',
+           foreign_key: 'page_uuid'
 
-  has_many :maintainerships, foreign_key: :page_uuid
-  has_many :maintainers, through: :maintainerships
+  has_many :maintainerships, foreign_key: :page_uuid, dependent: :delete_all
+  has_many :maintainers, through: :maintainerships, dependent: nil
 
   scope(:needing_status_update, lambda do
     # NOTE: pages.status can be NULL, so use DISTINCT FROM instead of <>/!= to compare.
@@ -56,14 +69,30 @@ class Page < ApplicationRecord
   before_create :ensure_url_key
   after_create :ensure_domain_and_news_tags
   before_save :normalize_url
+  after_save :ensure_page_urls
   validate :url_must_have_domain
   validates :status,
             allow_nil: true,
             inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
-  def self.find_by_url(raw_url)
+  def self.find_by_url(raw_url, at_time: nil)
     url = normalize_url(raw_url)
-    Page.find_by(url: url) || Page.find_by(url_key: create_url_key(url))
+
+    current = PageUrl.eager_load(:page).current(at_time)
+    found = current.find_by(url: url)
+    return found.page if found
+
+    key = PageUrl.create_url_key(url)
+    found = current.find_by(url_key: key)
+    return found.page if found
+
+    with_pages = PageUrl.eager_load(:page).order(to_time: :desc)
+    found = with_pages.find_by(url: url) ||
+            with_pages.find_by(url_key: key)
+    return found.page if found
+
+    # TODO: remove this fallback when data is migrated over to Page.urls.
+    Page.find_by(url: url) || Page.find_by(url_key: key)
   end
 
   def self.normalize_url(url)
@@ -74,10 +103,6 @@ class Page < ApplicationRecord
     else
       "http://#{url}"
     end
-  end
-
-  def self.create_url_key(url)
-    Surt.surt(url)
   end
 
   def add_maintainer(maintainer)
@@ -132,7 +157,7 @@ class Page < ApplicationRecord
   end
 
   def update_url_key
-    update(url_key: Page.create_url_key(url))
+    update(url_key: PageUrl.create_url_key(url))
   end
 
   def ensure_domain_and_news_tags
@@ -141,10 +166,79 @@ class Page < ApplicationRecord
     self.add_tag('news') if news?
   end
 
+  # Keep page creation relatively simple by automatically creating a PageUrl
+  # for the page's current URL when creating a page. (Page#url is the current
+  # canonical Url of the page, the true list of URLs associated with the page
+  # should always be the list of PageUrls in Page#urls).
+  def ensure_page_urls
+    urls.find_or_create_by!(url: url) if saved_change_to_attribute?('url')
+  end
+
   def update_status
     new_status = calculate_status
     self.update(status: new_status) unless new_status.zero?
     self.status
+  end
+
+  def merge(*other_pages)
+    Page.transaction do
+      first_version_time = nil
+      other_pages.each do |other|
+        audit_data = other.create_audit_record
+
+        # Move versions from other page.
+        other.versions.to_a.each do |version|
+          self.versions << version
+          if first_version_time.nil? || first_version_time > version.capture_time
+            first_version_time = version.capture_time
+          end
+        end
+        # The above doesn't update the source page's `versions`, so reload.
+        other.versions.reload
+
+        # Copy other attributes from other page.
+        other.tags.each {|tag| add_tag(tag)}
+        other.maintainers.each {|maintainer| add_maintainer(maintainer)}
+        other.urls.each do |page_url|
+          # TODO: it would be slightly nicer to collapse/merge PageUrls with
+          # overlapping or intersecting time ranges here.
+          # NOTE: we have to be careful not to trip the DB's uniqueness
+          # constraints here or we hose the transaction.
+          just_created = false
+          merged_url = urls.find_or_create_by(
+            url: page_url.url,
+            from_time: page_url.from_time,
+            to_time: page_url.to_time
+          ) do |new_url|
+            new_url.notes = page_url.notes
+            just_created = true
+          end
+
+          unless just_created
+            new_notes = [merged_url.notes, page_url.notes].compact.join(' ')
+            merged_url.update(notes: new_notes)
+          end
+        end
+
+        # Keep a record so we can redirect requests for the merged page.
+        # Delete the actual page record rather than keep it around so we don't
+        # have to worry about messy partial indexes and querying around URLs.
+        MergedPage.create!(uuid: other.uuid, target: self, audit_data: audit_data)
+        # If the page we're removing was previously a merge target, update
+        # its references.
+        MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: self.uuid)
+        # And finally drop the merged page.
+        other.destroy!
+
+        audit_json = Oj.dump(audit_data, mode: :rails)
+        Rails.logger.info("Merged page #{other.uuid} into #{uuid}. Old data: #{audit_json}")
+      end
+
+      # Recalculate denormalized attributes
+      update_page_title(first_version_time)
+      update_versions_different(first_version_time)
+      # TODO: it might be neat to clean up overlapping URL timeframes
+    end
   end
 
   protected
@@ -154,7 +248,7 @@ class Page < ApplicationRecord
   end
 
   def ensure_url_key
-    self.url_key ||= Page.create_url_key(url)
+    self.url_key ||= PageUrl.create_url_key(url)
   end
 
   def normalize_url
@@ -210,5 +304,48 @@ class Page < ApplicationRecord
 
     success_rate = 1 - (error_time.to_f / total_time)
     success_rate < STATUS_SUCCESS_THRESHOLD ? latest_error : 200
+  end
+
+  def update_page_title(from_time = nil)
+    candidates = versions.reorder(capture_time: :desc)
+    candidates = candidates.where('capture_time >= ?', from_time) if from_time
+    candidates.each do |version|
+      break if version.sync_page_title
+    end
+  end
+
+  # TODO: figure out whether there's a reasonable way to merge this logic with
+  # `Version#update_different_attribute`.
+  def update_versions_different(from_time)
+    previous_hash = nil
+    candidates = versions
+      .where('capture_time >= ?', from_time)
+      .reorder(capture_time: :asc)
+
+    candidates.each do |version|
+      if previous_hash.nil?
+        previous_hash = version.previous(different: false).try(:version_hash)
+      end
+
+      version.update(different: version.version_hash != previous_hash)
+      previous_hash = version.version_hash
+    end
+  end
+
+  # Creates a hash representing the current state of a page. Used for logging
+  # and other audit related purposes when deleting/merging pages.
+  def create_audit_record
+    # URLs are entirely unique to the page, so have to be recorded
+    # completely rather than referenced by ID.
+    urls_data = urls.collect do |page_url|
+      page_url.attributes.slice('url', 'from_time', 'to_time', 'notes')
+    end
+
+    attributes.merge({
+      'tags' => tags.collect(&:name),
+      'maintainers' => maintainers.collect(&:name),
+      'versions' => versions.collect(&:uuid),
+      'urls' => urls_data
+    })
   end
 end

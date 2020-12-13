@@ -71,7 +71,16 @@ class Api::V0::PagesController < Api::V0::ApiController
   end
 
   def show
-    page = Page.find(params[:id])
+    begin
+      page = Page.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      merge = MergedPage.find(params[:id])
+      redirect_to(
+        api_v0_page_url(merge.target_uuid),
+        status: :permanent_redirect
+      ) and return
+    end
+
     data = page.as_json(include: [:maintainers, :tags])
     if should_allow_versions
       data['versions'] = page.versions.where(different: true).as_json
@@ -155,11 +164,12 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     if params[:url]
       query = params[:url]
+      collection = collection.joins(:urls)
       if query.include? '*'
         query = query.gsub('%', '\%').gsub('_', '\_').tr('*', '%')
-        collection = collection.where('url LIKE ?', query)
+        collection = collection.where('page_urls.url LIKE ?', query)
       else
-        collection = collection.where(url: query)
+        collection = collection.where('page_urls.url = ?', query)
       end
     end
 

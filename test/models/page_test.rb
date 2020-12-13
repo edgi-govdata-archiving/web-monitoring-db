@@ -187,4 +187,148 @@ class PageTest < ActiveSupport::TestCase
     page.versions.create(capture_time: Time.now - 15.days, status: 200)
     assert_equal(page.update_status, 200, 'Status should be based only on versions with status codes')
   end
+
+  test 'pages populate urls automatically' do
+    page = Page.create(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 1, 'There should only be one URL for the page')
+    assert_equal(page.urls.first.url, page.url)
+    assert_equal(page.uuid, PageUrl.current.find_by_url(page.url).page_uuid, 'find_by_url() should return the page')
+  end
+
+  test 'pages populate urls when page.url is updated' do
+    page = Page.create(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 1, 'There should only be one URL for the page')
+    assert_equal(page.urls.first.url, page.url)
+
+    page.update(url: 'https://www.example.gov/')
+    assert_equal(page.urls.count, 2, 'There should be two URLs for the page after updating page.url')
+    assert_includes(page.urls.pluck(:url), 'https://www.example.gov/', 'New URL should be in the page\'s list of URLs')
+
+    page.update(url: 'https://example.gov/')
+    assert_equal(page.urls.count, 2, 'Changing page.url back to a previous value should not add a new PageUrl')
+  end
+
+  test 'find_by_url matches by url_key if there is no URL match' do
+    page = Page.create(title: 'Test Page', url: 'https://example.gov/some_page')
+    found = Page.find_by_url('http://example.gov/some_page/')
+    assert_equal(page, found)
+  end
+
+  test 'find_by_url prefers pages currently at the given URL' do
+    url = 'https://example.gov/'
+    old_page = Page.create(title: 'Old page', url: url)
+    old_page.urls.first.update(to_time: Time.now - 5.days)
+
+    new_page = Page.create(title: 'New Page', url: url)
+    new_page.urls.first.update(from_time: Time.now - 5.days)
+
+    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page.urls.first.update(to_time: Time.now - 10.days)
+
+    assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
+  end
+
+  test 'find_by_url returns latest non-current page if no current match is found' do
+    url = 'https://example.gov/'
+    old_page = Page.create(title: 'Old page', url: url)
+    old_page.urls.first.update(to_time: Time.now - 5.days)
+
+    new_page = Page.create(title: 'New Page', url: url)
+    new_page.urls.first.update(to_time: Time.now - 2.days)
+
+    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page.urls.first.update(to_time: Time.now - 10.days)
+
+    assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
+  end
+
+  test 'merge adds attributes and versions from another page' do
+    now = Time.zone.now
+    page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
+    page1.urls.create(url: 'https://example.gov/index.html')
+    page1.add_tag('tag1')
+    page1.add_tag('tag2')
+    page1.add_maintainer('maintainer1')
+    page1.add_maintainer('maintainer2')
+    page1.versions.create(capture_time: now - 5.days, capture_url: 'https://example.gov/', version_hash: 'abc')
+    page1.versions.create(capture_time: now - 4.days, capture_url: 'https://example.gov/', version_hash: 'abc')
+    page1.versions.create(capture_time: now - 3.days, capture_url: 'https://example.gov/index.html', version_hash: 'def', title: 'Title from p1 v3')
+
+    page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
+    page2.urls.create(url: 'https://example.gov/')
+    page2.add_tag('tag1')
+    page2.add_tag('tag3')
+    page2.add_maintainer('maintainer1')
+    page2.add_maintainer('maintainer3')
+    page2.versions.create(capture_time: now - 4.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'def')
+    page2.versions.create(capture_time: now - 3.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'abc')
+    page2.versions.create(capture_time: now - 2.5.days, capture_url: 'https://example.gov/', version_hash: 'def', title: 'Title from p2 v3')
+    page2_version_ids = page2.versions.collect(&:uuid)
+
+    page1.merge(page2)
+    assert_equal('Title from p2 v3', page1.title)
+    assert_equal(['domain:example.gov', '2l-domain:example.gov', 'tag1', 'tag2', 'tag3'], page1.tags.pluck(:name))
+    assert_equal(['maintainer1', 'maintainer2', 'maintainer3'], page1.maintainers.pluck(:name))
+    assert_equal(3, page1.urls.count, 'Page1 has all the unique URLs from the pages')
+    assert_equal(0, page2.urls.count, 'Page2 has no more URLs')
+    # NOTE: depending on the system and on PG, there may be precision issues
+    # data, so round before checking them.
+    assert_equal(
+      [
+        [(now - 2.5.days).round, 'https://example.gov/', false],
+        [(now - 3.0.days).round, 'https://example.gov/index.html', true],
+        [(now - 3.5.days).round, 'https://example.gov/subpage', false],
+        [(now - 4.0.days).round, 'https://example.gov/', true],
+        [(now - 4.5.days).round, 'https://example.gov/subpage', true],
+        [(now - 5.0.days).round, 'https://example.gov/', true]
+      ],
+      page1.versions.pluck(:capture_time, :capture_url, :different)
+        .map { |row| [row[0].round, row[1], row[2]] }
+    )
+    assert_raises(ActiveRecord::RecordNotFound) do
+      Page.find(page2.uuid)
+    end
+
+    merge_record = MergedPage.find(page2.uuid)
+    assert_equal(page1.uuid, merge_record.target.uuid)
+
+    # Round the times, since precision seems to be lost in the DB.
+    merge_audit = merge_record.audit_data
+    merge_audit.update({
+      'created_at' => Time.zone.parse(merge_audit['created_at']).round.as_json,
+      'updated_at' => Time.zone.parse(merge_audit['updated_at']).round.as_json
+    })
+    assert_equal(
+      {
+        'uuid' => page2.uuid,
+        'title' => 'Title from p2 v3',
+        'url' => 'https://example.gov/subpage',
+        'url_key' => 'gov,example)/subpage',
+        'urls' => [
+          { 'url' => 'https://example.gov/subpage', 'from_time' => nil, 'to_time' => nil, 'notes' => nil },
+          { 'url' => 'https://example.gov/', 'notes' => nil, 'to_time' => nil, 'from_time' => nil }
+        ],
+        'tags' => ['domain:example.gov', '2l-domain:example.gov', 'tag1', 'tag3'],
+        'maintainers' => ['maintainer1', 'maintainer3'],
+        'versions' => page2_version_ids,
+        'active' => true,
+        'status' => nil,
+        'created_at' => page2.created_at.round.as_json,
+        'updated_at' => page2.updated_at.round.as_json
+      },
+      merge_audit
+    )
+  end
+
+  test 'merging a page that was already merged into updates target references' do
+    page1 = Page.create(title: 'First Page', url: 'https://example.gov/')
+    page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
+    page3 = Page.create(title: 'Third Page', url: 'https://example.gov/another_page')
+
+    page2.merge(page3)
+    assert_equal(page2.uuid, MergedPage.find(page3.uuid).target_uuid)
+
+    page1.merge(page2)
+    assert_equal(page1.uuid, MergedPage.find(page3.uuid).target_uuid, 'Page 3 merge target was updated')
+  end
 end

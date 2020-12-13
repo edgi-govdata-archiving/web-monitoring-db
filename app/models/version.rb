@@ -37,7 +37,9 @@ class Version < ApplicationRecord
     'application/xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   }.freeze
 
-  belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :versions, touch: true
+  # NOTE: Versions *may* be orphaned from pages. This is pretty rare, but is a
+  # legitimate scenario.
+  belongs_to :page, foreign_key: :page_uuid, optional: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
   has_many :invalid_changes,
            ->(version) { where.not(uuid_from: version.previous.uuid) },
@@ -65,17 +67,15 @@ class Version < ApplicationRecord
   end
 
   def previous(different: true)
-    self.page.versions
-      .where('capture_time < ?', self.capture_time)
-      .where(different: different)
-      .first
+    query = self.page.versions.where('capture_time < ?', self.capture_time)
+    query = query.where(different: true) if different
+    query.first
   end
 
   def next(different: true)
-    self.page.versions
-      .where('capture_time > ?', self.capture_time)
-      .where(different: different)
-      .last
+    query = self.page.versions.where('capture_time > ?', self.capture_time)
+    query = query.where(different: true) if different
+    query.last
   end
 
   def change_from_previous(different: true)
@@ -105,21 +105,24 @@ class Version < ApplicationRecord
   def update_different_attribute(save: true)
     previous = self.previous
     self.different = previous.nil? || previous.version_hash != version_hash
-    self.save if save
+    self.save! if save
 
-    if self.different?
-      following = page.versions
-        .where('capture_time > ?', self.capture_time)
-        .reorder(capture_time: :asc)
+    # NOTE: it would be nice to stop early here if we didn't make any changes,
+    # but `different` defaults to `true` so if we just inserted this version
+    # and it was different, we won't have "changed" the attribute, even though
+    # we still need to update the next (because this was inserted before it).
+    last_hash = version_hash
+    following = page.versions
+      .where('capture_time > ?', self.capture_time)
+      .reorder(capture_time: :asc)
 
-      following.each do |next_version|
-        new_different = version_hash != next_version.version_hash
-        if next_version.different? == new_different
-          break
-        else
-          next_version.different = new_different
-          next_version.save!
-        end
+    following.each do |next_version|
+      new_different = last_hash != next_version.version_hash
+      if next_version.different? == new_different
+        break
+      else
+        next_version.update!(different: new_different)
+        last_hash = next_version.version_hash
       end
     end
   end
@@ -147,14 +150,19 @@ class Version < ApplicationRecord
     self.media_type = media if media
   end
 
-  private
-
   def sync_page_title
     if title.present?
       most_recent_capture_time = page.latest.capture_time
-      page.update(title: title) if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
+      if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
+        page.update(title: title)
+        return title
+      end
     end
+
+    nil
   end
+
+  private
 
   def normalize_media_type(text)
     normal = text.strip.downcase

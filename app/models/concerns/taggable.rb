@@ -2,8 +2,8 @@ module Taggable
   extend ActiveSupport::Concern
 
   included do
-    has_many :taggings, as: :taggable, foreign_key: 'taggable_uuid'
-    has_many :tags, through: :taggings
+    has_many :taggings, as: :taggable, foreign_key: 'taggable_uuid', dependent: :delete_all
+    has_many :tags, through: :taggings, dependent: nil
   end
 
   def add_tag(tag)

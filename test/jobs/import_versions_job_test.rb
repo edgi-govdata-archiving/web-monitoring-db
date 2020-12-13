@@ -318,4 +318,27 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     version = pages(:home_page).latest
     assert_equal('text/html', version.media_type)
   end
+
+  test 'adds URL to an existing page if the version was matched to a page with a different URL' do
+    page = Page.create(url: 'https://example.gov/office')
+    import = Import.create_with_data(
+      { user: users(:alice) },
+      [
+        {
+          page_url: 'http://example.gov/office/',
+          capture_time: Time.now - 1.second,
+          uri: 'https://test-bucket.s3.amazonaws.com/whatever',
+          version_hash: 'abc'
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    assert_equal(1, page.versions.count, 'Version was added to the right page')
+    assert_equal(
+      ['https://example.gov/office', 'http://example.gov/office/'],
+      page.urls.pluck(:url),
+      'New URL was added to the page'
+    )
+  end
 end

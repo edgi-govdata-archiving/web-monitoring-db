@@ -1,9 +1,32 @@
 require 'test_helper'
 
 class VersionTest < ActiveSupport::TestCase
-  test 'previous should get the previous version' do
+  test 'previous should get the previous `different` version' do
     previous = versions(:page2_v2).previous
     assert_equal versions(:page2_v1), previous, 'Previous returned the wrong version'
+  end
+
+  test 'previous(different: false) should get the previous version regardless of its `different` value' do
+    page = pages(:home_page)
+    v1 = page.versions.create!(capture_time: Time.now + 1.minute, version_hash: 'abc')
+    v1.update_different_attribute
+    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, version_hash: 'abc')
+    v2.update_different_attribute
+    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, version_hash: 'abc')
+    v3.update_different_attribute
+
+    assert_predicate(v1, :different?)
+    assert_not_predicate(v2, :different?)
+    assert_not_predicate(v3, :different?)
+    assert_equal(v2.uuid, v3.previous(different: false).uuid, 'Previous should have been the previous version (which was NOT different)')
+
+    # Change whether v2 was different to test that `different: false` *ignores* difference.
+    v2.update!(version_hash: 'def')
+    v2.update_different_attribute
+    v3.reload
+    assert_predicate(v2, :different?)
+    assert_predicate(v3, :different?)
+    assert_equal(v2.uuid, v3.previous(different: false).uuid, 'Previous should have been the previous version (which WAS different)')
   end
 
   test 'ensure change from previous should always return a change object (even if unpersisted)' do
@@ -11,9 +34,30 @@ class VersionTest < ActiveSupport::TestCase
     assert_not_nil change
   end
 
-  test 'next should get the next version' do
+  test 'next should get the next `different` version' do
     next_version = versions(:page1_v1).next
     assert_equal versions(:page1_v2), next_version, 'Next returned the wrong version'
+  end
+
+  test 'next(different: false) should get the next version regardless of its `different` value' do
+    page = pages(:home_page)
+    v1 = page.versions.create!(capture_time: Time.now + 1.minute, version_hash: 'abc')
+    v1.update_different_attribute
+    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, version_hash: 'abc')
+    v2.update_different_attribute
+    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, version_hash: 'abc')
+    v3.update_different_attribute
+
+    assert_predicate(v1, :different?)
+    assert_not_predicate(v2, :different?)
+    assert_not_predicate(v3, :different?)
+    assert_equal(v2.uuid, v1.next(different: false).uuid, 'Next should have been the next version (which was NOT different)')
+
+    # Change whether v2 was different to test that `different: false` *ignores* difference.
+    v2.update!(version_hash: 'def')
+    v2.update_different_attribute
+    assert_predicate(v2, :different?)
+    assert_equal(v2.uuid, v1.next(different: false).uuid, 'Next should have been the next version (which WAS different)')
   end
 
   test 'ensure change from next should always return a change object (even if unpersisted)' do
