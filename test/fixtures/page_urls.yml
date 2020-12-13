@@ -1,0 +1,40 @@
+# NOTE: do not specify maintainers and tags here; set up the appropriate
+# models in `maintainerships.yml` and `taggings.yml`. (We get DB errors about)
+# the `created_at` field in the many-to-many models if we try and set
+# `maintainers` or `tags` here, which *shouldn't* be the case. Not sure what's
+# broken in Rails.
+
+home_page_url:
+  page: home_page
+  url: 'http://example1.com/'
+  url_key: 'com,example1)/'
+
+sub_page_url:
+  page: sub_page
+  url: 'http://example1.com/page2.html'
+  url_key: 'com,example1)/page2.html'
+
+home_page_site2_url:
+  page: home_page_site2
+  url: 'http://example2.com/index.html'
+  url_key: 'com,example2)/index.html'
+
+dot_home_page_url:
+  page: dot_home_page
+  url: 'http://depart-of-testing.com/index.html'
+  url_key: 'com,depart-of-testing)/index.html'
+
+other_page_one_url:
+  page: other_page_one
+  url: 'http://example3.com/'
+  url_key: 'com,example3)/'
+
+home_page_site3_url:
+  page: home_page_site3
+  url: 'http://example3.com/'
+  url_key: 'com,example3)/'
+
+inactive_page_url:
+  page: inactive_page
+  url: 'http://example-inactive.com/'
+  url_key: 'com,example-inactive)/'
