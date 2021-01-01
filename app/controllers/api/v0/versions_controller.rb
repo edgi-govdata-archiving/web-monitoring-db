@@ -46,7 +46,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
       send_data(upstream, type: type, filename: filename, disposition: disposition)
     else
-      raise Api::NotFoundError, "No raw content for #{@version.uuid}."
+      raise Api::NotFoundError, "Cannot serve raw content for #{@version.uuid}."
     end
   end
 

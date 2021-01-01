@@ -53,6 +53,9 @@ Naming/MemoizedInstanceVariableName:
 Naming/RescuedExceptionsVariableName:
   PreferredName: error
 
+Naming/VariableNumber:
+  Enabled: false
+
 Layout/EmptyLines:
   Enabled: false
 
@@ -165,6 +168,9 @@ Style/KeywordParametersOrder:
   Enabled: false
 
 Style/NumericPredicate:
+  Enabled: false
+
+Style/RedundantArgument:
   Enabled: false
 
 Style/RedundantAssignment:

@@ -19,11 +19,9 @@ module FileStorage
 
     def get_metadata(path)
       get_metadata!(path)
-    rescue Aws::S3::Errors::NotFound
-      nil
-    # FIXME: should have a more specific error class here; we could
-    # catch errors we don't want to.
-    rescue ArgumentError
+    # FIXME: should have a more specific error class than ArgumentError here;
+    # we could catch errors we don't want to.
+    rescue Aws::S3::Errors::NotFound, ArgumentError
       nil
     end
 

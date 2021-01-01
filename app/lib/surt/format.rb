@@ -19,7 +19,7 @@ module Surt::Format
     result = ''
 
     if options[:include_scheme]
-      delimiter = scheme != 'dns' ? '//' : ''
+      delimiter = scheme == 'dns' ? '' : '//'
       result = "#{url.scheme}:#{delimiter}("
     elsif url.host.blank?
       result = "#{url.scheme}:"
