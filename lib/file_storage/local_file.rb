@@ -18,11 +18,9 @@ module FileStorage
 
     def get_metadata(path)
       get_metadata!(path)
-    rescue Errno::ENOENT
-      nil
-    # FIXME: should have a more specific error class here; we could
-    # catch errors we don't want to.
-    rescue ArgumentError
+    # FIXME: should have a more specific error class than ArgumentError here;
+    # we could catch errors we don't want to.
+    rescue Errno::ENOENT, ArgumentError
       nil
     end
 
