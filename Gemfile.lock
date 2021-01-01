@@ -271,10 +271,10 @@ GEM
     rubocop-performance (1.9.2)
       rubocop (>= 0.90.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-    rubocop-rails (2.8.1)
+    rubocop-rails (2.9.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 0.87.0)
+      rubocop (>= 0.90.0, < 2.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.2)
     rubyzip (2.3.0)
@@ -315,7 +315,7 @@ GEM
     thor (1.0.1)
     thread_safe (0.3.6)
     tilt (2.0.10)
-    tzinfo (1.2.8)
+    tzinfo (1.2.9)
       thread_safe (~> 0.1)
     uber (0.1.0)
     uglifier (4.2.0)
@@ -372,7 +372,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 1.7.0)
   rubocop-performance (~> 1.9.2)
-  rubocop-rails (~> 2.8.1)
+  rubocop-rails (~> 2.9.1)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-raven
