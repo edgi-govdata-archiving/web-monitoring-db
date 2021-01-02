@@ -8,10 +8,15 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
-    config.load_defaults 6.0
+    config.load_defaults 6.1
     config.eager_load_paths << "#{Rails.root}/lib/api"
 
     config.active_job.queue_adapter = :resque
+
+    # Deliver mail on the `mailers` queue. This is the old default from
+    # Rails 6.0 and earlier; I think it's useful. Keeping it also lets us
+    # maintain existing server deployment configurations for jobs.
+    Rails.application.config.action_mailer.deliver_later_queue_name = :mailers
 
     # Ideally this should be served off a static store, but we don’t have much
     # in the way of asset needs since this is mainly an API.
