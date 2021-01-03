@@ -70,6 +70,12 @@ class UsersTest < ApplicationSystemTestCase
     Capybara.using_session(:user) do
       visit root_path
 
+      # The user needs to re-login at this point.
+      click_on 'Login'
+      fill_in 'Email', with: viewer_email
+      fill_in 'Password', with: 'testpassword'
+      click_on 'Log in'
+
       assert page.has_link?('Admin'), 'User should have admin permissions'
     end
 
