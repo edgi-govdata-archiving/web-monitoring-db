@@ -258,7 +258,7 @@ GEM
     redis (4.2.5)
     redis-namespace (1.7.0)
       redis (>= 3.0.4)
-    regexp_parser (2.0.3)
+    regexp_parser (2.1.1)
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
@@ -276,7 +276,7 @@ GEM
       resque (= 2.0.0)
     retriable (3.1.2)
     rexml (3.2.4)
-    rubocop (1.9.1)
+    rubocop (1.11.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -389,7 +389,7 @@ DEPENDENCIES
   redis
   resque
   resque-heroku-signals
-  rubocop (~> 1.9.1)
+  rubocop (~> 1.11.0)
   rubocop-performance (~> 1.9.2)
   rubocop-rails (~> 2.9.1)
   sassc-rails (~> 2.1.2)
