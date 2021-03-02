@@ -98,6 +98,10 @@ Performance/AncestorsInclude:
 Performance/BigDecimalWithNumericArgument:
   Enabled: true
 
+# This cop reports a lot of false cases where it does not actually apply
+Performance/RedundantEqualityComparisonBlock
+  Enabled: false
+
 Performance/RedundantSortBlock:
   Enabled: true
 
