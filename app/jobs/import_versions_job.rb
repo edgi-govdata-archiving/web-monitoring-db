@@ -157,7 +157,7 @@ class ImportVersionsJob < ApplicationJob
           end
           new_values
         else
-          Hash[allowed.collect {|key| [key, record[key]]}]
+          allowed.collect {|key| [key, record[key]]}.to_h
         end
 
       existing_version.assign_attributes(values)
