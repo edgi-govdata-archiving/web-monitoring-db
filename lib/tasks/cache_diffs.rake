@@ -57,6 +57,6 @@ def parse_diff_types(type_list)
       raw_item.split('=').collect { |x| URI.decode_www_form_component(x) }
     end
 
-    [uri.path, Hash[options]]
+    [uri.path, options.to_h]
   end
 end
