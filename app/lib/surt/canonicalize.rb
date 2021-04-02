@@ -67,11 +67,8 @@ module Surt::Canonicalize
 
   # TODO: Internet Archive's SURT uses this crazy charcater set, but only one
   # test fails if we just use Addressable's standard set. Maybe drop this?
-  URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'
-    .split('')
-    .collect {|character| "\\#{character}"}
-    .join('')
-  SAFE_CHARACTERS = "0-9a-zA-Z#{URL_SPECIAL_CHARACTERS}".freeze
+  URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'.freeze
+  SAFE_CHARACTERS = "0-9a-zA-Z#{Regexp.escape(URL_SPECIAL_CHARACTERS)}".freeze
 
   # Canonicalize a URL. This is the normal entrypoint to this module.
   #

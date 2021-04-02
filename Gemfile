@@ -7,7 +7,7 @@ end
 
 ruby '2.6.6'
 
-gem 'aws-sdk-s3', '~> 1.89'
+gem 'aws-sdk-s3', '~> 1.93'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
@@ -46,14 +46,14 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.11.0', require: false
-  gem 'rubocop-performance', '~> 1.10.1'
+  gem 'rubocop', '~> 1.12.0', require: false
+  gem 'rubocop-performance', '~> 1.10.2'
   gem 'rubocop-rails', '~> 2.9.1'
   gem 'dotenv-rails'
 end
 
 group :development do
-  gem 'listen', '~> 3.4'
+  gem 'listen', '~> 3.5'
   gem 'pry-rails'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
