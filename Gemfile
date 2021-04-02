@@ -7,7 +7,7 @@ end
 
 ruby '2.6.6'
 
-gem 'aws-sdk-s3', '~> 1.89'
+gem 'aws-sdk-s3', '~> 1.93'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
