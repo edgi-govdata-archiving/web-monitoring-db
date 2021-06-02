@@ -48,7 +48,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 1.16.0', require: false
   gem 'rubocop-performance', '~> 1.11.0'
-  gem 'rubocop-rails', '~> 2.9.1'
+  gem 'rubocop-rails', '~> 2.10.1'
   gem 'dotenv-rails'
 end
 
