@@ -7,7 +7,7 @@ end
 
 ruby '2.6.6'
 
-gem 'aws-sdk-s3', '~> 1.94'
+gem 'aws-sdk-s3', '~> 1.95'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
@@ -46,9 +46,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.13.0', require: false
-  gem 'rubocop-performance', '~> 1.11.0'
-  gem 'rubocop-rails', '~> 2.9.1'
+  gem 'rubocop', '~> 1.16.0', require: false
+  gem 'rubocop-performance', '~> 1.11.3'
+  gem 'rubocop-rails', '~> 2.10.1'
   gem 'dotenv-rails'
 end
 
@@ -65,7 +65,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.12'
+  gem 'webmock', '~> 3.13'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410
   gem 'selenium-webdriver'
