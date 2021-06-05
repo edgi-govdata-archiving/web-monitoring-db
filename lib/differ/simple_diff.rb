@@ -40,10 +40,10 @@ module Differ
 
     def generate_diff(change, options)
       query = options.merge(
-        a: change.from_version.uri,
-        a_hash: change.from_version.version_hash,
-        b: change.version.uri,
-        b_hash: change.version.version_hash
+        a: change.from_version.body_url,
+        a_hash: change.from_version.body_hash,
+        b: change.version.body_url,
+        b_hash: change.version.body_hash
       )
 
       response = retry_request do

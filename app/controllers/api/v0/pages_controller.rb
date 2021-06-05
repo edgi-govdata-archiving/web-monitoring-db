@@ -157,7 +157,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     version_params = params.permit(:hash, :source_type)
     if version_params.present?
       collection = collection.joins(:versions).where(versions: {
-        version_hash: params[:hash],
+        body_hash: params[:hash],
         source_type: params[:source_type]
       }.compact)
     end

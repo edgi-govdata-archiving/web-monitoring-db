@@ -5,8 +5,8 @@ class AnalyzeChangeJobTest < ActiveJob::TestCase
   test 'produces change with annotations' do
     uri = 'https://example.com/about'
     page = Page.create!(url: uri)
-    version = Version.create!(capture_time: 1.day.ago, page: page, uri: uri)
-    from_version = Version.create!(capture_time: 2.days.ago, page: page, uri: uri)
+    version = Version.create!(capture_time: 1.day.ago, page: page, body_url: uri)
+    from_version = Version.create!(capture_time: 2.days.ago, page: page, body_url: uri)
 
     differ_mock = Minitest::Mock.new(Differ)
     def differ_mock.diff(_change)

@@ -324,11 +324,11 @@ class Page < ApplicationRecord
 
     candidates.each do |version|
       if previous_hash.nil?
-        previous_hash = version.previous(different: false).try(:version_hash)
+        previous_hash = version.previous(different: false).try(:body_hash)
       end
 
-      version.update(different: version.version_hash != previous_hash)
-      previous_hash = version.version_hash
+      version.update(different: version.body_hash != previous_hash)
+      previous_hash = version.body_hash
     end
   end
 

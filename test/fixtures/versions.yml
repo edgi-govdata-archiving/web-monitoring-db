@@ -6,9 +6,9 @@
 #
 page1_v1:
   page: home_page
-  uri: 'http://example1.com/page1_v1'
+  body_url: 'http://example1.com/page1_v1'
   capture_time: '2017-03-01T00:00:00Z'
-  version_hash: 'abc'
+  body_hash: 'abc'
   status: 200
   source_type: 'versionista'
   source_metadata: {
@@ -25,9 +25,9 @@ page1_v1:
 
 page2_v1:
   page: sub_page
-  uri: 'http://example1.com/page2_v1'
+  body_url: 'http://example1.com/page2_v1'
   capture_time: '2017-03-01T00:00:01Z'
-  version_hash: 'def'
+  body_hash: 'def'
   status: 200
   source_type: 'versionista'
   source_metadata: {
@@ -44,9 +44,9 @@ page2_v1:
 
 page1_v2:
   page: home_page
-  uri: 'http://example1.com/page1_v2'
+  body_url: 'http://example1.com/page1_v2'
   capture_time: '2017-03-02T00:00:00Z'
-  version_hash: 'ghi'
+  body_hash: 'ghi'
   status: 403
   source_type: 'versionista'
   source_metadata: {
@@ -63,9 +63,9 @@ page1_v2:
 
 page2_v2:
   page: sub_page
-  uri: 'http://example1.com/page2_v2'
+  body_url: 'http://example1.com/page2_v2'
   capture_time: '2017-03-02T00:00:01Z'
-  version_hash: 'jkl'
+  body_hash: 'jkl'
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -82,7 +82,7 @@ page2_v2:
 page1_v3:
   page: home_page
   capture_time: '2017-03-03T00:00:00Z'
-  version_hash: 'mno'
+  body_hash: 'mno'
   status: 404
   source_type: 'versionista'
   source_metadata: {
@@ -99,9 +99,9 @@ page1_v3:
 
 page2_v3:
   page: sub_page
-  uri: 'http://example1.com/page2_v3'
+  body_url: 'http://example1.com/page2_v3'
   capture_time: '2017-03-03T00:00:01Z'
-  version_hash: 'vwx'
+  body_hash: 'vwx'
   source_type: 'versionista'
   source_metadata: {
     account: 'test@example.com',
@@ -118,7 +118,7 @@ page2_v3:
 page1_v4:
   page: home_page
   capture_time: '2017-03-04T00:00:00Z'
-  version_hash: 'pqr'
+  body_hash: 'pqr'
   status: 500
   source_type: 'pagefreezer'
   source_metadata: {
@@ -131,7 +131,7 @@ page1_v4:
 page2_v4:
   page: sub_page
   capture_time: '2017-03-04T00:00:00Z'
-  version_hash: 'vwx'
+  body_hash: 'vwx'
   different: false
   status: 200
   source_type: 'versionista'
@@ -149,9 +149,9 @@ page2_v4:
 
 page1_v5:
   page: home_page
-  uri: https://test-bucket.s3.amazonaws.com/page1_v5.html
+  body_url: https://test-bucket.s3.amazonaws.com/page1_v5.html
   capture_time: '2017-03-05T00:00:00Z'
-  version_hash: 'stu'
+  body_hash: 'stu'
   source_type: 'pagefreezer'
   source_metadata:
     account: 'test@example.com'
@@ -161,9 +161,9 @@ page1_v5:
 
 page3_v1:
   page: home_page_site3
-  uri: https://test-bucket.s3.amazonaws.com/page3_v1.html
+  body_url: https://test-bucket.s3.amazonaws.com/page3_v1.html
   capture_time: '2017-03-05T00:00:00Z'
-  version_hash: 'stu'
+  body_hash: 'stu'
   source_type: 'pagefreezer'
   source_metadata:
     account: 'test@example.com'
@@ -173,7 +173,7 @@ page3_v1:
 
 page3_v2:
   page: home_page_site3
-  uri: !!null
+  body_url: !!null
   capture_time: '2017-03-07T00:00:00Z'
   source_type: 'pagefreezer'
   source_metadata:
@@ -184,7 +184,7 @@ page3_v2:
 
 page3_v3:
   page: home_page_site3
-  uri: "file://<%= Rails.root.join('tmp/test/storage') %>/cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d"
+  body_url: "file://<%= Rails.root.join('tmp/test/storage') %>/cb3a6ef0ccade26a4be5a3dfcb80ba2cc14f747bf2b38a7471866193bb9be14d"
   capture_time: '2017-03-09T00:00:00Z'
   source_type: 'pagefreezer'
   source_metadata:
