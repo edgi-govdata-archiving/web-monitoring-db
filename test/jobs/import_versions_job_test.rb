@@ -258,6 +258,36 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_any_includes(import.processing_errors, 'hash')
   end
 
+  test 'allows "version_hash" instead of "body_hash"' do
+    page_versions_count = pages(:home_page).versions.count
+    now = Time.now
+
+    stub_request(:any, 'http://example.com')
+      .to_return(body: 'Hello!', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          body_url: 'http://example.com',
+          # Use an invalid hash to test that it was actually read and verified.
+          version_hash: 'abc',
+          source_type: 'test_source',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    assert_equal(page_versions_count, pages(:home_page).versions.count)
+    assert_nil(pages(:home_page).versions.where(capture_time: now).first)
+    assert_any_includes(import.processing_errors, 'hash')
+  end
+
   test 'gets content_length from archiver' do
     page_versions_count = pages(:home_page).versions.count
     now = Time.now
@@ -317,6 +347,64 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
     version = pages(:home_page).latest
     assert_equal('text/html', version.media_type)
+  end
+
+  test 'allows "uri" instead of "body_url" for backwards-compatibility' do
+    now = Time.now.round
+    body_url = 'https://test-bucket.s3.amazonaws.com/example-v1'
+
+    stub_request(:any, body_url)
+      .to_return(body: 'Hello!', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          uri: body_url,
+          source_type: 'test_source',
+          source_metadata: { test_meta: 'data' }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    new_version = pages(:home_page).versions.where(capture_time: now).first
+    assert_equal(body_url, new_version.body_url)
+  end
+
+  test 'sets "headers" based on "source_metadata.headers" for backwards-compatibility' do
+    now = Time.now.round
+    body_url = 'https://test-bucket.s3.amazonaws.com/example-v1'
+
+    stub_request(:any, body_url)
+      .to_return(body: 'Hello!', status: 200)
+
+    import = Import.create_with_data(
+      {
+        user: users(:alice)
+      },
+      [
+        {
+          page_url: pages(:home_page).url,
+          capture_time: now,
+          uri: body_url,
+          source_type: 'test_source',
+          source_metadata: {
+            "headers" => {
+              "x-fancy-header" => "header_value"
+            }
+          }
+        }
+      ].map(&:to_json).join("\n")
+    )
+    ImportVersionsJob.perform_now(import)
+
+    new_version = pages(:home_page).versions.where(capture_time: now).first
+    assert_equal({"x-fancy-header" => "header_value"}, new_version.headers)
   end
 
   test 'adds URL to an existing page if the version was matched to a page with a different URL' do
