@@ -394,8 +394,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
           uri: body_url,
           source_type: 'test_source',
           source_metadata: {
-            "headers" => {
-              "x-fancy-header" => "header_value"
+            'headers' => {
+              'x-fancy-header' => 'header_value'
             }
           }
         }
@@ -404,7 +404,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     ImportVersionsJob.perform_now(import)
 
     new_version = pages(:home_page).versions.where(capture_time: now).first
-    assert_equal({"x-fancy-header" => "header_value"}, new_version.headers)
+    assert_equal({ 'x-fancy-header' => 'header_value' }, new_version.headers)
   end
 
   test 'adds URL to an existing page if the version was matched to a page with a different URL' do
