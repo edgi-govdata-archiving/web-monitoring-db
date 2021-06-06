@@ -141,8 +141,8 @@ class Version < ApplicationRecord
     # TODO: remove meta.dig('headers', ...) lines once data is migrated
     # to have new top-level headers.
     content_type = value ||
-                   response_headers.dig('Content-Type') ||
-                   response_headers.dig('content-type') ||
+                   response_headers['Content-Type'] ||
+                   response_headers['content-type'] ||
                    meta.dig('headers', 'Content-Type') ||
                    meta.dig('headers', 'content-type') ||
                    meta['content_type'] ||

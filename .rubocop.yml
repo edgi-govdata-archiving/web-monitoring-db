@@ -39,6 +39,7 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/api/v0/pages_controller.rb'
     - 'app/lib/surt/canonicalize.rb'
     - 'app/jobs/import_versions_job.rb'
+    - 'app/models/version.rb'
 
 Metrics/PerceivedComplexity:
   Max: 15
