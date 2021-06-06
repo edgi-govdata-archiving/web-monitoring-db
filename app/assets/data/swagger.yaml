@@ -1378,7 +1378,7 @@ definitions:
       body_hash:
         type: string
         description: A SHA-256 hash of the version’s raw response body.
-      body_length:
+      content_length:
         type: integer
         description: Number of bytes in the version's HTTP response body.
       headers:
@@ -1911,7 +1911,7 @@ definitions:
       body_hash:
         type: string
         description: A hex-encoded SHA-256 hash of the response body of the version.
-      body_length:
+      content_length:
         type: integer
         description: Number of bytes in the version's HTTP response body.
       headers:
