@@ -638,10 +638,10 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     skip
     now = Time.now
     page_versions = [
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
     ].collect {|data| pages(:home_page).versions.create(data)}
     page_versions.each(&:update_different_attribute)
 
@@ -663,10 +663,10 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     skip
     now = Time.now
     page_versions = [
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
     ].collect {|data| pages(:home_page).versions.create(data)}
     page_versions.each(&:update_different_attribute)
 
@@ -687,8 +687,8 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'only lists versions that are different from the previous version on ?include_latest' do
     now = Time.now
     page_versions = [
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
     ].collect {|data| pages(:home_page).versions.create(data)}
     page_versions.each(&:update_different_attribute)
 

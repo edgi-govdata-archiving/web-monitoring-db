@@ -104,25 +104,25 @@ class Version < ApplicationRecord
 
   def update_different_attribute(save: true)
     previous = self.previous
-    self.different = previous.nil? || previous.version_hash != version_hash
+    self.different = previous.nil? || previous.body_hash != body_hash
     self.save! if save
 
     # NOTE: it would be nice to stop early here if we didn't make any changes,
     # but `different` defaults to `true` so if we just inserted this version
     # and it was different, we won't have "changed" the attribute, even though
     # we still need to update the next (because this was inserted before it).
-    last_hash = version_hash
+    last_hash = body_hash
     following = page.versions
       .where('capture_time > ?', self.capture_time)
       .reorder(capture_time: :asc)
 
     following.each do |next_version|
-      new_different = last_hash != next_version.version_hash
+      new_different = last_hash != next_version.body_hash
       if next_version.different? == new_different
         break
       else
         next_version.update!(different: new_different)
-        last_hash = next_version.version_hash
+        last_hash = next_version.body_hash
       end
     end
   end
@@ -132,12 +132,17 @@ class Version < ApplicationRecord
     super(value)
   end
 
-  # TODO: Consider falling back to sniffing the content at `uri`?
+  # TODO: Consider falling back to sniffing the content at `body_url`?
   def derive_media_type(force: false, value: nil)
     return if self.media_type && !force
 
+    response_headers = headers || {}
     meta = source_metadata || {}
+    # TODO: remove meta.dig('headers', ...) lines once data is migrated
+    # to have new top-level headers.
     content_type = value ||
+                   response_headers['Content-Type'] ||
+                   response_headers['content-type'] ||
                    meta.dig('headers', 'Content-Type') ||
                    meta.dig('headers', 'content-type') ||
                    meta['content_type'] ||

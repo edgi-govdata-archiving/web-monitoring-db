@@ -43,8 +43,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       },
@@ -54,8 +54,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
         capture_time: '2017-05-02T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -88,8 +88,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       },
@@ -99,8 +99,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
         capture_time: '2017-05-02T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -145,8 +145,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
 
     versions = pages[0].versions
     assert_equal(2, versions.length)
-    assert_equal(import_data[0][:page_url], versions[1].capture_url)
-    assert_equal(import_data[1][:page_url], versions[0].capture_url)
+    assert_equal(import_data[0][:page_url], versions[1].url)
+    assert_equal(import_data[1][:page_url], versions[0].url)
   end
 
   test 'does not add or modify a version if it already exists' do
@@ -159,8 +159,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -179,7 +179,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     page = Page.find(pages(:home_page).uuid)
     version = Version.find(versions(:page1_v1).uuid)
     assert_equal(page_versions_count, page.versions.count)
-    assert_equal(original_data['version_hash'], version.version_hash, 'version_hash was changed')
+    assert_equal(original_data['body_hash'], version.body_hash, 'body_hash was changed')
     assert_equal(original_data['source_metadata'], version.source_metadata, 'source_metadata was changed')
   end
 
@@ -192,8 +192,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -211,7 +211,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     page = Page.find(pages(:home_page).uuid)
     version = Version.find(versions(:page1_v1).uuid)
     assert_equal(page_versions_count, page.versions.count)
-    assert_equal('INVALID_HASH', version.version_hash, 'version_hash was not changed')
+    assert_equal('INVALID_HASH', version.body_hash, 'body_hash was not changed')
     assert_equal({ 'test_meta' => 'data' }, version.source_metadata, 'source_metadata was not replaced')
   end
 
@@ -225,8 +225,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -244,7 +244,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     page = Page.find(pages(:home_page).uuid)
     version = Version.find(versions(:page1_v1).uuid)
     assert_equal(page_versions_count, page.versions.count)
-    assert_equal('INVALID_HASH', version.version_hash, 'version_hash was not changed')
+    assert_equal('INVALID_HASH', version.body_hash, 'body_hash was not changed')
     expected_meta = original_data['source_metadata'].merge('test_meta' => 'data')
     assert_equal(expected_meta, version.source_metadata, 'source_metadata was not merged')
   end
@@ -257,8 +257,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['site:Example Site'],
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -289,7 +289,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'validates the version_hash' do
+  test 'validates the body_hash' do
     stub_request(:any, 'http://example.storage/example-v1')
       .to_return(body: 'Hello!', status: 200)
 
@@ -300,8 +300,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['site:Example Site'],
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'http://example.storage/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        body_url: 'http://example.storage/example-v1',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -339,8 +339,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_title: 'Test Page',
         page_maintainers: nil,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -373,8 +373,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_title: 'Test Page',
         page_maintainers: 5,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -408,8 +408,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       },
@@ -419,8 +419,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
         capture_time: '2017-05-03T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
-        version_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        body_hash: 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059687',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -446,8 +446,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_title: 'Test Page',
         page_tags: nil,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -480,8 +480,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_title: 'Test Page',
         page_tags: 5,
         capture_time: versions(:page1_v1).capture_time,
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v1',
-        version_hash: 'INVALID_HASH',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
+        body_hash: 'INVALID_HASH',
         source_type: versions(:page1_v1).source_type,
         source_metadata: { test_meta: 'data' }
       }
@@ -515,8 +515,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: 'http://whoa-there-betcha-this.com/is/not/in/the/database',
         title: 'Heyooooo!',
         capture_time: '2017-05-01T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
-        version_hash: 'abc',
+        body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        body_hash: 'abc',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       },
@@ -524,8 +524,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: pages(:home_page).url,
         title: 'Example Page',
         capture_time: '2017-05-02T12:33:01Z',
-        uri: 'https://test-bucket.s3.amazonaws.com/example-v2',
-        version_hash: 'def',
+        body_url: 'https://test-bucket.s3.amazonaws.com/example-v2',
+        body_hash: 'def',
         source_type: 'some_source',
         source_metadata: { test_meta: 'data' }
       }
@@ -560,8 +560,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'can skip versions that are the same as the previous version if ?skip_unchanged_versions=true' do
     now = Time.now
     page = Page.create(url: 'http://thecoolest.com/for/reals')
-    page.versions.create(capture_time: now - 5.days, version_hash: 'abc', source_type: 'a')
-    page.versions.create(capture_time: now - 4.days, version_hash: 'def', source_type: 'b')
+    page.versions.create(capture_time: now - 5.days, body_hash: 'abc', source_type: 'a')
+    page.versions.create(capture_time: now - 4.days, body_hash: 'def', source_type: 'b')
 
     # The first two here should get skipped
     import_data = [
@@ -569,8 +569,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 3.days).iso8601,
-        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
-        version_hash: 'abc',
+        body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        body_hash: 'abc',
         source_type: 'a',
         source_metadata: { test_meta: 'data' }
       },
@@ -578,8 +578,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.9.days).iso8601,
-        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
-        version_hash: 'def',
+        body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        body_hash: 'def',
         source_type: 'b',
         source_metadata: { test_meta: 'data' }
       },
@@ -587,8 +587,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.5.days).iso8601,
-        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
-        version_hash: 'def',
+        body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        body_hash: 'def',
         source_type: 'a',
         source_metadata: { test_meta: 'data' }
       },
@@ -596,8 +596,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         page_url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.days).iso8601,
-        uri: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
-        version_hash: 'xyz',
+        body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
+        body_hash: 'xyz',
         source_type: 'b',
         source_metadata: { test_meta: 'data' }
       }
