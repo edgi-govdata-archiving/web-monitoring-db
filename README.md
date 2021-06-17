@@ -254,9 +254,9 @@ Actual database schemas for each of these tables is listed in [`db/schema.rb`](.
 
 The web-monitoring-db project does not actually monitor or scrape pages on the web. Instead, we rely on importing data from other services, like [the Internet Archive](https://archive.org). Each day, a script queries other services for historical snapshots and sends the results to the `/api/v0/imports` endpoint.
 
-Most of the data sent to `/api/v0/imports` matches up directly with the structure of the [`Version` model](./db/schema.rb). However, the `uri` field in an import is treated specially.
+Most of the data sent to `/api/v0/imports` matches up directly with the structure of the [`Version` model](./db/schema.rb). However, the `body_url` field in an import is treated specially.
 
-When new page or version data is imported, the `uri` field points to a location where the raw HTTP response body can be retrieved. If the `uri` host matches one of the values in the [`ALLOWED_ARCHIVE_HOSTS` environment variable](./.env.example), the version record that gets added to the database will simply point to that external location as a source of raw response data. Otherwise, the application downloads the data from `uri` and stores it in its `FileStorage`.
+When new page or version data is imported, the `body_url` field points to a location where the raw HTTP response body can be retrieved. If the `body_url` host matches one of the values in the [`ALLOWED_ARCHIVE_HOSTS` environment variable](./.env.example), the version record that gets added to the database will simply point to that external location as a source of raw response data. Otherwise, the application downloads the data from `body_url` and stores it in its `FileStorage`.
 
 The intent is to make sure data winds up at a reliably available location, ensuring that anyone who can access the API can also access the raw response body for any version. Hosts should be listed in `ALLOWED_ARCHIVE_HOSTS` if they meet this criteria better than the application’s own file storage. The application’s storage area can be the local disk or it can be S3, depending on configuration. The component can take pluggable configurations, so we can support other storage types or locations in the future.
 

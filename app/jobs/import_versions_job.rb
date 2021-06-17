@@ -95,19 +95,19 @@ class ImportVersionsJob < ApplicationJob
     version = version_for_record(record, existing_version, @import.update_behavior)
     version.page = page
 
-    if version.uri.nil?
+    if version.body_url.nil?
       if record['content']
         # TODO: upload content
         raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
       end
-    elsif !Archiver.already_archived?(version.uri) || !version.version_hash
-      result = Archiver.archive(version.uri, expected_hash: version.version_hash)
-      version.version_hash = result[:hash]
+    elsif !Archiver.already_archived?(version.body_url) || !version.body_hash
+      result = Archiver.archive(version.body_url, expected_hash: version.body_hash)
+      version.body_hash = result[:hash]
       version.content_length = result[:length]
-      if result[:url] != version.uri
+      if result[:url] != version.body_url
         version.source_metadata ||= {}
-        version.source_metadata['original_url'] = version.uri
-        version.uri = result[:url]
+        version.source_metadata['original_url'] = version.body_url
+        version.body_url = result[:url]
       end
     end
 
@@ -134,14 +134,23 @@ class ImportVersionsJob < ApplicationJob
     # TODO: Remove line 74 below once full transition from 'page_title' to 'title'
     # is complete
     record['title'] = record['page_title'] if record.key?('page_title')
-    record['capture_url'] = record['page_url'] if record.key?('page_url')
-    record['version_hash'] = record['hash'] if record.key?('hash')
+    record['url'] = record['page_url'] if record.key?('page_url')
+    record['body_url'] = record['uri'] if record.key?('uri')
+    record['body_hash'] = record['version_hash'] if record.key?('version_hash')
+    record['body_hash'] = record['hash'] if record.key?('hash')
     if record.key?('source_metadata')
       meta = record['source_metadata']
       record['media_type'] = meta['mime_type'] if meta.key?('mime_type')
       unless record.key?('content_length')
         length = meta.dig('headers', 'Content-Length')
         record['content_length'] = length if length.present?
+      end
+
+      # Find headers in source_metadata if missing from the top level.
+      # TODO: remove once full transition to top level headers is comlete.
+      if meta.key?('headers') && !record.key?('headers')
+        record['headers'] = meta['headers']
+        meta.delete('headers')
       end
     end
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
@@ -276,7 +285,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def version_changed?(version)
-    return true if version.version_hash.nil?
+    return true if version.body_hash.nil?
 
     previous = version.page.versions
       .where(source_type: version.source_type)
@@ -284,6 +293,6 @@ class ImportVersionsJob < ApplicationJob
       .order(capture_time: :desc)
       .first
 
-    version.version_hash == previous.try(:version_hash)
+    version.body_hash == previous.try(:body_hash)
   end
 end

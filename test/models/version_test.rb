@@ -8,11 +8,11 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'previous(different: false) should get the previous version regardless of its `different` value' do
     page = pages(:home_page)
-    v1 = page.versions.create!(capture_time: Time.now + 1.minute, version_hash: 'abc')
+    v1 = page.versions.create!(capture_time: Time.now + 1.minute, body_hash: 'abc')
     v1.update_different_attribute
-    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, version_hash: 'abc')
+    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, body_hash: 'abc')
     v2.update_different_attribute
-    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, version_hash: 'abc')
+    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, body_hash: 'abc')
     v3.update_different_attribute
 
     assert_predicate(v1, :different?)
@@ -21,7 +21,7 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal(v2.uuid, v3.previous(different: false).uuid, 'Previous should have been the previous version (which was NOT different)')
 
     # Change whether v2 was different to test that `different: false` *ignores* difference.
-    v2.update!(version_hash: 'def')
+    v2.update!(body_hash: 'def')
     v2.update_different_attribute
     v3.reload
     assert_predicate(v2, :different?)
@@ -41,11 +41,11 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'next(different: false) should get the next version regardless of its `different` value' do
     page = pages(:home_page)
-    v1 = page.versions.create!(capture_time: Time.now + 1.minute, version_hash: 'abc')
+    v1 = page.versions.create!(capture_time: Time.now + 1.minute, body_hash: 'abc')
     v1.update_different_attribute
-    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, version_hash: 'abc')
+    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, body_hash: 'abc')
     v2.update_different_attribute
-    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, version_hash: 'abc')
+    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, body_hash: 'abc')
     v3.update_different_attribute
 
     assert_predicate(v1, :different?)
@@ -54,7 +54,7 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal(v2.uuid, v1.next(different: false).uuid, 'Next should have been the next version (which was NOT different)')
 
     # Change whether v2 was different to test that `different: false` *ignores* difference.
-    v2.update!(version_hash: 'def')
+    v2.update!(body_hash: 'def')
     v2.update_different_attribute
     assert_predicate(v2, :different?)
     assert_equal(v2.uuid, v1.next(different: false).uuid, 'Next should have been the next version (which WAS different)')
@@ -67,14 +67,14 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'update_different_attribute' do
     page = Page.create(url: 'http://somerandomsite.com/')
-    a1 = page.versions.create(source_type: 'a', version_hash: 'abc', capture_time: Time.now - 3.days)
-    b1 = page.versions.create(source_type: 'b', version_hash: 'abc', capture_time: Time.now - 2.days)
+    a1 = page.versions.create(source_type: 'a', body_hash: 'abc', capture_time: Time.now - 3.days)
+    b1 = page.versions.create(source_type: 'b', body_hash: 'abc', capture_time: Time.now - 2.days)
     a1.update_different_attribute
     b1.update_different_attribute
     assert(a1.different?, 'The first version should have been different')
     assert_not(b1.different?, 'The second version should not have been different')
 
-    a2 = page.versions.create(source_type: 'a', version_hash: 'def', capture_time: Time.now - 2.5.days)
+    a2 = page.versions.create(source_type: 'a', body_hash: 'def', capture_time: Time.now - 2.5.days)
     a2.update_different_attribute
     assert(a2.different?, 'A version with a different hash is different')
     assert(Version.find(b1.uuid).different?, 'Updating a version inserted before an existing version updates the existing version, too')
@@ -84,7 +84,7 @@ class VersionTest < ActiveSupport::TestCase
     version = Version.create(
       page: pages(:home_page),
       capture_time: '2017-03-01T00:00:00Z',
-      version_hash: 'icanputanythingheremwahahahaha',
+      body_hash: 'icanputanythingheremwahahahaha',
       title: "   This is \n\n the title  \n "
     )
     assert_equal('This is the title', version.title, 'The title was not normalized')
@@ -134,9 +134,7 @@ class VersionTest < ActiveSupport::TestCase
     version = Version.create(
       page: pages(:home_page),
       capture_time: '2017-03-01T00:00:00Z',
-      source_metadata: {
-        'headers' => { 'Content-Type' => 'text/plain; charset=utf-8' }
-      }
+      headers: { 'Content-Type' => 'text/plain; charset=utf-8' }
     )
     assert_equal('text/plain', version.media_type)
   end

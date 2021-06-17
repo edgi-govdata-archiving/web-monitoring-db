@@ -61,8 +61,8 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     # post(api_v0_page_versions_url(page), params: {
     #   {
     #     'capture_time': '2017-04-23T17:25:43.000Z',
-    #     'uri': 'https://edgi-versionista-archive.s3.amazonaws.com/versionista1/74304-6222353/version-10997815.html',
-    #     'version_hash': 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
+    #     'body_url': 'https://edgi-versionista-archive.s3.amazonaws.com/versionista1/74304-6222353/version-10997815.html',
+    #     'body_hash': 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
     #     'source_type': 'versionista',
     #     'source_metadata': {
     #       'account': 'versionista1',
@@ -85,7 +85,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can filter versions by hash' do
     sign_in users(:alice)
     target = versions(:page1_v1)
-    get api_v0_page_versions_url(pages(:home_page), hash: target.version_hash)
+    get api_v0_page_versions_url(pages(:home_page), hash: target.body_hash)
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 
@@ -218,7 +218,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:missing)
   end
 
-  test 'can return 404 when uri for raw response body is null' do
+  test 'can return 404 when body_url for raw response body is null' do
     Archiver.allowed_hosts = []
     sign_in users(:alice)
     version = versions(:page3_v2)
@@ -311,8 +311,8 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'only lists versions that are different from the previous version' do
     now = Time.now
     page_versions = [
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
     ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)
 
@@ -329,10 +329,10 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'lists versions regardless if different from the previous version if ?different=false' do
     now = Time.now
     page_versions = [
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { version_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { version_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
     ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)
 

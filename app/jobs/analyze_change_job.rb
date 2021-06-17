@@ -157,13 +157,13 @@ class AnalyzeChangeJob < ApplicationJob
       return false
     end
 
-    unless fetchable?(change.version.uri)
-      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.uri})"
+    unless fetchable?(change.version.body_url)
+      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.body_url})"
       return false
     end
 
-    unless fetchable?(change.from_version.uri)
-      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.uri})"
+    unless fetchable?(change.from_version.body_url)
+      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.body_url})"
       return false
     end
 
@@ -186,7 +186,7 @@ class AnalyzeChangeJob < ApplicationJob
         media.start_with?('text/') && !DISALLOWED_MEDIA.include?(media)
       )
     elsif !require_media_type?
-      allowed_extension?(version.capture_url)
+      allowed_extension?(version.url)
     else
       false
     end

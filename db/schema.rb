@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_01_232015) do
+ActiveRecord::Schema.define(version: 2021_06_05_234433) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -158,25 +158,26 @@ ActiveRecord::Schema.define(version: 2021_01_01_232015) do
   create_table "versions", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "page_uuid"
     t.datetime "capture_time", null: false
-    t.string "uri"
-    t.string "version_hash"
+    t.string "body_url"
+    t.string "body_hash"
     t.string "source_type"
     t.jsonb "source_metadata"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"
-    t.string "capture_url"
+    t.string "url"
     t.boolean "different", default: true
     t.integer "status"
     t.integer "content_length"
     t.string "media_type"
+    t.jsonb "headers"
+    t.index ["body_hash"], name: "index_versions_on_body_hash"
     t.index ["capture_time"], name: "index_different_versions_on_capture_time", where: "(different = true)"
     t.index ["capture_time"], name: "index_versions_on_capture_time"
     t.index ["created_at"], name: "index_different_versions_on_created_at", where: "(different = true)"
     t.index ["created_at"], name: "index_versions_on_created_at"
     t.index ["page_uuid"], name: "index_versions_on_page_uuid"
     t.index ["source_type"], name: "index_versions_on_source_type"
-    t.index ["version_hash"], name: "index_versions_on_version_hash"
   end
 
   add_foreign_key "annotations", "users", column: "author_id"

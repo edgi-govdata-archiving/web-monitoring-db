@@ -250,9 +250,9 @@ class PageTest < ActiveSupport::TestCase
     page1.add_tag('tag2')
     page1.add_maintainer('maintainer1')
     page1.add_maintainer('maintainer2')
-    page1.versions.create(capture_time: now - 5.days, capture_url: 'https://example.gov/', version_hash: 'abc')
-    page1.versions.create(capture_time: now - 4.days, capture_url: 'https://example.gov/', version_hash: 'abc')
-    page1.versions.create(capture_time: now - 3.days, capture_url: 'https://example.gov/index.html', version_hash: 'def', title: 'Title from p1 v3')
+    page1.versions.create(capture_time: now - 5.days, url: 'https://example.gov/', body_hash: 'abc')
+    page1.versions.create(capture_time: now - 4.days, url: 'https://example.gov/', body_hash: 'abc')
+    page1.versions.create(capture_time: now - 3.days, url: 'https://example.gov/index.html', body_hash: 'def', title: 'Title from p1 v3')
 
     page2 = Page.create(title: 'Second Page', url: 'https://example.gov/subpage')
     page2.urls.create(url: 'https://example.gov/')
@@ -260,9 +260,9 @@ class PageTest < ActiveSupport::TestCase
     page2.add_tag('tag3')
     page2.add_maintainer('maintainer1')
     page2.add_maintainer('maintainer3')
-    page2.versions.create(capture_time: now - 4.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'def')
-    page2.versions.create(capture_time: now - 3.5.days, capture_url: 'https://example.gov/subpage', version_hash: 'abc')
-    page2.versions.create(capture_time: now - 2.5.days, capture_url: 'https://example.gov/', version_hash: 'def', title: 'Title from p2 v3')
+    page2.versions.create(capture_time: now - 4.5.days, url: 'https://example.gov/subpage', body_hash: 'def')
+    page2.versions.create(capture_time: now - 3.5.days, url: 'https://example.gov/subpage', body_hash: 'abc')
+    page2.versions.create(capture_time: now - 2.5.days, url: 'https://example.gov/', body_hash: 'def', title: 'Title from p2 v3')
     page2_version_ids = page2.versions.collect(&:uuid)
 
     page1.merge(page2)
@@ -282,7 +282,7 @@ class PageTest < ActiveSupport::TestCase
         [(now - 4.5.days).round, 'https://example.gov/subpage', true],
         [(now - 5.0.days).round, 'https://example.gov/', true]
       ],
-      page1.versions.pluck(:capture_time, :capture_url, :different)
+      page1.versions.pluck(:capture_time, :url, :different)
         .map { |row| [row[0].round, row[1], row[2]] }
     )
     assert_raises(ActiveRecord::RecordNotFound) do

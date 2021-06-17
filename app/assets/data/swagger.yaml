@@ -320,12 +320,12 @@ paths:
           required: true
           type: string
           format: datetime
-        - name: uri
+        - name: body_url
           in: query
-          description: URI of content of new Version to store
+          description: URL of content of new Version to store
           required: true
           type: string
-        - name: version_hash
+        - name: body_hash
           in: query
           description: sha256 hash of Version content
           required: true
@@ -939,7 +939,7 @@ paths:
           type: string
         - name: hash
           in: query
-          description: Filter by version_hash.
+          description: Filter by body_hash.
           required: false
           type: string
         - name: source_metadata[:key]
@@ -1364,23 +1364,26 @@ definitions:
         type: string
         format: datetime
         description: The time that the version was captured at.
-      capture_url:
+      url:
         type: string
         format: uri
         description: >
           The exact URL the version was originally captured at. A page may
           capture versions from several URLs that are *effectively* the same,
-          but the `capture_url` on Version gives the exact URL.
-      uri:
+          but the `url` on `Version` gives the exact URL.
+      body_url:
         type: string
         format: uri
         description: A URL from which to retrieve the raw content of the version.
-      version_hash:
+      body_hash:
         type: string
-        description: A SHA-256 hash of the version’s raw content.
+        description: A SHA-256 hash of the version’s raw response body.
       content_length:
         type: integer
         description: Number of bytes in the version's HTTP response body.
+      headers:
+        type: object
+        description: The headers from the version's original HTTP response.
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
@@ -1406,7 +1409,7 @@ definitions:
         format: surt
         description: >
           A canonical version of the Page's URL. It is mostly used for
-          determining whether versions from different capture_urls represent
+          determining whether versions from different URLs represent
           the same page, e.g. `http://epa.gov` vs. `https://epa.gov`. For more
           about the SURT format, see:
           http://crawler.archive.org/articles/user_manual/glossary.html#surt
@@ -1901,16 +1904,19 @@ definitions:
         type: string
         format: date-time
         description: The time at which the version was captured.
-      uri:
+      body_url:
         type: string
         format: uri
         description: A URL at which to get the raw response body of the version at `capture_time`.
-      version_hash:
+      body_hash:
         type: string
         description: A hex-encoded SHA-256 hash of the response body of the version.
       content_length:
         type: integer
         description: Number of bytes in the version's HTTP response body.
+      headers:
+        type: object
+        description: The HTTP response headers from the captured version.
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.

@@ -6,10 +6,10 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.uri,
-        'a_hash' => change.from_version.version_hash,
-        'b' => change.version.uri,
-        'b_hash' => change.version.version_hash
+        'a' => change.from_version.body_url,
+        'a_hash' => change.from_version.body_hash,
+        'b' => change.version.body_url,
+        'b_hash' => change.version.body_hash
       })
       .to_return(body: 'DIFF!', status: 200)
 
@@ -25,10 +25,10 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.uri,
-        'a_hash' => change.from_version.version_hash,
-        'b' => change.version.uri,
-        'b_hash' => change.version.version_hash,
+        'a' => change.from_version.body_url,
+        'a_hash' => change.from_version.body_hash,
+        'b' => change.version.body_url,
+        'b_hash' => change.version.body_hash,
         'something' => 'funky'
       })
 
@@ -43,10 +43,10 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.uri,
-        'a_hash' => change.from_version.version_hash,
-        'b' => change.version.uri,
-        'b_hash' => change.version.version_hash
+        'a' => change.from_version.body_url,
+        'a_hash' => change.from_version.body_hash,
+        'b' => change.version.body_url,
+        'b_hash' => change.version.body_hash
       })
       .to_return(
         body: '{"key": "value"}',
@@ -65,10 +65,10 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.uri,
-        'a_hash' => change.from_version.version_hash,
-        'b' => change.version.uri,
-        'b_hash' => change.version.version_hash
+        'a' => change.from_version.body_url,
+        'a_hash' => change.from_version.body_hash,
+        'b' => change.version.body_url,
+        'b_hash' => change.version.body_hash
       })
       .to_timeout
       .to_return(body: 'Ugh!', status: 500)

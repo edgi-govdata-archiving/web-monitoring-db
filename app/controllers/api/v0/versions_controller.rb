@@ -30,14 +30,14 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     expires_in 1.year, public: true
 
-    if @version.uri.nil?
+    if @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
-    elsif Archiver.external_archive_url?(@version.uri)
-      redirect_to @version.uri, status: 301
-    elsif Archiver.store.contains_url?(@version.uri)
+    elsif Archiver.external_archive_url?(@version.body_url)
+      redirect_to @version.body_url, status: 301
+    elsif Archiver.store.contains_url?(@version.body_url)
       # Get the file
-      filename = File.basename(@version.uri)
-      upstream = Archiver.store.get_file(@version.uri)
+      filename = File.basename(@version.body_url)
+      upstream = Archiver.store.get_file(@version.body_url)
 
       # Try to get the filetype, fall back on binary.
       type = @version.media_type || 'application/octet-stream'
@@ -54,15 +54,15 @@ class Api::V0::VersionsController < Api::V0::ApiController
     # TODO: unify this with import code in ImportVersionsJob#import_record
     @version = page.versions.new(version_params)
 
-    if @version.uri.nil?
+    if @version.body_url.nil?
       if params[:content]
         # TODO: upload content
         raise Api::NotImplementedError, 'Raw content uploading not implemented yet.'
       end
-    elsif !Archiver.already_archived?(@version.uri) || !@version.version_hash
-      result = Archiver.archive(@version.uri, expected_hash: @version.version_hash)
-      @version.version_hash = result[:hash]
-      @version.uri = result[:url]
+    elsif !Archiver.already_archived?(@version.body_url) || !@version.body_hash
+      result = Archiver.archive(@version.body_url, expected_hash: @version.body_hash)
+      @version.body_hash = result[:hash]
+      @version.body_url = result[:url]
     end
 
     @version.validate!
@@ -102,8 +102,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     permitted_keys = [
       'uuid',
       'capture_time',
-      'uri',
-      'version_hash',
+      'body_url',
+      'body_hash',
       'source_type',
       'source_metadata',
       'title'
@@ -122,7 +122,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     collection = collection.where({
-      version_hash: params[:hash],
+      body_hash: params[:hash],
       source_type: params[:source_type]
     }.compact)
 
@@ -144,10 +144,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
     methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
     options[:methods] = methods
 
-    # Don't expose the backend URI, expose the 'raw' route instead.
+    # Don't expose the backend `body_url`, expose the 'raw' route instead.
     result = version.as_json(options)
-    unless version.uri && Archiver.external_archive_url?(version.uri)
-      result.update('uri' => raw_api_v0_version_url(version))
+    unless version.body_url && Archiver.external_archive_url?(version.body_url)
+      result.update('body_url' => raw_api_v0_version_url(version))
     end
 
     result
