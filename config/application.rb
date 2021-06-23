@@ -22,6 +22,9 @@ module WebpageVersionsDb
     # in the way of asset needs since this is mainly an API.
     config.serve_static_assets = true
 
+    config.middleware.use Rack::Deflater
+    config.middleware.use Rack::Brotli
+
     # Support CORS requests for everything outside /admin
     # TODO: maybe better to have `/api/*` routes and turn CORS on only for those?
     config.middleware.insert_before 0, Rack::Cors do
