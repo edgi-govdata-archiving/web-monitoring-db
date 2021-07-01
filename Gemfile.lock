@@ -278,7 +278,7 @@ GEM
       resque (= 2.0.0)
     retriable (3.1.2)
     rexml (3.2.5)
-    rubocop (1.16.0)
+    rubocop (1.18.1)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -392,7 +392,7 @@ DEPENDENCIES
   redis
   resque
   resque-heroku-signals
-  rubocop (~> 1.16.0)
+  rubocop (~> 1.18.1)
   rubocop-performance (~> 1.11.3)
   rubocop-rails (~> 2.10.1)
   sassc-rails (~> 2.1.2)
