@@ -27,7 +27,7 @@ gem 'sentry-raven'
 gem 'redis'
 gem 'hiredis'
 gem 'google-api-client'
-gem 'addressable', '~> 2.7'
+gem 'addressable', '~> 2.8'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
