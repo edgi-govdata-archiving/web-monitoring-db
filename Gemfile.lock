@@ -193,7 +193,7 @@ GEM
     nokogiri (1.11.7)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
-    oj (3.11.7)
+    oj (3.12.2)
     orm_adapter (0.5.0)
     os (1.1.1)
     parallel (1.20.1)
@@ -380,7 +380,7 @@ DEPENDENCIES
   httparty
   jwt (~> 2.2)
   listen (~> 3.5)
-  oj (~> 3.11)
+  oj (~> 3.12)
   pg (~> 1.2)
   postmark-rails
   pry-rails
