@@ -7,7 +7,7 @@ if Archiver.allowed_hosts.empty?
     Do you want to continue? [Y]/n
   WARN
   response = $stdin.gets.strip.downcase
-  response = response.empty? ? 'y' : response
+  response = 'y' if response.empty?
   if response == 'y'
     puts 'Proceeding'
   else
