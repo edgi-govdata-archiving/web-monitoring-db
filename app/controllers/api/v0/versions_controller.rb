@@ -115,7 +115,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def version_collection
-    collection = page && page.versions || Version.order(created_at: :asc)
+    collection = (page && page.versions) || Version.order(created_at: :asc)
 
     if boolean_param(:different, default: true)
       collection = collection.where(different: true)

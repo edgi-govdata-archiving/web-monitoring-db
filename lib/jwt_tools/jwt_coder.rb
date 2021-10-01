@@ -22,7 +22,7 @@ module JwtTools
     def self.encode(payload)
       raise 'You must set a private key for tokens in order to use JWTs' unless @private_key
 
-      expire_at = payload[:exp] || Time.now + expire_after
+      expire_at = payload[:exp] || (Time.now + expire_after)
 
       payload = payload.dup
       payload[:exp] = expire_at.to_i

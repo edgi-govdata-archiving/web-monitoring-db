@@ -64,7 +64,7 @@ module Differ
         end
 
       if response.code >= 400
-        message = body.is_a?(Hash) && body['error'] || body
+        message = (body.is_a?(Hash) && body['error']) || body
         raise Api::DynamicError.new(message, response.code)
       end
 
