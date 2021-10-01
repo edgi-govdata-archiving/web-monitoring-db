@@ -100,7 +100,7 @@ class AnalyzeChangeJob < ApplicationJob
     # A text diff change necessarily implies a source change; don't double-count
     if !text_diff_changes.empty?
       # TODO: ignore stop words and also consider special terms more heavily, ignore punctuation
-      priority += 0.1 + 0.3 * priority_factor(results[:text_diff_ratio])
+      priority += 0.1 + (0.3 * priority_factor(results[:text_diff_ratio]))
     elsif !source_diff_changes.empty?
       # TODO: eventually develop a more granular sense of change, either by
       # parsing or regex, where some source changes matter and some don't.
@@ -112,7 +112,7 @@ class AnalyzeChangeJob < ApplicationJob
     results[:links_diff_count] = links_diff_changes.length
     results[:links_diff_ratio] = diff_ratio(links_diff)
     unless links_diff_changes.empty?
-      priority += 0.05 + 0.2 * priority_factor(results[:links_diff_ratio])
+      priority += 0.05 + (0.2 * priority_factor(results[:links_diff_ratio]))
     end
 
     # If we know a version represents a *server* error (not, say, a 404), then
@@ -132,7 +132,7 @@ class AnalyzeChangeJob < ApplicationJob
   # Calculate a multiplier for priority based on a ratio representing the amount
   # of change. This is basically applying a logorithmic curve to the ratio.
   def priority_factor(ratio)
-    Math.log(1 + (Math::E - 1) * ratio)
+    Math.log(1 + ((Math::E - 1) * ratio))
   end
 
   def diff_changes(diff)
@@ -140,7 +140,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def diff_ratio(operations)
-    return 0.0 if operations.empty? || operations.length == 1 && operations[0] == 0
+    return 0.0 if operations.empty? || (operations.length == 1 && operations[0] == 0)
 
     characters = operations.each_with_object([0, 0]) do |operation, counts|
       code, text = operation

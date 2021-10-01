@@ -187,7 +187,7 @@ module Surt::Canonicalize
 
   def self.dword_to_decimal_ip(raw_dword)
     dword = raw_dword.to_i
-    [24, 16, 8, 0].collect {|shift| dword >> shift & 0xff}.join('.')
+    [24, 16, 8, 0].collect {|shift| (dword >> shift) & 0xff}.join('.')
   end
 
   def self.unescape_repeatedly(raw_string)

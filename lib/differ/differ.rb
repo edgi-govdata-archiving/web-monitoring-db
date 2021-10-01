@@ -9,7 +9,7 @@ module Differ
 
   # Retrieve the differ associated with a given diff type
   def self.for_type(type)
-    @type_map && @type_map[type] || default_for_type(type)
+    (@type_map && @type_map[type]) || default_for_type(type)
   end
 
   def self.for_type!(type)
