@@ -26,7 +26,7 @@ gem 'pundit'
 gem 'sentry-raven'
 gem 'redis'
 gem 'hiredis'
-gem 'google-api-client'
+gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
