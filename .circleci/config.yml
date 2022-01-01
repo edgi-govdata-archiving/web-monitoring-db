@@ -4,7 +4,7 @@ executors:
   rails_executor:
     working_directory: ~/web-monitoring-db
     docker:
-      - image: circleci/ruby:2.6.6-node
+      - image: circleci/ruby:2.6.9-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test
@@ -27,11 +27,11 @@ commands:
           command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
       - restore_cache:
           keys:
-            - v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - v1-bundler-{{ arch }}-
+            - v2-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v2-bundler-{{ arch }}-
       - run: bundle install --frozen && bundle clean
       - save_cache:
-          key: v1-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: v2-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - ~/.bundle
             - ./vendor/bundle
