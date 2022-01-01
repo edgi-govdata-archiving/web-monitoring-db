@@ -5,9 +5,9 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby '2.6.6'
+ruby '2.6.9'
 
-gem 'aws-sdk-s3', '~> 1.109'
+gem 'aws-sdk-s3', '~> 1.110'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
@@ -47,9 +47,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.23.0', require: false
-  gem 'rubocop-performance', '~> 1.12.0'
-  gem 'rubocop-rails', '~> 2.12.4'
+  gem 'rubocop', '~> 1.24.1', require: false
+  gem 'rubocop-performance', '~> 1.13.0'
+  gem 'rubocop-rails', '~> 2.13.0'
   gem 'dotenv-rails'
 end
 
