@@ -48,7 +48,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     render json: {
       links: paging[:links],
-      meta: paging[:meta],
+      meta: {
+        **paging[:meta],
+        sample_period: 'day'
+      },
       data: samples.values
     }
   end
