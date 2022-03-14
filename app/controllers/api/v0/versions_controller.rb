@@ -14,6 +14,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def sampled
+    @sampling = true
     raise API::NotFoundError('You must provide a page to sample versions of.') unless page
 
     # TODO: support variable sample periods. Need to figure out a reference
@@ -125,7 +126,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
   protected
 
   def paging_path_for_version(*args)
-    if page
+    if @sampling
+      api_v0_page_versions_sampled_url(*args)
+    elsif page
       api_v0_page_versions_url(*args)
     else
       api_v0_versions_url(*args)
