@@ -14,7 +14,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def sampled
-    raise API::NotFoundError('You must provide a page to sample versions of.') if !self.page
+    raise API::NotFoundError('You must provide a page to sample versions of.') unless page
 
     # TODO: support variable sample periods. Need to figure out a reference
     # point for when those periods start.
@@ -25,21 +25,20 @@ class Api::V0::VersionsController < Api::V0::ApiController
     # don't want a sample group split across two responses.
     paging = pagination(query)
 
-    samples = paging[:query].inject({}) do |samples, version|
+    samples = paging[:query].each_with_object({}) do |version, result|
       key = version.capture_time.to_date.iso8601
-      if !samples.key?(key)
-        samples[key] = {
+      if result.key?(key)
+        result[key][:version_count] += 1
+        if version.different && !result[key][:version].different
+          result[key][:version] = version
+        end
+      else
+        result[key] = {
           time: key,
           version_count: 1,
           version: version
         }
-      else
-        samples[key][:version_count] += 1
-        if version.different && !samples[key][:version].different
-          samples[key][:version] = version
-        end
       end
-      samples
     end
 
     samples.each_value do |sample|
