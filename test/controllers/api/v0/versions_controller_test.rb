@@ -54,6 +54,32 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
   end
 
+  test 'can sample versions for a page' do
+    page = pages(:home_page)
+    # These two should get grouped.
+    page.versions.create({ body_hash: 'def', source_type: 'a', capture_time: '2022-01-02T10:00:00Z' })
+    page.versions.create({ body_hash: 'abc', source_type: 'a', capture_time: '2022-01-02T09:00:00Z' })
+    # This one should not.
+    page.versions.create({ body_hash: 'ghi', source_type: 'a', capture_time: '2022-01-01T09:00:00Z' })
+    page.versions.each(&:update_different_attribute)
+
+    sign_in users(:alice)
+    get(api_v0_page_versions_sampled_url(page))
+    assert_response(:success)
+    assert_equal('application/json', @response.media_type)
+    body_json = JSON.parse(@response.body)
+    assert(body_json.key?('links'), 'Response should have a "links" property')
+    assert(body_json.key?('data'), 'Response should have a "data" property')
+    assert(body_json.key?('meta'), 'Response should have a "meta" property')
+    assert(body_json['data'].is_a?(Array), 'Data should be an array')
+
+    # Ensure we got the right sample groups and right sampled version.
+    assert_equal(body_json['data'][0]['time'], '2022-01-02')
+    assert_equal(body_json['data'][0]['version_count'], 2)
+    # Should be the latest different version of the sample period.
+    assert_equal(body_json['data'][0]['version']['body_hash'], 'def')
+  end
+
   test 'can post a new version' do
     sign_in users(:alice)
     skip
