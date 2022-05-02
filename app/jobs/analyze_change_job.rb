@@ -202,7 +202,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   def annotator
-    email = ENV['AUTO_ANNOTATION_USER']
+    email = ENV.fetch('AUTO_ANNOTATION_USER', nil)
     user = if email.present?
              User.find_by(email: email)
            elsif !Rails.env.production?
@@ -216,7 +216,7 @@ class AnalyzeChangeJob < ApplicationJob
 
   def require_media_type?
     if @require_media_type.nil?
-      @require_media_type = to_bool(ENV['ANALYSIS_REQUIRE_MEDIA_TYPE'])
+      @require_media_type = to_bool(ENV.fetch('ANALYSIS_REQUIRE_MEDIA_TYPE', nil))
     end
     @require_media_type
   end

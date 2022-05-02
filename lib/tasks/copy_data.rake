@@ -1,6 +1,6 @@
 desc 'Copy pages from another web-monitoring-db instance.'
 task :copy_page, [:page_uuid, :all_versions, :include_changes, :url, :username, :password] => [:environment] do |_t, args|
-  verbose = ENV['VERBOSE']
+  verbose = ENV.fetch('VERBOSE', nil)
   different = !args[:all_versions].present?
   include_changes = args[:include_changes].present?
 

@@ -9,7 +9,7 @@ APPLICATION_NAME = 'Web Monitoring DB Importer'.freeze
 
 desc 'Create annotations from data in analysts’ Google sheets -- only sheet ID & user e-mail are required.'
 task :import_annotations_from_sheet, [:sheet_id, :user_email, :tabs, :start_row, :end_row] => [:environment] do |_t, args|
-  verbose = ENV['VERBOSE']
+  verbose = ENV.fetch('VERBOSE', nil)
   sheet_id = args[:sheet_id]
   start_row = args.fetch(:start_row, 7).to_i
   end_row = args[:end_row] || ''
@@ -144,13 +144,13 @@ def sheets_client
 end
 
 def authorize_google
-  unless ENV['GOOGLE_CLIENT_ID'] && ENV['GOOGLE_CLIENT_SECRET']
+  unless ENV.fetch('GOOGLE_CLIENT_ID', nil) && ENV.fetch('GOOGLE_CLIENT_SECRET', nil)
     raise 'You must have both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` environment variables set.'
   end
 
   client_id = Google::Auth::ClientId.new(
-    ENV['GOOGLE_CLIENT_ID'],
-    ENV['GOOGLE_CLIENT_SECRET']
+    ENV.fetch('GOOGLE_CLIENT_ID', nil),
+    ENV.fetch('GOOGLE_CLIENT_SECRET', nil)
   )
   scope = Google::Apis::SheetsV4::AUTH_SPREADSHEETS_READONLY
   token_store = Google::Auth::Stores::FileTokenStore.new(file: Tempfile.new)
