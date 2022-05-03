@@ -97,7 +97,7 @@ class Api::V0::PagesController < Api::V0::ApiController
   # NOTE: This check can be removed once this issue is resolved.
   # https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
   def should_allow_versions
-    ActiveModel::Type::Boolean.new.cast(ENV['ALLOW_VERSIONS_IN_PAGE_RESPONSES'])
+    ActiveModel::Type::Boolean.new.cast(ENV.fetch('ALLOW_VERSIONS_IN_PAGE_RESPONSES', nil))
   end
 
   def should_include_versions
