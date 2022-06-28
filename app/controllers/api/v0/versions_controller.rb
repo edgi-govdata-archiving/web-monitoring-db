@@ -13,6 +13,49 @@ class Api::V0::VersionsController < Api::V0::ApiController
     }
   end
 
+  def sampled
+    @sampling = true
+    raise API::NotFoundError('You must provide a page to sample versions of.') unless page
+
+    # TODO: support variable sample periods. Need to figure out a reference
+    # point for when those periods start.
+    # We don't support the complex filters and options #index does; we want to
+    # keep this as simple and fast as possible.
+    query = page.versions
+    # FIXME: this should probably have special pagination by date, since we
+    # don't want a sample group split across two responses.
+    paging = pagination(query)
+
+    samples = paging[:query].each_with_object({}) do |version, result|
+      key = version.capture_time.to_date.iso8601
+      if result.key?(key)
+        result[key][:version_count] += 1
+        if version.different && !result[key][:version].different
+          result[key][:version] = version
+        end
+      else
+        result[key] = {
+          time: key,
+          version_count: 1,
+          version: version
+        }
+      end
+    end
+
+    samples.each_value do |sample|
+      sample[:version] = serialize_version(sample[:version])
+    end
+
+    render json: {
+      links: paging[:links],
+      meta: {
+        **paging[:meta],
+        sample_period: 'day'
+      },
+      data: samples.values
+    }
+  end
+
   def show
     @version ||= version_collection.find(params[:id])
     render json: {
@@ -83,7 +126,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
   protected
 
   def paging_path_for_version(*args)
-    if page
+    if @sampling
+      api_v0_page_versions_sampled_url(*args)
+    elsif page
       api_v0_page_versions_url(*args)
     else
       api_v0_versions_url(*args)
