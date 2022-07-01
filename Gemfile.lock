@@ -280,7 +280,7 @@ GEM
     rubocop-performance (1.14.0)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-    rubocop-rails (2.14.2)
+    rubocop-rails (2.15.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
@@ -382,7 +382,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 1.31.1)
   rubocop-performance (~> 1.14.0)
-  rubocop-rails (~> 2.14.2)
+  rubocop-rails (~> 2.15.1)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-raven
