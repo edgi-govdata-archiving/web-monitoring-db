@@ -265,7 +265,8 @@ GEM
       resque (= 2.2.1)
     retriable (3.1.2)
     rexml (3.2.5)
-    rubocop (1.30.0)
+    rubocop (1.31.1)
+      json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -329,7 +330,7 @@ GEM
     uber (0.1.0)
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
-    unicode-display_width (2.1.0)
+    unicode-display_width (2.2.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.2.0)
@@ -379,7 +380,7 @@ DEPENDENCIES
   redis
   resque
   resque-heroku-signals
-  rubocop (~> 1.30.0)
+  rubocop (~> 1.31.1)
   rubocop-performance (~> 1.14.0)
   rubocop-rails (~> 2.14.2)
   sassc-rails (~> 2.1.2)
