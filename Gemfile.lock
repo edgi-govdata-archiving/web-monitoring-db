@@ -275,9 +275,9 @@ GEM
       rubocop-ast (>= 1.18.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.18.0)
+    rubocop-ast (1.19.0)
       parser (>= 3.1.1.0)
-    rubocop-performance (1.14.0)
+    rubocop-performance (1.14.2)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     rubocop-rails (2.15.1)
@@ -381,7 +381,7 @@ DEPENDENCIES
   resque
   resque-heroku-signals
   rubocop (~> 1.31.1)
-  rubocop-performance (~> 1.14.0)
+  rubocop-performance (~> 1.14.2)
   rubocop-rails (~> 2.15.1)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
