@@ -148,7 +148,7 @@ GEM
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
     httpclient (2.8.3)
-    i18n (1.10.0)
+    i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     jmespath (1.6.1)
     json (2.6.2)
@@ -280,7 +280,7 @@ GEM
     rubocop-performance (1.14.3)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-    rubocop-rails (2.15.1)
+    rubocop-rails (2.15.2)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
@@ -325,7 +325,7 @@ GEM
     thor (1.2.1)
     tilt (2.0.10)
     trailblazer-option (0.1.2)
-    tzinfo (2.0.4)
+    tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
     uglifier (4.2.0)
@@ -382,7 +382,7 @@ DEPENDENCIES
   resque-heroku-signals
   rubocop (~> 1.32.0)
   rubocop-performance (~> 1.14.3)
-  rubocop-rails (~> 2.15.1)
+  rubocop-rails (~> 2.15.2)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-raven
