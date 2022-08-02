@@ -299,8 +299,11 @@ GEM
       childprocess (>= 0.5, < 5.0)
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2)
-    sentry-raven (3.1.2)
-      faraday (>= 1.0)
+    sentry-rails (5.4.1)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.4.1)
+    sentry-ruby (5.4.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     signet (0.17.0)
       addressable (~> 2.8)
       faraday (>= 0.17.5, < 3.a)
@@ -385,7 +388,8 @@ DEPENDENCIES
   rubocop-rails (~> 2.15.2)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
-  sentry-raven
+  sentry-rails (~> 5.4.1)
+  sentry-ruby (~> 5.4.1)
   spring
   spring-watcher-listen (~> 2.0)
   tzinfo-data

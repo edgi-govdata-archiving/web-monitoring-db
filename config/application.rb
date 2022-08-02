@@ -55,7 +55,7 @@ module WebpageVersionsDb
         error_handler: -> (method:, returning:, exception:) {
           # Rails cache fails silently without raising exceptions (which is
           # generally good), but we still want to know if it can't connect.
-          Raven.capture_exception(exception, level: 'warning', tags: {
+          Sentry.capture_exception(exception, level: 'warning', tags: {
             method: method,
             returning: returning
           })
