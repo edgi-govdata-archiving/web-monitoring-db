@@ -11,8 +11,8 @@ module Differ
       end
     end
 
-    def diff(change, options = nil)
-      options, no_cache = extract_local_options(options)
+    def diff(change, cache: nil, **options)
+      no_cache = cache == 'false'
       key = "diff/#{generate_cache_key(change, options)}"
       version = Differ.cache_date.iso8601
 
@@ -21,22 +21,11 @@ module Differ
       end
     end
 
-    def cache_key(change, options = nil)
-      options, = extract_local_options(options)
+    def cache_key(change, cache: nil, **options)
       generate_cache_key(change, options)
     end
 
     protected
-
-    # Returns an options object with options for this class itself split out
-    # into separate return values.
-    def extract_local_options(options)
-      options ||= {}
-      no_cache = options[:cache] == 'false'
-      options = options.reject {|key, _| key.to_s == 'cache'}
-
-      [options, no_cache]
-    end
 
     def generate_diff(change, options)
       query = options.merge(

@@ -373,7 +373,7 @@ DEPENDENCIES
   postmark-rails
   pry-rails
   puma (~> 5.6)
-  pundit
+  pundit (~> 2.2.0)
   rack-brotli
   rack-cors
   rails (~> 6.1.6.1)
@@ -394,7 +394,7 @@ DEPENDENCIES
   webmock (~> 3.14)
 
 RUBY VERSION
-   ruby 2.6.9p207
+   ruby 2.7.6p219
 
 BUNDLED WITH
-   2.3.4
+   2.3.19
