@@ -23,11 +23,14 @@ gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.13'
 gem 'pundit', '~> 2.2.0'
-gem 'sentry-raven'
 gem 'redis'
 gem 'hiredis'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
+
+# Monitoring & Telemetry
+gem 'sentry-ruby', '~> 5.4.1'
+gem 'sentry-rails', '~> 5.4.1'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
