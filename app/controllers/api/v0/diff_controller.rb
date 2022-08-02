@@ -42,11 +42,11 @@ class Api::V0::DiffController < Api::V0::ApiController
   end
 
   def raw_diff
-    differ.diff(change, request.query_parameters)
+    differ.diff(change, **request.query_parameters)
   end
 
   def diff_etag
-    cache_key = differ.cache_key(change, request.query_parameters)
+    cache_key = differ.cache_key(change, **request.query_parameters)
     Digest::SHA256.hexdigest(cache_key)
   end
 end

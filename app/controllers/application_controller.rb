@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  include Pundit
+  include Pundit::Authorization
   include SameOriginSessionsConcern
 
   before_action :set_environment

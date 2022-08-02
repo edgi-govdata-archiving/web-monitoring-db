@@ -11,8 +11,8 @@ module Differ
       end
     end
 
-    def diff(change, options = nil)
-      options, no_cache = extract_local_options(options)
+    def diff(change, cache: nil, **options)
+      no_cache = cache == 'false'
       key = "diff/#{generate_cache_key(change, options)}"
       version = Differ.cache_date.iso8601
 
@@ -21,22 +21,11 @@ module Differ
       end
     end
 
-    def cache_key(change, options = nil)
-      options, = extract_local_options(options)
+    def cache_key(change, **options)
       generate_cache_key(change, options)
     end
 
     protected
-
-    # Returns an options object with options for this class itself split out
-    # into separate return values.
-    def extract_local_options(options)
-      options ||= {}
-      no_cache = options[:cache] == 'false'
-      options = options.reject {|key, _| key.to_s == 'cache'}
-
-      [options, no_cache]
-    end
 
     def generate_diff(change, options)
       query = options.merge(
@@ -85,12 +74,14 @@ module Differ
     end
 
     def generate_cache_key(change, options)
-      # Special case: we don't include `format=json`. Clients often include this
-      # to handle bad response headers from an old differ
-      # TODO: remove special case for `format=json` when possible
+      # "cache" is used in this module, not in the actual diff.
+      # "format=json" is often used by clients to handle bad response headers
+      # from an old differ, and should also be ignored.
       diff_params = options
+        .reject {|key, _| key.to_s == 'cache'}
         .reject {|key, value| key.to_s == 'format' && value == 'json'}
-        .sort.collect {|key, value| "#{key}=#{value}"}
+        .sort
+        .collect {|key, value| "#{key}=#{value}"}
         .join('&')
 
       diff_id = @url.sub(/^https?:\/\//, '')
