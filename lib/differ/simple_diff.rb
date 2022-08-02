@@ -74,13 +74,14 @@ module Differ
     end
 
     def generate_cache_key(change, options)
+      # "cache" is used in this module, not in the actual diff.
+      # "format=json" is often used by clients to handle bad response headers
+      # from an old differ, and should also be ignored.
       diff_params = options
-        # "cache" is used in this module, not in the actual diff.
         .reject {|key, _| key.to_s == 'cache'}
-        # "format=json" is often used by clients to handle bad response headers
-        # from an old differ, and should otherwise be ignored.
         .reject {|key, value| key.to_s == 'format' && value == 'json'}
-        .sort.collect {|key, value| "#{key}=#{value}"}
+        .sort
+        .collect {|key, value| "#{key}=#{value}"}
         .join('&')
 
       diff_id = @url.sub(/^https?:\/\//, '')
