@@ -21,7 +21,7 @@ module Differ
       end
     end
 
-    def cache_key(change, cache: nil, **options)
+    def cache_key(change, **options)
       generate_cache_key(change, options)
     end
 
@@ -74,10 +74,11 @@ module Differ
     end
 
     def generate_cache_key(change, options)
-      # Special case: we don't include `format=json`. Clients often include this
-      # to handle bad response headers from an old differ
-      # TODO: remove special case for `format=json` when possible
       diff_params = options
+        # "cache" is used in this module, not in the actual diff.
+        .reject {|key, _| key.to_s == 'cache'}
+        # "format=json" is often used by clients to handle bad response headers
+        # from an old differ, and should otherwise be ignored.
         .reject {|key, value| key.to_s == 'format' && value == 'json'}
         .sort.collect {|key, value| "#{key}=#{value}"}
         .join('&')

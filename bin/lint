@@ -9,7 +9,7 @@ OptionParser.new do |opt|
 end.parse!
 
 changed_files = if options[:diff]
-                  `git diff --name-status origin/main`.split("\n").map do |line|
+                  `git diff --name-status origin/main`.split("\n").filter_map do |line|
                     action, file, newfile = line.split("\t")
 
                     case action
@@ -20,7 +20,7 @@ changed_files = if options[:diff]
                     else
                       file
                     end
-                  end.compact
+                  end
                 else
                   []
                 end
@@ -39,5 +39,5 @@ end
 
 chdir APP_ROOT do
   puts '== Rubocop Auto Correct =='
-  system! "bundle exec rubocop --auto-correct --force-exclusion #{changed_files.join(' ')}"
+  system! "bundle exec rubocop --autocorrect --force-exclusion #{changed_files.join(' ')}"
 end
