@@ -12,7 +12,7 @@ executors:
           PGHOST: 127.0.0.1
           PGUSER: root
           HOST_URL: 'web-monitoring-db.test'
-          ALLOWED_ARCHIVE_HOSTS: 'https://edgi-wm-versionista.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
+          ALLOWED_ARCHIVE_HOSTS: 'https://edgi-wm-archive.s3.amazonaws.com/ https://edgi-wm-versionista.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
       - image: circleci/postgres:9.5-alpine-ram
         environment:
           POSTGRES_USER: root
