@@ -87,7 +87,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     # post(api_v0_page_versions_url(page), params: {
     #   {
     #     'capture_time': '2017-04-23T17:25:43.000Z',
-    #     'body_url': 'https://edgi-versionista-archive.s3.amazonaws.com/versionista1/74304-6222353/version-10997815.html',
+    #     'body_url': 'https://edgi-wm-versionista.s3.amazonaws.com/versionista1/74304-6222353/version-10997815.html',
     #     'body_hash': 'f366e89639758cd7f75d21e5026c04fb1022853844ff471865004b3274059686',
     #     'source_type': 'versionista',
     #     'source_metadata': {
