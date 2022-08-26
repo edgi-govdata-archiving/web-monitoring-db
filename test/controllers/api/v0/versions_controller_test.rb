@@ -64,7 +64,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page.versions.each(&:update_different_attribute)
 
     sign_in users(:alice)
-    get(api_v0_page_versions_sampled_url(page))
+    get(api_v0_page_versions_sampled_url(page, capture_time: '2021-12-01...2022-02-01'))
     assert_response(:success)
     assert_equal('application/json', @response.media_type)
     body_json = JSON.parse(@response.body)
