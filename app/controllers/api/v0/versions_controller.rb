@@ -20,31 +20,12 @@ class Api::V0::VersionsController < Api::V0::ApiController
     @sampling = true
     raise API::NotFoundError('You must provide a page to sample versions of.') unless page
 
-    # TODO: support variable sample periods. Need to figure out a reference
+    # TODO: support variable sample periods? Need to figure out a reference
     # point for when those periods start.
     # We don't support the complex filters and options #index does; we want to
     # keep this as simple and fast as possible.
-    query = page.versions
-
-    now = Time.now
-    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
-    if time_range[0] && time_range[1]
-      time_range[1] = time_range[1] + 1.day
-      if time_range[1] - time_range[0] > SAMPLE_DAYS_MAX.days
-        raise Api::InputError, 'time range must be no more than 365 days'
-      end
-    elsif time_range[1]
-      to_time = time_range[1] + 1.day
-      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
-    elsif time_range[0]
-      from_time = time_range[0]
-      time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
-    else
-      to_time = now.to_date + 1.day
-      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
-    end
-
-    query = query.where_in_unbounded_range(:capture_time, time_range)
+    time_range = parse_sample_range
+    query = page.versions.where_in_unbounded_range(:capture_time, time_range)
 
     samples = query.each_with_object({}) do |version, result|
       key = version.capture_time.to_date.iso8601
@@ -185,6 +166,28 @@ class Api::V0::VersionsController < Api::V0::ApiController
     return nil unless params.key? :page_id
 
     @page ||= Page.find(params[:page_id])
+  end
+
+  def parse_sample_range
+    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
+
+    if time_range[0] && time_range[1]
+      time_range[1] = time_range[1] + 1.day
+      if time_range[1] - time_range[0] > SAMPLE_DAYS_MAX.days
+        raise Api::InputError, "time range must be no more than #{SAMPLE_DAYS_MAX} days"
+      end
+    elsif time_range[1]
+      to_time = time_range[1] + 1.day
+      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    elsif time_range[0]
+      from_time = time_range[0]
+      time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
+    else
+      to_time = Date.today + 1.day
+      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    end
+
+    time_range
   end
 
   def version_params
