@@ -1,6 +1,9 @@
 class Api::V0::VersionsController < Api::V0::ApiController
   include SortingConcern
 
+  SAMPLE_DAYS_DEFAULT = 183
+  SAMPLE_DAYS_MAX = 365
+
   def index
     query = version_collection
     paging = pagination(query)
@@ -22,11 +25,48 @@ class Api::V0::VersionsController < Api::V0::ApiController
     # We don't support the complex filters and options #index does; we want to
     # keep this as simple and fast as possible.
     query = page.versions
-    # FIXME: this should probably have special pagination by date, since we
-    # don't want a sample group split across two responses.
-    paging = pagination(query)
 
-    samples = paging[:query].each_with_object({}) do |version, result|
+    now = Time.now
+    # time_range = nil
+    # if params[:from] && params[:to]
+    #   # time_range = parse_unbounded_range!(params[:capture_time], "capture_time") { |d| parse_date!(d) }
+    #   from_time = parse_date!(params[:from]).to_date
+    #   to_time = parse_date!(params[:to]).to_date + 1.day
+    #   if to_time - from_time > SAMPLE_DAYS_MAX.days
+    #     raise Api::InputError, "`from` and `to` parameters must be no more than 365 days apart"
+    #   end
+    #   time_range = [from_time, to_time]
+    # elsif params[:from]
+    #   from_time = parse_date!(params[:from]).to_date
+    #   time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
+    # elsif params[:to]
+    #   to_time = parse_date!(params[:to]).to_date + 1.day
+    #   time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    # else
+    #   to_time = now.to_date + 1.day
+    #   time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    # end
+
+    time_range = parse_unbounded_range!(params[:capture_time], "capture_time") { |d| parse_date!(d).to_date } || []
+    if time_range[0] && time_range[1]
+      time_range[1] = time_range[1] + 1.day
+      if time_range[1] - time_range[0] > SAMPLE_DAYS_MAX.days
+        raise Api::InputError, "time range must be no more than 365 days"
+      end
+    elsif time_range[1]
+      to_time = now.to_date + 1.day
+      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    elsif time_range[0]
+      from_time = time_range[0]
+      time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
+    else
+      to_time = now.to_date + 1.day
+      time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
+    end
+
+    query = query.where_in_unbounded_range(:capture_time, time_range)
+
+    samples = query.each_with_object({}) do |version, result|
       key = version.capture_time.to_date.iso8601
       if result.key?(key)
         result[key][:version_count] += 1
@@ -46,11 +86,45 @@ class Api::V0::VersionsController < Api::V0::ApiController
       sample[:version] = serialize_version(sample[:version])
     end
 
+    next_version = page.versions.where('capture_time < ?', time_range[0]).select(:uuid, :capture_time).first
+    if samples.length.zero? && next_version.nil?
+      raise Api::NotFoundError, "`to` time is older than the oldest version"
+    end
+
+    links = {
+      first: api_v0_page_versions_sampled_url(page),
+      last: nil,
+      next: nil,
+      prev: nil
+    }
+    # Optimize forward pagination by skipping to a time range with data.
+    if next_version
+      next_to = next_version.capture_time.to_date + 1.day
+      # links[:next] = api_v0_page_versions_sampled_url(
+      #   page,
+      #   params: {from: (next_to - SAMPLE_DAYS_DEFAULT.days).iso8601, to: next_to.iso8601}
+      # )
+      links[:next] = api_v0_page_versions_sampled_url(
+        page,
+        params: {capture_time: "#{(next_to - SAMPLE_DAYS_DEFAULT.days).iso8601}..#{next_to.iso8601}"}
+      )
+    end
+    if time_range[1] < Time.now
+      # links[:prev] = api_v0_page_versions_sampled_url(
+      #   page,
+      #   params: {from: time_range[1].iso8601, to: (time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}
+      # )
+      links[:prev] = api_v0_page_versions_sampled_url(
+        page,
+        params: {capture_time: "#{time_range[1].iso8601}..#{(time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}"}
+      )
+    end
+
     render json: {
-      links: paging[:links],
+      links: links,
       meta: {
-        **paging[:meta],
-        sample_period: 'day'
+        sample_period: 'day',
+        warning: 'This API endpoint is experimental and may change'
       },
       data: samples.values
     }
