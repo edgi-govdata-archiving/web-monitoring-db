@@ -47,11 +47,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
     #   time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
     # end
 
-    time_range = parse_unbounded_range!(params[:capture_time], "capture_time") { |d| parse_date!(d).to_date } || []
+    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
     if time_range[0] && time_range[1]
       time_range[1] = time_range[1] + 1.day
       if time_range[1] - time_range[0] > SAMPLE_DAYS_MAX.days
-        raise Api::InputError, "time range must be no more than 365 days"
+        raise Api::InputError, 'time range must be no more than 365 days'
       end
     elsif time_range[1]
       to_time = now.to_date + 1.day
@@ -88,7 +88,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     next_version = page.versions.where('capture_time < ?', time_range[0]).select(:uuid, :capture_time).first
     if samples.length.zero? && next_version.nil?
-      raise Api::NotFoundError, "`to` time is older than the oldest version"
+      raise Api::NotFoundError, '`to` time is older than the oldest version'
     end
 
     links = {
@@ -106,7 +106,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       # )
       links[:next] = api_v0_page_versions_sampled_url(
         page,
-        params: {capture_time: "#{(next_to - SAMPLE_DAYS_DEFAULT.days).iso8601}..#{next_to.iso8601}"}
+        params: { capture_time: "#{(next_to - SAMPLE_DAYS_DEFAULT.days).iso8601}..#{next_to.iso8601}" }
       )
     end
     if time_range[1] < Time.now
@@ -116,7 +116,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       # )
       links[:prev] = api_v0_page_versions_sampled_url(
         page,
-        params: {capture_time: "#{time_range[1].iso8601}..#{(time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}"}
+        params: { capture_time: "#{time_range[1].iso8601}..#{(time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}" }
       )
     end
 
