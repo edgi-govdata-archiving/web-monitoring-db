@@ -54,7 +54,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         raise Api::InputError, 'time range must be no more than 365 days'
       end
     elsif time_range[1]
-      to_time = now.to_date + 1.day
+      to_time = time_range[1] + 1.day
       time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
     elsif time_range[0]
       from_time = time_range[0]
