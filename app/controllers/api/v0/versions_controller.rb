@@ -27,26 +27,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
     query = page.versions
 
     now = Time.now
-    # time_range = nil
-    # if params[:from] && params[:to]
-    #   # time_range = parse_unbounded_range!(params[:capture_time], "capture_time") { |d| parse_date!(d) }
-    #   from_time = parse_date!(params[:from]).to_date
-    #   to_time = parse_date!(params[:to]).to_date + 1.day
-    #   if to_time - from_time > SAMPLE_DAYS_MAX.days
-    #     raise Api::InputError, "`from` and `to` parameters must be no more than 365 days apart"
-    #   end
-    #   time_range = [from_time, to_time]
-    # elsif params[:from]
-    #   from_time = parse_date!(params[:from]).to_date
-    #   time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
-    # elsif params[:to]
-    #   to_time = parse_date!(params[:to]).to_date + 1.day
-    #   time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
-    # else
-    #   to_time = now.to_date + 1.day
-    #   time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
-    # end
-
     time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
     if time_range[0] && time_range[1]
       time_range[1] = time_range[1] + 1.day
@@ -100,20 +80,12 @@ class Api::V0::VersionsController < Api::V0::ApiController
     # Optimize forward pagination by skipping to a time range with data.
     if next_version
       next_to = next_version.capture_time.to_date + 1.day
-      # links[:next] = api_v0_page_versions_sampled_url(
-      #   page,
-      #   params: {from: (next_to - SAMPLE_DAYS_DEFAULT.days).iso8601, to: next_to.iso8601}
-      # )
       links[:next] = api_v0_page_versions_sampled_url(
         page,
         params: { capture_time: "#{(next_to - SAMPLE_DAYS_DEFAULT.days).iso8601}..#{next_to.iso8601}" }
       )
     end
     if time_range[1] < Time.now
-      # links[:prev] = api_v0_page_versions_sampled_url(
-      #   page,
-      #   params: {from: time_range[1].iso8601, to: (time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}
-      # )
       links[:prev] = api_v0_page_versions_sampled_url(
         page,
         params: { capture_time: "#{time_range[1].iso8601}..#{(time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}" }
