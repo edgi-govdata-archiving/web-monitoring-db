@@ -74,8 +74,15 @@ def copy_page_versions(page, api_options, different, verbose)
   versions_path = "/api/v0/pages/#{page.uuid}/versions?chunk_size=1000&sort=capture_time:asc"
   versions_path += '&different=false' unless different
   api_paginated_request(versions_path, api_options) do |version_data|
-    if Version.find_by(uuid: version_data['uuid'])
-      summary[:skipped] += 1
+    version = Version.find_by(uuid: version_data['uuid'])
+    if version
+      if version.page_uuid.nil?
+        version.update(page_uuid: page.uuid)
+        summary[:count] += 1
+        puts "  Updated version #{version_data['uuid']}" if verbose
+      else
+        summary[:skipped] += 1
+      end
       next
     end
 
