@@ -69,7 +69,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
-  gem 'webmock', '~> 3.14'
+  gem 'webmock', '~> 3.18'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410
   gem 'selenium-webdriver'
