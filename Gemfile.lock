@@ -187,7 +187,7 @@ GEM
     parallel (1.22.1)
     parser (3.1.2.1)
       ast (~> 2.4.1)
-    pg (1.4.2)
+    pg (1.4.3)
     postmark (1.22.1)
       json
     postmark-rails (0.22.1)
