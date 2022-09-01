@@ -17,16 +17,20 @@ gem 'pg', '~> 1.4'
 gem 'puma', '~> 5.6'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'rack-brotli'
-gem 'resque'
-gem 'resque-heroku-signals'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.13'
 gem 'pundit', '~> 2.2.0'
-gem 'redis'
-gem 'hiredis'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
+
+# Workers/Queuing
+# Resque 2.3.0 is not compatible with Redis v5; if updated, see about updating
+# the redis gem as well. See: https://github.com/resque/resque/pull/1828
+gem 'resque', '~> 2.3.0'
+# gem 'resque-heroku-signals'
+gem 'redis', '~> 4.8'
+gem 'hiredis'
 
 # Monitoring & Telemetry
 gem 'sentry-ruby', '~> 5.4.2'
