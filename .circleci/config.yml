@@ -30,6 +30,7 @@ commands:
             - v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
             - v3-bundler-{{ arch }}-
       - run: |
+          gem update --system
           bundle install
           # echo '======== CLEANING ========='
           # bundle clean --dry-run
