@@ -10,7 +10,7 @@ class DedupePagesWithMatchingUrlKeys < ActiveRecord::Migration[5.1]
 
       canonical_page = nil
       deletable = []
-      pages = Page.where(url_key: url_key)
+      pages = Page.where(url_key:)
         .eager_load(:maintainers, :tags)
         .order(created_at: :asc)
 
@@ -57,7 +57,7 @@ class DedupePagesWithMatchingUrlKeys < ActiveRecord::Migration[5.1]
 
       # This will fall back to url_key and find our existing page
       page = Page.find_by_url(url)
-      values = page.attributes.reject {|key, _| key == 'uuid'}.merge(url: url)
+      values = page.attributes.except('uuid').merge(url:)
 
       new_page = Page.create(values)
       page.maintainers.each {|item| new_page.add_maintainer(item)}

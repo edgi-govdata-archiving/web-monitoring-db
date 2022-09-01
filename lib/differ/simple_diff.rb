@@ -16,7 +16,7 @@ module Differ
       key = "diff/#{generate_cache_key(change, options)}"
       version = Differ.cache_date.iso8601
 
-      Rails.cache.fetch(key, version: version, expires_in: 2.weeks, force: no_cache) do
+      Rails.cache.fetch(key, version:, expires_in: 2.weeks, force: no_cache) do
         generate_diff(change, options)
       end
     end
@@ -36,7 +36,7 @@ module Differ
       )
 
       response = retry_request do
-        HTTParty.get(@url, query: query)
+        HTTParty.get(@url, query:)
       end
 
       # TODO: get our simple differ to return correct Content-Type header

@@ -144,11 +144,11 @@ def api_request(path, options)
   end
 end
 
-def api_paginated_request(path, options, &block)
+def api_paginated_request(path, options, &)
   next_url = path
   while next_url.present?
     chunk = api_request(next_url, options)
-    chunk['data'].each(&block)
+    chunk['data'].each(&)
     next_url = chunk['links']['next']
   end
 end
