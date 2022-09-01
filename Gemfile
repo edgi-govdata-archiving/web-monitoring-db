@@ -7,11 +7,6 @@ end
 
 ruby '3.1.2'
 
-# Ruby 3 split out some modules into gems that other packages do not yet
-# require. We should watch for when we can remove these as direct dependencies.
-# (Probably with an upgrade to Rails 7)
-gem 'net-smtp'
-
 gem 'aws-sdk-s3', '~> 1.114'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'

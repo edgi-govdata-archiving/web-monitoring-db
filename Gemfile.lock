@@ -393,7 +393,6 @@ DEPENDENCIES
   httparty
   jwt (~> 2.5)
   listen (~> 3.7)
-  net-smtp
   oj (~> 3.13)
   pg (~> 1.4)
   postmark-rails
