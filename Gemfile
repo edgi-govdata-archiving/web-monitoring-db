@@ -29,7 +29,7 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.4.1'
+gem 'sentry-ruby', '~> 5.4.2'
 gem 'sentry-rails', '~> 5.4.1'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
