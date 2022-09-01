@@ -29,7 +29,10 @@ commands:
           keys:
             - v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
             - v3-bundler-{{ arch }}-
-      - run: bundle install --frozen && bundle clean --dry-run
+      - run: |
+          bundle install --frozen
+          echo '======== CLEANING ========='
+          bundle clean --dry-run
       - save_cache:
           key: v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
