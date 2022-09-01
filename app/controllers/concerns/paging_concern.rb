@@ -43,7 +43,7 @@ module PagingConcern
         collection_type,
         format: format_type,
         params: request.query_parameters.merge(chunk: 1,
-                                               chunk_size: chunk_size)
+                                               chunk_size:)
       ),
       last: nil,
       prev: nil,
@@ -55,7 +55,7 @@ module PagingConcern
         collection_type,
         format: format_type,
         params: request.query_parameters.merge(chunk: chunk_number - 1,
-                                               chunk_size: chunk_size)
+                                               chunk_size:)
       )
     end
 
@@ -66,7 +66,7 @@ module PagingConcern
         collection_type,
         format: format_type,
         params: request.query_parameters.merge(chunk: chunk_number + 1,
-                                               chunk_size: chunk_size)
+                                               chunk_size:)
       )
 
       unless total_items.nil?
@@ -75,21 +75,21 @@ module PagingConcern
           collection_type,
           format: format_type,
           params: request.query_parameters.merge(chunk: total_chunks,
-                                                 chunk_size: chunk_size)
+                                                 chunk_size:)
         )
       end
     end
 
     {
-      query: query,
-      links: links,
+      query:,
+      links:,
       meta: include_total ? { total_results: total_items } : {},
       chunks: total_chunks,
-      chunk_number: chunk_number,
+      chunk_number:,
       offset: item_offset,
-      total_items: total_items,
-      chunk_size: chunk_size,
-      is_last: is_last
+      total_items:,
+      chunk_size:,
+      is_last:
     }
   end
 end

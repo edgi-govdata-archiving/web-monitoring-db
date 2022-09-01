@@ -4,7 +4,7 @@ executors:
   rails_executor:
     working_directory: ~/web-monitoring-db
     docker:
-      - image: cimg/ruby:2.7.6-node
+      - image: cimg/ruby:3.1.2-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test

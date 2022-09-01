@@ -5,7 +5,7 @@ namespace :data do
     start_date = parse_time(args[:start_date], Time.new(2016, 1, 1))
     end_date = parse_time(args[:end_date], Time.now + 1.day)
 
-    fill_version_headers(start_date, end_date, force: force)
+    fill_version_headers(start_date, end_date, force:)
   end
 
   def fill_version_headers(start_date, end_date = nil, force: false)
@@ -24,7 +24,7 @@ namespace :data do
           .count
 
         DataHelpers.iterate_time(query, start_time: start_date, end_time: end_date) do |version|
-          changed = update_version_headers(version, force: force)
+          changed = update_version_headers(version, force:)
           fixed += 1 if changed
           completed += 1
           if Time.now - last_update > progress_interval

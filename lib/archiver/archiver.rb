@@ -62,7 +62,7 @@ module Archiver
         store.url_for_file(hash)
       end
 
-    { url: url, hash: hash, length: response.body.bytes.length }
+    { url:, hash:, length: response.body.bytes.length }
   end
 
   def self.already_archived?(url)

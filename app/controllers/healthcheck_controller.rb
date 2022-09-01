@@ -16,6 +16,6 @@ class HealthcheckController < ApplicationController
       queues = error.to_s
     end
 
-    render json: { app: 'ok', db: db, queues: queues }
+    render json: { app: 'ok', db:, queues: }
   end
 end

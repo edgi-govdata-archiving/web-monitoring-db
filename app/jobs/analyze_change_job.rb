@@ -204,7 +204,7 @@ class AnalyzeChangeJob < ApplicationJob
   def annotator
     email = ENV.fetch('AUTO_ANNOTATION_USER', nil)
     user = if email.present?
-             User.find_by(email: email)
+             User.find_by(email:)
            elsif !Rails.env.production?
              User.first
            end

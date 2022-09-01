@@ -5,7 +5,7 @@ namespace :data do
     start_date = parse_time(args[:start_date], Time.new(2016, 1, 1))
     end_date = parse_time(args[:end_date], Time.now + 1.day)
 
-    update_version_length_media_type(start_date, end_date, force: force)
+    update_version_length_media_type(start_date, end_date, force:)
   end
 
   def update_version_length_media_type(start_date, end_date = nil, force: false)
@@ -24,7 +24,7 @@ namespace :data do
           .count
 
         DataHelpers.iterate_time(query, start_time: start_date, end_time: end_date) do |version|
-          changed = update_version_media_length(version, force: force)
+          changed = update_version_media_length(version, force:)
           fixed += 1 if changed
           completed += 1
           if Time.now - last_update > progress_interval
@@ -58,7 +58,7 @@ namespace :data do
 
   def update_version_media_length(version, force: false)
     meta = version.source_metadata || {}
-    version.derive_media_type(force: force)
+    version.derive_media_type(force:)
     set_version_length(version, meta, force)
     get_metadata_from_archive(version, force)
     if version.changed?
@@ -122,7 +122,7 @@ namespace :data do
                puts "No response body for #{url}"
                nil
              end
-      { size: size, content_type: response.headers['content-type'] }
+      { size:, content_type: response.headers['content-type'] }
     end
   end
 

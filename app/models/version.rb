@@ -2,7 +2,7 @@ class Version < ApplicationRecord
   include UuidPrimaryKey
   include SimpleTitle
 
-  MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/.freeze
+  MEDIA_TYPE_PATTERN = /\A\w[\w!\#$&^_+\-.]+\/\w[\w!\#$&^_+\-.]+\z/
 
   # Commonly used, but not quite correct media types.
   MEDIA_TYPE_SYNONYMS = {
@@ -79,11 +79,11 @@ class Version < ApplicationRecord
   end
 
   def change_from_previous(different: true)
-    Change.between(from: previous(different: different), to: self, create: nil)
+    Change.between(from: previous(different:), to: self, create: nil)
   end
 
   def change_from_next(different: true)
-    Change.between(from: self, to: self.next(different: different), create: nil)
+    Change.between(from: self, to: self.next(different:), create: nil)
   end
 
   def change_from_earliest
@@ -91,11 +91,11 @@ class Version < ApplicationRecord
   end
 
   def ensure_change_from_previous(different: true)
-    Change.between(from: previous(different: different), to: self, create: :new)
+    Change.between(from: previous(different:), to: self, create: :new)
   end
 
   def ensure_change_from_next(different: true)
-    Change.between(from: self, to: self.next(different: different), create: :new)
+    Change.between(from: self, to: self.next(different:), create: :new)
   end
 
   def ensure_change_from_earliest
@@ -159,7 +159,7 @@ class Version < ApplicationRecord
     if title.present?
       most_recent_capture_time = page.latest.capture_time
       if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
-        page.update(title: title)
+        page.update(title:)
         return title
       end
     end

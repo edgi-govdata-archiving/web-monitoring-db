@@ -23,7 +23,7 @@ class Users::SessionsController < Devise::SessionsController
       # pre-empt the standard response and return early for JSON format
       if request.format == :json
         render json: {
-          user: user,
+          user:,
           token: JwtTools::JwtCoder.encode(sub: "User:#{user.id}")
         }
         return

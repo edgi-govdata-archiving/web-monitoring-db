@@ -85,7 +85,7 @@ class Api::V0::PagesController < Api::V0::ApiController
     if should_allow_versions
       data['versions'] = page.versions.where(different: true).as_json
     end
-    render json: { data: data }
+    render json: { data: }
   end
 
   protected
