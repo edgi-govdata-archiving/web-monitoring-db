@@ -111,6 +111,7 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    digest (3.1.0)
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
@@ -150,6 +151,7 @@ GEM
     httpclient (2.8.3)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
+    io-wait (0.2.1)
     jmespath (1.6.1)
     json (2.6.2)
     jwt (2.5.0)
@@ -177,6 +179,13 @@ GEM
     multi_xml (0.6.0)
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
+    net-protocol (0.1.2)
+      io-wait
+      timeout
+    net-smtp (0.3.1)
+      digest
+      net-protocol
+      timeout
     nio4r (2.5.8)
     nokogiri (1.13.8)
       mini_portile2 (~> 2.8.0)
@@ -326,6 +335,7 @@ GEM
       sprockets (>= 3.0.0)
     thor (1.2.1)
     tilt (2.0.11)
+    timeout (0.2.0)
     trailblazer-option (0.1.2)
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
@@ -371,6 +381,7 @@ DEPENDENCIES
   httparty
   jwt (~> 2.5)
   listen (~> 3.7)
+  net-smtp
   oj (~> 3.13)
   pg (~> 1.4)
   postmark-rails
@@ -397,7 +408,7 @@ DEPENDENCIES
   webmock (~> 3.18)
 
 RUBY VERSION
-   ruby 2.7.6p219
+   ruby 3.1.2p20
 
 BUNDLED WITH
-   2.3.19
+   2.3.21

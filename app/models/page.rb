@@ -79,7 +79,7 @@ class Page < ApplicationRecord
     url = normalize_url(raw_url)
 
     current = PageUrl.eager_load(:page).current(at_time)
-    found = current.find_by(url: url)
+    found = current.find_by(url:)
     return found.page if found
 
     key = PageUrl.create_url_key(url)
@@ -87,12 +87,12 @@ class Page < ApplicationRecord
     return found.page if found
 
     with_pages = PageUrl.eager_load(:page).order(to_time: :desc)
-    found = with_pages.find_by(url: url) ||
+    found = with_pages.find_by(url:) ||
             with_pages.find_by(url_key: key)
     return found.page if found
 
     # TODO: remove this fallback when data is migrated over to Page.urls.
-    Page.find_by(url: url) || Page.find_by(url_key: key)
+    Page.find_by(url:) || Page.find_by(url_key: key)
   end
 
   def self.normalize_url(url)
@@ -171,7 +171,7 @@ class Page < ApplicationRecord
   # canonical Url of the page, the true list of URLs associated with the page
   # should always be the list of PageUrls in Page#urls).
   def ensure_page_urls
-    urls.find_or_create_by!(url: url) if saved_change_to_attribute?('url')
+    urls.find_or_create_by!(url:) if saved_change_to_attribute?('url')
   end
 
   def update_status
@@ -223,7 +223,7 @@ class Page < ApplicationRecord
         # Keep a record so we can redirect requests for the merged page.
         # Delete the actual page record rather than keep it around so we don't
         # have to worry about messy partial indexes and querying around URLs.
-        MergedPage.create!(uuid: other.uuid, target: self, audit_data: audit_data)
+        MergedPage.create!(uuid: other.uuid, target: self, audit_data:)
         # If the page we're removing was previously a merge target, update
         # its references.
         MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: self.uuid)

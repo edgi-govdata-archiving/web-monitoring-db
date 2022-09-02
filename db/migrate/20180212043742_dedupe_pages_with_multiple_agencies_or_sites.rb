@@ -10,7 +10,7 @@ class DedupePagesWithMultipleAgenciesOrSites < ActiveRecord::Migration[5.1]
 
       canonical_page = nil
       deletable = []
-      pages = Page.where(url: url)
+      pages = Page.where(url:)
         .eager_load(:maintainers, :tags)
         .order(created_at: :asc)
 

@@ -216,13 +216,13 @@ class PageTest < ActiveSupport::TestCase
 
   test 'find_by_url prefers pages currently at the given URL' do
     url = 'https://example.gov/'
-    old_page = Page.create(title: 'Old page', url: url)
+    old_page = Page.create(title: 'Old page', url:)
     old_page.urls.first.update(to_time: Time.now - 5.days)
 
-    new_page = Page.create(title: 'New Page', url: url)
+    new_page = Page.create(title: 'New Page', url:)
     new_page.urls.first.update(from_time: Time.now - 5.days)
 
-    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page = Page.create(title: 'Ancient Page', url:)
     older_page.urls.first.update(to_time: Time.now - 10.days)
 
     assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
@@ -230,13 +230,13 @@ class PageTest < ActiveSupport::TestCase
 
   test 'find_by_url returns latest non-current page if no current match is found' do
     url = 'https://example.gov/'
-    old_page = Page.create(title: 'Old page', url: url)
+    old_page = Page.create(title: 'Old page', url:)
     old_page.urls.first.update(to_time: Time.now - 5.days)
 
-    new_page = Page.create(title: 'New Page', url: url)
+    new_page = Page.create(title: 'New Page', url:)
     new_page.urls.first.update(to_time: Time.now - 2.days)
 
-    older_page = Page.create(title: 'Ancient Page', url: url)
+    older_page = Page.create(title: 'Ancient Page', url:)
     older_page.urls.first.update(to_time: Time.now - 10.days)
 
     assert_equal('New Page', Page.find_by_url('http://example.gov/').title)

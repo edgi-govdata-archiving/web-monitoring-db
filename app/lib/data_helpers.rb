@@ -53,7 +53,7 @@ module DataHelpers
         field,
         [start_time, start_time + interval]
       )
-      total = iterate_each(iterable, batch_size: batch_size, &block)
+      total = iterate_each(iterable, batch_size:, &block)
       start_time += interval
     end
     total

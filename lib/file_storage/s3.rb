@@ -58,7 +58,7 @@ module FileStorage
 
     private
 
-    S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/.freeze
+    S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/
 
     # Determine bucket, path, region info from URIs in the forms:
     # - s3://bucket/file/path.extension

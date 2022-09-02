@@ -38,7 +38,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         result[key] = {
           time: key,
           version_count: 1,
-          version: version
+          version:
         }
       end
     end
@@ -74,7 +74,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     render json: {
-      links: links,
+      links:,
       meta: {
         sample_period: 'day',
         warning: 'This API endpoint is experimental and may change'
@@ -114,7 +114,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       # Set binary file disposition to attachment; anything else is inline.
       disposition = type == 'application/octet-stream' ? 'attachment' : 'inline'
 
-      send_data(upstream, type: type, filename: filename, disposition: disposition)
+      send_data(upstream, type:, filename:, disposition:)
     else
       raise Api::NotFoundError, "Cannot serve raw content for #{@version.uuid}."
     end

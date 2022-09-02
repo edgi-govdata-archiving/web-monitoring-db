@@ -78,7 +78,7 @@ class Change < ApplicationRecord
       self.save!
     end
 
-    annotation = annotations.find_or_initialize_by(author: author)
+    annotation = annotations.find_or_initialize_by(author:)
     annotation.annotation = data
     annotation.save!
 

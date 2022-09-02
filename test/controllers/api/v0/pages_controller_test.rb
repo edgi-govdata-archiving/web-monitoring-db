@@ -70,7 +70,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'can filter pages by title' do
     sign_in users(:alice)
     title = 'Page One'
-    get api_v0_pages_path(title: title)
+    get api_v0_pages_path(title:)
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck 'uuid'
 

@@ -72,7 +72,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_record(record, row)
-    page = page_for_record(record, create: @import.create_pages, row: row)
+    page = page_for_record(record, create: @import.create_pages, row:)
     unless page
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
       return
@@ -88,7 +88,7 @@ class ImportVersionsJob < ApplicationJob
     )
 
     if existing_version && @import.skip_existing_records?
-      log(object: existing_version, operation: :skipped_existing, row: row)
+      log(object: existing_version, operation: :skipped_existing, row:)
       return
     end
 
@@ -112,7 +112,7 @@ class ImportVersionsJob < ApplicationJob
     end
 
     if @import.skip_unchanged_versions? && version_changed?(version)
-      log(object: version, operation: :skipped_identical, row: row)
+      log(object: version, operation: :skipped_identical, row:)
       warn "Skipped version identical to previous. URL: #{page.url}, capture_time: #{version.capture_time}, source_type: #{version.source_type}"
       return
     end
@@ -122,9 +122,9 @@ class ImportVersionsJob < ApplicationJob
     version.save
 
     if existing_version
-      log(object: version, operation: @import.update_behavior, row: row)
+      log(object: version, operation: @import.update_behavior, row:)
     else
-      log(object: version, operation: :created, row: row)
+      log(object: version, operation: :created, row:)
     end
 
     @added << version unless existing_version
@@ -190,11 +190,11 @@ class ImportVersionsJob < ApplicationJob
     capture_time = Time.parse(record['capture_time'])
     existing_page = Page.find_by_url(url, at_time: capture_time)
     page = if existing_page
-             log(object: existing_page, operation: :found, row: row)
+             log(object: existing_page, operation: :found, row:)
              existing_page
            elsif create
-             new_page = Page.create!(url: url)
-             log(object: new_page, operation: :created, row: row)
+             new_page = Page.create!(url:)
+             log(object: new_page, operation: :created, row:)
              new_page
            end
 
@@ -205,7 +205,7 @@ class ImportVersionsJob < ApplicationJob
 
     # If the page was not an *exact* URL match, add the URL to the page.
     # (`page.find_by_url` used above will match by `url_key`, too.)
-    page.urls.find_or_create_by(url: url)
+    page.urls.find_or_create_by(url:)
     # TODO: Add URLs from redirects automatically. The main blocker for
     # this at the moment is the following situation:
     #

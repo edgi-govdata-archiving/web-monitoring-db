@@ -113,11 +113,11 @@ class Api::V0::ApiController < ApplicationController
   end
 
   # TODO: use new NumericInterval class for unbounded [date] ranges
-  def where_in_range_param(collection, name, attribute = nil, &parse)
+  def where_in_range_param(collection, name, attribute = nil, &)
     return collection unless params[name]
 
     attribute = name if attribute.nil?
-    range = parse_unbounded_range!(params[name], name, &parse)
+    range = parse_unbounded_range!(params[name], name, &)
     collection.where_in_unbounded_range(attribute, range)
   end
 

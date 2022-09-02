@@ -165,8 +165,8 @@ def authorize_google
     puts url
     code = $stdin.gets.strip
     credentials = authorizer.get_and_store_credentials_from_code(
-      user_id: user_id,
-      code: code,
+      user_id:,
+      code:,
       base_url: OOB_URI
     )
   end
