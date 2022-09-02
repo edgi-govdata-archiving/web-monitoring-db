@@ -12,6 +12,7 @@ ruby '3.1.2'
 # (Probably with an upgrade to Rails 7)
 gem 'net-smtp'
 gem 'net-pop'
+gem 'net-imap'
 
 gem 'aws-sdk-s3', '~> 1.114'
 gem 'concurrent-ruby', '~> 1.1'
