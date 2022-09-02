@@ -179,6 +179,10 @@ GEM
     multi_xml (0.6.0)
     mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
+    net-pop (0.1.1)
+      digest
+      net-protocol
+      timeout
     net-protocol (0.1.2)
       io-wait
       timeout
@@ -381,6 +385,7 @@ DEPENDENCIES
   httparty
   jwt (~> 2.5)
   listen (~> 3.7)
+  net-pop
   net-smtp
   oj (~> 3.13)
   pg (~> 1.4)

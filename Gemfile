@@ -11,6 +11,7 @@ ruby '3.1.2'
 # require. We should watch for when we can remove these as direct dependencies.
 # (Probably with an upgrade to Rails 7)
 gem 'net-smtp'
+gem 'net-pop'
 
 gem 'aws-sdk-s3', '~> 1.114'
 gem 'concurrent-ruby', '~> 1.1'
