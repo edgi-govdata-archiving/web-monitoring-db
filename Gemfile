@@ -34,14 +34,14 @@ gem 'addressable', '~> 2.8'
 # Workers/Queuing
 # Resque 2.3.0 is not compatible with Redis v5; if updated, see about updating
 # the redis gem as well. See: https://github.com/resque/resque/pull/1828
-gem 'resque', '~> 2.3.0'
+gem 'resque', '~> 2.4.0'
 # gem 'resque-heroku-signals'
-gem 'redis', '~> 4.8'
+gem 'redis', '~> 5.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
 gem 'sentry-ruby', '~> 5.4.2'
-gem 'sentry-rails', '~> 5.4.1'
+gem 'sentry-rails', '~> 5.4.2'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -62,8 +62,8 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 1.36.0', require: false
-  gem 'rubocop-performance', '~> 1.14.3'
-  gem 'rubocop-rails', '~> 2.15.2'
+  gem 'rubocop-performance', '~> 1.15.0'
+  gem 'rubocop-rails', '~> 2.16.1'
   gem 'dotenv-rails'
 end
 
@@ -72,7 +72,7 @@ group :development do
   gem 'pry-rails'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0'
+  gem 'spring-watcher-listen', '~> 2.1'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 4.0.2'
 end
