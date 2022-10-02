@@ -36,7 +36,7 @@ gem 'addressable', '~> 2.8'
 # the redis gem as well. See: https://github.com/resque/resque/pull/1828
 gem 'resque', '~> 2.4.0'
 # gem 'resque-heroku-signals'
-gem 'redis', '~> 4.8'
+gem 'redis', '~> 5.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
