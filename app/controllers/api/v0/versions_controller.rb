@@ -103,7 +103,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     if @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     elsif Archiver.external_archive_url?(@version.body_url)
-      redirect_to @version.body_url, status: 301
+      redirect_to @version.body_url, status: 301, allow_other_host: true
     elsif Archiver.store.contains_url?(@version.body_url)
       # Get the file
       filename = File.basename(@version.body_url)
