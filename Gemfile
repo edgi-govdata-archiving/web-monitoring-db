@@ -7,19 +7,12 @@ end
 
 ruby '3.1.2'
 
-# Ruby 3 split out some modules into gems that other packages do not yet
-# require. We should watch for when we can remove these as direct dependencies.
-# (Probably with an upgrade to Rails 7)
-gem 'net-smtp'
-gem 'net-pop'
-gem 'net-imap'
-
 gem 'aws-sdk-s3', '~> 1.114'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.5'
-gem 'rails', '~> 6.1.6.1'
+gem 'rails', '~> 7.0.4'
 gem 'pg', '~> 1.4'
 gem 'puma', '~> 5.6'
 gem 'rack-cors', :require => 'rack/cors'

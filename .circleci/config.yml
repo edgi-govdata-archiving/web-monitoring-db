@@ -27,13 +27,19 @@ commands:
           command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
       - restore_cache:
           keys:
-            - v2-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - v2-bundler-{{ arch }}-
-      - run: bundle install --frozen && bundle clean
+            - v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v3-bundler-{{ arch }}-
+      - run:
+          name: Install Bundle/Gems
+          command: |
+            bundle config path vendor/bundle
+            bundle config frozen true
+            bundle install
+            echo '======== CLEANING Bundle ========='
+            bundle clean
       - save_cache:
-          key: v2-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
-            - ~/.bundle
             - ./vendor/bundle
 
 jobs:
