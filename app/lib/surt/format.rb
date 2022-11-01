@@ -34,7 +34,7 @@ module Surt::Format
     end
 
     result += "?#{url.query}" if url.query.present?
-    result += "\##{url.fragment}" if url.fragment.present?
+    result += "##{url.fragment}" if url.fragment.present?
 
     result
   end
