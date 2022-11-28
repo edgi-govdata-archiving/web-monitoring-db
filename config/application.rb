@@ -8,7 +8,7 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
-    config.load_defaults 6.1
+    config.load_defaults 7.0
     config.eager_load_paths << "#{Rails.root}/lib/api"
 
     config.active_job.queue_adapter = :resque
