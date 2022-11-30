@@ -48,6 +48,7 @@ class Version < ApplicationRecord
 
   before_create :derive_media_type
   after_create :sync_page_title
+  before_save :set_effective_status
   validates :status,
             allow_nil: true,
             inclusion: { in: 100...600, message: 'is not between 100 and 599' }
@@ -179,5 +180,31 @@ class Version < ApplicationRecord
     return nil unless media.present? && media.match?(MEDIA_TYPE_PATTERN)
 
     normalize_media_type(media)
+  end
+
+  # XXX: This is bad; do not merge. I forgot `status` is a canonical field,
+  # unlike content_length and media_type. We need to keep the original, raw
+  # status code around somewhere, and this doesn't do that.
+  #
+  # This is implemented as a save callback rather than a setter in order to
+  # handle out-of-order setting of the different attributes involved.
+  def set_effective_status
+    return unless will_save_change_to_attribute?('source_metadata') ||
+      will_save_change_to_attribute?('status')
+
+    self.status = effective_status
+  end
+
+  def effective_status
+    # Special case for EPA's "signpost" that returns a 200 status but is
+    # effectively a 404 page. (It was created after a mass deletion of pages
+    # early in the Trump administration, and explicitly points people to the
+    # snapshot from the previous administration, unlike the normal 404.)
+    redirect_url = self.source_metadata&.dig('redirects', -1)
+    if redirect_url&.match?(/^https?:\/\/[^\/]*epa.gov\/.*\/signpost\/cc.html$/)
+      404
+    else
+      self.status
+    end
   end
 end
