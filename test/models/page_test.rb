@@ -125,6 +125,12 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('com,example,sub)/somewhere', page.url_key)
   end
 
+  test 'pages update url_key when url is changed' do
+    page = Page.create(url: 'http://sub.EXAMPLE.com/somewhere')
+    page.update(url: 'http://sub.EXAMPLE.com/elsewhere')
+    assert_equal('com,example,sub)/elsewhere', page.url_key)
+  end
+
   test 'page status must be a valid status code or nil' do
     page = pages(:home_page)
     page.status = nil
