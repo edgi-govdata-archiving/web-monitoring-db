@@ -253,6 +253,7 @@ class Page < ApplicationRecord
 
   def normalize_url
     self.url = self.class.normalize_url(self.url)
+    self.url_key = PageUrl.create_url_key(self.url) if self.changed_attributes.key?('url')
   end
 
   def domain
