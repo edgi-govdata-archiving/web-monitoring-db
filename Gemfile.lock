@@ -293,7 +293,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.24.0)
       parser (>= 3.1.1.0)
-    rubocop-performance (1.15.0)
+    rubocop-performance (1.15.1)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     rubocop-rails (2.17.3)
@@ -403,7 +403,7 @@ DEPENDENCIES
   redis (~> 5.0)
   resque (~> 2.4.0)
   rubocop (~> 1.38.0)
-  rubocop-performance (~> 1.15.0)
+  rubocop-performance (~> 1.15.1)
   rubocop-rails (~> 2.17.3)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
