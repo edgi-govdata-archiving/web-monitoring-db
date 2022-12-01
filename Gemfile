@@ -33,8 +33,8 @@ gem 'redis', '~> 5.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.5.0'
-gem 'sentry-rails', '~> 5.5.0'
+gem 'sentry-ruby', '~> 5.6.0'
+gem 'sentry-rails', '~> 5.6.0'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
