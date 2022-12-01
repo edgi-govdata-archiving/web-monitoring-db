@@ -4,7 +4,7 @@ executors:
   rails_executor:
     working_directory: ~/web-monitoring-db
     docker:
-      - image: cimg/ruby:3.1.2-node
+      - image: cimg/ruby:3.1.3-node
         environment:
           RAILS_ENV: test
           RACK_ENV: test
@@ -13,7 +13,7 @@ executors:
           PGUSER: root
           HOST_URL: 'web-monitoring-db.test'
           ALLOWED_ARCHIVE_HOSTS: 'https://edgi-wm-archive.s3.amazonaws.com/ https://edgi-wm-versionista.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
-      - image: circleci/postgres:9.5-alpine-ram
+      - image: cimg/postgres:9.6
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle-test_test
@@ -27,8 +27,8 @@ commands:
           command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
       - restore_cache:
           keys:
-            - v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - v3-bundler-{{ arch }}-
+            - v4-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v4-bundler-{{ arch }}-
       - run:
           name: Install Bundle/Gems
           command: |
@@ -38,7 +38,7 @@ commands:
             echo '======== CLEANING Bundle ========='
             bundle clean
       - save_cache:
-          key: v3-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: v4-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - ./vendor/bundle
 
