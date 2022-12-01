@@ -23,7 +23,7 @@ class ApplicationRecord < ActiveRecord::Base
   end
 
   def self.where_in_interval(attribute, interval)
-    unless attribute.to_s.match?(/^[\w\-]*$/)
+    unless attribute.to_s.match?(/^[\w-]*$/)
       raise ArgumentError, "Attribute '#{attribute}' is not a safe column name"
     end
 
