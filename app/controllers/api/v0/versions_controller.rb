@@ -48,7 +48,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     next_version = page.versions.where('capture_time < ?', time_range[0]).select(:uuid, :capture_time).first
-    if samples.length.zero? && next_version.nil?
+    if samples.empty? && next_version.nil?
       raise Api::NotFoundError, '`to` time is older than the oldest version'
     end
 

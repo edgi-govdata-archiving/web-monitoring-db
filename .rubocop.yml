@@ -203,3 +203,6 @@ Style/SymbolArray:
 
 Style/WordArray:
   Enabled: false
+
+Style/YodaExpression:
+  Enabled: false
