@@ -11,7 +11,7 @@ gem 'aws-sdk-s3', '~> 1.117'
 gem 'concurrent-ruby', '~> 1.1'
 gem 'devise'
 gem 'httparty'
-gem 'jwt', '~> 2.5'
+gem 'jwt', '~> 2.6'
 gem 'rails', '~> 7.0.4'
 gem 'pg', '~> 1.4'
 gem 'puma', '~> 6.0'
@@ -20,7 +20,7 @@ gem 'rack-brotli'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.13'
-gem 'pundit', '~> 2.2.0'
+gem 'pundit', '~> 2.3.0'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
@@ -54,9 +54,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.39.0', require: false
-  gem 'rubocop-performance', '~> 1.15.1'
-  gem 'rubocop-rails', '~> 2.17.3'
+  gem 'rubocop', '~> 1.42.0', require: false
+  gem 'rubocop-performance', '~> 1.15.2'
+  gem 'rubocop-rails', '~> 2.17.4'
   gem 'dotenv-rails'
 end
 
