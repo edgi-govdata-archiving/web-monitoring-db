@@ -52,6 +52,21 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it is an error status')
   end
 
+  test "page title should should use URL if there's no valid version" do
+    page = Page.create(url: 'http://no-title.com/my/special+page.html', status: 404)
+    page.versions.create(capture_time: '2017-03-05T00:00:00Z', status: 404, title: '')
+    page.update_page_title
+
+    assert_equal('special page.html', page.title)
+
+    # Also works with no path in the URL?
+    page2 = Page.create(url: 'http://no-title.com/', status: 404)
+    page2.versions.create(capture_time: '2017-03-05T00:00:00Z', status: 404, title: '')
+    page2.update_page_title
+
+    assert_equal('no-title.com', page2.title)
+  end
+
   test 'can add many maintainer models to a page' do
     pages(:home_page).add_maintainer(maintainers(:epa))
     pages(:home_page).add_maintainer(maintainers(:doi))
