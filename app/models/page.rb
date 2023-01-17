@@ -254,7 +254,7 @@ class Page < ApplicationRecord
     # Fall back to the filename from the page's URL.
     if new_title.blank?
       filename = /\/([^\/]+)\/?$/.match(url).try(:[], 1)
-      clean_name = CGI::unescape(filename || '')
+      clean_name = CGI.unescape(filename || '')
       self.update(title: clean_name)
     end
   end
