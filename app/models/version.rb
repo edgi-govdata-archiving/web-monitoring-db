@@ -155,8 +155,33 @@ class Version < ApplicationRecord
     self.media_type = media if media
   end
 
+  def effective_status
+    return status if status.present? && status >= 400
+
+    # TODO: use some heuristics about title, metadata, etc. to determine if a
+    # version represents an error even though it has an OK status code.
+    # See: https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/468
+
+    # Special case for the EPA "signpost" page, where they redirected hundreds
+    # of climate-related pages to instead of giving them 4xx status codes.
+    return 404 if (
+      source_metadata &&
+      source_metadata['redirected_url']&.end_with?('epa.gov/sites/production/files/signpost/cc.html')
+    )
+
+    status || 200
+  end
+
+  def is_error?(strict: false)
+    if strict
+      status >= 400
+    else
+      effective_status >= 400
+    end
+  end
+
   def sync_page_title
-    if title.present?
+    if title.present? && !is_error?
       most_recent_capture_time = page.latest.capture_time
       if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
         page.update(title:)
