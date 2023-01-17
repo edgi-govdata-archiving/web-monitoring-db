@@ -27,8 +27,8 @@ commands:
           command: gem install bundler -v $(grep -A 1 "BUNDLED WITH" Gemfile.lock | tail -1 | tr -d " ")
       - restore_cache:
           keys:
-            - v4-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - v4-bundler-{{ arch }}-
+            - v5-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - v5-bundler-{{ arch }}-
       - run:
           name: Install Bundle/Gems
           command: |
@@ -38,7 +38,7 @@ commands:
             echo '======== CLEANING Bundle ========='
             bundle clean
       - save_cache:
-          key: v4-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: v5-bundler-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - ./vendor/bundle
 
