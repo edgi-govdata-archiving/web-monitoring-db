@@ -247,16 +247,21 @@ class Page < ApplicationRecord
 
     new_title = nil
     candidates.each do |version|
-      new_title = version.sync_page_title
-      break if new_title
+      if version.title.present? && version.status_ok?
+        new_title = version.title
+        break
+      end
     end
 
     # Fall back to the filename from the page's URL.
-    if new_title.blank?
+    if new_title.blank? && title.blank?
       filename = /\/([^\/]+)\/?$/.match(url).try(:[], 1)
-      clean_name = CGI.unescape(filename || '')
-      self.update(title: clean_name)
+      new_title = CGI.unescape(filename || '')
     end
+
+
+    self.update(title: new_title) if new_title.present?
+    new_title
   end
 
   protected
