@@ -37,6 +37,13 @@ class Version < ApplicationRecord
     'application/xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   }.freeze
 
+  # Lookup for standardized HTTP status messages, e.g. "404 Not Found".
+  STANDARD_STATUS_MESSAGES = Set.new(
+    Rack::Utils::HTTP_STATUS_CODES.collect do |code, message|
+      "#{code} #{message.downcase}"
+    end
+  ).freeze
+
   # NOTE: Versions *may* be orphaned from pages. This is pretty rare, but is a
   # legitimate scenario.
   belongs_to :page, foreign_key: :page_uuid, optional: true, inverse_of: :versions, touch: true
@@ -155,8 +162,58 @@ class Version < ApplicationRecord
     self.media_type = media if media
   end
 
-  def sync_page_title
+  def effective_status # rubocop:disable Metrics/PerceivedComplexity
+    return status if status.present? && status >= 400
+
+    # Simple heuristics to determine whether a page with an OK status code
+    # actually represents an error.
     if title.present?
+      # Page titles are frequently formulated like "<title> | <site name>" or
+      # "<title> | <site section> | <site name>" (order may also be reversed).
+      # It's helpful to split up the sections and evaluate each independently.
+      title.downcase.split(/\s+(?:-+|\|)\s+/).each do |t|
+        t = t.strip
+
+        # We frequently see page titles that are just the code and the literal
+        # message from the standard, e.g. "501 Not Implemented".
+        return t.to_i if STANDARD_STATUS_MESSAGES.include?(t)
+
+        # If the string is just "DDD", "error DDD", or "DDD error" and DDD
+        # starts with a 4 or 5, this is almost certainly just a status code.
+        code_match = /^(?:error )?(4\d\d|5\d\d)(?: error)?$/.match(t)
+        return code_match[1].to_i if code_match.present?
+
+        # Other more special messages we've seen.
+        return 404 if /\b(page|file)( was)? not found\b/.match?(t)
+        return 403 if /\baccess denied\b/.match?(t)
+        return 403 if /\brestricted access\b/.match?(t)
+        return 500 if t == 'error'
+        return 500 if t.include?('error processing ssi file')
+        return 500 if t.include?('error occurred')
+        return 500 if /\b(unexpected|server) error\b/.match?(t)
+        return 503 if /\bsite under maintenance\b/.match?(t)
+      end
+    end
+
+    # Special case for the EPA "signpost" page, where they redirected hundreds
+    # of climate-related pages to instead of giving them 4xx status codes.
+    return 404 if
+      source_metadata &&
+      source_metadata['redirected_url']&.end_with?('epa.gov/sites/production/files/signpost/cc.html')
+
+    status || 200
+  end
+
+  def status_ok?(strict: false)
+    if strict
+      status < 400
+    else
+      effective_status < 400
+    end
+  end
+
+  def sync_page_title
+    if title.present? && status_ok?
       most_recent_capture_time = page.latest.capture_time
       if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
         page.update(title:)

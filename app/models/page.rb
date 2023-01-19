@@ -241,6 +241,24 @@ class Page < ApplicationRecord
     end
   end
 
+  def update_page_title(from_time = nil)
+    candidates = versions.reorder(capture_time: :desc)
+    candidates = candidates.where('capture_time >= ?', from_time) if from_time
+
+    new_title = nil
+    candidates.each do |version|
+      new_title = version.sync_page_title
+      break if new_title
+    end
+
+    # Fall back to the filename from the page's URL.
+    if new_title.blank?
+      filename = /\/([^\/]+)\/?$/.match(url).try(:[], 1)
+      clean_name = CGI.unescape(filename || '')
+      self.update(title: clean_name)
+    end
+  end
+
   protected
 
   def news?
@@ -305,14 +323,6 @@ class Page < ApplicationRecord
 
     success_rate = 1 - (error_time.to_f / total_time)
     success_rate < STATUS_SUCCESS_THRESHOLD ? latest_error : 200
-  end
-
-  def update_page_title(from_time = nil)
-    candidates = versions.reorder(capture_time: :desc)
-    candidates = candidates.where('capture_time >= ?', from_time) if from_time
-    candidates.each do |version|
-      break if version.sync_page_title
-    end
   end
 
   # TODO: figure out whether there's a reasonable way to merge this logic with
