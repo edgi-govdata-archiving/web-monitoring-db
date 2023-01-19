@@ -52,7 +52,7 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it is an error status')
   end
 
-  test "page title should should use URL if there's no valid version" do
+  test "page title should use URL if there's no valid version" do
     page = Page.create(url: 'http://no-title.com/my/special+page.html', status: 404)
     page.versions.create(capture_time: '2017-03-05T00:00:00Z', status: 404, title: '')
     page.update_page_title
@@ -65,6 +65,15 @@ class PageTest < ActiveSupport::TestCase
     page2.update_page_title
 
     assert_equal('no-title.com', page2.title)
+  end
+
+  test 'update_page_title should keep looking back in time if latest version has no title' do
+    page = Page.create(url: 'http://no-title.com/my/special+page.html', status: 404)
+    page.versions.create(capture_time: '2017-03-06T00:00:00Z', status: 200, title: '')
+    page.versions.create(capture_time: '2017-03-05T00:00:00Z', status: 200, title: 'Good Title')
+    page.update_page_title
+
+    assert_equal('Good Title', page.title)
   end
 
   test 'can add many maintainer models to a page' do

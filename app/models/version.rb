@@ -213,15 +213,7 @@ class Version < ApplicationRecord
   end
 
   def sync_page_title
-    if title.present? && status_ok?
-      most_recent_capture_time = page.latest.capture_time
-      if most_recent_capture_time.nil? || most_recent_capture_time <= capture_time
-        page.update(title:)
-        return title
-      end
-    end
-
-    nil
+    page.update_page_title(capture_time)
   end
 
   private
