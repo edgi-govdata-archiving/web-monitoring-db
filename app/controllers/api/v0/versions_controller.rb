@@ -6,13 +6,52 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   def index
     query = version_collection
-    paging = pagination(query)
-    versions = paging[:query]
+    # paging = pagination(query)
+    # versions = paging[:query]
+
+    links = {
+      first: paging_path_for_version(
+        params: request.query_parameters.except(:chunk)
+      ),
+      next: nil,
+    }
+
+    chunk_size = (params[:chunk_size] || PagingConcern::DEFAULT_PAGE_SIZE).to_i.clamp(1, PagingConcern::MAX_PAGE_SIZE)
+    query = query.limit(chunk_size)
+
+    if params[:chunk]
+      chunk = params[:chunk].split(',')
+      raise Api::InputError, 'Invalid `chunk` parameter' if chunk.length != 2
+
+      # FIXME: this depends on sorting defaults being the same here and in
+      # version_collection, as well as validation performed there to avoid
+      # SQL injection here. Not ok.
+      sort_key = sorting_params&.first&.keys&.first || :capture_time
+      sort_direction = sorting_params&.first&.values&.first || :asc
+      sort_comparator = sort_direction == :asc ? '>' : '<'
+      query = query.where(
+        "(versions.#{sort_key}, versions.uuid) #{sort_comparator} (?, ?)",
+        chunk[0],
+        chunk[1]
+      )
+    end
+
+    if query.length == chunk_size
+      # There's no way to do "prev" without changing the sorting (could do, but
+      # meh) and no great way to get "last" here, either, so we just don't fill
+      # them in.
+      last_record = query.last
+      links[:next] = paging_path_for_version(
+        params: request.query_parameters.merge(chunk: "#{last_record.capture_time.iso8601},#{last_record.uuid}")
+      )
+    end
+
+    links[:page] = api_v0_page_url(page) if page
 
     render json: {
-      links: paging[:links],
-      meta: paging[:meta],
-      data: versions.collect {|version| serialize_version(version)}
+      links: links,
+      meta: {},
+      data: query.collect {|version| serialize_version(version)}
     }
   end
 
@@ -229,7 +268,19 @@ class Api::V0::VersionsController < Api::V0::ApiController
     collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
     collection = where_in_interval_param(collection, :status)
 
-    sort_using_params(collection)
+    # Custom, restricted sorting.
+    # TODO: encapsulate this somehow
+    # sort_using_params(collection)
+    sort = sorting_params
+    puts "Sort entries: #{sort}"
+    sort = [{capture_time: :asc}] if sort.blank?
+    if sort.length > 1 || ![:created_at, :capture_time].include?(sort[0].keys[0])
+      raise Api::InputError, "Versions can only be sorted by either 'created_at' or 'capture_time'"
+    end
+    sort << [{uuid: sort[0].values[0]}]
+    collection = collection.reorder(sort)
+
+    collection
   end
 
   def serialize_version(version, options = {})
