@@ -69,6 +69,21 @@ class Version < ApplicationRecord
             allow_nil: true,
             numericality: { greater_than_or_equal_to: 0 }
 
+  def self.ordered(field, point: nil, direction: :asc)
+    raise Api::InputError, 'Invalid query ordering point' if point && point.length != 2
+    if ![:capture_time, :created_at].include?(field)
+      raise Api::InputError, 'You can only sort versions by `capture_time` or `created_at`'
+    end
+
+    comparator = direction == :asc ? '>' : '<'
+    query = self.reorder({field => direction, uuid: direction})
+    if point
+      query.where("(versions.#{field}, versions.uuid) #{comparator} (?, ?)", *point)
+    else
+      query
+    end
+  end
+
   def earliest
     self.page.versions.reorder(capture_time: :asc).first
   end

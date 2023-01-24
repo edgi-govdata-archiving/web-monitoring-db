@@ -19,22 +19,10 @@ class Api::V0::VersionsController < Api::V0::ApiController
     chunk_size = (params[:chunk_size] || PagingConcern::DEFAULT_PAGE_SIZE).to_i.clamp(1, PagingConcern::MAX_PAGE_SIZE)
     query = query.limit(chunk_size)
 
-    if params[:chunk]
-      chunk = params[:chunk].split(',')
-      raise Api::InputError, 'Invalid `chunk` parameter' if chunk.length != 2
-
-      # FIXME: this depends on sorting defaults being the same here and in
-      # version_collection, as well as validation performed there to avoid
-      # SQL injection here. Not ok.
-      sort_key = sorting_params&.first&.keys&.first || :capture_time
-      sort_direction = sorting_params&.first&.values&.first || :asc
-      sort_comparator = sort_direction == :asc ? '>' : '<'
-      query = query.where(
-        "(versions.#{sort_key}, versions.uuid) #{sort_comparator} (?, ?)",
-        chunk[0],
-        chunk[1]
-      )
-    end
+    start_point = params.dig(:chunk)&.split(',')
+    sort_key = sorting_params&.first&.keys&.first || :capture_time
+    sort_direction = sorting_params&.first&.values&.first || :asc
+    query = query.ordered(sort_key, point: start_point, direction: sort_direction)
 
     if query.length == chunk_size
       # There's no way to do "prev" without changing the sorting (could do, but
@@ -267,18 +255,6 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
     collection = where_in_interval_param(collection, :status)
-
-    # Custom, restricted sorting.
-    # TODO: encapsulate this somehow
-    # sort_using_params(collection)
-    sort = sorting_params
-    puts "Sort entries: #{sort}"
-    sort = [{capture_time: :asc}] if sort.blank?
-    if sort.length > 1 || ![:created_at, :capture_time].include?(sort[0].keys[0])
-      raise Api::InputError, "Versions can only be sorted by either 'created_at' or 'capture_time'"
-    end
-    sort << [{uuid: sort[0].values[0]}]
-    collection = collection.reorder(sort)
 
     collection
   end
