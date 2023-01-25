@@ -19,6 +19,7 @@ module PagingConcern
   # assembled your relation with all the relevant conditions.
   def pagination(collection, path_resolver: :paging_path_for, include_total: nil)
     collection ||= @collection
+    path_resolver = method(path_resolver) if path_resolver.is_a? Symbol
     include_total = boolean_param(:include_total) if include_total.nil?
 
     chunk_size = (params[:chunk_size] || DEFAULT_PAGE_SIZE).to_i.clamp(1, MAX_PAGE_SIZE)
@@ -29,11 +30,6 @@ module PagingConcern
     query = collection.limit(chunk_size).offset(item_offset)
     # Use `length` instead of `count` or `size` to ensure we don't issue an expensive `count(x)` SQL query.
     is_last = query.length < chunk_size
-
-    if path_resolver.is_a? Symbol
-      resolver_symbol = path_resolver
-      path_resolver = lambda {|*args| self.send resolver_symbol, *args}
-    end
 
     collection_type = collection.new.class.name.underscore.to_sym
     format_type = self.paging_url_format
