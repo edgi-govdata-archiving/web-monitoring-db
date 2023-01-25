@@ -69,16 +69,39 @@ class Version < ApplicationRecord
             allow_nil: true,
             numericality: { greater_than_or_equal_to: 0 }
 
+  # Order a query by the combination of a field (e.g. capture_time) and uuid.
+  # You can optionally set a point to start from (a Version instance or an array
+  # of the field value and the record's UUID).
+  # Used for range-based pagination instead of offset-based pagination.
+  #
+  # IMPORTANT: there should always be a compound index on the field you are
+  # are sorting by + uuid. e.g. to sort by capture_time, you should have an
+  # index on (capture_time, uuid).
+  #
+  # Usage:
+  #   # Get the first 100 records in capture_time order
+  #   Version.ordered(:capture_time).limit(100)
+  #
+  #   # Get the 100 records before the record with given capture_time and uuid
+  #   Version.ordered(:capture_time, point: [<Time>, '<uuid>'], direction: :desc)
+  #
+  #   # Get the 100 records before the given record.
+  #   anchor = Version.find('<uuid>')
+  #   Version.ordered(:capture_time, point: anchor, direction: :desc).limit(100)
   def self.ordered(field, point: nil, direction: :asc)
-    raise Api::InputError, 'Invalid query ordering point' if point && point.length != 2
-    if ![:capture_time, :created_at].include?(field)
-      raise Api::InputError, 'You can only sort versions by `capture_time` or `created_at`'
+    point = [point[field], point[self.primary_key]].compact if point.is_a?(Version)
+
+    raise Api::InputError, 'Invalid query sorting point' if point && point.length != 2
+    # Only allow fields where there is an index on `(field, uuid)`.
+    unless [:capture_time, :created_at].include?(field)
+      raise Api::InputError, 'Versions can only be sorted by `capture_time` or `created_at`'
     end
 
-    comparator = direction == :asc ? '>' : '<'
-    query = self.reorder({field => direction, uuid: direction})
+    query = self.reorder({ field => direction, uuid: direction })
     if point
-      query.where("(versions.#{field}, versions.uuid) #{comparator} (?, ?)", *point)
+      fields = [field, self.primary_key].collect {|f| "#{self.table_name}.#{f}"}
+      comparator = direction == :asc ? '>' : '<'
+      query.where("(#{fields.join(',')}) #{comparator} (?, ?)", *point)
     else
       query
     end
