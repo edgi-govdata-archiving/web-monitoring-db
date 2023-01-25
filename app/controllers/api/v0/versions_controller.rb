@@ -6,40 +6,13 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   def index
     query = version_collection
-    # paging = pagination(query)
-    # versions = paging[:query]
-
-    links = {
-      first: paging_path_for_version(
-        params: request.query_parameters.except(:chunk)
-      ),
-      next: nil,
-    }
-
-    chunk_size = (params[:chunk_size] || PagingConcern::DEFAULT_PAGE_SIZE).to_i.clamp(1, PagingConcern::MAX_PAGE_SIZE)
-    query = query.limit(chunk_size)
-
-    start_point = params.dig(:chunk)&.split(',')
-    sort_key = sorting_params&.first&.keys&.first || :capture_time
-    sort_direction = sorting_params&.first&.values&.first || :asc
-    query = query.ordered(sort_key, point: start_point, direction: sort_direction)
-
-    if query.length == chunk_size
-      # There's no way to do "prev" without changing the sorting (could do, but
-      # meh) and no great way to get "last" here, either, so we just don't fill
-      # them in.
-      last_record = query.last
-      links[:next] = paging_path_for_version(
-        params: request.query_parameters.merge(chunk: "#{last_record.capture_time.iso8601},#{last_record.uuid}")
-      )
-    end
-
-    links[:page] = api_v0_page_url(page) if page
+    paging = pagination(query)
+    versions = paging[:query]
 
     render json: {
-      links: links,
-      meta: {},
-      data: query.collect {|version| serialize_version(version)}
+      links: paging[:links],
+      meta: paging[:meta],
+      data: versions.collect {|version| serialize_version(version)}
     }
   end
 
@@ -83,7 +56,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       first: api_v0_page_versions_sampled_url(page),
       last: nil,
       next: nil,
-      prev: nil
+      prev: nil,
+      page: api_v0_page_url(page)
     }
     # Optimize forward pagination by skipping to a time range with data.
     if next_version
@@ -254,9 +228,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
-    collection = where_in_interval_param(collection, :status)
-
-    collection
+    where_in_interval_param(collection, :status)
   end
 
   def serialize_version(version, options = {})
@@ -272,5 +244,79 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     result
+  end
+
+  # Our standard pagination is offset-based, which does not work well for large
+  # tables like Versions, so we override the main pagination routine with a
+  # versions-specific, range-based one here.
+  # It might make sense to abstract this for use in other controllers/models.
+  #
+  # NOTE: this will load the paginated results for `collection`, so do this after you have completely
+  # assembled your relation with all the relevant conditions.
+  def pagination(collection, path_resolver: :paging_path_for, include_total: nil) # rubocop:disable Metrics/PerceivedComplexity,Metrics/CyclomaticComplexity
+    collection ||= @collection
+    path_resolver = method(path_resolver) if path_resolver.is_a? Symbol
+
+    # The table is just too big to count! (Really, it can take a *long* time.)
+    # If we need this back, it should only be allowed for logged-in users.
+    include_total = boolean_param(:include_total) if include_total.nil?
+    raise Api::InputError, '?include_total is not supported for versions' if include_total
+
+    chunk_size = (params[:chunk_size] || PagingConcern::DEFAULT_PAGE_SIZE).to_i.clamp(1, PagingConcern::MAX_PAGE_SIZE)
+
+    # `?chunk` should be "<timestamp>,<uuid>" or "<uuid>" (if the latter, we
+    # need to look up the record to get the timestamp).
+    start_point = params[:chunk]&.split(',')
+    start_point = Version.find(start_point) if start_point&.length == 1
+
+    sort_key = sorting_params&.first&.keys&.first || :capture_time
+    sort_direction = sorting_params&.first&.values&.first || :asc
+
+    query = collection
+      .ordered(sort_key, point: start_point, direction: sort_direction)
+      .limit(chunk_size)
+
+    # Use `length` instead of `count` or `size` to ensure we don't issue an
+    # expensive `count(x)` SQL query.
+    is_last = query.length < chunk_size
+
+    collection_type = collection.new.class.name.underscore.to_sym
+    format_type = paging_url_format
+
+    links = {
+      first: path_resolver.call(
+        collection_type,
+        format: format_type,
+        params: request.query_parameters.except(:chunk).merge(chunk_size:)
+      ),
+      next: nil
+      # This does not currently support `last` and `prev` links. We *could*
+      # solve each by issuing additional queries, but there's not a lot of
+      # obvious value in doing so at the moment.
+    }
+
+    unless is_last
+      last_record = query.last
+      links[:next] = path_resolver.call(
+        collection_type,
+        format: format_type,
+        params: request.query_parameters.merge(chunk: "#{last_record.capture_time.iso8601},#{last_record.uuid}",
+                                               chunk_size:)
+      )
+    end
+
+    links[:page] = api_v0_page_url(page) if page
+
+    {
+      query:,
+      links:,
+      meta: include_total ? { total_results: total_items } : {},
+      # chunks: total_chunks,
+      # chunk_number:,
+      # offset: item_offset,
+      # total_items:,
+      chunk_size:,
+      is_last:
+    }
   end
 end
