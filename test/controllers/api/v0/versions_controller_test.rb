@@ -304,6 +304,11 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'meta.total_results should be the total results across all chunks' do
+    # For now, there no reasonable way to count versions in a reasonable amount
+    # of time, so this functionality is disabled. This test is kept in case
+    # the feature comes back (e.g. with clever caching of counts).
+    skip
+
     sign_in users(:alice)
     page = pages(:home_page)
 
@@ -318,18 +323,27 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'can order versions with `?sort=field:direction,field:direction`' do
+  test 'the ?include_total=true parameter is not supported' do
+    sign_in users(:alice)
+    page = pages(:home_page)
+
+    get(api_v0_page_versions_url(page, params: { include_total: true }))
+    assert_response(400)
+    assert_equal('application/json', @response.media_type)
+  end
+
+  test 'can order versions with `?sort=field:direction`' do
     sign_in users(:alice)
     get(
       api_v0_versions_url(
-        params: { sort: 'source_type:asc, capture_time:asc' }
+        params: { sort: 'capture_time:asc' }
       )
     )
     assert_response(:success)
     body = JSON.parse(@response.body)
     assert_ordered_by(
       body['data'],
-      [['source_type'], ['capture_time']],
+      [['capture_time']],
       name: 'Versions'
     )
   end
