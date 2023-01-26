@@ -1,6 +1,6 @@
 class ApiPolicy < ApplicationPolicy
   def view?
-    user.present? && user.can_view?
+    Rails.configuration.allow_public_view || (user.present? && user.can_view?)
   end
 
   def annotate?
