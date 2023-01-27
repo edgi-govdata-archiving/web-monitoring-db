@@ -44,4 +44,12 @@ class ActiveSupport::TestCase
     message ||= "Expected #{list} to have an item that includes '#{value}'"
     assert_any(list, ->(item) { item.include?(value) }, message)
   end
+
+  def with_rails_configuration(key, value, &block)
+    original =  Rails.configuration.send(key)
+    Rails.configuration.send("#{key}=", value)
+    block.call
+  ensure
+    Rails.configuration.send("#{key}=", original)
+  end
 end

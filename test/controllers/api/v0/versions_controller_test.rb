@@ -13,24 +13,26 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     Archiver.store = @original_store
   end
 
-  test 'authorizations' do
-    get(api_v0_page_versions_url(pages(:home_page)))
-    assert_response :unauthorized
-    body_json = JSON.parse(@response.body)
-    assert_equal({ 'errors' => [{ 'status' => 401, 'title' => 'You must be logged in to perform this action.' }] }, body_json)
+  test 'can only list versions without auth if configured' do
+    with_rails_configuration(:allow_public_view, true) do
+      get(api_v0_page_versions_url(pages(:home_page)))
+      assert_response :success
+    end
 
-    user = users(:alice)
+    with_rails_configuration(:allow_public_view, false) do
+      get(api_v0_page_versions_url(pages(:home_page)))
+      assert_response :unauthorized
 
-    sign_in user
-    get(api_v0_page_versions_url(pages(:home_page)))
-    assert_response :success
+      user = users(:alice)
+      sign_in user
 
-    user.update permissions: (user.permissions - [User::VIEW_PERMISSION])
+      get(api_v0_page_versions_url(pages(:home_page)))
+      assert_response :success
 
-    get(api_v0_page_versions_url(pages(:home_page)))
-    assert_response :forbidden
-    body_json = JSON.parse(@response.body)
-    assert_equal({ 'errors' => [{ 'status' => 403, 'title' => 'You are not authorized to perform this action.' }] }, body_json)
+      user.update permissions: (user.permissions - [User::VIEW_PERMISSION])
+      get(api_v0_page_versions_url(pages(:home_page)))
+      assert_response :forbidden
+    end
   end
 
   test 'can list versions' do

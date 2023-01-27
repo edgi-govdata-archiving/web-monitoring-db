@@ -3,9 +3,16 @@ require 'test_helper'
 class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test 'cannot list urls without auth' do
-    get api_v0_page_urls_path(pages(:home_page))
-    assert_response :unauthorized
+  test 'can only list urls without auth if configured' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_page_urls_path(pages(:home_page))
+      assert_response :success
+    end
+
+    with_rails_configuration(:allow_public_view, false) do
+      get api_v0_page_urls_path(pages(:home_page))
+      assert_response :unauthorized
+    end
   end
 
   test 'can list urls' do
@@ -25,6 +32,19 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
       assert_includes(page_url, 'url')
       assert_includes(page_urls, page_url['url'])
     end
+  end
+
+  test 'creating a url requires import permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::IMPORT_PERMISSION])
+    sign_in user
+
+    post(
+      api_v0_page_urls_path(pages(:home_page)),
+      as: :json,
+      params: { page_url: { url: 'https://example.gov/new_url' } }
+    )
+    assert_response(:forbidden)
   end
 
   test 'can create new urls' do
@@ -75,6 +95,21 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
     )
     assert_response :conflict
     assert_equal 'application/json', @response.media_type
+  end
+
+  test 'updating a url requires import permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::IMPORT_PERMISSION])
+    sign_in user
+
+    page_url = pages(:home_page).urls.first
+    new_from_time = Time.now.utc - 1.day
+    put(
+      api_v0_page_url_path(pages(:home_page), page_url),
+      as: :json,
+      params: { page_url: { from_time: new_from_time } }
+    )
+    assert_response(:forbidden)
   end
 
   test 'can update urls' do
@@ -133,6 +168,16 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
     )
     assert_response :unprocessable_entity
     assert_equal 'application/json', @response.media_type
+  end
+
+  test 'deleting a url requires import permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::IMPORT_PERMISSION])
+    sign_in user
+
+    page_url = pages(:home_page).urls.create(url: 'https://example.gov/whatever')
+    delete(api_v0_page_url_path(pages(:home_page), page_url))
+    assert_response(:forbidden)
   end
 
   test 'can delete urls' do
