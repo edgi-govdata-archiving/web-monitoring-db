@@ -2,6 +2,7 @@ class Api::V0::ApiController < ApplicationController
   skip_forgery_protection
 
   include PagingConcern
+  before_action :validate_credentials!
   before_action { authorize :api, :view? }
   before_action :set_environment_header
 
@@ -16,6 +17,23 @@ class Api::V0::ApiController < ApplicationController
 
   def paging_url_format
     ''
+  end
+
+  # Allow unauthenticated requests, but raise an error if invalid credentials
+  # are sent. (Devise does not provide a method that differentiates between
+  # these cases.)
+  # We also want to provide a nice API-style error response, but Devise's
+  # `authenticate_user!` exits this controller entirely and goes to a separate,
+  # global "failure_app" Rack handler when it fails.
+  def validate_credentials!
+    # Force Devise/Warden to try and authenticate.
+    user_signed_in?
+
+    # It seems like we have to drop down to warden to figure out whether there
+    # was actually a failure or there was no authentication info sent.
+    # `warden.result` will be one of nil (no auth), :failure, :success.
+    # `warden.errors` does not get populated in, so use our own message.
+    raise Api::AuthorizationError, 'Invalid credentials.' if warden.result == :failure
   end
 
   def pundit_auth_error(error)

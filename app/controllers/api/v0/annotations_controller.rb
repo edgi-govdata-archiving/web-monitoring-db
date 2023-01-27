@@ -1,6 +1,6 @@
 class Api::V0::AnnotationsController < Api::V0::ApiController
   include SortingConcern
-  before_action { authorize :api, :annotate? }
+  before_action(only: [:create]) { authorize :api, :annotate? }
   before_action :set_annotation, only: [:show]
 
   def index
@@ -12,7 +12,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
       links: paging[:links],
       meta: paging[:meta],
       data: annotations.as_json(
-        include: { author: { only: [:id, :email] } },
+        include: inclusions,
         except: :author_id
       )
     }
@@ -27,7 +27,7 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
         from_version: api_v0_page_version_url(page, @annotation.change.from_version)
       },
       data: @annotation.as_json(
-        include: { author: { only: [:id, :email] } },
+        include: inclusions,
         except: :author_id
       )
     }
@@ -65,5 +65,14 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
 
   def parent_change
     @change ||= Change.find_by_api_id(params[:change_id])
+  end
+
+  def inclusions
+    # Author info may be have e-mails; only allow other logged-in users to see.
+    if current_user.present?
+      { author: { only: [:id, :email] } }
+    else
+      {}
+    end
   end
 end

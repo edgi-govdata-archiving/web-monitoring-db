@@ -1,6 +1,8 @@
 class Api::V0::MaintainersController < Api::V0::ApiController
   include SortingConcern
 
+  before_action(except: [:index, :show]) { authorize(:api, :annotate?) }
+
   def index
     query = maintainer_collection
     paging = pagination(query)

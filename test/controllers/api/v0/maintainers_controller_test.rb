@@ -3,9 +3,16 @@ require 'test_helper'
 class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test 'cannot list maintainers without auth' do
-    get api_v0_maintainers_path
-    assert_response :unauthorized
+  test 'can only list maintainers without auth if configured' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_maintainers_path
+      assert_response :success
+    end
+
+    with_rails_configuration(:allow_public_view, false) do
+      get api_v0_maintainers_path
+      assert_response :unauthorized
+    end
   end
 
   test 'can list maintainers' do
@@ -94,7 +101,18 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     assert_equal(maintainers(:someone).uuid, body['data'][0]['uuid'])
   end
 
+  test 'adding a maintainer requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
 
+    post(
+      api_v0_maintainers_path,
+      as: :json,
+      params: { name: 'EPA' }
+    )
+    assert_response(:forbidden)
+  end
 
   test 'can add a maintainer to a page' do
     sign_in users(:alice)
@@ -208,6 +226,19 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     assert_response(:bad_request)
   end
 
+  test 'editing a maintainer requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    patch(
+      api_v0_maintainer_path(maintainers(:epa)),
+      as: :json,
+      params: { name: 'epa' }
+    )
+    assert_response(:forbidden)
+  end
+
   test 'can edit a maintainer' do
     sign_in users(:alice)
     patch(
@@ -218,6 +249,16 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     assert_response(:success)
     body = JSON.parse(@response.body)
     assert_equal('epa', body['data']['name'])
+  end
+
+  test 'deleting a maintainer from a page requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    pages(:home_page).add_maintainer(maintainers(:epa))
+    delete(api_v0_page_maintainer_path(pages(:home_page), maintainers(:epa)))
+    assert_response(:forbidden)
   end
 
   test 'can delete a maintainer from a page' do

@@ -3,30 +3,31 @@ require 'test_helper'
 class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test 'authorizations' do
+  test 'can only list annotations without auth if configured' do
     page = pages(:home_page)
     annotations(:annotation1).touch
-    get(
-      api_v0_page_change_annotations_url(
-        page,
-        changes(:page1_change_1_2),
-        params: { sort: 'updated_at:asc' }
-      )
-    )
-    assert_response(:unauthorized)
 
-    user = users(:alice)
-    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
-    sign_in user
-
-    get(
-      api_v0_page_change_annotations_url(
-        page,
-        changes(:page1_change_1_2),
-        params: { sort: 'updated_at:asc' }
+    with_rails_configuration(:allow_public_view, true) do
+      get(
+        api_v0_page_change_annotations_url(
+          page,
+          changes(:page1_change_1_2),
+          params: { sort: 'updated_at:asc' }
+        )
       )
-    )
-    assert_response(:forbidden)
+      assert_response :success
+    end
+
+    with_rails_configuration(:allow_public_view, false) do
+      get(
+        api_v0_page_change_annotations_url(
+          page,
+          changes(:page1_change_1_2),
+          params: { sort: 'updated_at:asc' }
+        )
+      )
+      assert_response :unauthorized
+    end
   end
 
   test 'can annotate a version' do

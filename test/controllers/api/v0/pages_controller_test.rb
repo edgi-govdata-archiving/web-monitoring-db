@@ -3,9 +3,16 @@ require 'test_helper'
 class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test 'cannot list pages without auth' do
-    get '/api/v0/pages/'
-    assert_response :unauthorized
+  test 'can only list pages without auth if configured' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_pages_path
+      assert_response :success
+    end
+
+    with_rails_configuration(:allow_public_view, false) do
+      get api_v0_pages_path
+      assert_response :unauthorized
+    end
   end
 
   test 'can list pages' do
