@@ -15,3 +15,9 @@ admin_user:
   encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
   confirmed_at: <%= Time.now %>
   permissions: <%= [User::VIEW_PERMISSION, User::ANNOTATE_PERMISSION, User::IMPORT_PERMISSION, User::MANAGE_USERS_PERMISSION] %>
+
+view_only_user:
+  email: test3@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'testpassword') %>
+  confirmed_at: <%= Time.now %>
+  permissions: <%= [User::VIEW_PERMISSION] %>

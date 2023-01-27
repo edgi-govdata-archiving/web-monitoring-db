@@ -3,9 +3,16 @@ require 'test_helper'
 class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  test 'cannot list tags without auth' do
-    get api_v0_tags_path
-    assert_response :unauthorized
+  test 'can only list maintainers without auth if configured' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_tags_path
+      assert_response :success
+    end
+
+    with_rails_configuration(:allow_public_view, false) do
+      get api_v0_tags_path
+      assert_response :unauthorized
+    end
   end
 
   test 'can list tags' do
@@ -55,6 +62,19 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
       assert_includes(tag, 'name')
       assert_includes(tag, 'assigned_at')
     end
+  end
+
+  test 'adding a tag requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    post(
+      api_v0_page_tags_path(pages(:home_page)),
+      as: :json,
+      params: { name: 'Page of wonderment' }
+    )
+    assert_response(:forbidden)
   end
 
   test 'can add a tag to a page' do
@@ -125,6 +145,19 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:bad_request)
   end
 
+  test 'editing a tag requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    patch(
+      api_v0_tag_path(tags(:site_whatever)),
+      as: :json,
+      params: { name: 'site:wherever' }
+    )
+    assert_response(:forbidden)
+  end
+
   test 'can edit a tag' do
     sign_in users(:alice)
     patch(
@@ -135,6 +168,16 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:success)
     body = JSON.parse(@response.body)
     assert_equal('site:wherever', body['data']['name'])
+  end
+
+  test 'deleting a tag from a page requires annotate permissions' do
+    user = users(:alice)
+    user.update permissions: (user.permissions - [User::ANNOTATE_PERMISSION])
+    sign_in user
+
+    pages(:home_page).add_tag(tags(:site_whatever))
+    delete(api_v0_page_tag_path(pages(:home_page), tags(:site_whatever)))
+    assert_response(:forbidden)
   end
 
   test 'can delete a tag from a page' do
