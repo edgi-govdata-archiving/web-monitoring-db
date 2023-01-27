@@ -45,10 +45,10 @@ class ActiveSupport::TestCase
     assert_any(list, ->(item) { item.include?(value) }, message)
   end
 
-  def with_rails_configuration(key, value, &block)
-    original =  Rails.configuration.send(key)
+  def with_rails_configuration(key, value)
+    original = Rails.configuration.send(key)
     Rails.configuration.send("#{key}=", value)
-    block.call
+    yield
   ensure
     Rails.configuration.send("#{key}=", original)
   end
