@@ -160,7 +160,7 @@ GEM
     jmespath (1.6.2)
     json (2.6.3)
     jwt (2.6.0)
-    listen (3.7.1)
+    listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     loofah (2.19.1)
@@ -390,7 +390,7 @@ DEPENDENCIES
   hiredis
   httparty
   jwt (~> 2.6)
-  listen (~> 3.7)
+  listen (~> 3.8)
   oj (~> 3.13)
   pg (~> 1.4)
   postmark-rails
