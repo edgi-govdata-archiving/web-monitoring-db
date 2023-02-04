@@ -10,7 +10,7 @@ module BlockedParamsConcern
     private
 
     def block_params_for_public_users(blocked_params)
-      @blocked_public_params = Set.new(blocked_params.collect &:to_s)
+      @blocked_public_params = Set.new(blocked_params.collect(&:to_s))
     end
   end
 
