@@ -5,8 +5,8 @@ class Api::V0::PagesController < Api::V0::ApiController
   # Params that can cause expensive performance overhead require logging in.
   block_params_for_public_users actions: [:index],
                                 params: [
-                                  :include_change_from_previous,
-                                  :include_change_from_earliest
+                                  :include_earliest,
+                                  :include_latest
                                 ]
 
   def index

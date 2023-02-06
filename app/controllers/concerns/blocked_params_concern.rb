@@ -42,7 +42,7 @@ module BlockedParamsConcern
     return unless self.class.blocked_public_params
 
     blocked = self.class.blocked_public_params.flat_map do |actions, params|
-      (actions.nil? || actions.include?(self.action_name)) ? params : nil
+      actions.nil? || actions.include?(action_name) ? params : nil
     end
 
     raise_for_non_public_params!(blocked)
