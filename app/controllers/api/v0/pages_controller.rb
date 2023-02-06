@@ -1,5 +1,8 @@
 class Api::V0::PagesController < Api::V0::ApiController
   include SortingConcern
+  include BlockedParamsConcern
+
+  block_params_for_public_users [:include_earliest, :include_latest, :source_type]
 
   def index
     query = page_collection
