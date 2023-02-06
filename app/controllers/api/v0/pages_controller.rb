@@ -2,7 +2,12 @@ class Api::V0::PagesController < Api::V0::ApiController
   include SortingConcern
   include BlockedParamsConcern
 
-  block_params_for_public_users [:include_earliest, :include_latest, :source_type]
+  # Params that can cause expensive performance overhead require logging in.
+  block_params_for_public_users actions: [:index],
+                                params: [
+                                  :include_change_from_previous,
+                                  :include_change_from_earliest
+                                ]
 
   def index
     query = page_collection

@@ -6,14 +6,13 @@ class Api::V0::VersionsController < Api::V0::ApiController
   SAMPLE_DAYS_MAX = 365
 
   # Params that can cause expensive performance overhead require logging in.
-  block_params_for_public_users [
-    # Serialization
-    :include_change_from_previous,
-    :include_change_from_earliest,
-    # Querying
-    :source_metadata,
-    :status
-  ]
+  block_params_for_public_users actions: :all,
+                                params: [:source_metadata, :status]
+  block_params_for_public_users actions: [:index, :sampled],
+                                params: [
+                                  :include_change_from_previous,
+                                  :include_change_from_earliest
+                                ]
 
   def index
     query = version_collection
