@@ -355,6 +355,55 @@ paths:
           description: successful operation
           schema:
             $ref: '#/definitions/SingleVersion'
+
+  '/pages/{page_id}/sampled':
+    get:
+      tags:
+        - pages and versions
+      summary: Get one version per day of a specific page.
+      description: >
+        ⚠️ This endpoint is experimental, and may change!
+
+        Use this endpoint to get a lighter-weight history of a page's versions
+        by sampling at most one version per day. The result is an array of
+        objects representing each day, each with a complete Version object and a
+        count of versions on that day. Only days with captured versions are
+        included.
+
+        If you are displaying a history for a particular page (particularly a
+        frequently captured page, like `https://www.epa.gov/`), this can be a
+        more efficient and quick way to load the relevant information you might
+        need, rather than requesting every version of the page from
+        `/pages{page_id}/versions`.
+
+        As with other list endpoints, results are chunked. Follow the
+        `links.next` property of the response to get the next chunk of results.
+        (You can also iterate by manually making requests with sequential
+        `capture_time` parameters, but the `links.next` property willskip past
+        empty time ranges automatically for more efficient querying.)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: page_id
+          in: path
+          description: ID of Page to return
+          required: true
+          type: string
+          format: uuid4
+        - name: capture_time
+          in: query
+          description: >-
+            filter by capture time; may also be specified as a range given as
+            time..time such as 2017-04-01T10:00Z..2017-04-01T12:00Z
+          required: false
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/PageOfVersionDateSample'
   '/pages/{page_id}/versions/{version_id}':
     get:
       tags:
@@ -1534,6 +1583,16 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/Version'
+  VersionDateSample:
+    type: object
+    properties:
+      time:
+        type: string
+        format: date
+      version_count:
+        type: integer
+      version:
+        $ref: '#/definitions/Version'
   PageOfVersions:
     type: object
     properties:
@@ -1556,6 +1615,25 @@ definitions:
           next:
             type: string
             format: uri
+  PageOfVersionDateSample:
+    type: object
+    properties:
+      links:
+        type: object
+        properties:
+          first:
+            type: string
+            format: uri
+          next:
+            type: string
+            format: uri
+          page:
+            type: string
+            format: uri
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/VersionDateSample'
   SingleChange:
     type: object
     properties:
