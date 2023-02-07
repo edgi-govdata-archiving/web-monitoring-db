@@ -5,22 +5,28 @@
 
 <div id="auth-notice">
   <p>
-    <strong>AUTHENTICATION:</strong> All endpoints currently require authenication.
-    We plan to make some endpoints public in the future, but the timeline is not yet known.
+    <strong>AUTHENTICATION:</strong> All GET endpoints can be accessed without
+    authentication, but some parameters (which might cause complex or
+    time-consuming queries) require authentication, as well as all
+    POST/PATCH/DELETE endpoints that change data.
   </p>
   <p>
-    You can authenticate a request by providing an e-mail and password with <strong>HTTP Basic authentication</strong> or, if you are authorizing a session on behalf of a user, exchanging an e-mail and password for a session token by POSTing a JSON object that matches the following structure to <code>/users/sign_in</code>:
+    You can authenticate a request in 2 ways:
   </p>
-  <pre class="code-block">{
-  "user": {
-    "email": "someone@example.com",
-    "password": "someones_password"
-  }
-}</pre>
-  <p>
-    Make sure to set the <code>Accept</code> HTTP header to <code>application/json</code>.
-    The token will be the <code>token</code> property in the response JSON.
-  </p>
+  <ol>
+    <li>
+      By providing an e-mail and password with <strong>HTTP Basic
+      authentication</strong> or
+    </li>
+    <li>
+      Including a session token in the <code>Authorization</code> header with
+      the value <code>Bearer: &lt;token&gt;</code>. Use this if you are
+      authorizing a session on behalf of a user. You can obtain a session
+      token at <code>/users/sign_in</code>; See the
+      <a href="#operations-tag-authentication">authentication section</a>
+      below for details.
+    </li>
+  <ol>
 </div>
 
 <div id="swagger-ui"></div>
