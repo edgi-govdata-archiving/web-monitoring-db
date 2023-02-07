@@ -18,6 +18,16 @@ tags:
   - name: imports
     description: Bulk-importing Versions
 
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  # Technically this should be "bearerAuth", but this is Swagger 2, and that's
+  # only supported in OpenAPI (Swagger 3).
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+
 parameters:
   sort:
     name: sort
@@ -95,7 +105,7 @@ paths:
           description: >-
             If true, add an `earliest` key to each page with the earliest version of it. (Note this is not affected by `capture_time`, which only modifies which *pages* are returned.)
           required: false
-          type: string
+          type: boolean
           default: false
         - name: include_latest
           in: query
@@ -1421,6 +1431,96 @@ paths:
           schema:
             $ref: '#/definitions/SingleTag'
 
+  '/users/sign_in':
+    post:
+      tags:
+        - authentication
+      summary: Sign in with user credentials
+      description: >
+        Get a session token to use for authenticating future requests by signing
+        in with this route. You can then use the returned token in future
+        requests instead of storing and sending user credentials.
+
+        To use the token in future requests, set the `Authorization` HTTP
+        header to `Bearer <token>`.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: >
+            The request body should be a JSON object with a `user` property
+            containing `email` and `password` properties.
+          required: true
+          schema:
+            type: object
+            properties:
+              user:
+                type: object
+                required: true
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    required: true
+                  password:
+                    type: string
+                    required: true
+      responses:
+        '200':
+          description: Successful Login
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '#/definitions/User'
+              token:
+                type: string
+                description: >
+                  Session token to use in `Authorization` header for future
+                  requests.
+        '401':
+          description: Invalid Credentials
+
+  '/users/session':
+    get:
+      tags:
+        - authentication
+      summary: Validate existing session token/credentials
+      description: >
+        If you have a session token, cookies, or credentials, you can check
+        whether they are valid and get information about the logged-in user by
+        requesting this endpoint and providing the credentials as you normally
+        would for any other API endpoint (as HTTP Basic authorization, as
+        cookies, or as setting the token in the `Authorization: Bearer <token>`
+        header).
+
+        If the session is still valid, the response will include information
+        about the logged-in user. If not, the response will be a JSON object
+        with a 401 status code.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful Login
+          schema:
+            type: object
+            properties:
+              user:
+                $ref: '#/definitions/User'
+        '401':
+          description: Invalid Credentials
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                const: 401
+              title:
+                type: string
+
 definitions:
   Version:
     type: object
@@ -2026,6 +2126,29 @@ definitions:
       source_metadata:
         type: object
         description: Any additional metadata that you'd like to store. Typically, this is things like unique IDs from the source system (e.g. the site/page/version ID in Versionista), headers, content lengths, redirect chains, etc. The intent is that you should store as rich a set of metadata as you can get for every version, and this gives you a space to put all the information that we can't guarantee must be available from every type of source.
+
+  User:
+    type: object
+    properties:
+      id:
+      email:
+        type: string
+        format: email
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+      permissions:
+        type: array
+        items:
+          type: string
+          enum:
+            - view
+            - annotate
+            - import
+            - manage_users
 
 externalDocs:
   description: Find out more about the web-monitoring project.
