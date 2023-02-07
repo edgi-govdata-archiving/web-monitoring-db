@@ -64,7 +64,7 @@ module WebpageVersionsDb
     end
 
     config.allow_public_view = ActiveModel::Type::Boolean.new.cast(
-      ENV.fetch('ALLOW_PUBLIC_VIEW', '')
+      ENV.fetch('ALLOW_PUBLIC_VIEW', 'true')
     ).present?
   end
 end
