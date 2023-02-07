@@ -305,6 +305,17 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
+  test 'cannot query by source_metadata fields if not logged in' do
+    with_rails_configuration(:allow_public_view, true) do
+      version = versions(:page1_v1)
+      get api_v0_versions_path(params: {
+        source_metadata: { version_id: version.source_metadata['version_id'] }
+      })
+
+      assert_response(:forbidden)
+    end
+  end
+
   test 'meta.total_results should be the total results across all chunks' do
     # For now, there no reasonable way to count versions in a reasonable amount
     # of time, so this functionality is disabled. This test is kept in case

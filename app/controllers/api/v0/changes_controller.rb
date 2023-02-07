@@ -1,5 +1,8 @@
 class Api::V0::ChangesController < Api::V0::ApiController
   include SortingConcern
+  include BlockedParamsConcern
+
+  block_params_for_public_users params: [:include_total]
 
   def index
     query = changes_collection

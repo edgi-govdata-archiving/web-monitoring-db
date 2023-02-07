@@ -184,6 +184,13 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Hash, results[0]['earliest'], '"earliest" property was not a hash'
   end
 
+  test 'should not include earliest version if not logged in' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_pages_path(include_earliest: true)
+      assert_response :forbidden
+    end
+  end
+
   test 'includes latest version if include_latest = true' do
     sign_in users(:alice)
     get api_v0_pages_path(include_latest: true)
@@ -191,6 +198,13 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     results = body['data']
 
     assert_kind_of Hash, results[0]['latest'], '"latest" property was not a hash'
+  end
+
+  test 'should not include lastest version if not logged in' do
+    with_rails_configuration(:allow_public_view, true) do
+      get api_v0_pages_path(include_latest: true)
+      assert_response :forbidden
+    end
   end
 
   test 'includes versions if include_versions = true' do

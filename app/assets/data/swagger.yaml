@@ -229,7 +229,6 @@ paths:
           format: uuid4
         - $ref: '#/parameters/chunk'
         - $ref: '#/parameters/chunk_size'
-        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
@@ -241,7 +240,7 @@ paths:
         - name: source_metadata[:key]
           type: string
           in: query
-          description: >
+          description: >-
             Filter results by a given `key` in the `source_metadata` field. You
             can include this parameter multiple times to filter by more than
             one `key`. *Note that this field is not indexed, so these queries
@@ -250,6 +249,9 @@ paths:
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
             - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
+
+
+            🚫 You must be logged in to use this parameter!
         - name: different
           in: query
           description: >-
@@ -266,6 +268,8 @@ paths:
             If present, include a `change_from_previous` field in the result
             that represents a change object between this version and the
             previous version of this page.
+
+            🚫 You must be logged in to use this parameter!
         - name: include_change_from_earliest
           in: query
           type: boolean
@@ -285,6 +289,8 @@ paths:
             notation for intervals. For example, to get all 4XX status versions:
 
                 ?status=[400,500)
+
+            🚫 You must be logged in to use this parameter!
       responses:
         '200':
           description: successful operation
@@ -381,6 +387,8 @@ paths:
             If present, include a `change_from_previous` field in the result
             that represents a change object between this version and the
             previous version of this page.
+
+            🚫 You must be logged in to use this parameter!
         - name: include_change_from_earliest
           in: query
           type: boolean
@@ -390,6 +398,8 @@ paths:
             If present, include a `change_from_earliest` field in the result
             that represents a change object between this version and the
             earliest version of this page.
+
+            🚫 You must be logged in to use this parameter!
       responses:
         '200':
           description: successful operation
@@ -923,7 +933,6 @@ paths:
       parameters:
         - $ref: '#/parameters/chunk'
         - $ref: '#/parameters/chunk_size'
-        - $ref: '#/parameters/include_total'
         - $ref: '#/parameters/sort'
         - name: capture_time
           in: query
@@ -953,6 +962,9 @@ paths:
             - `/api/v0/versions?source_metadata[version_id]=12345678`
 
             - `/api/v0/versions?source_metadata[account]=versionista1&source_metadata[has_content]=true`
+
+
+            🚫 You must be logged in to use this parameter!
         - name: include_change_from_previous
           in: query
           type: boolean
@@ -962,6 +974,8 @@ paths:
             If present, include a `change_from_previous` field in the result
             that represents a change object between this version and the
             previous version of this page.
+
+            🚫 You must be logged in to use this parameter!
         - name: include_change_from_earliest
           in: query
           type: boolean
@@ -971,6 +985,8 @@ paths:
             If present, include a `change_from_earliest` field in the result
             that represents a change object between this version and the
             earliest version of this page.
+
+            🚫 You must be logged in to use this parameter!
         - name: status
           in: query
           type: string
@@ -981,6 +997,8 @@ paths:
             notation for intervals. For example, to get all 4XX status versions:
 
                 ?status=[400,500)
+
+            🚫 You must be logged in to use this parameter!
       responses:
         '200':
           description: successful operation
@@ -1012,6 +1030,8 @@ paths:
             If present, include a `change_from_previous` field in the result
             that represents a change object between this version and the
             previous version of this page.
+
+            🚫 You must be logged in to use this parameter!
         - name: include_change_from_earliest
           in: query
           type: boolean
@@ -1021,6 +1041,8 @@ paths:
             If present, include a `change_from_earliest` field in the result
             that represents a change object between this version and the
             earliest version of this page.
+
+            🚫 You must be logged in to use this parameter!
       responses:
         '200':
           description: successful operation

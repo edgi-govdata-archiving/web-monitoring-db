@@ -1,5 +1,8 @@
 class Api::V0::AnnotationsController < Api::V0::ApiController
   include SortingConcern
+  include BlockedParamsConcern
+
+  block_params_for_public_users params: [:include_total]
   before_action(only: [:create]) { authorize :api, :annotate? }
   before_action :set_annotation, only: [:show]
 
