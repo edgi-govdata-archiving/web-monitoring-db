@@ -12,6 +12,14 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v0 do
+      # Add minimal login/session validation routes inside API namespace. These
+      # are the same as the root `/users/*` routes listed above. This is to
+      # make things easier for API clients (everything has the same base path).
+      devise_scope :user do
+        post 'users/sign_in', to: '/users/sessions#create'
+        get 'users/session', to: '/users/sessions#validate_session'
+      end
+
       resources :pages, only: [:index, :show], format: :json do
         get 'versions/sampled', to: 'versions#sampled'
         resources :versions, only: [:index, :show, :create]
