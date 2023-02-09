@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_24_184531) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_09_200733) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pgcrypto"
@@ -19,7 +19,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_24_184531) do
 
   create_table "annotations", primary_key: "uuid", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "change_uuid", null: false
-    t.integer "author_id", null: false
+    t.bigint "author_id", null: false
     t.jsonb "annotation", null: false
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
@@ -39,8 +39,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_24_184531) do
     t.index ["uuid_to"], name: "index_changes_on_uuid_to"
   end
 
-  create_table "imports", id: :serial, force: :cascade do |t|
-    t.integer "user_id"
+  create_table "imports", force: :cascade do |t|
+    t.bigint "user_id"
     t.integer "status", default: 0, null: false
     t.string "file"
     t.jsonb "processing_errors"
@@ -53,9 +53,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_24_184531) do
     t.index ["user_id"], name: "index_imports_on_user_id"
   end
 
-  create_table "invitations", id: :serial, force: :cascade do |t|
-    t.integer "issuer_id"
-    t.integer "redeemer_id"
+  create_table "invitations", force: :cascade do |t|
+    t.bigint "issuer_id"
+    t.bigint "redeemer_id"
     t.string "code"
     t.string "email"
     t.datetime "expires_on", precision: nil
@@ -132,7 +132,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_24_184531) do
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
-  create_table "users", id: :serial, force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
