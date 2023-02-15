@@ -1,3 +1,10 @@
+# NOTE: THIS JOB IS NOT IN ACTIVE USE.
+# The use cases it served were better solved by the task-sheets project
+# (https://github.com/edgi-govdata-archiving/web-monitoring-task-sheets).
+# That said, the outputs there were never integrated into the database here in
+# an automated way, which this job did.
+#
+# The job code here is preserved in case we need to turn it back on.
 class AnalyzeChangeJob < ApplicationJob
   queue_as :analysis
 
