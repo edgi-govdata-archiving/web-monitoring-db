@@ -108,7 +108,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
                    "[import=#{import.id}][row=0] Found Page #{page.uuid}",
                    "[import=#{import.id}][row=0] Replaced Version #{versions(:page1_v5).uuid}",
                    "[import=#{import.id}] Finished Import #{import.id}",
-                   "Import #{import.id}: Auto-analysis requirements are not configured; AnalyzeChangeJobs were not scheduled for imported versions."
+                   "Import #{import.id}: Auto-analysis is not configured; AnalyzeChangeJobs were not scheduled for imported versions."
                  ], Rails.logger.logs, 'Logs are not as expected.')
   end
 
