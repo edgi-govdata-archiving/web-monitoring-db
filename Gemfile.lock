@@ -220,7 +220,7 @@ GEM
     pundit (2.3.0)
       activesupport (>= 3.0.0)
     racc (1.6.2)
-    rack (2.2.6.2)
+    rack (2.2.6.3)
     rack-brotli (1.2.0)
       brotli (>= 0.1.7)
       rack (>= 1.4)
