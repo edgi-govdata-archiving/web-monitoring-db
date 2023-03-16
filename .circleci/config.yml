@@ -51,6 +51,8 @@ jobs:
 
   build:
     executor: rails_executor
+    environment:
+      PARALLEL_WORKERS: "1"
     steps:
       - checkout
       - setup_bundler
