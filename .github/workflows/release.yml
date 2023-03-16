@@ -20,7 +20,12 @@ jobs:
 
       - name: Update release branch
         run: |
-          git pull
+          git config user.name 'GH Actions Bot'
+          git config user.email 'actions.bot@example.com'
+
+          git fetch origin main
+          git fetch origin release
           git checkout release
+          git pull
           git merge main -m '${{ inputs.message }}'
           git push
