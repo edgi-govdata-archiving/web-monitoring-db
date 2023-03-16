@@ -15,10 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Update release branch
         run: |
-          git checkout release
           git pull
+          git checkout release
           git merge main -m '${{ inputs.message }}'
           git push
