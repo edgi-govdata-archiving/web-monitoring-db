@@ -15,9 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Update release branch
         run: |
+          git config user.name 'GH Actions Bot'
+          git config user.email 'actions.bot@example.com'
+
+          git fetch origin main
+          git fetch origin release
           git checkout release
           git pull
           git merge main -m '${{ inputs.message }}'
