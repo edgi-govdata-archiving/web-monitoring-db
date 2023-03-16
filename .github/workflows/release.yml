@@ -1,0 +1,24 @@
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Message'
+        type: string
+        required: true
+
+name: Trigger New Release
+
+jobs:
+  # CircleCI currently builds the release; all this does is push a merge commit
+  # to the `release` branch (which triggers Circle to build and publish).
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Update release branch
+        run: |
+          git checkout release
+          git pull
+          git merge main -m '${{ inputs.message }}'
+          git push
