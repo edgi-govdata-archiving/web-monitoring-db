@@ -25,10 +25,9 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-# Resque 2.3.0 is not compatible with Redis v5; if updated, see about updating
-# the redis gem as well. See: https://github.com/resque/resque/pull/1828
-gem 'resque', '~> 2.4.0'
-# gem 'resque-heroku-signals'
+gem "good_job", "~> 3.14"
+
+# Caching
 gem 'redis', '~> 5.0'
 gem 'hiredis'
 

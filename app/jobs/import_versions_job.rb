@@ -24,12 +24,8 @@ class ImportVersionsJob < ApplicationJob
     end
 
     if AnalyzeChangeJob.supported?
-      begin
-        @added.uniq(&:uuid).each do |version|
-          AnalyzeChangeJob.perform_later(version) if version.different?
-        end
-      rescue Redis::CannotConnectError => error
-        Rails.logger.error "Import #{import.id}: Cannot queue AnalyzeChangeJob -- #{error.message}"
+      @added.uniq(&:uuid).each do |version|
+        AnalyzeChangeJob.perform_later(version) if version.different?
       end
     else
       Rails.logger.warn "Import #{import.id}: Auto-analysis is not configured; AnalyzeChangeJobs were not scheduled for imported versions."
