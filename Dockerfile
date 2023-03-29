@@ -35,8 +35,6 @@ FROM base as import-worker
 LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
-ENV VERBOSE=1
-
 CMD ["bundle", "exec", "good_job", "start"]
 
 
