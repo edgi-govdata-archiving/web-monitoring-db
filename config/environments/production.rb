@@ -67,10 +67,6 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter     = :resque
-  # config.active_job.queue_name_prefix = "webpage_versions_db_production"
-
   # Action Mailer configuration
   config.action_mailer.default_url_options = {
     host: ENV.fetch('HOST_URL', 'api.monitoring.envirodatagov.org').chomp('/')

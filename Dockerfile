@@ -35,10 +35,9 @@ FROM base as import-worker
 LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
-ENV QUEUES=import,analysis
 ENV VERBOSE=1
 
-CMD ["bundle", "exec", "rake", "environment", "resque:work"]
+CMD ["bundle", "exec", "good_job", "start"]
 
 
 ### RAILS SERVER TARGET ###

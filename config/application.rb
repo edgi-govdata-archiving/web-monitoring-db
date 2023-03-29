@@ -11,7 +11,7 @@ module WebpageVersionsDb
     config.load_defaults 7.0
     config.eager_load_paths << "#{Rails.root}/lib/api"
 
-    config.active_job.queue_adapter = :resque
+    config.active_job.queue_adapter = :good_job
 
     # Deliver mail on the `mailers` queue. This is the old default from
     # Rails 6.0 and earlier; I think it's useful. Keeping it also lets us
