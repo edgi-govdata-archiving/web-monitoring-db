@@ -28,7 +28,7 @@ We maintain a publicly available *staging server* at https://api-staging.monitor
 
 2. Ensure you have PostgreSQL 9.5+. If you are on MacOS, we recommend [Postgres.app](https://postgresapp.com). It makes running multiple versions of PostgreSQL much simpler and gives you easy access to start and stop your databases.
 
-3. Ensure you have [Redis](https://redis.io)
+3. Ensure you have [Redis](https://redis.io) (used for caching).
 
     On MacOS:
 
@@ -157,24 +157,16 @@ We maintain a publicly available *staging server* at https://api-staging.monitor
 
     You should now have a server running and can visit it at http://localhost:3000/. Open that up in a browser and go to town!
 
-11. Bulk importing, automated analysis, and e-mail invitations all run as asynchronous jobs, managed by a Redis queue. If you plan to use any of these features, you must also start a Redis server and worker.
-
-    Start redis:
+11. Bulk importing, automated analysis, and e-mail invitations all run as asynchronous jobs (using the fantastic [good_job gem](https://github.com/bensheldon/good_job)). If you plan to use any of these features, you must also start a worker:
 
     ```sh
-    $ redis-server
+    $ bundle exec good_job start
     ```
 
-    Start a worker:
+    If you only want to run particular type of job, you can set a list of queue names with the `--queues` option:
 
     ```sh
-    $ QUEUE=* VERBOSE=1 bundle exec rake environment resque:work
-    ```
-
-    If you only want to run particular type of job, you can set a list of queue names in the `QUEUES` environment variable:
-
-    ```sh
-    $ QUEUES=mailers,import,analysis VERBOSE=1 bundle exec rake environment resque:work
+    $ bundle exec good_job start --queues=mailers,import,analysis
     ```
 
     Each job type runs on a different queue:

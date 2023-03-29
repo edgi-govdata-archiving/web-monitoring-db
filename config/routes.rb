@@ -58,5 +58,10 @@ Rails.application.routes.draw do
   delete 'admin/destroy_user'
   post 'admin/destroy_user'
 
+  # Show the good_job control panel at "/admin/good_job"
+  authenticate :user, ->(user) { Pundit.authorize(user, :admin, :any?) } do
+    mount GoodJob::Engine => 'admin/good_job'
+  end
+
   get 'healthcheck', to: 'healthcheck#index'
 end

@@ -9,13 +9,6 @@ class HealthcheckController < ApplicationController
       db = error.to_s
     end
 
-    queues = 'ok'
-    begin
-      Resque.size(:not_a_real_queue_but_thats_ok)
-    rescue StandardError => error
-      queues = error.to_s
-    end
-
-    render json: { app: 'ok', db:, queues: }
+    render json: { app: 'ok', db: }
   end
 end
