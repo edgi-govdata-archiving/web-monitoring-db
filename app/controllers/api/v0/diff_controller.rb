@@ -2,6 +2,12 @@ class Api::V0::DiffController < Api::V0::ApiController
   def show
     ensure_diffable
 
+    # Some front-end caches, like CloudFront, need the headers from *both*
+    # expires_in and stale? to cache most effectively.
+    unless Rails.env.development?
+      cache_time = params[:diff_version] ? 100.years : 1.day
+      expires_in(cache_time, public: true, stale_while_revalidate: 7.days, stale_if_error: 7.days)
+    end
     if stale?(etag: diff_etag, last_modified: Differ.cache_date, public: true)
       render json: {
         links: {
