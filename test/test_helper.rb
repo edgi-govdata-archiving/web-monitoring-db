@@ -7,6 +7,11 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
+  def setup
+    # Assume writability. Individual tests can opt-in to read-only.
+    Rails.configuration.read_only = false
+  end
+
   # Add more helper methods to be used by all tests here...
   def assert_ordered(list, reverse: false, name: 'Items')
     sorted = list.sort

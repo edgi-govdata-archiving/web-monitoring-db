@@ -30,6 +30,8 @@ class Api::V0::MaintainersController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     data = JSON.parse(request.body.read)
     if data['uuid'].nil? && data['name'].nil?
       raise Api::InputError, 'You must specify either a `uuid` or `name` for the maintainer to add.'
@@ -64,6 +66,8 @@ class Api::V0::MaintainersController < Api::V0::ApiController
   end
 
   def update
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     @maintainer = (page ? page.maintainers : Maintainer).find(params[:id])
     data = JSON.parse(request.body.read).slice('name', 'parent_id')
     @maintainer.update!(data)
@@ -71,6 +75,8 @@ class Api::V0::MaintainersController < Api::V0::ApiController
   end
 
   def destroy
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     # NOTE: this assumes you can only get here in the context of a page
     page.remove_maintainer(Maintainer.find(params[:id]))
     redirect_to(api_v0_page_maintainers_url(page))

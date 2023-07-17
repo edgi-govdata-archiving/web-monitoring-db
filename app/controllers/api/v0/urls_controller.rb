@@ -22,6 +22,8 @@ class Api::V0::UrlsController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     @page_url = page.urls.create!(url_params)
     show
   rescue ActiveRecord::RecordNotUnique
@@ -29,6 +31,8 @@ class Api::V0::UrlsController < Api::V0::ApiController
   end
 
   def update
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     updates = url_params
     if updates.key?(:url)
       raise Api::UnprocessableError, 'You cannot change a URL\'s `url`'
@@ -40,6 +44,8 @@ class Api::V0::UrlsController < Api::V0::ApiController
   end
 
   def destroy
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     @page_url ||= page.urls.find(params[:id])
     # You cannot delete the canonical URL.
     if @page_url.url == page.url

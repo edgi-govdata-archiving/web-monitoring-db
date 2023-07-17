@@ -37,6 +37,8 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     begin
       data = JSON.parse(request.body.read)
     rescue JSON::ParserError

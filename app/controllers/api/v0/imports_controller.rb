@@ -10,6 +10,8 @@ class Api::V0::ImportsController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     update_behavior = params[:update] || :skip
     unless Import.update_behaviors.key?(update_behavior)
       raise Api::InputError, "'#{update_behavior}' is not a valid update behavior. Use one of: #{Import.update_behaviors.join(', ')}"
