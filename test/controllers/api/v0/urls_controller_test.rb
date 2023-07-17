@@ -47,6 +47,18 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:forbidden)
   end
 
+  test 'cannot create new urls in read-only mode' do
+    with_rails_configuration(:read_only, true) do
+      sign_in users(:alice)
+      post(
+        api_v0_page_urls_path(pages(:home_page)),
+        as: :json,
+        params: { page_url: { url: 'https://example.gov/new_url' } }
+      )
+      assert_response :locked
+    end
+  end
+
   test 'can create new urls' do
     sign_in users(:alice)
     post(

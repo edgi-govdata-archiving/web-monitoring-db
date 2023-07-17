@@ -49,6 +49,22 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal annotation, body['data']['annotation']
   end
 
+  test 'cannot annotate in read-only mode' do
+    page = pages(:home_page)
+    annotation = { 'test_key' => 'test_value' }
+
+    with_rails_configuration(:read_only, true) do
+      sign_in users(:alice)
+      post(
+        api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"),
+        as: :json,
+        params: annotation
+      )
+
+      assert_response :locked
+    end
+  end
+
   test 'posting a new annotation updates previous annotations by the same user' do
     page = pages(:home_page)
     annotation1 = { 'test_key' => 'test_value' }

@@ -77,6 +77,18 @@ class Api::V0::TagsControllerTest < ActionDispatch::IntegrationTest
     assert_response(:forbidden)
   end
 
+  test 'cannot add a tag in read-only mode' do
+    with_rails_configuration(:read_only, true) do
+      sign_in users(:alice)
+      post(
+        api_v0_page_tags_path(pages(:home_page)),
+        as: :json,
+        params: { name: 'Page of wonderment' }
+      )
+      assert_response(:locked)
+    end
+  end
+
   test 'can add a tag to a page' do
     sign_in users(:alice)
     post(

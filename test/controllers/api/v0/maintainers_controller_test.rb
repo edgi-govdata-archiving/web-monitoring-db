@@ -114,6 +114,18 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     assert_response(:forbidden)
   end
 
+  test 'cannot add a maintainer in read-only mode' do
+    with_rails_configuration(:read_only, true) do
+      sign_in users(:alice)
+      post(
+        api_v0_maintainers_path,
+        as: :json,
+        params: { name: 'EPA' }
+      )
+      assert_response(:locked)
+    end
+  end
+
   test 'can add a maintainer to a page' do
     sign_in users(:alice)
     post(
