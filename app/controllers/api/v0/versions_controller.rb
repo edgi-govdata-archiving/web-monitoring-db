@@ -132,6 +132,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     authorize(:api, :import?)
 
     # TODO: unify this with import code in ImportVersionsJob#import_record

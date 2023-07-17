@@ -24,6 +24,8 @@ class Api::V0::TagsController < Api::V0::ApiController
   end
 
   def create
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     data = JSON.parse(request.body.read)
     if data['uuid'].nil? && data['name'].nil?
       raise Api::InputError, 'You must specify either a `uuid` or `name` for the tag to add.'
@@ -43,6 +45,8 @@ class Api::V0::TagsController < Api::V0::ApiController
   end
 
   def update
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     @tag = (page ? page.tags : Tag).find(params[:id])
     data = JSON.parse(request.body.read)
     @tag.update(name: data['name'])
@@ -50,6 +54,8 @@ class Api::V0::TagsController < Api::V0::ApiController
   end
 
   def destroy
+    raise Api::ReadOnlyError if Rails.configuration.read_only
+
     # NOTE: this assumes you can only get here in the context of a page
     page.untag(Tag.find(params[:id]))
     redirect_to(api_v0_page_tags_url(page))

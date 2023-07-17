@@ -66,5 +66,9 @@ module WebpageVersionsDb
     config.allow_public_view = ActiveModel::Type::Boolean.new.cast(
       ENV.fetch('ALLOW_PUBLIC_VIEW', 'true')
     ).present?
+
+    config.read_only = ActiveModel::Type::Boolean.new.cast(
+      ENV.fetch('API_READ_ONLY', 'true')
+    ).present?
   end
 end

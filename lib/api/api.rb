@@ -62,4 +62,14 @@ module Api
       super("Response body for '#{url}' did not match expected hash (#{hash})")
     end
   end
+
+  class ReadOnlyError < ApiError
+    def status_code
+      423
+    end
+
+    def initialize(message = 'This API is read-only; you cannot add or update data.')
+      super(message)
+    end
+  end
 end
