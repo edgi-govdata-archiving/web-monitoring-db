@@ -167,10 +167,10 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
   puts "Writing database to file '#{export_path}'..."
   SQLite3::Database.new export_path do |db|
-    puts "Initializing database..."
+    puts 'Initializing database...'
     db.transaction { db.execute_batch2(create_schema_sql) }
 
-    puts "Writing page records..."
+    puts 'Writing page records...'
     db.transaction do
       Page.all.each do |page|
         write_rows_sqlite(db, 'pages', page, [:uuid, :url, :url_key, :title, :active, :status, :created_at, :updated_at])
@@ -178,16 +178,16 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
       PageUrl.all.each do |page_url|
         write_rows_sqlite(db, 'page_urls', page_url, [
-          :uuid,
-          :page_uuid,
-          :url,
-          :url_key,
-          :from_time,
-          :to_time,
-          :notes,
-          :created_at,
-          :updated_at
-        ])
+                            :uuid,
+                            :page_uuid,
+                            :url,
+                            :url_key,
+                            :from_time,
+                            :to_time,
+                            :notes,
+                            :created_at,
+                            :updated_at
+                          ])
       end
 
       MergedPage.all.each do |page|
@@ -195,69 +195,69 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
       end
     end
 
-    puts "Writing tags..."
+    puts 'Writing tags...'
     db.transaction do
       Tag.all.each do |tag|
         write_rows_sqlite(db, 'tags', tag, [
-          :uuid,
-          :name,
-          :created_at,
-          :updated_at
-        ])
+                            :uuid,
+                            :name,
+                            :created_at,
+                            :updated_at
+                          ])
       end
 
       Tagging.all.each do |tagging|
         write_rows_sqlite(db, 'taggings', tagging, [
-          :taggable_uuid,
-          :taggable_type,
-          :tag_uuid,
-          :created_at
-        ])
+                            :taggable_uuid,
+                            :taggable_type,
+                            :tag_uuid,
+                            :created_at
+                          ])
       end
     end
 
-    puts "Writing maintainers..."
+    puts 'Writing maintainers...'
     db.transaction do
       Maintainer.all.each do |tag|
         write_rows_sqlite(db, 'maintainers', tag, [
-          :uuid,
-          :name,
-          :parent_uuid,
-          :created_at,
-          :updated_at
-        ])
+                            :uuid,
+                            :name,
+                            :parent_uuid,
+                            :created_at,
+                            :updated_at
+                          ])
       end
 
       Maintainership.all.each do |maintainership|
         write_rows_sqlite(db, 'maintainerships', maintainership, [
-          :maintainer_uuid,
-          :page_uuid,
-          :created_at
-        ])
+                            :maintainer_uuid,
+                            :page_uuid,
+                            :created_at
+                          ])
       end
     end
 
-    puts "Writing versions..."
+    puts 'Writing versions...'
     DataHelpers.iterate_batches(Version.all, by: [:capture_time, :uuid], batch_size: 10_000) do |versions|
       db.transaction do
         versions.each do |version|
           write_rows_sqlite(db, 'versions', version, [
-            :uuid,
-            :page_uuid,
-            :capture_time,
-            :body_url,
-            :body_hash,
-            :source_type,
-            :source_metadata,
-            :created_at,
-            :updated_at,
-            :title,
-            :url,
-            :status,
-            :content_length,
-            :media_type,
-            :headers
-          ])
+                              :uuid,
+                              :page_uuid,
+                              :capture_time,
+                              :body_url,
+                              :body_hash,
+                              :source_type,
+                              :source_metadata,
+                              :created_at,
+                              :updated_at,
+                              :title,
+                              :url,
+                              :status,
+                              :content_length,
+                              :media_type,
+                              :headers
+                            ])
         end
       end
     end
