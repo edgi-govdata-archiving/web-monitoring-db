@@ -218,6 +218,15 @@ class PageTest < ActiveSupport::TestCase
     assert_equal(page.update_status, 404, 'Status should match the latest error code')
   end
 
+  test 'pages use version#effective_status, not raw status' do
+    page = Page.create(url: 'https://example.gov/')
+    page.versions.create(capture_time: Time.now - 15.days, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: Time.now - 12.days, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: Time.now - 10.days, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: Time.now - 1.day, status: 200, title: '404 Not Found')
+    assert_equal(page.update_status, 404, 'Status should be the effective_status of the versions')
+  end
+
   test 'pages can calculate a status even when some versions have no status' do
     page = Page.create(url: 'https://example.gov/')
     page.versions.create(capture_time: Time.now - 12.days)

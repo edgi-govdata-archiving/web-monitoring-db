@@ -174,8 +174,8 @@ class Page < ApplicationRecord
     urls.find_or_create_by!(url:) if saved_change_to_attribute?('url')
   end
 
-  def update_status
-    new_status = calculate_status
+  def update_status(relative_to: nil)
+    new_status = calculate_status(relative_to:)
     self.update(status: new_status) unless new_status.zero?
     self.status
   end
@@ -317,9 +317,10 @@ class Page < ApplicationRecord
       version_time = last_time - capture_time
       total_time += version_time
 
-      if version.status >= 400
+      version_status = version.effective_status
+      if version_status >= 400
         error_time += version_time
-        latest_error ||= version.status
+        latest_error ||= version_status
       end
       last_time = version.capture_time
     end
