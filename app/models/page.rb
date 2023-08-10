@@ -317,9 +317,10 @@ class Page < ApplicationRecord
       version_time = last_time - capture_time
       total_time += version_time
 
-      if version.status >= 400
+      version_status = version.effective_status
+      if version_status >= 400
         error_time += version_time
-        latest_error ||= version.status
+        latest_error ||= version_status
       end
       last_time = version.capture_time
     end
