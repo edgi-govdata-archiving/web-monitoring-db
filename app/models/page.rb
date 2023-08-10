@@ -174,8 +174,8 @@ class Page < ApplicationRecord
     urls.find_or_create_by!(url:) if saved_change_to_attribute?('url')
   end
 
-  def update_status
-    new_status = calculate_status
+  def update_status(relative_to: nil)
+    new_status = calculate_status(relative_to:)
     self.update(status: new_status) unless new_status.zero?
     self.status
   end
