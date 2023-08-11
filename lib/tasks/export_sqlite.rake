@@ -20,7 +20,7 @@ def write_rows_sqlite(db, table, data, fields)
   placeholders = names.collect {'?'}
 
   db.execute(
-    "INSERT INTO #{table} (#{names.join(',')}) VALUES (#{placeholders.join(',')})",
+    "INSERT OR IGNORE INTO #{table} (#{names.join(',')}) VALUES (#{placeholders.join(',')})",
     values
   )
 end
@@ -34,7 +34,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
   -- Consider doing a test run with this on and turning off for final export.
   PRAGMA foreign_keys = ON;
 
-  CREATE TABLE annotations (
+  CREATE TABLE IF NOT EXISTS annotations (
       uuid TEXT NOT NULL PRIMARY KEY,
       change_uuid TEXT NOT NULL,
       annotation TEXT NOT NULL,
@@ -44,7 +44,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(change_uuid) REFERENCES changes(uuid)
   );
 
-  CREATE TABLE changes (
+  CREATE TABLE IF NOT EXISTS changes (
       uuid TEXT NOT NULL PRIMARY KEY,
       uuid_from TEXT NOT NULL,
       uuid_to TEXT NOT NULL,
@@ -60,7 +60,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(uuid_to) REFERENCES versions(uuid)
   );
 
-  CREATE TABLE maintainers (
+  CREATE TABLE IF NOT EXISTS maintainers (
       uuid TEXT NOT NULL PRIMARY KEY,
       name TEXT NOT NULL,
       parent_uuid TEXT,
@@ -70,7 +70,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       UNIQUE(name)
   );
 
-  CREATE TABLE maintainerships (
+  CREATE TABLE IF NOT EXISTS maintainerships (
       maintainer_uuid TEXT NOT NULL,
       page_uuid TEXT NOT NULL,
       created_at DATETIME NOT NULL,
@@ -81,7 +81,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(page_uuid) REFERENCES pages(uuid)
   );
 
-  CREATE TABLE merged_pages (
+  CREATE TABLE IF NOT EXISTS merged_pages (
       uuid TEXT NOT NULL PRIMARY KEY,
       target_uuid TEXT NOT NULL,
       audit_data TEXT,
@@ -89,7 +89,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(target_uuid) REFERENCES pages(uuid)
   );
 
-  CREATE TABLE page_urls (
+  CREATE TABLE IF NOT EXISTS page_urls (
       uuid TEXT NOT NULL PRIMARY KEY,
       page_uuid TEXT NOT NULL,
       url TEXT NOT NULL,
@@ -105,7 +105,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(page_uuid) REFERENCES pages(uuid)
   );
 
-  CREATE TABLE pages (
+  CREATE TABLE IF NOT EXISTS pages (
       uuid TEXT NOT NULL PRIMARY KEY,
       url TEXT NOT NULL,
       title TEXT,
@@ -116,7 +116,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       status INTEGER
   );
 
-  CREATE TABLE taggings (
+  CREATE TABLE IF NOT EXISTS taggings (
       taggable_uuid TEXT NOT NULL,
       taggable_type TEXT,
       tag_uuid TEXT NOT NULL,
@@ -127,7 +127,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       FOREIGN KEY(tag_uuid) REFERENCES tags(uuid)
   );
 
-  CREATE TABLE tags (
+  CREATE TABLE IF NOT EXISTS tags (
       uuid TEXT NOT NULL PRIMARY KEY,
       name TEXT NOT NULL,
       created_at DATETIME NOT NULL,
@@ -136,7 +136,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       UNIQUE(name)
   );
 
-  CREATE TABLE versions (
+  CREATE TABLE IF NOT EXISTS versions (
       uuid TEXT NOT NULL PRIMARY KEY,
       page_uuid TEXT,
       capture_time DATETIME NOT NULL,
@@ -152,11 +152,12 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       content_length INTEGER,
       media_type TEXT,
       headers TEXT,
+      different BOOLEAN,
 
       FOREIGN KEY(page_uuid) REFERENCES pages(uuid)
   );
 
-  CREATE INDEX versions_capture_time_uuid ON versions (capture_time, uuid);
+  CREATE INDEX IF NOT EXISTS versions_capture_time_uuid ON versions (capture_time, uuid);
 ARCHIVE_SCHEMA
 
 desc 'Export a copy of the DB as SQLite designed for public archiving'
@@ -256,7 +257,8 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
                               :status,
                               :content_length,
                               :media_type,
-                              :headers
+                              :headers,
+                              :different
                             ])
         end
       end
