@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# IDE Config
+.vscode
+.idea
+
 # Ignore bundler config.
 /.bundle
 

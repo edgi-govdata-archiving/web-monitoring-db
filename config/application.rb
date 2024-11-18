@@ -8,8 +8,14 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
+    # FIXME: Update to 7.1 once everything in initializers/new_framework_defaults_7_1.rb is fixed.
     config.load_defaults 7.0
+    # FIXME: work out new autoloading regime
     config.eager_load_paths << "#{Rails.root}/lib/api"
+    # Please, add to the `ignore` list any other `lib` subdirectories that do
+    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    # config.autoload_lib(ignore: %w(assets tasks))
 
     config.active_job.queue_adapter = :good_job
 
@@ -17,10 +23,6 @@ module WebpageVersionsDb
     # Rails 6.0 and earlier; I think it's useful. Keeping it also lets us
     # maintain existing server deployment configurations for jobs.
     Rails.application.config.action_mailer.deliver_later_queue_name = :mailers
-
-    # Ideally this should be served off a static store, but we don’t have much
-    # in the way of asset needs since this is mainly an API.
-    config.serve_static_assets = true
 
     config.middleware.use Rack::Deflater
     config.middleware.use Rack::Brotli
