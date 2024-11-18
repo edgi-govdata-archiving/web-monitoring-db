@@ -47,7 +47,7 @@ class Api::V0::MaintainersController < Api::V0::ApiController
           conditions = data.select {|key, _| valid_fields.include?(key)}
           begin
             maintainer = Maintainer.find_or_create_by(conditions)
-          rescue ActiveRecord::RecordNotUnique
+          rescue ActiveRecord::RecordNotFound
             raise Api::ResourceExistsError, "A different maintainer with the name `#{data['name']}` already exists."
           end
           page.add_maintainer(maintainer)
