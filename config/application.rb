@@ -10,6 +10,8 @@ module WebpageVersionsDb
   class Application < Rails::Application
     # FIXME: Update to 7.1 once everything in initializers/new_framework_defaults_7_1.rb is fixed.
     config.load_defaults 7.0
+    # TODO: remove when switching to Rails 7.1 defaults above.
+    config.add_autoload_paths_to_load_path = false
     # FIXME: work out new autoloading regime
     config.eager_load_paths << "#{Rails.root}/lib/api"
     # Please, add to the `ignore` list any other `lib` subdirectories that do
