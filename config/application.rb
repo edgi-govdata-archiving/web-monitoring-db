@@ -8,16 +8,11 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
-    # FIXME: Update to 7.1 once everything in initializers/new_framework_defaults_7_1.rb is fixed.
-    config.load_defaults 7.0
-    # TODO: remove when switching to Rails 7.1 defaults above.
-    config.add_autoload_paths_to_load_path = false
-    # FIXME: work out new autoloading regime
+    config.load_defaults 7.1
+    # FIXME: this needs cleanup; this stuff should probably move to app/lib for autoloading.
+    #  (We can also use `config.autoload_lib(ignore: %w(assets tasks))` or similar, but I
+    #  think segregating lib and app/lib on autoloading is better.)
     config.eager_load_paths << "#{Rails.root}/lib/api"
-    # Please, add to the `ignore` list any other `lib` subdirectories that do
-    # not contain `.rb` files, or that should not be reloaded or eager loaded.
-    # Common ones are `templates`, `generators`, or `middleware`, for example.
-    # config.autoload_lib(ignore: %w(assets tasks))
 
     config.active_job.queue_adapter = :good_job
 
