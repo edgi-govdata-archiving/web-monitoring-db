@@ -3,7 +3,7 @@ require 'test_helper'
 class FileStorage::LocalFileTest < ActiveSupport::TestCase
   storage_path = Rails.root.join('tmp/test/storage')
 
-  def setup
+  setup do
     @storage = nil
   end
 

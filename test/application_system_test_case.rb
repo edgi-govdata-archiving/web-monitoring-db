@@ -8,7 +8,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   driven_by :rack_test
 
-  def setup
+  setup do
     @original_queue_adapter = ActiveJob::Base.queue_adapter
     ActiveJob::Base.queue_adapter = :test
 
@@ -20,7 +20,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     clear_emails
   end
 
-  def teardown
+  teardown do
     clear_enqueued_jobs
     clear_performed_jobs
     clear_emails
