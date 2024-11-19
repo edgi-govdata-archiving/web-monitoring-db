@@ -43,10 +43,12 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal 'application/json', @response.media_type
-    body = JSON.parse @response.body
-    assert body.key?('links'), 'Response should have a "links" property'
-    assert body.key?('data'), 'Response should have a "data" property'
-    assert_equal annotation, body['data']['annotation']
+    assert_pattern do
+      response.parsed_body => {
+        links: Hash,
+        data: { annotation: annotation }
+      }
+    end
   end
 
   test 'cannot annotate in read-only mode' do
@@ -85,9 +87,11 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"))
 
     assert_response :success
-    body = JSON.parse @response.body
-    assert_equal 1, body['data'].length, 'Multiple annotations were created'
-    assert_equal annotation2, body['data'][0]['annotation']
+    assert_pattern do
+      response.parsed_body => {
+        data: [{ annotation: annotation2 }]
+      }
+    end
   end
 
   test 'multiple users can annotate a change' do
@@ -112,8 +116,11 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_change_annotations_path(page, "..#{page.versions[0].uuid}"))
 
     assert_response :success
-    body = JSON.parse @response.body
-    assert_equal 2, body['data'].length, 'Two annotations were not created'
+    assert_pattern do
+      response.parsed_body => {
+        data: [{ annotation: Hash }, { annotation: Hash }]
+      }
+    end
   end
 
   test 'annotations with the `priority` property update change priority' do
