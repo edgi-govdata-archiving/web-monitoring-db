@@ -136,9 +136,6 @@ GEM
       responders
       warden (~> 1.2.3)
     dotenv (3.1.4)
-    dotenv-rails (3.1.4)
-      dotenv (= 3.1.4)
-      railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.0)
     et-orbi (1.2.11)
@@ -434,7 +431,7 @@ DEPENDENCIES
   capybara-email
   concurrent-ruby (~> 1.2)
   devise
-  dotenv-rails
+  dotenv
   good_job (~> 3.99)
   google-apis-sheets_v4
   hiredis
