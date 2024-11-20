@@ -28,7 +28,7 @@ gem 'addressable', '~> 2.8'
 gem "good_job", "~> 3.99"
 
 # Caching
-gem 'redis', '~> 5.0'
+gem 'redis', '~> 5.3'
 gem 'hiredis'
 
 # Monitoring & Telemetry
