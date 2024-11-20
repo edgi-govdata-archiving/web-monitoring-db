@@ -167,13 +167,13 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for_version(*args)
+  def paging_path_for_version(*)
     if @sampling
-      api_v0_page_versions_sampled_url(*args)
+      api_v0_page_versions_sampled_url(*)
     elsif page
-      api_v0_page_versions_url(*args)
+      api_v0_page_versions_url(*)
     else
-      api_v0_versions_url(*args)
+      api_v0_versions_url(*)
     end
   end
 
@@ -283,8 +283,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
     start_point = params[:chunk]&.split(',')
     start_point = Version.find(start_point) if start_point&.length == 1
 
-    sort_key = sorting_params&.first&.keys&.first || :capture_time
-    sort_direction = sorting_params&.first&.values&.first || :asc
+    sort_key = sorting_params.first&.keys&.first || :capture_time
+    sort_direction = sorting_params.first&.values&.first || :asc
 
     query = collection
       .ordered(sort_key, point: start_point, direction: sort_direction)

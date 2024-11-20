@@ -174,7 +174,7 @@ class Version < ApplicationRecord
 
   def media_type=(value)
     value = normalize_media_type(value) if value.present?
-    super(value)
+    super
   end
 
   # TODO: Consider falling back to sniffing the content at `body_url`?

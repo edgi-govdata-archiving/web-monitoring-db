@@ -30,7 +30,7 @@ class Invitation < ApplicationRecord
   # destroy_unconfirmed_redeemers! below), but best I can figure for now.
   def redeemer=(new_redeemer)
     destroy_unconfirmed_redeemer!
-    super(new_redeemer)
+    super
   end
 
   # Before assigning a new redeemer, we want to destroy any accounts

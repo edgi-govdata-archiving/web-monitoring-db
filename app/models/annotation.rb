@@ -8,7 +8,7 @@ class Annotation < ApplicationRecord
   validate :significance_in_range
 
   def as_json(options = nil)
-    result = super(options)
+    result = super
 
     if result['change_uuid']
       result.delete('change_uuid')

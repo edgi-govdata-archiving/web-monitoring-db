@@ -98,8 +98,8 @@ class Api::V0::PagesController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for_page(*args)
-    api_v0_pages_url(*args)
+  def paging_path_for_page(*)
+    api_v0_pages_url(*)
   end
 
   # NOTE: This check can be removed once this issue is resolved.

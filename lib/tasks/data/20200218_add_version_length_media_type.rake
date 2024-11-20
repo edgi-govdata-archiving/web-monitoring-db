@@ -117,7 +117,7 @@ namespace :data do
       size = if response.headers['content-length']
                response.headers['content-length'].to_i
              elsif response.body
-               response.body.bytes.length
+               response.body.bytesize
              else
                puts "No response body for #{url}"
                nil

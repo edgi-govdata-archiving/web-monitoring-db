@@ -52,9 +52,9 @@ class ActiveSupport::TestCase
 
   def with_rails_configuration(key, value)
     original = Rails.configuration.send(key)
-    Rails.configuration.send("#{key}=", value)
+    Rails.configuration.send(:"#{key}=", value)
     yield
   ensure
-    Rails.configuration.send("#{key}=", original)
+    Rails.configuration.send(:"#{key}=", original)
   end
 end

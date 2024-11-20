@@ -137,7 +137,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   # Calculate a multiplier for priority based on a ratio representing the amount
-  # of change. This is basically applying a logorithmic curve to the ratio.
+  # of change. This is basically applying a logarithmic curve to the ratio.
   def priority_factor(ratio)
     Math.log(1 + ((Math::E - 1) * ratio))
   end
@@ -248,7 +248,7 @@ class AnalyzeChangeJob < ApplicationJob
       texts_memo[:new] += operation[1] if operation[0] >= 0
     end
 
-    texts.each do |_key, text|
+    texts.each_value do |text|
       text = text.downcase
       # Based on version 8b52f47a-e1d7-4098-8087-87f71a9fc0b0
       return true if text.include?('error connecting to apache tomcat instance') &&
