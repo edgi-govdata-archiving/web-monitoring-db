@@ -13,6 +13,7 @@ AllCops:
     - lib/**/*.rake
   Exclude:
     - db/schema.rb
+    - db/migrate/*good_job*
     - config/**/*
     - scratch*.rb
     - Gemfile
