@@ -25,7 +25,7 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-gem "good_job", "~> 3.14"
+gem "good_job", "~> 3.99"
 
 # Caching
 gem 'redis', '~> 5.0'
