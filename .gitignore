@@ -18,6 +18,10 @@
 # Ignore Byebug command history file.
 .byebug_history
 
+# Rails Credentials
+/config/**/*.key
+/config/master.key
+
 # Configuration files
 .powenv
 .env

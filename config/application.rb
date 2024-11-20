@@ -14,6 +14,16 @@ module WebpageVersionsDb
     #  think segregating lib and app/lib on autoloading is better.)
     config.eager_load_paths << "#{Rails.root}/lib/api"
 
+    # Re-instate secrets for simpler management of `secret_key_base`. We currently use other methods for managing
+    # secrets in production, so it doesn't make a whole lot of sense to migrate to credentials (which replaces secrets)
+    # just for secret_key_base (which then requires more complicated key management work).
+    # TODO: consider dropping this entirely in favor of better .env file management (and still no Rails credentials).
+    config.secrets = config_for(:secrets)
+    config.secret_key_base = config.secrets[:secret_key_base]
+    def secrets
+      config.secrets
+    end
+
     config.active_job.queue_adapter = :good_job
 
     # Deliver mail on the `mailers` queue. This is the old default from
