@@ -259,7 +259,7 @@ GEM
     rack-brotli (1.2.0)
       brotli (>= 0.1.7)
       rack (>= 1.4)
-    rack-cors (1.1.1)
+    rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-session (1.0.2)
       rack (< 3)
@@ -431,7 +431,7 @@ DEPENDENCIES
   puma (~> 6.4)
   pundit (~> 2.3.0)
   rack-brotli
-  rack-cors
+  rack-cors (~> 2.0)
   rails (~> 7.1.5)
   redis (~> 5.0)
   rubocop (~> 1.44.1)
