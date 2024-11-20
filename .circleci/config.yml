@@ -49,7 +49,16 @@ jobs:
       - checkout
       - setup_bundler
 
-  build:
+  lint:
+    executor: rails_executor
+    steps:
+      - checkout
+      - setup_bundler
+      - run:
+          name: Code linting
+          command: bundle exec rubocop --parallel
+
+  test:
     executor: rails_executor
     environment:
       PARALLEL_WORKERS: "1"
@@ -61,10 +70,10 @@ jobs:
           command: bin/rails db:create db:schema:load
       - run:
           name: Tests
-          command: bin/rails test:system test
+          command: bin/rails test
       - run:
-          name: Code linting
-          command: bundle exec rubocop --parallel
+          name: System Tests
+          command: bin/rails test:system
 
   test_seed:
     executor: rails_executor
@@ -103,14 +112,19 @@ jobs:
           docker push envirodgi/db-status-update-job:latest
 
 workflows:
-  version: 2.1
-  build:
+  test:
     jobs:
       - install_dependencies:
           filters:
             branches:
               ignore: release
-      - build:
+      - lint:
+          requires:
+            - install_dependencies
+          filters:
+            branches:
+              ignore: release
+      - test:
           requires:
             - install_dependencies
           filters:
@@ -125,11 +139,11 @@ workflows:
 
   build-and-publish:
     jobs:
-      - build:
+      - test:
           filters:
             branches:
               only:
                 - release
       - publish_docker:
           requires:
-            - build
+            - test
