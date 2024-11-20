@@ -20,7 +20,7 @@ gem 'rack-brotli'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.13'
-gem 'pundit', '~> 2.3.0'
+gem 'pundit', '~> 2.4.0'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
