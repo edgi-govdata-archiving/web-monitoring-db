@@ -69,7 +69,7 @@ module Api
     end
 
     def initialize(message = 'This API is read-only; you cannot add or update data.')
-      super(message)
+      super
     end
   end
 end

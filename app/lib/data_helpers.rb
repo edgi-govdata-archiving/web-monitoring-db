@@ -42,7 +42,7 @@ module DataHelpers
   # get very slow as you proceed through. This breaks up calls to iterate_each
   # into smaller, time-bounded chunks (only useful if you have a time-based
   # column, like :created_at, indexed).
-  def self.iterate_time(collection, interval: nil, start_time: nil, end_time: nil, field: :created_at, &block)
+  def self.iterate_time(collection, interval: nil, start_time: nil, end_time: nil, field: :created_at, &)
     interval ||= 15.days
     start_time ||= Time.new(2016, 1, 1)
     batch_size = 500
@@ -53,7 +53,7 @@ module DataHelpers
         field,
         [start_time, start_time + interval]
       )
-      total = iterate_each(iterable, batch_size:, &block)
+      total = iterate_each(iterable, batch_size:, &)
       start_time += interval
     end
     total

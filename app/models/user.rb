@@ -30,7 +30,7 @@ class User < ApplicationRecord
     if invitation
       invitation.destroy_unconfirmed_redeemer!
     end
-    super(invitation)
+    super
   end
 
   # unless explicitly asked for, don't include `admin`
@@ -39,7 +39,7 @@ class User < ApplicationRecord
     unless exceptions.include? :admin
       options[:except] = exceptions.push(:admin)
     end
-    super(options)
+    super
   end
 
   def permission?(permission)
@@ -47,7 +47,7 @@ class User < ApplicationRecord
   end
 
   PERMISSIONS.each do |permission|
-    define_method "can_#{permission}?" do
+    define_method :"can_#{permission}?" do
       permission?(permission)
     end
   end

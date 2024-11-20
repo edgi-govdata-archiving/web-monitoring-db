@@ -7,8 +7,8 @@ class FileStorage::LocalFileTest < ActiveSupport::TestCase
     @storage = nil
   end
 
-  def storage(**options)
-    @storage ||= FileStorage::LocalFile.new(**options)
+  def storage(**)
+    @storage ||= FileStorage::LocalFile.new(**)
   end
 
   test 'can save a file' do
