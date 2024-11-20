@@ -23,7 +23,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     end
   end
 
-  def setup
+  setup do
     @original_allowed_hosts = Archiver.allowed_hosts
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
 
@@ -31,7 +31,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     Rails.logger = FakeLogger.new
   end
 
-  def teardown
+  teardown do
     Archiver.allowed_hosts = @original_allowed_hosts
     Rails.logger = @original_logger
 

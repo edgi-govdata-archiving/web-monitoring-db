@@ -3,12 +3,12 @@ require 'test_helper'
 class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
-  def setup
+  setup do
     @original_store = Archiver.store
     @original_allowed_hosts = Archiver.allowed_hosts
   end
 
-  def teardown
+  teardown do
     Archiver.allowed_hosts = @original_allowed_hosts
     Archiver.store = @original_store
   end

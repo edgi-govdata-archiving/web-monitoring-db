@@ -219,7 +219,7 @@ class Api::V0::MaintainersControllerTest < ActionDispatch::IntegrationTest
     )
     assert_response(:success)
 
-    # ...but it is one to try and create a conlicting maintainer
+    # ...but it is one to try and create a conflicting maintainer
     post(
       api_v0_page_maintainers_path(pages(:home_page)),
       as: :json,
