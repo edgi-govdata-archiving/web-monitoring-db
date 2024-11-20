@@ -60,7 +60,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'listen', '~> 3.8'
+  gem 'listen', '~> 3.9'
   gem 'pry-rails'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 4.0.2'
