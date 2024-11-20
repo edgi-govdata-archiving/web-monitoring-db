@@ -78,8 +78,8 @@ GEM
       mutex_m
       securerandom (>= 0.3)
       tzinfo (~> 2.0)
-    addressable (2.8.1)
-      public_suffix (>= 2.0.2, < 6.0)
+    addressable (2.8.7)
+      public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.2)
     aws-eventstream (1.2.0)
     aws-partitions (1.702.0)
@@ -141,7 +141,7 @@ GEM
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
-    execjs (2.8.1)
+    execjs (2.10.0)
     faraday (2.7.4)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
@@ -248,7 +248,7 @@ GEM
       pry (>= 0.10.4)
     psych (5.2.0)
       stringio
-    public_suffix (5.0.1)
+    public_suffix (6.0.1)
     puma (6.4.3)
       nio4r (~> 2.0)
     pundit (2.3.0)
@@ -380,7 +380,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     uber (0.1.0)
-    uglifier (4.2.0)
+    uglifier (4.2.1)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.5.0)
     warden (1.2.9)
