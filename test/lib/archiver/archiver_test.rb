@@ -1,14 +1,14 @@
 require 'test_helper'
 
 class Archiver::ArchiverTest < ActiveSupport::TestCase
-  def setup
+  setup do
     @original_storage = Archiver.store
     path = Rails.root.join('tmp/test/storage')
     FileUtils.remove_dir(path, force: true)
     Archiver.store = FileStorage::LocalFile.new(path:)
   end
 
-  def teardown
+  teardown do
     Archiver.store = @original_storage
     WebMock.reset!
   end

@@ -20,7 +20,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   # These tests get network privileges (for now)
-  def setup
+  setup do
     WebMock.allow_net_connect!
     @original_allowed_hosts = Archiver.allowed_hosts
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
@@ -30,7 +30,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     Differ.register('links_json', MockDiffer.new)
   end
 
-  def teardown
+  teardown do
     WebMock.disable_net_connect!
     Archiver.allowed_hosts = @original_allowed_hosts
   end

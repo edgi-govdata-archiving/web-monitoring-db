@@ -12,7 +12,7 @@ gem 'concurrent-ruby', '~> 1.2'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.6'
-gem 'rails', '~> 7.0.8.4'
+gem 'rails', '~> 7.1.5'
 gem 'pg', '~> 1.4'
 gem 'puma', '~> 6.4'
 gem 'rack-cors', :require => 'rack/cors'
@@ -62,9 +62,6 @@ end
 group :development do
   gem 'listen', '~> 3.8'
   gem 'pry-rails'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.1'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 4.0.2'
 end

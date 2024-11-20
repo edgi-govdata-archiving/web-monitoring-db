@@ -32,35 +32,30 @@ class Api::V0::MaintainersController < Api::V0::ApiController
   def create
     raise Api::ReadOnlyError if Rails.configuration.read_only
 
-    data = JSON.parse(request.body.read)
-    if data['uuid'].nil? && data['name'].nil?
+    data = ActionController::Parameters.new(JSON.parse(request.body.read)).compact
+    if data[:uuid].nil? && data[:name].nil?
       raise Api::InputError, 'You must specify either a `uuid` or `name` for the maintainer to add.'
     end
 
-    valid_fields = ['name', 'parent_uuid']
-
-    @maintainer =
+    conditions = data.permit(:name, :parent_uuid)
+    @maintainer = begin
       if page
-        if data['uuid']
-          page.add_maintainer(Maintainer.find(data['uuid']))
-        else
-          conditions = data.select {|key, _| valid_fields.include?(key)}
-          begin
-            maintainer = Maintainer.find_or_create_by(conditions)
-          rescue ActiveRecord::RecordNotUnique
-            raise Api::ResourceExistsError, "A different maintainer with the name `#{data['name']}` already exists."
+        maintainer =
+          if data[:uuid]
+            Maintainer.find(data[:uuid])
+          else
+            # `find_or_create_by` doesn't really do what we want here, so we have this instead. :\
+            Maintainer.find_by(conditions) || Maintainer.create!(conditions)
           end
-          page.add_maintainer(maintainer)
-          maintainer
-        end
+
+        page.add_maintainer(maintainer)
+        maintainer
       else
-        conditions = data.select {|key, _| valid_fields.include?(key)}
-        begin
-          Maintainer.create!(conditions)
-        rescue ActiveRecord::RecordNotUnique
-          raise Api::ResourceExistsError, "A different maintainer with the name `#{data['name']}` already exists."
-        end
+        Maintainer.create!(conditions)
       end
+    rescue ActiveRecord::RecordNotUnique
+      raise Api::ResourceExistsError, "A different maintainer with the name `#{data[:name]}` already exists."
+    end
 
     show
   end

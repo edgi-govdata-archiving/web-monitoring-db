@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# IDE Config
+.vscode
+.idea
+
 # Ignore bundler config.
 /.bundle
 
@@ -13,6 +17,10 @@
 
 # Ignore Byebug command history file.
 .byebug_history
+
+# Rails Credentials
+/config/**/*.key
+/config/master.key
 
 # Configuration files
 .powenv
