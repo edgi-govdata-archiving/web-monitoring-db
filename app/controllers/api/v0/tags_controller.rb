@@ -63,11 +63,11 @@ class Api::V0::TagsController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for(_model_type, *args)
+  def paging_path_for(_model_type, *)
     if page
-      api_v0_page_tags_url(*args)
+      api_v0_page_tags_url(*)
     else
-      api_v0_tags_url(*args)
+      api_v0_tags_url(*)
     end
   end
 

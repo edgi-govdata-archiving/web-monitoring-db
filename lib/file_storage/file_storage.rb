@@ -1,4 +1,4 @@
-require_relative './local_file'
+require_relative 'local_file'
 
 module FileStorage
   def self.default

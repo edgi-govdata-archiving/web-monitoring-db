@@ -51,7 +51,7 @@ class PageUrl < ApplicationRecord
 
     # Reset url_key to ensure it gets recalculated
     self.url_key = nil if value != url
-    super(value)
+    super
   end
 
   # To simplify query logic, we want to make sure `from_time` and `to_time`
@@ -66,13 +66,13 @@ class PageUrl < ApplicationRecord
   # See `config/initializers/active_record_extras.rb` for more.
   def from_time=(value)
     value = -Float::INFINITY if value.nil?
-    super(value)
+    super
   end
 
   # See note above on `from_time=()`.
   def to_time=(value)
     value = Float::INFINITY if value.nil?
-    super(value)
+    super
   end
 
   def ensure_url_key

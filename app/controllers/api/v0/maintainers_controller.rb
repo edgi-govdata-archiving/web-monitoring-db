@@ -79,11 +79,11 @@ class Api::V0::MaintainersController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for(_model_type, *args)
+  def paging_path_for(_model_type, *)
     if page
-      api_v0_page_maintainers_url(*args)
+      api_v0_page_maintainers_url(*)
     else
-      api_v0_maintainers_url(*args)
+      api_v0_maintainers_url(*)
     end
   end
 

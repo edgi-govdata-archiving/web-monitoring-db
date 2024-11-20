@@ -111,7 +111,7 @@ module Surt::Canonicalize
     hostname = Addressable::IDNA.to_ascii(hostname)
     hostname = hostname.downcase if options[:lowercase_host]
     hostname = hostname.sub(WWW_SUBDOMAIN, '\1') if options[:remove_www]
-    hostname = hostname.gsub(/\.\./, '.').gsub(/(^\.+)|(\.+$)/, '')
+    hostname = hostname.gsub('..', '.').gsub(/(^\.+)|(\.+$)/, '')
 
     if options[:decode_dword_host] && hostname.match?(/^\d+$/)
       hostname = dword_to_decimal_ip(hostname)

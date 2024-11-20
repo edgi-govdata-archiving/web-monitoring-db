@@ -6,8 +6,8 @@ module PagingConcern
 
   protected
 
-  def paging_path_for(model_type, *args)
-    self.send "paging_path_for_#{model_type}", *args
+  def paging_path_for(model_type, *)
+    self.send(:"paging_path_for_#{model_type}", *)
   end
 
   def paging_url_format

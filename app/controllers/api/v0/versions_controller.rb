@@ -167,13 +167,13 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
   protected
 
-  def paging_path_for_version(*args)
+  def paging_path_for_version(*)
     if @sampling
-      api_v0_page_versions_sampled_url(*args)
+      api_v0_page_versions_sampled_url(*)
     elsif page
-      api_v0_page_versions_url(*args)
+      api_v0_page_versions_url(*)
     else
-      api_v0_versions_url(*args)
+      api_v0_versions_url(*)
     end
   end
 

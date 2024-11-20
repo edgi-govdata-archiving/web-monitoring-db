@@ -39,11 +39,11 @@ class Api::V0::ChangesController < Api::V0::ApiController
     @change ||= Change.find_by_api_id(params[:id])
   end
 
-  def paging_path_for_change(*args)
+  def paging_path_for_change(*)
     if change
-      api_v0_page_change_url(*args)
+      api_v0_page_change_url(*)
     else
-      api_v0_page_changes_url(*args)
+      api_v0_page_changes_url(*)
     end
   end
 
