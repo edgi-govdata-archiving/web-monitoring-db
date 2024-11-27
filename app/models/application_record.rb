@@ -36,13 +36,13 @@ class ApplicationRecord < ActiveRecord::Base
     result = self
 
     if interval.start
-      comparison = interval.start_open ? '>' : '>='
-      result = result.where("#{attribute} #{comparison} ?", interval.start)
+      comparison = interval.start_open ? :gt : :gteq
+      result = result.where(arel_table[attribute].send(comparison, interval.start))
     end
 
     if interval.end
-      comparison = interval.end_open ? '<' : '<='
-      result = result.where("#{attribute} #{comparison} ?", interval.end)
+      comparison = interval.end_open ? :lt : :lteq
+      result = result.where(arel_table[attribute].send(comparison, interval.end))
     end
 
     result

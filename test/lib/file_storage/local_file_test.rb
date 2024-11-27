@@ -12,8 +12,14 @@ class FileStorage::LocalFileTest < ActiveSupport::TestCase
   end
 
   test 'can save a file' do
-    FileStorage::LocalFile.new.save_file 'abc', 'xyz'
-    FileStorage::LocalFile.new(path: storage_path).save_file 'abc', 'xyz'
+    temp_storage = FileStorage::LocalFile.new
+    temp_storage.save_file 'abc', 'xyz'
+    assert_equal 'xyz', File.read(File.join(temp_storage.directory, 'abc'))
+  end
+
+  test 'can save a file in a configured location' do
+    storage(path: storage_path).save_file 'abc', 'xyz'
+    assert_equal 'xyz', File.read("#{storage_path}/abc")
   end
 
   test 'can get a file' do
