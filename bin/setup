@@ -2,7 +2,7 @@
 require 'fileutils'
 
 APP_ROOT = File.expand_path('..', __dir__)
-APP_NAME = 'webpage-versions-db'
+APP_NAME = 'webpage-versions-db'.freeze
 
 def system!(*)
   system(*, exception: true)
