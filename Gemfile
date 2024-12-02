@@ -7,14 +7,14 @@ end
 
 ruby '3.3.6'
 
-gem 'aws-sdk-s3', '~> 1.172'
+gem 'aws-sdk-s3', '~> 1.174'
 gem 'concurrent-ruby', '~> 1.2'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.9'
 gem 'rails', '~> 7.2.2'
 gem 'pg', '~> 1.5'
-gem 'puma', '~> 6.4'
+gem 'puma', '~> 6.5'
 gem 'rack-cors', '~> 2.0', :require => 'rack/cors'
 gem 'rack-brotli'
 gem 'sassc-rails', '~> 2.1.2'
@@ -25,7 +25,7 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-gem "good_job", "~> 4.4"
+gem "good_job", "~> 4.5"
 
 # Caching
 gem 'redis', '~> 5.3'
@@ -53,7 +53,7 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.68.0', require: false
+  gem 'rubocop', '~> 1.69.0', require: false
   gem 'rubocop-performance', '~> 1.23.0'
   gem 'rubocop-rails', '~> 2.27.0'
   gem 'dotenv'
