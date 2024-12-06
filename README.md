@@ -16,7 +16,7 @@ This repository is the database and API underlying the EDGI [Web Monitoring Proj
 
 For more about how data is modeled in this project, see [“Data Model”](#data-model) below.
 
-API documentation is available from the homepage of the application, e.g. by pointing your browser to http://localhost:3000/ or https://api.monitoring.envirodatagov.org. It’s generated from our OpenAPI docs in [`swagger.yml`](./swagger.yml).
+API documentation is available from the homepage of the application, e.g. by pointing your browser to http://localhost:3000/ or https://api.monitoring.envirodatagov.org. It’s generated from our OpenAPI docs in [`swagger.yaml`](./swagger.yaml).
 
 We maintain a publicly available *staging server* at https://api-staging.monitoring.envirodatagov.org that you can test against. It runs the latest code and has non-production data — it’s safe to modify or post new versions or annotations to, but you should not rely on that data sticking around; it may get reset at any time. **For access, ask for an account on Slack or use the public user credentials:**
 
