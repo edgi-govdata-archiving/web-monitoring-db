@@ -8,7 +8,7 @@ Bundler.require(*Rails.groups)
 
 module WebpageVersionsDb
   class Application < Rails::Application
-    config.load_defaults 7.2
+    config.load_defaults 8.0
     # FIXME: this needs cleanup; this stuff should probably move to app/lib for autoloading.
     #  (We can also use `config.autoload_lib(ignore: %w(assets tasks))` or similar, but I
     #  think segregating lib and app/lib on autoloading is better.)
