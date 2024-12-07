@@ -126,7 +126,7 @@ class Page < ApplicationRecord
 
   def as_json(options = {})
     # Tags and Maintainers get a special JSON representation
-    custom_options = options.clone
+    custom_options = options.dup
     includes = custom_options[:include]
     associations = { maintainers: false, tags: false }
 
@@ -134,7 +134,7 @@ class Page < ApplicationRecord
       associations[includes] = true
       custom_options.delete(:include)
     elsif includes.is_a?(Enumerable)
-      custom_options[:include] = includes.clone
+      custom_options[:include] = includes.dup
       if custom_options[:include].delete(:maintainers)
         associations[:maintainers] = true
       end

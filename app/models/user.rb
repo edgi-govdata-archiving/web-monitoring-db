@@ -37,9 +37,9 @@ class User < ApplicationRecord
   def serializable_hash(options = {})
     exceptions = Array(options[:except])
     unless exceptions.include? :admin
-      options[:except] = exceptions.push(:admin)
+      options = { **options, except: exceptions.push(:admin) }
     end
-    super
+    super(options)
   end
 
   def permission?(permission)
