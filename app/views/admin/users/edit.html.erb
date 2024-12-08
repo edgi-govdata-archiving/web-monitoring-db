@@ -3,7 +3,7 @@
 <%= form_with(model: @user, remote: true, url: { action: :update }, method: :put) do |f| %>
   <% User::PERMISSIONS.each do |permission| %>
     <label class="checkbox">
-      <%= f.check_box :permissions, { multiple: true }, permission %>
+      <%= f.checkbox :permissions, { multiple: true }, permission %>
       <strong><%= permission %></strong>: <%= User::PERMISSION_DESCRIPTIONS[permission] %>
     </label>
     <br>

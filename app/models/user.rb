@@ -33,15 +33,6 @@ class User < ApplicationRecord
     super
   end
 
-  # unless explicitly asked for, don't include `admin`
-  def serializable_hash(options = {})
-    exceptions = Array(options[:except])
-    unless exceptions.include? :admin
-      options[:except] = exceptions.push(:admin)
-    end
-    super
-  end
-
   def permission?(permission)
     permissions.include? permission
   end
