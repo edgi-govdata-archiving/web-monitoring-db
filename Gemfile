@@ -12,7 +12,7 @@ gem 'concurrent-ruby', '~> 1.2'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.10'
-gem 'rails', '~> 8.0.0'
+gem 'rails', '~> 8.0.1'
 gem 'pg', '~> 1.5'
 gem 'puma', '~> 6.5'
 gem 'rack-cors', '~> 2.0', :require => 'rack/cors'
@@ -32,8 +32,8 @@ gem 'redis', '~> 5.3'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.21.0'
-gem 'sentry-rails', '~> 5.21.0'
+gem 'sentry-ruby', '~> 5.22.1'
+gem 'sentry-rails', '~> 5.22.1'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
