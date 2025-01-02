@@ -7,12 +7,12 @@ end
 
 ruby '3.3.6'
 
-gem 'aws-sdk-s3', '~> 1.174'
+gem 'aws-sdk-s3', '~> 1.176'
 gem 'concurrent-ruby', '~> 1.2'
 gem 'devise'
 gem 'httparty'
-gem 'jwt', '~> 2.9'
-gem 'rails', '~> 8.0.0'
+gem 'jwt', '~> 2.10'
+gem 'rails', '~> 8.0.1'
 gem 'pg', '~> 1.5'
 gem 'puma', '~> 6.5'
 gem 'rack-cors', '~> 2.0', :require => 'rack/cors'
@@ -25,15 +25,15 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-gem "good_job", "~> 4.5"
+gem "good_job", "~> 4.7"
 
 # Caching
 gem 'redis', '~> 5.3'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.21.0'
-gem 'sentry-rails', '~> 5.21.0'
+gem 'sentry-ruby', '~> 5.22.1'
+gem 'sentry-rails', '~> 5.22.1'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -53,9 +53,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.69.0', require: false
+  gem 'rubocop', '~> 1.69.2', require: false
   gem 'rubocop-performance', '~> 1.23.0'
-  gem 'rubocop-rails', '~> 2.27.0'
+  gem 'rubocop-rails', '~> 2.28.0'
   gem 'dotenv'
 end
 
