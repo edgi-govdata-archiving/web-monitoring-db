@@ -23,6 +23,7 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - 'lib/tasks/data/*'
+    - 'lib/tasks/export_sqlite.rake'
     - 'test/system/**/*'
 
 Metrics/ClassLength:
