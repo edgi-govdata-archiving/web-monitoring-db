@@ -2,7 +2,7 @@ SQLITE_CONVERSIONS = {
   'TrueClass' => ->(_value) { 1 },
   'FalseClass' => ->(_value) { 0 },
   'ActiveSupport::TimeWithZone' => ->(value) { value.utc.iso8601(3) },
-  'Hash' => ->(value) { value.to_json }
+  'Hash' => lambda(&:to_json)
 }.freeze
 
 def sqlite_convert(ruby_value)
