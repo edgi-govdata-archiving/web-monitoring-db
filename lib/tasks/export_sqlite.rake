@@ -198,11 +198,11 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
       end
     end
 
-    # TODO: Changes and annotations are complicated:
-    # - No sequential queryable field like Versions
-    # - Questionable value in the first place (we probably just want the human-written ones)
-    # puts "Writing changes..."
-    # puts "Writing annotations..."
+    puts 'Writing significant changes and annotations...'
+    Change.where(significance: 0.5...).each do |change|
+      write_row_sqlite(db, 'changes', change)
+      write_rows_sqlite(db, 'annotations', change.annotations)
+    end
   end
 
   puts 'Done!'
