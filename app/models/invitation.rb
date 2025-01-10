@@ -68,7 +68,7 @@ class Invitation < ApplicationRecord
 
   def ensure_expiration
     unless self.expires_on
-      self.expires_on = Time.now + EXPIRATION_DAYS
+      self.expires_on = Time.now + EXPIRATION_DAYS.days
     end
   end
 
