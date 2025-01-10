@@ -59,35 +59,6 @@ module DataHelpers
     total
   end
 
-  def self.iterate_batches(collection, by: nil, batch_size: 1000, &_block)
-    by ||= [collection&.primary_key&.to_sym || :uuid]
-    ordering = by.collect {|key| "#{key} ASC"}.join(', ')
-    order_where_placeholders = by.collect {'?'}.join(', ')
-    next_chunk_where = "(#{by.join(',')}) > (#{order_where_placeholders})"
-    total = 0
-    last_key = nil
-
-    loop do
-      chunk = collection.order(ordering).limit(batch_size)
-      if last_key
-        key_values = by.collect {|key| last_key[key]}
-        chunk = chunk.where(next_chunk_where, *key_values)
-      end
-
-      items = chunk.to_a
-      total += items.length
-      yield items unless items.empty?
-
-      break if items.length < batch_size
-
-      last_key = by.each_with_object({}) do |key, result|
-        result[key] = items.last.try(key)
-      end
-    end
-
-    total
-  end
-
   # Update many records with different values at once. (But it must update the
   # same *attributes* on each record.) This takes an ActiveRecord collection to
   # iterate over and gather the updates, then a list of the attributes that

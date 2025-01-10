@@ -191,7 +191,8 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
     end
 
     puts 'Writing versions...'
-    DataHelpers.iterate_batches(Version.all, by: [:capture_time, :uuid], batch_size: 10_000) do |versions|
+
+    Version.in_batches(of: 10_000, cursor: [:capture_time, :uuid]) do |versions|
       db.transaction do
         write_rows_sqlite(db, 'versions', versions)
       end
