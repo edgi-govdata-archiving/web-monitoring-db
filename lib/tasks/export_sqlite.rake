@@ -201,7 +201,7 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
     puts 'Writing significant changes and annotations...'
     Change.where(significance: 0.5...).each do |change|
       write_row_sqlite(db, 'changes', change)
-      write_rows_sqlite(db, 'annotations', change.annotations)
+      write_rows_sqlite(db, 'annotations', change.annotations, fields: Annotation.column_names.filter {|n| n != 'author_id'})
     end
   end
 
