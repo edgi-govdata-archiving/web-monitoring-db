@@ -10,19 +10,19 @@ def sqlite_convert(ruby_value)
   converter ? converter.call(ruby_value) : ruby_value
 end
 
-def write_rows_sqlite(db, table, data, fields)
-  names = []
-  values = []
-  fields.each do |field|
-    names << "'#{SQLite3::Database.quote(field.to_s)}'"
-    values << sqlite_convert(data.try!(field))
-  end
-  placeholders = names.collect {'?'}
+def write_rows_sqlite(db, table, records, fields: nil)
+  fields ||= records.try(:column_names) || records.first.class.column_names
+  sql_fields = fields.map { |n| "'#{SQLite3::Database.quote(n.to_s)}'" }
+  placeholders = fields.map { '?' }
 
-  db.execute(
-    "INSERT OR IGNORE INTO #{table} (#{names.join(',')}) VALUES (#{placeholders.join(',')})",
-    values
-  )
+  sql = "INSERT OR IGNORE INTO #{table} (#{sql_fields.join(',')}) VALUES (#{placeholders.join(',')})"
+  records.each do |record|
+    db.execute(sql, fields.map {|field| sqlite_convert(record[field]) })
+  end
+end
+
+def write_row_sqlite(db, table, record)
+  write_rows_sqlite(db, table, [record])
 end
 
 create_schema_sql = <<-ARCHIVE_SCHEMA
@@ -173,94 +173,27 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
     puts 'Writing page records...'
     db.transaction do
-      Page.all.each do |page|
-        write_rows_sqlite(db, 'pages', page, [:uuid, :url, :url_key, :title, :active, :status, :created_at, :updated_at])
-      end
-
-      PageUrl.all.each do |page_url|
-        write_rows_sqlite(db, 'page_urls', page_url, [
-                            :uuid,
-                            :page_uuid,
-                            :url,
-                            :url_key,
-                            :from_time,
-                            :to_time,
-                            :notes,
-                            :created_at,
-                            :updated_at
-                          ])
-      end
-
-      MergedPage.all.each do |page|
-        write_rows_sqlite(db, 'merged_pages', page, [:uuid, :target_uuid, :audit_data])
-      end
+      write_rows_sqlite(db, 'pages', Page.all)
+      write_rows_sqlite(db, 'page_urls', PageUrl.all)
+      write_rows_sqlite(db, 'merged_pages', MergedPage.all)
     end
 
     puts 'Writing tags...'
     db.transaction do
-      Tag.all.each do |tag|
-        write_rows_sqlite(db, 'tags', tag, [
-                            :uuid,
-                            :name,
-                            :created_at,
-                            :updated_at
-                          ])
-      end
-
-      Tagging.all.each do |tagging|
-        write_rows_sqlite(db, 'taggings', tagging, [
-                            :taggable_uuid,
-                            :taggable_type,
-                            :tag_uuid,
-                            :created_at
-                          ])
-      end
+      write_rows_sqlite(db, 'tags', Tag.all)
+      write_rows_sqlite(db, 'taggings', Tagging.all)
     end
 
     puts 'Writing maintainers...'
     db.transaction do
-      Maintainer.all.each do |tag|
-        write_rows_sqlite(db, 'maintainers', tag, [
-                            :uuid,
-                            :name,
-                            :parent_uuid,
-                            :created_at,
-                            :updated_at
-                          ])
-      end
-
-      Maintainership.all.each do |maintainership|
-        write_rows_sqlite(db, 'maintainerships', maintainership, [
-                            :maintainer_uuid,
-                            :page_uuid,
-                            :created_at
-                          ])
-      end
+      write_rows_sqlite(db, 'maintainers', Maintainer.all)
+      write_rows_sqlite(db, 'maintainerships', Maintainership.all)
     end
 
     puts 'Writing versions...'
     DataHelpers.iterate_batches(Version.all, by: [:capture_time, :uuid], batch_size: 10_000) do |versions|
       db.transaction do
-        versions.each do |version|
-          write_rows_sqlite(db, 'versions', version, [
-                              :uuid,
-                              :page_uuid,
-                              :capture_time,
-                              :body_url,
-                              :body_hash,
-                              :source_type,
-                              :source_metadata,
-                              :created_at,
-                              :updated_at,
-                              :title,
-                              :url,
-                              :status,
-                              :content_length,
-                              :media_type,
-                              :headers,
-                              :different
-                            ])
-        end
+        write_rows_sqlite(db, 'versions', versions)
       end
     end
 
