@@ -160,7 +160,9 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
 
       FOREIGN KEY(page_uuid) REFERENCES pages(uuid)
   );
+ARCHIVE_SCHEMA
 
+add_version_indexes_schema_sql = <<-ARCHIVE_SCHEMA
   CREATE INDEX IF NOT EXISTS versions_capture_time_uuid ON versions (capture_time, uuid);
 ARCHIVE_SCHEMA
 
@@ -204,6 +206,9 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
       STDOUT.write "  Committed #{versions_written} records\r"
     end
     puts ''
+
+    puts 'Indexing versions...'
+    db.transaction { db.execute_batch2(add_version_indexes_schema_sql) }
 
     puts 'Writing significant changes and annotations...'
     Change.where(significance: 0.5...).each do |change|
