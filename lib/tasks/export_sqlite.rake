@@ -203,7 +203,7 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
       versions_written += db.transaction do
         write_rows_sqlite(db, 'versions', versions)
       end
-      STDOUT.write "  Committed #{versions_written} records\r"
+      $stdout.write "  Committed #{versions_written} records\r"
     end
     puts ''
 
