@@ -16,9 +16,13 @@ def write_rows_sqlite(db, table, records, fields: nil)
   placeholders = fields.map { '?' }
 
   sql = "INSERT OR IGNORE INTO #{table} (#{sql_fields.join(',')}) VALUES (#{placeholders.join(',')})"
+  count = 0
   records.each do |record|
     db.execute(sql, fields.map {|field| sqlite_convert(record[field]) })
+    count += 1
   end
+
+  count
 end
 
 def write_row_sqlite(db, table, record)
@@ -192,11 +196,14 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
     puts 'Writing versions...'
 
+    versions_written = 0
     Version.in_batches(of: 10_000, cursor: [:capture_time, :uuid]) do |versions|
-      db.transaction do
+      versions_written += db.transaction do
         write_rows_sqlite(db, 'versions', versions)
       end
+      STDOUT.write "  Committed #{versions_written} records\r"
     end
+    puts ''
 
     puts 'Writing significant changes and annotations...'
     Change.where(significance: 0.5...).each do |change|
