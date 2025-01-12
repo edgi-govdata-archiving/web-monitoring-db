@@ -29,6 +29,13 @@ def write_row_sqlite(db, table, record)
   write_rows_sqlite(db, table, [record])
 end
 
+def estimate_row_count(model)
+  model.connection
+    .query("SELECT reltuples::bigint AS estimate FROM pg_class WHERE oid = 'public.#{model.table_name}'::regclass;")
+    .first
+    .first
+end
+
 create_schema_sql = <<-ARCHIVE_SCHEMA
   -- Store UUIDs as strings. This is a good writeup of pros/cons:
   --   https://vespa-mrs.github.io/vespa.io/development/project_dev/database/DatabaseUuidEfficiency.html
@@ -198,14 +205,17 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
     puts 'Writing versions...'
 
-    versions_written = 0
+    written_count = 0
+    expected_count = estimate_row_count(Version)
     Version.in_batches(of: 10_000, cursor: [:capture_time, :uuid]) do |versions|
-      versions_written += db.transaction do
-        write_rows_sqlite(db, 'versions', versions)
+      db.transaction do
+        written_count += write_rows_sqlite(db, 'versions', versions)
       end
-      $stdout.write "  Committed #{versions_written} records\r"
+      percentage = 100.0 * written_count / expected_count
+      $stdout.write "  Committed #{written_count} records (#{percentage.round(2)}%)   \r"
     end
-    puts ''
+    # Write out a final 100%, since the previously written values are based on an estimated total.
+    puts "  Committed #{written_count} records (100%)   "
 
     puts 'Indexing versions...'
     db.transaction { db.execute_batch2(add_version_indexes_schema_sql) }
