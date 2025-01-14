@@ -41,9 +41,14 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
   --   https://vespa-mrs.github.io/vespa.io/development/project_dev/database/DatabaseUuidEfficiency.html
   -- There is also a first-party extension: https://sqlite.org/src/file/ext/misc/uuid.c
   -- But this DB is for archival, so it's probably better to stick to basic types.
+  -- Store date-times as strings. SQLite time operations can transparently handle ISO 8601 strings (no offset, it
+  --   assumes UTC) or numbers, but numbers are complicated: in some cases it just defaults to Julian day, in others
+  --   it uses heuristics to choose whether to interpret the value as Julian days or Unix Epoch seconds. Math and
+  --   conversion also ignore leap seconds and other time complexities. For archival, ISO 8601 strings are clearer
+  --   and more portable, even if less efficient for storage.
 
   -- Consider doing a test run with this on and turning off for final export.
-  PRAGMA foreign_keys = ON;
+  PRAGMA foreign_keys = OFF;
 
   CREATE TABLE IF NOT EXISTS annotations (
       uuid TEXT NOT NULL PRIMARY KEY,
@@ -159,11 +164,11 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
       updated_at DATETIME NOT NULL,
       title TEXT,
       url TEXT,
+      different BOOLEAN,
       status INTEGER,
       content_length INTEGER,
       media_type TEXT,
       headers TEXT,
-      different BOOLEAN,
 
       FOREIGN KEY(page_uuid) REFERENCES pages(uuid)
   );
