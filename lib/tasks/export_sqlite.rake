@@ -18,7 +18,8 @@ def write_rows_sqlite(db, table, records, fields: nil)
   sql = "INSERT OR IGNORE INTO #{table} (#{sql_fields.join(',')}) VALUES (#{placeholders.join(',')})"
   count = 0
   records.each do |record|
-    db.execute(sql, fields.map {|field| sqlite_convert(record[field]) })
+    values = record.is_a?(Array) ? record : fields.map {|field| sqlite_convert(record[field]) }
+    db.execute(sql, values)
     count += 1
   end
 
@@ -209,18 +210,54 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
     end
 
     puts 'Writing versions...'
-
+    # Ideally we'd use `Version.in_batches(...)` for this, but it's just really hard to get reasonable performance out
+    # of it. You need a batch size that nears your memory limits but reliably never goes over, and you spend a lot of
+    # time marshalling data on either end. It also creates disk access patterns in Postgres that don't work great on
+    # AWS's I/O constrained disks. On the other hand, `COPY` works really well. It's just a lot more complicated.
+    # In a perfect world, we'd abstract this a bit and use it for every table, but it's not worth the effort right now.
+    transaction_size = 10_000
     written_count = 0
     expected_count = estimate_row_count(Version)
-    Version.in_batches(of: 500_000, cursor: [:capture_time, :uuid]) do |versions|
-      db.transaction do
-        written_count += write_rows_sqlite(db, 'versions', versions)
+    version_fields = Version.column_names
+    db.transaction
+    begin
+      Version.connection.send(:with_raw_connection) do |conn|
+        copy_decoder = PG::TextDecoder::CopyRow.new
+        conn.copy_data('COPY versions TO STDOUT (FORMAT text)', copy_decoder) do
+          while row = conn.get_copy_data # rubocop:disable Lint/AssignmentInCondition
+            # Value formatting is different here than with model objects; we're dealing with Postgres's string
+            # representation for pretty much everything.
+            values = []
+            row.each_with_index do |value, index|
+              values << case version_fields[index]
+                        when /_(at|time)$/
+                          value&.sub(/(:\d\d\.\d\d\d).*/, '\1')
+                        when 'different'
+                          value == 't' ? 1 : 0
+                        else
+                          value
+                        end
+            end
+            write_rows_sqlite(db, 'versions', [values], fields: version_fields)
+            written_count += 1
+            next unless written_count % transaction_size == 0
+
+            db.commit
+            db.transaction
+
+            percentage = 100.0 * written_count / expected_count
+            $stdout.write "\r  Committed #{written_count} records (#{percentage.round(2)}%)   "
+          end
+        end
       end
-      percentage = 100.0 * written_count / expected_count
-      $stdout.write "  Committed #{written_count} records (#{percentage.round(2)}%)   \r"
+      db.commit
+      # Write out a final 100%, since the previously written values are based on an estimated total.
+      puts "\r  Committed #{written_count} records (100%)   "
+    rescue StandardError => error
+      db.rollback
+      puts ''
+      raise error
     end
-    # Write out a final 100%, since the previously written values are based on an estimated total.
-    puts "  Committed #{written_count} records (100%)   "
 
     puts 'Indexing versions...'
     db.transaction { db.execute_batch2(add_version_indexes_schema_sql) }
