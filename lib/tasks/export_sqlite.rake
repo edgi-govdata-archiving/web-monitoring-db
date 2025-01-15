@@ -293,9 +293,11 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
     db.transaction { db.execute_batch2(add_version_indexes_schema_sql) }
 
     puts 'Writing significant changes and annotations...'
-    Change.where(significance: 0.5...).each do |change|
-      write_row_sqlite(db, 'changes', change)
-      write_rows_sqlite(db, 'annotations', change.annotations, fields: Annotation.column_names.filter {|n| n != 'author_id'})
+    db.transaction do
+      Change.where(significance: 0.5...).each do |change|
+        write_row_sqlite(db, 'changes', change)
+        write_rows_sqlite(db, 'annotations', change.annotations, fields: Annotation.column_names.filter {|n| n != 'author_id'})
+      end
     end
   end
 
