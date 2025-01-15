@@ -1,8 +1,24 @@
+# Convert Ruby types to SQLite. Used when writing Active Record models to SQLite.
 SQLITE_CONVERSIONS = {
   'TrueClass' => ->(_value) { 1 },
   'FalseClass' => ->(_value) { 0 },
   'ActiveSupport::TimeWithZone' => ->(value) { value.utc.iso8601(3) },
   'Hash' => lambda(&:to_json)
+}.freeze
+
+# Convert Postgres types' "text" representation to SQLite. This is used in COPY operations, while the above
+# SQLITE_CONVERSIONS is used in normal ActiveRecord-based operations.
+# If a type is not listed here, it will be passed to Postgres to parse as a string.
+PG_TEXT_SQLITE_CONVERSIONS = {
+  boolean: lambda { |value|
+    if value == 't'
+      1
+    elsif value == 'f'
+      0
+    end
+  },
+  # Truncate seconds to 3 decimal points.
+  timestamp: ->(value) { value&.sub(/(:\d\d\.\d\d\d)\d*/, '\1') }
 }.freeze
 
 def sqlite_convert(ruby_value)
@@ -37,6 +53,62 @@ def estimate_row_count(model)
     .first
 end
 
+##
+# Iterate through the rows returned by the SQL `COPY` command.
+# The +sql+ string is expected to be in the form `COPY <table> [columns?] TO STDOUT (FORMAT text[, other options])`
+# This will yield each row of copy output as an array of column values, each of which is a string or nil.
+def copy_each(connection, sql)
+  connection.send(:with_raw_connection) do |pg_connection|
+    copy_decoder = PG::TextDecoder::CopyRow.new
+    pg_connection.copy_data(sql, copy_decoder) do
+      while row = pg_connection.get_copy_data # rubocop:disable Lint/AssignmentInCondition
+        yield(row)
+      end
+    end
+  end
+end
+
+##
+# Copy a model's entire table from Postgres to SQLite. This is much faster *and* lower memory than iterating using
+# Active Record's `#in_batches` method when you have to write out an especially large number of rows, although it can't
+# lean on Active Record's parsing system for handling different column types. The type handling here is very simple.
+# Yields the number of rows written after each transaction completes.
+# Returns the total number of rows written.
+def copy_table(db, model, fields: nil, transaction_size: 10_000) # rubocop:disable Metrics/CyclomaticComplexity
+  fields ||= model.column_names
+  conversions = model.columns.filter { |c| fields.include?(c.name) }.map do |column|
+    type = column.sql_type
+    type = :timestamp if type.start_with?('timestamp')
+    PG_TEXT_SQLITE_CONVERSIONS[type.to_sym] || ->(value) { value }
+  end
+
+  sql = "INSERT OR IGNORE INTO #{model.table_name}
+    (#{fields.map { |n| "'#{SQLite3::Database.quote(n.to_s)}'" }.join(',')})
+    VALUES (#{fields.map { '?' }.join(',')})"
+
+  count = 0
+  begin
+    db.transaction
+    copy_each(model.connection, "COPY #{model.table_name} TO STDOUT (FORMAT text)") do |row|
+      values = row.map.with_index { |value, index| conversions[index].call(value) }
+      db.execute(sql, values)
+      count += 1
+      next unless count % transaction_size == 0
+
+      db.commit
+      yield count if block_given?
+      db.transaction
+    end
+    db.commit
+  rescue StandardError => error
+    db.rollback
+    raise error
+  end
+
+  yield count if block_given?
+  count
+end
+
 create_schema_sql = <<-ARCHIVE_SCHEMA
   -- Store UUIDs as strings. This is a good writeup of pros/cons:
   --   https://vespa-mrs.github.io/vespa.io/development/project_dev/database/DatabaseUuidEfficiency.html
@@ -48,7 +120,7 @@ create_schema_sql = <<-ARCHIVE_SCHEMA
   --   conversion also ignore leap seconds and other time complexities. For archival, ISO 8601 strings are clearer
   --   and more portable, even if less efficient for storage.
 
-  -- Consider doing a test run with this on and turning off for final export.
+  -- No need to enforce these constraints, since we know all our data is already correct in Postgres.
   PRAGMA foreign_keys = OFF;
 
   CREATE TABLE IF NOT EXISTS annotations (
@@ -210,54 +282,12 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
     end
 
     puts 'Writing versions...'
-    # Ideally we'd use `Version.in_batches(...)` for this, but it's just really hard to get reasonable performance out
-    # of it. You need a batch size that nears your memory limits but reliably never goes over, and you spend a lot of
-    # time marshalling data on either end. It also creates disk access patterns in Postgres that don't work great on
-    # AWS's I/O constrained disks. On the other hand, `COPY` works really well. It's just a lot more complicated.
-    # In a perfect world, we'd abstract this a bit and use it for every table, but it's not worth the effort right now.
-    transaction_size = 10_000
-    written_count = 0
     expected_count = estimate_row_count(Version)
-    version_fields = Version.column_names
-    db.transaction
-    begin
-      Version.connection.send(:with_raw_connection) do |conn|
-        copy_decoder = PG::TextDecoder::CopyRow.new
-        conn.copy_data('COPY versions TO STDOUT (FORMAT text)', copy_decoder) do
-          while row = conn.get_copy_data # rubocop:disable Lint/AssignmentInCondition
-            # Value formatting is different here than with model objects; we're dealing with Postgres's string
-            # representation for pretty much everything.
-            values = []
-            row.each_with_index do |value, index|
-              values << case version_fields[index]
-                        when /_(at|time)$/
-                          value&.sub(/(:\d\d\.\d\d\d).*/, '\1')
-                        when 'different'
-                          value == 't' ? 1 : 0
-                        else
-                          value
-                        end
-            end
-            write_rows_sqlite(db, 'versions', [values], fields: version_fields)
-            written_count += 1
-            next unless written_count % transaction_size == 0
-
-            db.commit
-            db.transaction
-
-            percentage = 100.0 * written_count / expected_count
-            $stdout.write "\r  Committed #{written_count} records (#{percentage.round(2)}%)   "
-          end
-        end
-      end
-      db.commit
-      # Write out a final 100%, since the previously written values are based on an estimated total.
-      puts "\r  Committed #{written_count} records (100%)   "
-    rescue StandardError => error
-      db.rollback
-      puts ''
-      raise error
+    copy_table(db, Version) do |count|
+      percentage = 100.0 * count / expected_count
+      $stdout.write "\r  Committed #{count} records (#{percentage.round(2)}%)   "
     end
+    puts ''
 
     puts 'Indexing versions...'
     db.transaction { db.execute_batch2(add_version_indexes_schema_sql) }
