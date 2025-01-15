@@ -212,7 +212,7 @@ task :export_sqlite, [:export_path] => [:environment] do |_t, args|
 
     written_count = 0
     expected_count = estimate_row_count(Version)
-    Version.in_batches(of: 10_000, cursor: [:capture_time, :uuid]) do |versions|
+    Version.in_batches(of: 500_000, cursor: [:capture_time, :uuid]) do |versions|
       db.transaction do
         written_count += write_rows_sqlite(db, 'versions', versions)
       end
