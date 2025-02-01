@@ -8,7 +8,7 @@ end
 ruby '3.4.1'
 
 gem 'aws-sdk-s3', '~> 1.176'
-gem 'concurrent-ruby', '~> 1.2'
+gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 2.10'
@@ -32,8 +32,8 @@ gem 'redis', '~> 5.3'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.22.1'
-gem 'sentry-rails', '~> 5.22.1'
+gem 'sentry-ruby', '~> 5.22.3'
+gem 'sentry-rails', '~> 5.22.3'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
