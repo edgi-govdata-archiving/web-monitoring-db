@@ -68,7 +68,7 @@ module FileStorage
       uri = URI.parse(url_string)
       if uri.scheme == 's3'
         { bucket: uri.host, path: uri.path[1..-1], region: nil }
-      elsif uri.scheme == 'http' || uri.scheme == 'https'
+      elsif ['http', 'https'].include?(uri.scheme)
         aws_host = uri.host.match(S3_HOST_PATTERN)
         return unless aws_host
 

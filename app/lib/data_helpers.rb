@@ -26,11 +26,11 @@ module DataHelpers
 
   # Kind of like find_each, but allows for ordered queries. We need this since
   # a) UUIDs are not really ordered and b) we are still live inserting data.
-  def self.iterate_each(collection, batch_size: 1000, &block)
+  def self.iterate_each(collection, batch_size: 1000, &)
     offset = 0
     loop do
       items = collection.limit(batch_size).offset(offset)
-      items.each(&block)
+      items.each(&)
       break if items.count.zero?
 
       offset += batch_size
