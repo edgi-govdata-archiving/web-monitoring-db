@@ -155,7 +155,7 @@ class ImportVersionsJob < ApplicationJob
     if existing_version
       values =
         if update_behavior == 'merge'
-          new_values = record.select {|key, _| allowed.include?(key)}
+          new_values = record.slice(*allowed)
           if new_values.key?('source_metadata')
             new_values['source_metadata'] = existing_version.source_metadata
               .merge(new_values['source_metadata'])
