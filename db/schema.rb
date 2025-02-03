@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_11_20_215224) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_02_234940) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -259,6 +259,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_11_20_215224) do
     t.integer "content_length"
     t.string "media_type"
     t.jsonb "headers"
+    t.string "network_error"
     t.index ["body_hash"], name: "index_versions_on_body_hash"
     t.index ["capture_time", "uuid"], name: "index_versions_on_capture_time_and_uuid"
     t.index ["created_at", "uuid"], name: "index_versions_on_created_at_and_uuid"
