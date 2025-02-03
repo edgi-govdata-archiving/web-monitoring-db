@@ -159,6 +159,14 @@ page1_v5:
     page_id: 11
     version_id: 115
 
+page1_v6:
+  page: home_page
+  body_url: null
+  capture_time: '2017-03-06T00:00:00Z'
+  body_hash: null
+  source_type: 'blah_blah'
+  network_error: 'net::ERR_NAME_NOT_RESOLVED'
+
 page3_v1:
   page: home_page_site3
   body_url: https://test-bucket.s3.amazonaws.com/page3_v1.html
