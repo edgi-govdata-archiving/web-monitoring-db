@@ -20,6 +20,25 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
     assert_equal 'DIFF!', diff
   end
 
+  test 'it gets the diff for a change that has a network error' do
+    change = changes(:page1_change_5_network_error)
+
+    expected_request = stub_request(:any, 'http://testdiff.com')
+      .with(query: {
+        'a' => change.from_version.body_url,
+        'a_hash' => change.from_version.body_hash,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
+        'b_hash' => ''
+      })
+      .to_return(body: 'DIFF!', status: 200)
+
+    differ = Differ::SimpleDiff.new('http://testdiff.com')
+    diff = differ.diff(change)
+
+    assert_requested expected_request
+    assert_equal 'DIFF!', diff
+  end
+
   test 'it sends any additional options as query parameters' do
     change = changes(:page1_change_1_2)
 

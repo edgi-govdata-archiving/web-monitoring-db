@@ -34,8 +34,8 @@ class Api::V0::DiffController < Api::V0::ApiController
     to = change.version
 
     error_details = []
-    error_details << "version #{from.uuid}" if from.body_url.blank?
-    error_details << "version #{to.uuid}" if to.body_url.blank?
+    error_details << "version #{from.uuid}" if from.body_url.blank? && from.network_error.blank?
+    error_details << "version #{to.uuid}" if to.body_url.blank? && to.network_error.blank?
 
     unless error_details.empty?
       raise Api::InputError,

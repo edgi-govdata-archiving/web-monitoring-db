@@ -16,6 +16,12 @@ page1_change_4_5:
   priority: 0.75
   significance: 0.5
 
+page1_change_5_network_error:
+  from_version: page1_v5
+  version: page1_v6
+  priority: 0.75
+  significance: 0.5
+
 page2_change_1_2:
   from_version: page2_v1
   version: page2_v2
