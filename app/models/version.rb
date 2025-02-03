@@ -250,6 +250,10 @@ class Version < ApplicationRecord
     end
   end
 
+  def domain
+    url.present? ? Addressable::URI.parse(url).host : '<unknown>'
+  end
+
   def sync_page_title
     page.update_page_title(capture_time)
   end

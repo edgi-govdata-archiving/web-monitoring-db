@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Network error <%= @version.network_error %></title>
+    <style type="text/css">
+      body {
+        font-size: 1.25rem;
+        margin: 0;
+        padding: 1rem;
+        margin: 2rem auto;
+      }
+
+      body > * {
+        margin: 1rem auto;
+        max-width: 35rem;
+        text-align: center;
+      }
+
+      h1 { font-size: 1em; }
+      #error-code {
+        font-size: 0.75em;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>There was a network error when capturing this page.</h1>
+    <p id="description">
+      <% if @version.network_error.include? 'ERR_NAME_NOT_RESOLVED' %>
+        No server could be found for “<%= @version.domain %>” in the Domain Name System.
+      <% elsif @version.network_error.include? 'ERR_CONNECTION_REFUSED' %>
+        The server refused the request.
+      <% elsif @version.network_error.include? 'ERR_SSL_VERSION_OR_CIPHER_MISMATCH' %>
+        A secure connection could not be established.
+      <% elsif @version.network_error.include? 'ERR_CONNECTION_RESET' %>
+        The server dropped the connection in the middle of the request.
+      <% elsif ['timeout', 'timed out', 'timed_out'].any? { |text| @version.network_error.downcase.include? text } %>
+        We gave up waiting for the server to respond after a long time.
+      <% end %>
+      <span id="error-code">(Code: <code><%= @version.network_error %></code>)</span>
+    </p>
+  </body>
+</html>
