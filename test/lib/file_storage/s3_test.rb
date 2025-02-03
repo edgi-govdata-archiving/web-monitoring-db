@@ -1,12 +1,13 @@
 require 'test_helper'
 
 class FileStorage::S3Test < ActiveSupport::TestCase
-  def example_storage
+  def example_storage(gzip: false)
     FileStorage::S3.new(
       key: 'whatever',
       secret: 'test',
       bucket: 'test-bucket',
-      region: 'us-west-2'
+      region: 'us-west-2',
+      gzip: gzip
     )
   end
 
@@ -90,5 +91,33 @@ class FileStorage::S3Test < ActiveSupport::TestCase
 
     storage = example_storage
     assert_equal 'Hello from S3!', storage.get_file('https://test-bucket.s3.amazonaws.com/something.txt')
+  end
+
+  test 's3 storage can write a file' do
+    text = 'Hello from S3!'
+
+    s3_gzipped_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
+      .with(body: text, headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .to_return(status: 200, body: '', headers: {})
+    s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
+      .with(body: text, headers: { 'Content-Type' => 'text/plain' })
+      .to_return(status: 200, body: '', headers: {})
+
+    storage = example_storage
+    storage.save_file('something.txt', text, content_type: 'text/plain')
+    assert_requested(s3_put)
+    assert_not_requested(s3_gzipped_put)
+  end
+
+  test 's3 storage can write a gzipped file' do
+    text = 'Hello from S3!'
+
+    s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
+      .with(body: gzip_text(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .to_return(status: 200, body: '', headers: {})
+
+    storage = example_storage(gzip: true)
+    storage.save_file('something.txt', text, content_type: 'text/plain')
+    assert_requested(s3_put)
   end
 end

@@ -2,7 +2,7 @@ require 'aws-sdk-s3'
 
 module FileStorage
   class S3
-    def initialize(key: nil, secret: nil, bucket:, region: nil, acl: 'public-read')
+    def initialize(key: nil, secret: nil, bucket:, region: nil, acl: 'public-read', gzip: false)
       @bucket = bucket
       @region = region || 'us-east-1'
       @client = Aws::S3::Client.new(
@@ -11,6 +11,7 @@ module FileStorage
         region: @region
       )
       @acl = acl
+      @gzip = gzip
     end
 
     def contains_url?(url_string)
@@ -52,9 +53,10 @@ module FileStorage
       response = @client.put_object(
         bucket: @bucket,
         key: path,
-        body: content,
+        body: @gzip ? gzip_data(content) : content,
         acl: options.fetch(:acl, @acl),
-        content_type: options.fetch(:content_type, 'application/octet-stream')
+        content_type: options.fetch(:content_type, 'application/octet-stream'),
+        content_encoding: @gzip ? 'gzip' : nil
       )
       { url: url_for_file(path), meta: response }
     end
@@ -101,6 +103,12 @@ module FileStorage
       else
         path
       end
+    end
+
+    def gzip_data(data)
+      stream = Zlib::GzipWriter.new(StringIO.new)
+      stream << data
+      stream.close.string
     end
   end
 end
