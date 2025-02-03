@@ -287,6 +287,24 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal(content, @response.body)
   end
 
+  test 'can synthesize a raw response body for network errors' do
+    page = pages(:home_page)
+    version = page.versions.create(
+      capture_time: Time.now - 1.minute,
+      body_url: nil,
+      body_hash: nil,
+      source_type: 'edgi_statuscheck_v0',
+      url: page.url,
+      status: nil,
+      network_error: 'net::ERR_TIMED_OUT'
+    )
+
+    sign_in users(:alice)
+    get raw_api_v0_version_url(version)
+    assert_response(:success)
+    assert_includes(@response.body, 'net::ERR_TIMED_OUT')
+  end
+
   test 'can query by source_metadata fields' do
     sign_in users(:alice)
     version = versions(:page1_v1)

@@ -111,7 +111,9 @@ class Api::V0::VersionsController < Api::V0::ApiController
 
     expires_in 1.year, public: true
 
-    if @version.body_url.nil?
+    if @version.network_error.present?
+      render :network_error, layout: nil
+    elsif @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     elsif Archiver.external_archive_url?(@version.body_url)
       redirect_to @version.body_url, status: 301, allow_other_host: true
