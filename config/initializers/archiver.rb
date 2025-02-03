@@ -16,7 +16,8 @@ if ENV['AWS_ARCHIVE_BUCKET']
     key: aws_key,
     secret: aws_secret,
     region: aws_region,
-    bucket: aws_bucket
+    bucket: aws_bucket,
+    gzip: true
   )
 elsif !Rails.env.production?
   directory = Rails.env.test? ? 'archive-test' : 'archive'

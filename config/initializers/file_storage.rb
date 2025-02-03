@@ -5,7 +5,8 @@ if ENV['AWS_WORKING_BUCKET']
   FileStorage.default = FileStorage::S3.new(
     bucket: ENV['AWS_WORKING_BUCKET'],
     region: ENV['AWS_WORKING_REGION'] || ENV['AWS_REGION'],
-    acl: 'private'
+    acl: 'private',
+    gzip: true
   )
 else
   storage_path = Rails.root.join('tmp/storage/working')
