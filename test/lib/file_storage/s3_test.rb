@@ -11,12 +11,6 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     )
   end
 
-  def gzip_text(input)
-    stream = Zlib::GzipWriter.new(StringIO.new)
-    stream << input
-    stream.close.string
-  end
-
   test 's3 storage can parse S3 URIs' do
     parsed = example_storage.send :parse_s3_url, 's3://test-bucket/some/thing.txt'
     assert_equal 'test-bucket', parsed[:bucket]
@@ -87,7 +81,7 @@ class FileStorage::S3Test < ActiveSupport::TestCase
 
   test 's3 storage can get a gzipped file' do
     stub_request(:get, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .to_return(status: 200, body: gzip_text('Hello from S3!'), headers: { 'Content-Encoding' => 'gzip' })
+      .to_return(status: 200, body: ActiveSupport::Gzip.compress('Hello from S3!'), headers: { 'Content-Encoding' => 'gzip' })
 
     storage = example_storage
     assert_equal 'Hello from S3!', storage.get_file('https://test-bucket.s3.amazonaws.com/something.txt')
@@ -113,7 +107,7 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     text = 'Hello from S3!'
 
     s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .with(body: gzip_text(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .with(body: ActiveSupport::Gzip.compress(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
       .to_return(status: 200, body: '', headers: {})
 
     storage = example_storage(gzip: true)

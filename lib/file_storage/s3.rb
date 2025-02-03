@@ -53,7 +53,7 @@ module FileStorage
       response = @client.put_object(
         bucket: @bucket,
         key: path,
-        body: @gzip ? gzip_data(content) : content,
+        body: @gzip ? ActiveSupport::Gzip.compress(content) : content,
         acl: options.fetch(:acl, @acl),
         content_type: options.fetch(:content_type, 'application/octet-stream'),
         content_encoding: @gzip ? 'gzip' : nil
@@ -103,12 +103,6 @@ module FileStorage
       else
         path
       end
-    end
-
-    def gzip_data(data)
-      stream = Zlib::GzipWriter.new(StringIO.new)
-      stream << data
-      stream.close.string
     end
   end
 end
