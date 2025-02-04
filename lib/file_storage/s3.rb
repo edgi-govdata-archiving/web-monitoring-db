@@ -53,7 +53,8 @@ module FileStorage
       response = @client.put_object(
         bucket: @bucket,
         key: path,
-        body: @gzip ? ActiveSupport::Gzip.compress(content) : content,
+        # TODO: it would be nice to support streaming through the gzip compressor instead of buffering all `content`.
+        body: @gzip ? ActiveSupport::Gzip.compress(content.try(:read) || content) : content,
         acl: options.fetch(:acl, @acl),
         content_type: options.fetch(:content_type, 'application/octet-stream'),
         content_encoding: @gzip ? 'gzip' : nil
