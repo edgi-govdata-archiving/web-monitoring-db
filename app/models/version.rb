@@ -201,6 +201,7 @@ class Version < ApplicationRecord
   end
 
   def effective_status # rubocop:disable Metrics/PerceivedComplexity
+    return 404 if network_error.present?
     return status if status.present? && status >= 400
 
     # Simple heuristics to determine whether a page with an OK status code
