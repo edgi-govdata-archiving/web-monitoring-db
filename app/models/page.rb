@@ -306,7 +306,7 @@ class Page < ApplicationRecord
     total_time = 0.seconds
     error_time = 0.seconds
 
-    status_query = versions.where('status IS NOT NULL').order(capture_time: :desc)
+    status_query = versions.where('status IS NOT NULL OR network_error IS NOT NULL').order(capture_time: :desc)
     candidates = status_query.where('capture_time >= ?', start_time).to_a
     base_version = status_query.where('capture_time < ?', start_time).first
     candidates << base_version if base_version
