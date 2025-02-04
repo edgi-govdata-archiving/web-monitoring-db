@@ -119,8 +119,8 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     text = 'Hello from S3!'
 
     s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-               .with(body: ActiveSupport::Gzip.compress(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
-               .to_return(status: 200, body: '', headers: {})
+      .with(body: ActiveSupport::Gzip.compress(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .to_return(status: 200, body: '', headers: {})
 
     storage = example_storage(gzip: true)
     storage.save_file('something.txt', StringIO.new(text), content_type: 'text/plain')
