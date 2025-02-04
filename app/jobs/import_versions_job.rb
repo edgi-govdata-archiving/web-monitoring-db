@@ -68,6 +68,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_record(record, row)
+    record = normalize_record(record)
     page = page_for_record(record, create: @import.create_pages, row:)
     unless page
       warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
@@ -126,10 +127,8 @@ class ImportVersionsJob < ApplicationJob
     @added << version unless existing_version
   end
 
-  def version_for_record(record, existing_version = nil, update_behavior = 'replace')
-    # TODO: Remove line 74 below once full transition from 'page_title' to 'title'
-    # is complete
-    record['title'] = record['page_title'] if record.key?('page_title')
+  def normalize_record(original)
+    record = original.dup
     record['url'] = record['page_url'] if record.key?('page_url')
     record['body_url'] = record['uri'] if record.key?('uri')
     record['body_hash'] = record['version_hash'] if record.key?('version_hash')
@@ -143,12 +142,16 @@ class ImportVersionsJob < ApplicationJob
       end
 
       # Find headers in source_metadata if missing from the top level.
-      # TODO: remove once full transition to top level headers is comlete.
+      # TODO: remove once full transition to top level headers is complete.
       if meta.key?('headers') && !record.key?('headers')
         record['headers'] = meta['headers']
         meta.delete('headers')
       end
     end
+    record
+  end
+
+  def version_for_record(record, existing_version = nil, update_behavior = 'replace')
     disallowed = ['id', 'uuid', 'created_at', 'updated_at']
     allowed = Version.attribute_names - disallowed
 
@@ -174,14 +177,14 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def page_for_record(record, create: true, row:)
-    validate_present!(record, 'page_url')
-    validate_kind!([String], record, 'page_url')
+    validate_present!(record, 'url')
+    validate_kind!([String], record, 'url')
     validate_kind!([Array, NilClass], record, 'page_maintainers')
     validate_kind!([Array, NilClass], record, 'page_tags')
     validate_present!(record, 'capture_time')
     validate_kind!([String], record, 'capture_time')
 
-    url = record['page_url']
+    url = record['url']
 
     capture_time = Time.parse(record['capture_time'])
     existing_page = Page.find_by_url(url, at_time: capture_time)

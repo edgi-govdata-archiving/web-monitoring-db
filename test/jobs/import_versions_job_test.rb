@@ -148,7 +148,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(expected_meta, version.source_metadata, 'source_metadata was not merged')
   end
 
-  test 'raises helpful error if page_url is missing' do
+  test 'raises helpful error if url is missing' do
     import = Import.create_with_data(
       {
         user: users(:alice),
@@ -156,7 +156,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          # omitted page_url
+          # omitted url
           page_title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
@@ -169,7 +169,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       ].map(&:to_json).join("\n")
     )
     ImportVersionsJob.perform_now(import)
-    assert_equal(['Row 0: `page_url` is missing'], import.processing_errors, 'expected error due to missing page_url')
+    assert_equal(['Row 0: `url` is missing'], import.processing_errors, 'expected error due to missing url')
   end
 
   test 'does not import versions for inactive pages' do
