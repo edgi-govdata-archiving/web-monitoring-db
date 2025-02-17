@@ -58,8 +58,10 @@ module Api
       502
     end
 
-    def initialize(url, hash)
-      super("Response body for '#{url}' did not match expected hash (#{hash})")
+    def initialize(url, expected, actual = nil)
+      detail = "expected: '#{expected}'"
+      detail += ", 'actual: '#{actual}'" if actual
+      super("Response body for '#{url}' did not match expected hash (#{detail})")
     end
   end
 
