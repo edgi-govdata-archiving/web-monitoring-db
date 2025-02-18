@@ -47,7 +47,7 @@ module Archiver
 
     hash = hash_content(response.body)
     if expected_hash && expected_hash != hash
-      raise Api::MismatchedHashError.new(url, expected_hash)
+      raise Api::MismatchedHashError.new(url, expected_hash, hash)
     end
 
     url =
