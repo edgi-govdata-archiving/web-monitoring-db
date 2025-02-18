@@ -87,21 +87,46 @@ jobs:
           name: Test seeds setup
           command: bin/rails db:seed
 
-  publish_docker:
+  build_docker:
     machine:
       image: ubuntu-2004:202111-02
     steps:
       - checkout
       - run: |
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: |
           docker build --target rails-server -t envirodgi/db-rails-server:$CIRCLE_SHA1 .
-          docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
       - run: |
           docker build --target import-worker -t envirodgi/db-import-worker:$CIRCLE_SHA1 .
-          docker image tag envirodgi/db-import-worker:$CIRCLE_SHA1 envirodgi/db-import-worker:latest
       - run: |
           docker build --target status-update-job -t envirodgi/db-status-update-job:$CIRCLE_SHA1 .
+      - run:
+          name: Save Images
+          command: |
+            mkdir /tmp/workspace
+            docker save --output /tmp/workspace/docker-image-rails-server envirodgi/db-rails-server:$CIRCLE_SHA1
+            docker save --output /tmp/workspace/docker-image-import-worker envirodgi/db-import-worker:$CIRCLE_SHA1
+            docker save --output /tmp/workspace/docker-image-status-update-job envirodgi/db-status-update-job:$CIRCLE_SHA1
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker-image-*
+
+  publish_docker:
+    machine:
+      image: ubuntu-2004:202111-02
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load Built Docker Images
+          command: |
+            docker load --input /tmp/workspace/docker-image-rails-server
+            docker load --input /tmp/workspace/docker-image-import-worker
+            docker load --input /tmp/workspace/docker-image-status-update-job
+      - run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: |
+          docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
+          docker image tag envirodgi/db-import-worker:$CIRCLE_SHA1 envirodgi/db-import-worker:latest
           docker image tag envirodgi/db-status-update-job:$CIRCLE_SHA1 envirodgi/db-status-update-job:latest
       - run: |
           docker push envirodgi/db-rails-server:$CIRCLE_SHA1
@@ -136,6 +161,10 @@ workflows:
           filters:
             branches:
               ignore: release
+      - build_docker:
+          filters:
+            branches:
+              ignore: release
 
   build-and-publish:
     jobs:
@@ -144,6 +173,9 @@ workflows:
             branches:
               only:
                 - release
-      - publish_docker:
+      - build_docker:
           requires:
             - test
+      - publish_docker:
+          requires:
+            - build_docker
