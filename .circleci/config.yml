@@ -108,7 +108,9 @@ jobs:
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - docker-image-*
+            - docker-image-rails-server
+            - docker-image-import-worker
+            - docker-image-status-update-job
 
   publish_docker:
     machine:
