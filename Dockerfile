@@ -2,7 +2,7 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
 ### BASE ENVIRONMENT STAGE ###
-FROM ruby:3.4.2-slim as base
+FROM ruby:3.4.2-slim AS base
 LABEL maintainer="enviroDGI@gmail.com"
 
 # Install apt based dependencies required to run Rails as
@@ -11,7 +11,8 @@ LABEL maintainer="enviroDGI@gmail.com"
 RUN apt-get update && apt-get install -y \
     build-essential \
     nodejs \
-    libpq-dev
+    libpq-dev \
+    libyaml-dev
 
 # Configure the main working directory. This is the base
 # directory used in any further RUN, COPY, and ENTRYPOINT
@@ -31,7 +32,7 @@ COPY . ./
 
 
 ### IMPORT WORKER TARGET ###
-FROM base as import-worker
+FROM base AS import-worker
 LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
@@ -39,7 +40,7 @@ CMD ["bundle", "exec", "good_job", "start"]
 
 
 ### RAILS SERVER TARGET ###
-FROM base as rails-server
+FROM base AS rails-server
 LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
@@ -57,7 +58,7 @@ CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
 
 ### STATUS UPDATE JOB TARGET ###
-FROM base as status-update-job
+FROM base AS status-update-job
 LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
