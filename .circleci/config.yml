@@ -104,13 +104,11 @@ jobs:
             mkdir /tmp/workspace
             docker save --output /tmp/workspace/docker-image-rails-server envirodgi/db-rails-server:$CIRCLE_SHA1
             docker save --output /tmp/workspace/docker-image-import-worker envirodgi/db-import-worker:$CIRCLE_SHA1
-            docker save --output /tmp/workspace/docker-image-status-update-job envirodgi/status-update-job:$CIRCLE_SHA1
+            docker save --output /tmp/workspace/docker-image-status-update-job envirodgi/db-status-update-job:$CIRCLE_SHA1
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
-            - docker-image-rails-server
-            - docker-image-import-worker
-            - docker-image-status-update-job
+            - docker-image-*
 
   publish_docker:
     machine:
