@@ -706,7 +706,7 @@ paths:
                 ```
                 {a_text: "string", b_text: "string"}
                 ```
-              * `html_source` - additions and removals to the actual source code, formatted as:
+              * `html_source_dmp` - additions and removals to the actual source code, formatted as:
                   ```
                   [
                     [-1, "some text that was removed"],
@@ -716,7 +716,7 @@ paths:
                     // and so on
                   ]
                   ```
-              * `html_text` - additions and removals to the visible text on the page, formatted as:
+              * `html_text_dmp` - additions and removals to the visible text on the page, formatted as:
                   ```
                   [
                     [-1, "some text that was removed"],
@@ -733,8 +733,8 @@ paths:
             - length
             - identical_bytes
             - side_by_side_text
-            - html_source
-            - html_text
+            - html_source_dmp
+            - html_text_dmp
             - html_visual
       responses:
         '200':
