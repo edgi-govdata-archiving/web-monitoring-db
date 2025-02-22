@@ -305,6 +305,7 @@ This project wouldn’t exist without a lot of amazing people’s help. Thanks t
 | [💻](# "Code") | [Shishir Joshi](https://github.com/shishir127) |
 | [💻](# "Code") [📖](# "Documentation") | [Krzysztof Madejski](https://github.com/KrzysztofMadejski) |
 | [📖](# "Documentation") | [Ansar Memon (Amoury)](https://github.com/amoury) |
+| [📖](# "Documentation") | [Eric Nost](https://github.com/ericnost) |
 | [📖](# "Documentation") [📋](# "Organizer") [📢](# "Talks") | [Matt Price](https://github.com/titaniumbones) |
 | [📋](# "Organizer") [🔍](# "Funding/Grant Finder") | [Toly Rinberg](https://github.com/trinberg) |
 | [💻](# "Code") | [Ben Sheldon](https://github.com/bensheldon) |
