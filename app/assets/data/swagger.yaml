@@ -706,7 +706,29 @@ paths:
                 ```
                 {a_text: "string", b_text: "string"}
                 ```
-              * `html_source` - additions and removals to the actual source code, formatted as:
+              * `links` - changes to the text or URL of links on the page. This generates an HTML page describing the changes.
+              * `links_json` - the same as `links` but the changes in JSON format:
+                ```
+                {
+                  change_count: integer,
+                  diff: [
+                    [0, {text: "Text of an unchanged link", href: "/unchanged/url"}],
+                    [-1, {text: "Text of removed link", href: "/removed/url"}],  // Removed
+                    [1, {text: "Text of added link", href: "/added/url"}],
+                    [
+                      // Changed links have `100` for the first item, and the second part has
+                      // a diff in the same format as `html_source_dmp` for each of the
+                      // `text` and `href` properties.
+                      100,
+                      {
+                        text: [[0, "Unchanged text"], [-1, "Removed text"], [1, "Added text"], ...],
+                        href: [[0, "/unchaged"], [-1, "/old-part"], [1, "/new-part"], ...]
+                      }
+                    ]
+                  ]
+                }
+                ```
+              * `html_source_dmp` - additions and removals to the actual source code, formatted as:
                   ```
                   [
                     [-1, "some text that was removed"],
@@ -716,7 +738,7 @@ paths:
                     // and so on
                   ]
                   ```
-              * `html_text` - additions and removals to the visible text on the page, formatted as:
+              * `html_text_dmp` - additions and removals to the visible text on the page, formatted as:
                   ```
                   [
                     [-1, "some text that was removed"],
@@ -726,16 +748,18 @@ paths:
                     // and so on
                   ]
                   ```
-              * `html_visual` - an HTML page with differences marked up. This is meant to be rendered directly in a web browser.
+              * `html_token` - an HTML page with differences marked up. This is meant to be rendered directly in a web browser.
           required: true
           type: string
           enum:
             - length
             - identical_bytes
             - side_by_side_text
-            - html_source
-            - html_text
-            - html_visual
+            - links
+            - links_json
+            - html_source_dmp
+            - html_text_dmp
+            - html_token
       responses:
         '200':
           description: successful operation
