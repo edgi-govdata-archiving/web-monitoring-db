@@ -2,6 +2,8 @@ require 'aws-sdk-s3'
 
 module FileStorage
   class S3
+    S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/
+
     def initialize(key: nil, secret: nil, bucket:, region: nil, acl: 'public-read', gzip: false)
       @bucket = bucket
       @region = region || 'us-east-1'
@@ -67,8 +69,6 @@ module FileStorage
     end
 
     private
-
-    S3_HOST_PATTERN = /^(?:([^.]+)\.)?s3(?:-([^.]+))?\.amazonaws\.com$/
 
     # Determine bucket, path, region info from URIs in the forms:
     # - s3://bucket/file/path.extension
