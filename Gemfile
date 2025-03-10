@@ -32,8 +32,8 @@ gem 'redis', '~> 5.3'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.22.3'
-gem 'sentry-rails', '~> 5.22.3'
+gem 'sentry-ruby', '~> 5.22.4'
+gem 'sentry-rails', '~> 5.22.4'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -53,9 +53,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.71.1', require: false
-  gem 'rubocop-performance', '~> 1.23.1'
-  gem 'rubocop-rails', '~> 2.29.1'
+  gem 'rubocop', '~> 1.73.1', require: false
+  gem 'rubocop-performance', '~> 1.24.0'
+  gem 'rubocop-rails', '~> 2.30.2'
   gem 'dotenv'
 end
 
