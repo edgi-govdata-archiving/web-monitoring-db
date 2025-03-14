@@ -297,12 +297,12 @@ class SurtTest < ActiveSupport::TestCase
   test 'it removes tracking identifiers from querystrings' do
     assert_canonicalized(
       'http://example.com/x',
-      'http://example.com/x?utm_term=a&utm_medium=b&utm_source=c&utm_content=d&utm_campaign=e',
+      'http://example.com/x?utm_term=a&utm_medium=social&utm_source=facebook&utm_content=d&utm_campaign=e',
       'It failed to remove `utm_*` query params'
     )
     assert_canonicalized(
       'http://example.com/x',
-      'http://example.com/x?sms_ss=a&awesm=b&xtor=c',
+      'http://example.com/x?sms_ss=abc&awesm=def&xtor=hij',
       'It failed to remove assorted tracking query params'
     )
   end
