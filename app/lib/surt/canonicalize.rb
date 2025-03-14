@@ -33,9 +33,8 @@ module Surt::Canonicalize
     sort_query: true
   }.freeze
 
-  SAFE_OPTIONS = DEFAULT_OPTIONS.to_h do |k, v|
-    [k, [:lowercase_host, :lowercase_scheme, :remove_default_port, :remove_empty_query].include?(k)]
-  end.freeze
+  SAFE_KEYS = [:lowercase_host, :lowercase_scheme, :remove_default_port, :remove_empty_query].freeze
+  SAFE_OPTIONS = DEFAULT_OPTIONS.to_h { |k, _v| [k, SAFE_KEYS.include?(k)] }.freeze
 
   # TODO: consider additional ports? Both Java and Python SURT only do these two, but there are plenty of others that
   #  would be relevant. Note we currently skip all canonicalization for other schemes anyway (making this a moot
