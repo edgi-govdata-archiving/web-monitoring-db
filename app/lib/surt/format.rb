@@ -40,7 +40,9 @@ module Surt::Format
   end
 
   def self.host(url, options)
-    host = url.host.split('.').reverse.join(',')
+    host = url.host
+    host = host[1...-1] if /^\[[0-9A-Za-z:]+\]$/.match?(host)
+    host = host.split('.').reverse.join(',')
     host = "#{url.userinfo}@#{host}" if url.userinfo
     host = "#{host}:#{url.port}" if url.port
     host += ',' if options[:include_trailing_comma]

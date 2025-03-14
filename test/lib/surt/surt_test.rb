@@ -78,7 +78,7 @@ class SurtTest < ActiveSupport::TestCase
     )
   end
 
-  test 'it decimal encodes IP addresses' do
+  test 'it decimal encodes IPv4 addresses' do
     assert_canonicalized(
       'http://168.188.99.26/',
       'http://168.188.99.26',
@@ -101,6 +101,13 @@ class SurtTest < ActiveSupport::TestCase
     #   'http://10.0.258',
     #   'It did not correct a poorly encoded IPv4'
     # )
+  end
+
+  test 'it handles IPv6 addresses' do
+    assert_canonicalized(
+      'https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo',
+      'https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo/'
+    )
   end
 
   test 'it normalizes and removes dots in path segments' do
@@ -312,6 +319,10 @@ class SurtTest < ActiveSupport::TestCase
     assert_equal('org,archive,xyz)/', Surt.format('http://xyz.archive.org/'))
     assert_equal('org,archive)/goo', Surt.format('http://archive.org/goo'))
     assert_equal('org,archive)/goo/gah', Surt.format('http://archive.org/goo/gah'))
+    assert_equal(
+      '2600:1f18:200d:fb00:2b74:867c:ab0c:150a)/goo',
+      Surt.format('https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo')
+    )
   end
 
   test 'it canonicalizes and formats URLs' do
@@ -319,5 +330,9 @@ class SurtTest < ActiveSupport::TestCase
     assert_equal('org,archive)/goo', Surt.surt('http://archive.org/goo/?'))
     assert_equal('org,archive)/goo?a&b', Surt.surt('http://archive.org/goo/?b&a'))
     assert_equal('org,archive)/goo?a=1&a=2&b', Surt.surt('http://archive.org/goo/?a=2&b&a=1'))
+    assert_equal(
+      '2600:1f18:200d:fb00:2b74:867c:ab0c:150a)/goo',
+      Surt.surt('https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo/')
+    )
   end
 end
