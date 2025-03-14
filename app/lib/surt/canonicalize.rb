@@ -67,7 +67,7 @@ module Surt::Canonicalize
   WWW_SUBDOMAIN = /(^|\.)www\d*\./
 
 
-  # TODO: Internet Archive's SURT uses this crazy charcater set, but only one
+  # TODO: Internet Archive's SURT uses this crazy character set, but only one
   # test fails if we just use Addressable's standard set. Maybe drop this?
   URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'.freeze
   SAFE_CHARACTERS = "0-9a-zA-Z#{Regexp.escape(URL_SPECIAL_CHARACTERS)}".freeze
