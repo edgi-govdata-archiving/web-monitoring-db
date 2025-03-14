@@ -66,18 +66,16 @@ class Page < ApplicationRecord
       .where('versions.status IS DISTINCT FROM pages.status')
   end)
 
-  before_create :ensure_url_key
+  normalizes :url, with: ->(url) { PageUrl.normalize_url(url) }
   after_create :ensure_domain_and_news_tags
-  before_save :normalize_url
+  before_save :derive_url_key
   after_save :ensure_page_urls
   validate :url_must_have_domain
   validates :status,
             allow_nil: true,
             inclusion: { in: 100...600, message: 'is not between 100 and 599' }
 
-  def self.find_by_url(raw_url, at_time: nil)
-    url = normalize_url(raw_url)
-
+  def self.find_by_url(url, at_time: nil)
     current = PageUrl.eager_load(:page).current(at_time)
     found = current.find_by(url:)
     return found.page if found
@@ -93,16 +91,6 @@ class Page < ApplicationRecord
 
     # TODO: remove this fallback when data is migrated over to Page.urls.
     Page.find_by(url:) || Page.find_by(url_key: key)
-  end
-
-  def self.normalize_url(url)
-    return if url.nil?
-
-    if url.match?(/^[\w+\-.]+:\/\//)
-      url
-    else
-      "http://#{url}"
-    end
   end
 
   def add_maintainer(maintainer)
@@ -270,13 +258,8 @@ class Page < ApplicationRecord
     url.include?('/news') || url.include?('/blog') || url.include?('/press')
   end
 
-  def ensure_url_key
-    self.url_key ||= PageUrl.create_url_key(url)
-  end
-
-  def normalize_url
-    self.url = self.class.normalize_url(self.url)
-    self.url_key = PageUrl.create_url_key(self.url) if self.changed_attributes.key?('url')
+  def derive_url_key
+    self.url_key = PageUrl.create_url_key(url) if url_key.nil? || url_changed?
   end
 
   def domain

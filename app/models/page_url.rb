@@ -26,10 +26,34 @@ class PageUrl < ApplicationRecord
               with: /\A(https?|ftp):\/\/([^\/@]+@)?([^\/]+\.[^\/]{2,})/,
               message: 'must be a valid HTTP(S) or FTP URL with a host'
             }
+  normalizes :url, with: ->(url) { PageUrl.normalize_url(url) }
   before_save :ensure_url_key
 
   def self.create_url_key(url)
     Surt.surt(url)
+  end
+
+  def self.normalize_url(url)
+    # TODO: Ideally, this would just be one of:
+    #   1. `Surt.canonicalize(url, safe: true)` - But the safe option is not *actually* safe right now.
+    #   2. `Addressable::URI.parse(url).normalize.to_s` - But this unescapes a *lot* of things in the fragments and
+    #      querystrings of real URLs we have in production right now and needs more examination to ensure it's really OK.
+    #      Note this also needs the below stripping and `http://` prefixing where the Surt option above would not.
+    #   -
+    #   For now, we'll make do with this custom, but slightly more conservative, approach to normalizing URLs.
+    url = url.strip.gsub(/[\r\n\t]/, '').gsub(/\s/, '%20')
+    url = "http://#{url}" unless url.match?(/^[^:\/.]*:/)
+    parsed = Addressable::URI.parse(url)
+    parsed.path = '/' if parsed.path.blank?
+    parsed.host = parsed.normalized_host
+    parsed.scheme = parsed.normalized_scheme
+    parsed.port = parsed.normalized_port
+    parsed.query = nil if parsed.query.blank?
+    parsed.fragment = nil if parsed.fragment.blank?
+    # RFC 3986 recommends uppercase escapes as the normal form.
+    parsed.to_s.gsub(/%[0-9A-Fa-f]{2}/, &:upcase)
+  rescue StandardError
+    url
   end
 
   # NOTE: consider switching to a tsrange instead of two columns for the
