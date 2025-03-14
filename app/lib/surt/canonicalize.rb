@@ -18,18 +18,28 @@ module Surt::Canonicalize
     remove_default_port: true,
     remove_dot_segments: true,
     remove_empty_query: true,
+    # TODO: add `remove_empty_fragment`? Which would also be in SAFE_OPTIONS.
     remove_fragment: false,
     remove_non_hashbang_fragment: true,
     remove_sessions_in_path: true,
     remove_sessions_in_query: true,
     remove_repeated_slashes: true,
-    remove_trailing_slash: false,
-    remove_trailing_slash_unless_empty: true,
+    # Removing trailing slashes in paths, except if the path is *just* "/".
+    remove_trailing_slash: true,
+    # Replace a root path ("/") with no path at all. For example: "http://abc.com/" → "http://abc.com"
+    remove_root_path: false,
     remove_userinfo: true,
     remove_www: true,
     sort_query: true
   }.freeze
 
+  SAFE_KEYS = [:lowercase_host, :lowercase_scheme, :remove_default_port, :remove_empty_query].freeze
+  SAFE_OPTIONS = DEFAULT_OPTIONS.to_h { |k, _v| [k, SAFE_KEYS.include?(k)] }.freeze
+
+  # TODO: consider additional ports? Both Java and Python SURT only do these two, but there are plenty of others that
+  #  would be relevant. Note we currently skip all canonicalization for other schemes anyway (making this a moot
+  #  question for now), although neither Python nor Java SURT do so. We might want to relax that in the future.
+  #  Addressable has a nice, stealable list: https://github.com/sporkmonger/addressable/blob/3450895887d0a1770660d8831d1b6fcfed9bd9d6/lib/addressable/uri.rb#L89-L103
   DEFAULT_PORTS = {
     'http' => 80,
     'https' => 443
@@ -51,22 +61,24 @@ module Surt::Canonicalize
     /^(.*)(?:sid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:ASPSESSIONID[a-zA-Z]{8}=[a-zA-Z]{24})(?:&(.*))?$/i,
     /^(.*)(?:cfid=[^&]+&cftoken=[^&]+)(?:&(.*))?$/i,
-    /^(.*)(?:utm_source=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:utm_medium=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:utm_term=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:utm_content=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:utm_campaign=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:sms_ss=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:awesm=[^&])(?:&(.*))?$/i,
-    /^(.*)(?:xtor=[^&])(?:&(.*))?$/i
+    /^(.*)(?:utm_source=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:utm_medium=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:utm_term=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:utm_content=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:utm_campaign=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:sms_ss=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:awesm=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:xtor=[^&]+)(?:&(.*))?$/i
   ].freeze
 
   OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/
   WWW_SUBDOMAIN = /(^|\.)www\d*\./
 
 
-  # TODO: Internet Archive's SURT uses this crazy charcater set, but only one
-  # test fails if we just use Addressable's standard set. Maybe drop this?
+  # TODO: Internet Archive's SURT uses this crazy character set, but only one
+  #  test fails if we just use Addressable's standard set. Maybe drop this?
+  #  Also validate against the original Java version:
+  #  https://github.com/iipc/webarchive-commons/blob/5fb641b7ff3c63ade0eb39782fc8b1982ea27330/src/main/java/org/archive/url/BasicURLCanonicalizer.java#L219-L275
   URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'.freeze
   SAFE_CHARACTERS = "0-9a-zA-Z#{Regexp.escape(URL_SPECIAL_CHARACTERS)}".freeze
 
@@ -83,7 +95,7 @@ module Surt::Canonicalize
   # The canonicalized URL as a new URI object.
   #
   def self.url(raw_url, options = {})
-    return raw_url unless ['http', 'https'].include?(raw_url.scheme)
+    return raw_url unless ['http', 'https'].include?(raw_url.scheme.downcase)
 
     url = raw_url.clone
     options = DEFAULT_OPTIONS.clone.merge(options)
@@ -101,16 +113,24 @@ module Surt::Canonicalize
   end
 
   def self.userinfo(url, options)
-    url.user = nil if options[:remove_userinfo]
+    url.user = url.password = nil if options[:remove_userinfo]
+    # FIXME: option to prevent this escaping change?
     url.user = escape_minimally(url.user) if url.user
     url.password = escape_minimally(url.password) if url.password
   end
 
   def self.host(url, options)
+    # FIXME: option to prevent this escaping change?
+    #  probably should understand better whether we still need 1 level of unescaping and re-escaping for the other
+    #  stuff here, though (e.g. Punycode/IDNA ASCII encoding)!
     hostname = unescape_repeatedly(url.host)
     hostname = Addressable::IDNA.to_ascii(hostname)
     hostname = hostname.downcase if options[:lowercase_host]
     hostname = hostname.sub(WWW_SUBDOMAIN, '\1') if options[:remove_www]
+    # FIXME: this matches the Python implementation's behavior, but it *looks* like the first gsub here may have been a
+    #  transcription error from the original Java, which looks for any sequence of 2+ dots (/\.\.+/):
+    #  https://github.com/iipc/webarchive-commons/blob/5fb641b7ff3c63ade0eb39782fc8b1982ea27330/src/main/java/org/archive/url/BasicURLCanonicalizer.java#L58-L59
+    #  Need to test Java; figure out right thing to do. Maybe ask on IA Slack.
     hostname = hostname.gsub('..', '.').gsub(/(^\.+)|(\.+$)/, '')
 
     if options[:decode_dword_host] && hostname.match?(/^\d+$/)
@@ -126,7 +146,11 @@ module Surt::Canonicalize
   end
 
   def self.path(url, options)
-    path = unescape_repeatedly(url.path)
+    # FIXME: option to prevent this escaping change?
+    #  probably should understand better whether we still need 1 level of unescaping and re-escaping for the other
+    #  stuff here, though (e.g. Punycode/IDNA ASCII encoding)!
+    path = unescape_repeatedly(url.path).strip
+    path = '/' if path.empty?
     path = path.downcase if options[:lowercase_path]
 
     if options[:remove_sessions_in_path]
@@ -154,9 +178,10 @@ module Surt::Canonicalize
 
     path = "#{path[0] || ''}#{items.join('/')}"
 
-    if options[:remove_trailing_slash] ||
-       (options[:remove_trailing_slash_unless_empty] && path.length > 1)
+    if options[:remove_trailing_slash] && path.length > 1
       path = path.chomp('/')
+    elsif options[:remove_root_path] && path == '/'
+      path = ''
     end
 
     url.path = escape(path)
