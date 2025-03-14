@@ -181,8 +181,8 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://notrailing.com',
       'http://notrailing.com',
-      'An empty path was replaced with a slash even though `remove_trailing_slash: true`',
-      remove_trailing_slash: true
+      'An empty path was replaced with a slash even though `remove_root_path: true`',
+      remove_root_path: true
     )
   end
 
@@ -198,8 +198,8 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://notrailing.com',
       'http://notrailing.com/',
-      'Trailing slashes on an empty path were not removed when `remove_trailing_slash: true`',
-      remove_trailing_slash: true
+      'Trailing slashes on an empty path were not removed when `remove_root_path: true`',
+      remove_root_path: true
     )
   end
 

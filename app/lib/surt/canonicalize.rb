@@ -23,8 +23,10 @@ module Surt::Canonicalize
     remove_sessions_in_path: true,
     remove_sessions_in_query: true,
     remove_repeated_slashes: true,
-    remove_trailing_slash: false,
-    remove_trailing_slash_unless_empty: true,
+    # Removing trailing slashes in paths, except if the path is *just* "/".
+    remove_trailing_slash: true,
+    # Replace a root path ("/") with no path at all. For example: "http://abc.com/" → "http://abc.com"
+    remove_root_path: false,
     remove_userinfo: true,
     remove_www: true,
     sort_query: true
@@ -155,9 +157,10 @@ module Surt::Canonicalize
 
     path = "#{path[0] || ''}#{items.join('/')}"
 
-    if options[:remove_trailing_slash] ||
-       (options[:remove_trailing_slash_unless_empty] && path.length > 1)
+    if options[:remove_trailing_slash] && path.length > 1
       path = path.chomp('/')
+    elsif options[:remove_root_path] && path == '/'
+      path = ''
     end
 
     url.path = escape(path)
