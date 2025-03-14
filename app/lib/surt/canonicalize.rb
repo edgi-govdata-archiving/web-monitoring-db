@@ -85,7 +85,7 @@ module Surt::Canonicalize
   # The canonicalized URL as a new URI object.
   #
   def self.url(raw_url, options = {})
-    return raw_url unless ['http', 'https'].include?(raw_url.scheme)
+    return raw_url unless ['http', 'https'].include?(raw_url.scheme.downcase)
 
     url = raw_url.clone
     options = DEFAULT_OPTIONS.clone.merge(options)
