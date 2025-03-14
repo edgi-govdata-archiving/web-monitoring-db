@@ -408,12 +408,15 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   end
 
   test 'adds URL to an existing page if the version was matched to a page with a different URL' do
-    page = Page.create(url: 'https://example.gov/office')
+    url_a = 'https://example.gov/office'
+    url_b = 'http://example.gov/office/'
+
+    page = Page.create(url: url_a)
     import = Import.create_with_data(
       { user: users(:alice) },
       [
         {
-          page_url: 'http://example.gov/office/',
+          page_url: url_b,
           capture_time: Time.now - 1.second,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc'
@@ -424,8 +427,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
     assert_equal(1, page.versions.count, 'Version was added to the right page')
     assert_equal(
-      ['https://example.gov/office', 'http://example.gov/office/'],
-      page.urls.pluck(:url),
+      [url_a, url_b].sort,
+      page.urls.pluck(:url).sort,
       'New URL was added to the page'
     )
   end

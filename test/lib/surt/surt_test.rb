@@ -78,14 +78,14 @@ class SurtTest < ActiveSupport::TestCase
     )
   end
 
-  test 'it decimal encodes IP addresses' do
+  test 'it decimal encodes IPv4 addresses' do
     assert_canonicalized(
-      'http://168.188.99.26',
+      'http://168.188.99.26/',
       'http://168.188.99.26',
       'It failed to leave a simple IPv4 alone'
     )
     assert_canonicalized(
-      'http://15.0.0.1',
+      'http://15.0.0.1/',
       'http://017.0.0.1',
       'It failed to decode an octal IP'
     )
@@ -101,6 +101,13 @@ class SurtTest < ActiveSupport::TestCase
     #   'http://10.0.258',
     #   'It did not correct a poorly encoded IPv4'
     # )
+  end
+
+  test 'it handles IPv6 addresses' do
+    assert_canonicalized(
+      'https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo',
+      'https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo/'
+    )
   end
 
   test 'it normalizes and removes dots in path segments' do
@@ -163,13 +170,26 @@ class SurtTest < ActiveSupport::TestCase
 
   test 'it IDNA-encodes host names' do
     assert_canonicalized(
-      'http://xn--bcher-kva.ch:8080',
+      'http://xn--bcher-kva.ch:8080/',
       "B\u00FCcher.ch:8080"
     )
     assert_canonicalized(
-      'http://xn--n3h.com',
+      'http://xn--n3h.com/',
       '☃.com',
       'It failed to IDNA-encode the host name'
+    )
+  end
+
+  test 'it handles empty paths' do
+    assert_canonicalized(
+      'http://notrailing.com/',
+      'http://notrailing.com'
+    )
+    assert_canonicalized(
+      'http://notrailing.com',
+      'http://notrailing.com',
+      'An empty path was replaced with a slash even though `remove_root_path: true`',
+      remove_root_path: true
     )
   end
 
@@ -185,8 +205,8 @@ class SurtTest < ActiveSupport::TestCase
     assert_canonicalized(
       'http://notrailing.com',
       'http://notrailing.com/',
-      'Trailing slashes on an empty path were not removed when `remove_trailing_slash: true`',
-      remove_trailing_slash: true
+      'Trailing slashes on an empty path were not removed when `remove_root_path: true`',
+      remove_root_path: true
     )
   end
 
@@ -284,12 +304,12 @@ class SurtTest < ActiveSupport::TestCase
   test 'it removes tracking identifiers from querystrings' do
     assert_canonicalized(
       'http://example.com/x',
-      'http://example.com/x?utm_term=a&utm_medium=b&utm_source=c&utm_content=d&utm_campaign=e',
+      'http://example.com/x?utm_term=a&utm_medium=social&utm_source=facebook&utm_content=d&utm_campaign=e',
       'It failed to remove `utm_*` query params'
     )
     assert_canonicalized(
       'http://example.com/x',
-      'http://example.com/x?sms_ss=a&awesm=b&xtor=c',
+      'http://example.com/x?sms_ss=abc&awesm=def&xtor=hij',
       'It failed to remove assorted tracking query params'
     )
   end
@@ -299,6 +319,10 @@ class SurtTest < ActiveSupport::TestCase
     assert_equal('org,archive,xyz)/', Surt.format('http://xyz.archive.org/'))
     assert_equal('org,archive)/goo', Surt.format('http://archive.org/goo'))
     assert_equal('org,archive)/goo/gah', Surt.format('http://archive.org/goo/gah'))
+    assert_equal(
+      '2600:1f18:200d:fb00:2b74:867c:ab0c:150a)/goo',
+      Surt.format('https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo')
+    )
   end
 
   test 'it canonicalizes and formats URLs' do
@@ -306,5 +330,9 @@ class SurtTest < ActiveSupport::TestCase
     assert_equal('org,archive)/goo', Surt.surt('http://archive.org/goo/?'))
     assert_equal('org,archive)/goo?a&b', Surt.surt('http://archive.org/goo/?b&a'))
     assert_equal('org,archive)/goo?a=1&a=2&b', Surt.surt('http://archive.org/goo/?a=2&b&a=1'))
+    assert_equal(
+      '2600:1f18:200d:fb00:2b74:867c:ab0c:150a)/goo',
+      Surt.surt('https://[2600:1f18:200d:fb00:2b74:867c:ab0c:150a]/goo/')
+    )
   end
 end

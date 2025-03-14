@@ -19,7 +19,7 @@ module Surt::Format
     result = ''
 
     if options[:include_scheme]
-      delimiter = scheme == 'dns' ? '' : '//'
+      delimiter = url.scheme == 'dns' ? '' : '//'
       result = "#{url.scheme}:#{delimiter}("
     elsif url.host.blank?
       result = "#{url.scheme}:"
@@ -40,7 +40,9 @@ module Surt::Format
   end
 
   def self.host(url, options)
-    host = url.host.split('.').reverse.join(',')
+    host = url.host
+    host = host[1...-1] if /^\[.+\]$/.match?(host)
+    host = host.split('.').reverse.join(',')
     host = "#{url.userinfo}@#{host}" if url.userinfo
     host = "#{host}:#{url.port}" if url.port
     host += ',' if options[:include_trailing_comma]
