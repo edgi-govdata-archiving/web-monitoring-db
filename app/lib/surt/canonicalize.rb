@@ -103,7 +103,7 @@ module Surt::Canonicalize
   end
 
   def self.userinfo(url, options)
-    url.user = nil if options[:remove_userinfo]
+    url.user = url.password = nil if options[:remove_userinfo]
     url.user = escape_minimally(url.user) if url.user
     url.password = escape_minimally(url.password) if url.password
   end
