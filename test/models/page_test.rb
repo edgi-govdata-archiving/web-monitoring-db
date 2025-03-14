@@ -256,6 +256,12 @@ class PageTest < ActiveSupport::TestCase
     assert_equal(page.urls.count, 2, 'Changing page.url back to a previous value should not add a new PageUrl')
   end
 
+  test 'find_by_url matches by normalized URL' do
+    page = Page.create(title: 'Test Page', url: 'https://example.gov/some_page')
+    found = Page.find_by_url('HTTPS://examplE.Gov/some_page')
+    assert_equal(page, found)
+  end
+
   test 'find_by_url matches by url_key if there is no URL match' do
     page = Page.create(title: 'Test Page', url: 'https://example.gov/some_page')
     found = Page.find_by_url('http://example.gov/some_page/')
