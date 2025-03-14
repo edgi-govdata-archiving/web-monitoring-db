@@ -25,6 +25,7 @@ module Surt
 
   # Canonicalize a URL. The result of this is a URL, not a SURT string.
   def self.canonicalize(url, options = {})
+    options = Surt::Canonicalize::SAFE_OPTIONS if options[:safe]
     Surt::Canonicalize.url(parse_url(url), options).to_s
   end
 

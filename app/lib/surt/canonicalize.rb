@@ -18,6 +18,7 @@ module Surt::Canonicalize
     remove_default_port: true,
     remove_dot_segments: true,
     remove_empty_query: true,
+    # TODO: add `remove_empty_fragment`? Which would also be in SAFE_OPTIONS.
     remove_fragment: false,
     remove_non_hashbang_fragment: true,
     remove_sessions_in_path: true,
@@ -31,6 +32,10 @@ module Surt::Canonicalize
     remove_www: true,
     sort_query: true
   }.freeze
+
+  SAFE_OPTIONS = DEFAULT_OPTIONS.to_h do |k, v|
+    [k, [:lowercase_host, :lowercase_scheme, :remove_default_port, :remove_empty_query].include?(k)]
+  end.freeze
 
   # TODO: consider additional ports? Both Java and Python SURT only do these two, but there are plenty of others that
   #  would be relevant. Note we currently skip all canonicalization for other schemes anyway (making this a moot
@@ -110,11 +115,15 @@ module Surt::Canonicalize
 
   def self.userinfo(url, options)
     url.user = url.password = nil if options[:remove_userinfo]
+    # FIXME: option to prevent this escaping change?
     url.user = escape_minimally(url.user) if url.user
     url.password = escape_minimally(url.password) if url.password
   end
 
   def self.host(url, options)
+    # FIXME: option to prevent this escaping change?
+    #  probably should understand better whether we still need 1 level of unescaping and re-escaping for the other
+    #  stuff here, though (e.g. Punycode/IDNA ASCII encoding)!
     hostname = unescape_repeatedly(url.host)
     hostname = Addressable::IDNA.to_ascii(hostname)
     hostname = hostname.downcase if options[:lowercase_host]
@@ -138,6 +147,9 @@ module Surt::Canonicalize
   end
 
   def self.path(url, options)
+    # FIXME: option to prevent this escaping change?
+    #  probably should understand better whether we still need 1 level of unescaping and re-escaping for the other
+    #  stuff here, though (e.g. Punycode/IDNA ASCII encoding)!
     path = unescape_repeatedly(url.path).strip
     path = '/' if path.empty?
     path = path.downcase if options[:lowercase_path]
