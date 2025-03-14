@@ -41,7 +41,7 @@ module Surt::Format
 
   def self.host(url, options)
     host = url.host
-    host = host[1...-1] if /^\[[0-9A-Za-z:]+\]$/.match?(host)
+    host = host[1...-1] if /^\[.+\]$/.match?(host)
     host = host.split('.').reverse.join(',')
     host = "#{url.userinfo}@#{host}" if url.userinfo
     host = "#{host}:#{url.port}" if url.port
