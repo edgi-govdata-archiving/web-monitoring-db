@@ -32,6 +32,10 @@ module Surt::Canonicalize
     sort_query: true
   }.freeze
 
+  # TODO: consider additional ports? Both Java and Python SURT only do these two, but there are plenty of others that
+  #  would be relevant. Note we currently skip all canonicalization for other schemes anyway (making this a moot
+  #  question for now), although neither Python nor Java SURT do so. We might want to relax that in the future.
+  #  Addressable has a nice, stealable list: https://github.com/sporkmonger/addressable/blob/3450895887d0a1770660d8831d1b6fcfed9bd9d6/lib/addressable/uri.rb#L89-L103
   DEFAULT_PORTS = {
     'http' => 80,
     'https' => 443
@@ -68,7 +72,9 @@ module Surt::Canonicalize
 
 
   # TODO: Internet Archive's SURT uses this crazy character set, but only one
-  # test fails if we just use Addressable's standard set. Maybe drop this?
+  #  test fails if we just use Addressable's standard set. Maybe drop this?
+  #  Also validate against the original Java version:
+  #  https://github.com/iipc/webarchive-commons/blob/5fb641b7ff3c63ade0eb39782fc8b1982ea27330/src/main/java/org/archive/url/BasicURLCanonicalizer.java#L219-L275
   URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'.freeze
   SAFE_CHARACTERS = "0-9a-zA-Z#{Regexp.escape(URL_SPECIAL_CHARACTERS)}".freeze
 
@@ -113,6 +119,10 @@ module Surt::Canonicalize
     hostname = Addressable::IDNA.to_ascii(hostname)
     hostname = hostname.downcase if options[:lowercase_host]
     hostname = hostname.sub(WWW_SUBDOMAIN, '\1') if options[:remove_www]
+    # FIXME: this matches the Python implementation's behavior, but it *looks* like the first gsub here may have been a
+    #  transcription error from the original Java, which looks for any sequence of 2+ dots (/\.\.+/):
+    #  https://github.com/iipc/webarchive-commons/blob/5fb641b7ff3c63ade0eb39782fc8b1982ea27330/src/main/java/org/archive/url/BasicURLCanonicalizer.java#L58-L59
+    #  Need to test Java; figure out right thing to do. Maybe ask on IA Slack.
     hostname = hostname.gsub('..', '.').gsub(/(^\.+)|(\.+$)/, '')
 
     if options[:decode_dword_host] && hostname.match?(/^\d+$/)
