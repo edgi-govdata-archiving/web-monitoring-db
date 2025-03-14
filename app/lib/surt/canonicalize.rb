@@ -126,7 +126,8 @@ module Surt::Canonicalize
   end
 
   def self.path(url, options)
-    path = unescape_repeatedly(url.path)
+    path = unescape_repeatedly(url.path).strip
+    path = '/' if path.empty?
     path = path.downcase if options[:lowercase_path]
 
     if options[:remove_sessions_in_path]

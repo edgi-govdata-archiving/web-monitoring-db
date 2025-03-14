@@ -80,12 +80,12 @@ class SurtTest < ActiveSupport::TestCase
 
   test 'it decimal encodes IP addresses' do
     assert_canonicalized(
-      'http://168.188.99.26',
+      'http://168.188.99.26/',
       'http://168.188.99.26',
       'It failed to leave a simple IPv4 alone'
     )
     assert_canonicalized(
-      'http://15.0.0.1',
+      'http://15.0.0.1/',
       'http://017.0.0.1',
       'It failed to decode an octal IP'
     )
@@ -163,13 +163,26 @@ class SurtTest < ActiveSupport::TestCase
 
   test 'it IDNA-encodes host names' do
     assert_canonicalized(
-      'http://xn--bcher-kva.ch:8080',
+      'http://xn--bcher-kva.ch:8080/',
       "B\u00FCcher.ch:8080"
     )
     assert_canonicalized(
-      'http://xn--n3h.com',
+      'http://xn--n3h.com/',
       '☃.com',
       'It failed to IDNA-encode the host name'
+    )
+  end
+
+  test 'it handles empty paths' do
+    assert_canonicalized(
+      'http://notrailing.com/',
+      'http://notrailing.com'
+    )
+    assert_canonicalized(
+      'http://notrailing.com',
+      'http://notrailing.com',
+      'An empty path was replaced with a slash even though `remove_trailing_slash: true`',
+      remove_trailing_slash: true
     )
   end
 
