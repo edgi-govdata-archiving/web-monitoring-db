@@ -35,7 +35,6 @@ namespace :data do
           did_change ||= page.changed?
           page.save!
 
-          puts "\n#{page.uuid}\n" if did_change
           changed += 1 if did_change
           total += 1
           if Time.now - last_update >= 2
