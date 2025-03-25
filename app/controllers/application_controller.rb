@@ -22,4 +22,27 @@ class ApplicationController < ActionController::Base
   def set_environment
     @env = Rails.env
   end
+
+  # Like `stale?` but takes a block to run if stale and resets all the
+  # cache-related headers if the block raises.
+  # See also: https://github.com/rails/rails/issues/54808
+  def when_stale(object = nil, **)
+    old_cache_control = response.cache_control.dup
+    old_last_modified = response.last_modified
+
+    yield if stale?(object, **)
+  rescue StandardError => error
+    # Response.cache_control has to be updated, not replaced.
+    response.cache_control.clear.merge!(old_cache_control)
+    # There is a constant for Last-Modified but not for this.
+    response.delete_header('ETag')
+
+    if old_last_modified
+      response.last_modified = old_last_modified
+    else
+      response.delete_header(ActionDispatch::Http::Cache::Response::LAST_MODIFIED)
+    end
+
+    raise error
+  end
 end
