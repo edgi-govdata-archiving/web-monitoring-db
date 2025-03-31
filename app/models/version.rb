@@ -257,7 +257,7 @@ class Version < ApplicationRecord
 
     # Oracle APEX includes this header on errors. It's ambiguous about the
     # kind of error, so only check this if the other heuristics didn't work.
-    return 500 if headers&.fetch('apex-debug-id', nil)&.downcase&.include?('level=error')
+    return 500 if headers.fetch('apex-debug-id', '').downcase.include?('level=error')
 
     status || 200
   end
@@ -276,13 +276,17 @@ class Version < ApplicationRecord
 
   def redirects
     urls = source_metadata&.fetch('redirects', nil) || []
-    raise TypeError.new("Unknown type for source_metadata.redirects on version: #{uuid}") unless urls.is_a?(Array)
+    raise TypeError, "Unknown type for source_metadata.redirects on version: #{uuid}" unless urls.is_a?(Array)
 
     # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
     #  includes these.
 
     urls.shift if urls.first == url
     urls
+  end
+
+  def headers
+    super || {}
   end
 
   def sync_page_title
