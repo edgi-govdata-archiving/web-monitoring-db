@@ -2,6 +2,7 @@
 module DataHelpers
   class ProgressLogger
     attr_accessor :total
+
     def initialize(expected, interval: 2.seconds)
       expected = DataHelpers.estimate_row_count(expected) if expected.is_a?(Class)
       @expected = expected
