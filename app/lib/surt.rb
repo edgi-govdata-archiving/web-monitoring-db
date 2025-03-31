@@ -35,6 +35,8 @@ module Surt
   end
 
   def self.parse_url(url)
+    return url if url.is_a?(Addressable::URI)
+
     url = url.strip.gsub(/[\r\n\t]/, '').gsub(/\s/, '%20')
     url = "http://#{url}" unless url.match?(/^[^:\/.]*:/)
     Addressable::URI.parse(url)
