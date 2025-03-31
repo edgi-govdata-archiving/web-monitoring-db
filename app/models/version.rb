@@ -53,7 +53,9 @@ class Version < ApplicationRecord
            class_name: 'Change',
            foreign_key: 'uuid_to'
 
+  normalizes :headers, with: ->(h) { h.transform_keys { |k| k.to_s.downcase } }
   before_create :derive_media_type
+  before_create :derive_content_length
   after_create :sync_page_title
   validates :status,
             allow_nil: true,
@@ -181,15 +183,10 @@ class Version < ApplicationRecord
   def derive_media_type(force: false, value: nil)
     return if self.media_type && !force
 
-    response_headers = headers || {}
-    meta = source_metadata || {}
-    # TODO: remove meta.dig('headers', ...) lines once data is migrated
-    # to have new top-level headers.
+    response_headers = headers
+    meta = source_metadata
     content_type = value ||
-                   response_headers['Content-Type'] ||
                    response_headers['content-type'] ||
-                   meta.dig('headers', 'Content-Type') ||
-                   meta.dig('headers', 'content-type') ||
                    meta['content_type'] ||
                    meta['media_type'] ||
                    meta['media'] ||
@@ -198,6 +195,13 @@ class Version < ApplicationRecord
 
     media = parse_media_type(content_type)
     self.media_type = media if media
+  end
+
+  def derive_content_length
+    return if self.content_length
+
+    length = headers['content-length']&.to_i
+    self.content_length = length if length
   end
 
   def effective_status # rubocop:disable Metrics/PerceivedComplexity
@@ -275,7 +279,7 @@ class Version < ApplicationRecord
   end
 
   def redirects
-    urls = source_metadata&.fetch('redirects', nil) || []
+    urls = source_metadata['redirects'] || []
     raise TypeError, "Unknown type for source_metadata.redirects on version: #{uuid}" unless urls.is_a?(Array)
 
     # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
@@ -286,6 +290,10 @@ class Version < ApplicationRecord
   end
 
   def headers
+    super || {}
+  end
+
+  def source_metadata
     super || {}
   end
 

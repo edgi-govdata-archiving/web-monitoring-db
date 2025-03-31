@@ -105,6 +105,15 @@ class VersionTest < ActiveSupport::TestCase
     assert_not(version.valid?, 'A text status was valid')
   end
 
+  test 'version header names are always lower-case strings' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      headers: { 'Content-Type': 'text/plain' }
+    )
+    assert_equal({ 'content-type' => 'text/plain' }, version.headers)
+  end
+
   test 'basic media types are valid' do
     version = Version.new(page: Page.new, media_type: 'text/plain')
     assert(version.valid?, 'A common media type should be valid')
@@ -146,5 +155,14 @@ class VersionTest < ActiveSupport::TestCase
     version = Version.new(page: Page.new, content_length: -10)
     assert_not(version.valid?, 'A negative content_length should not be valid')
     assert_includes(version.errors, :content_length)
+  end
+
+  test 'content_length is extracted from headers if not set' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      headers: { 'Content-Length' => '10342' }
+    )
+    assert_equal(10_342, version.content_length)
   end
 end

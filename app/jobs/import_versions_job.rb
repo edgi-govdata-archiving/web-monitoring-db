@@ -136,17 +136,6 @@ class ImportVersionsJob < ApplicationJob
     if record.key?('source_metadata')
       meta = record['source_metadata']
       record['media_type'] = meta['mime_type'] if meta.key?('mime_type')
-      unless record.key?('content_length')
-        length = meta.dig('headers', 'Content-Length')
-        record['content_length'] = length if length.present?
-      end
-
-      # Find headers in source_metadata if missing from the top level.
-      # TODO: remove once full transition to top level headers is complete.
-      if meta.key?('headers') && !record.key?('headers')
-        record['headers'] = meta['headers']
-        meta.delete('headers')
-      end
     end
     record
   end
