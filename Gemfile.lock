@@ -122,7 +122,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.0)
+    csv (3.3.3)
     date (3.4.1)
     declarative (0.0.20)
     devise (4.9.4)
@@ -179,7 +179,7 @@ GEM
       signet (>= 0.16, < 2.a)
     hashdiff (1.1.2)
     hiredis (0.6.3)
-    httparty (0.22.0)
+    httparty (0.23.1)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
