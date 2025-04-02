@@ -53,6 +53,7 @@ class Version < ApplicationRecord
            class_name: 'Change',
            foreign_key: 'uuid_to'
 
+  # HTTP header names are case-insensitive. Store them lower-case for easy lookups/comparisons.
   normalizes :headers, with: ->(h) { h.transform_keys { |k| k.to_s.downcase } }
   before_create :derive_media_type
   before_create :derive_content_length
