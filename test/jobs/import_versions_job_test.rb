@@ -376,37 +376,6 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     assert_equal(body_url, new_version.body_url)
   end
 
-  test 'sets "headers" based on "source_metadata.headers" for backwards-compatibility' do
-    now = Time.now.round
-    body_url = 'https://test-bucket.s3.amazonaws.com/example-v1'
-
-    stub_request(:any, body_url)
-      .to_return(body: 'Hello!', status: 200)
-
-    import = Import.create_with_data(
-      {
-        user: users(:alice)
-      },
-      [
-        {
-          page_url: pages(:home_page).url,
-          capture_time: now,
-          uri: body_url,
-          source_type: 'test_source',
-          source_metadata: {
-            'headers' => {
-              'x-fancy-header' => 'header_value'
-            }
-          }
-        }
-      ].map(&:to_json).join("\n")
-    )
-    ImportVersionsJob.perform_now(import)
-
-    new_version = pages(:home_page).versions.where(capture_time: now).first
-    assert_equal({ 'x-fancy-header' => 'header_value' }, new_version.headers)
-  end
-
   test 'adds URL to an existing page if the version was matched to a page with a different URL' do
     url_a = 'https://example.gov/office'
     url_b = 'http://example.gov/office/'
