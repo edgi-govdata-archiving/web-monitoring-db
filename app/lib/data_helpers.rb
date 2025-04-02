@@ -1,5 +1,32 @@
 # Tools for working with database data. These are mostly used in rake tasks and migrations.
 module DataHelpers
+  class ProgressLogger
+    attr_accessor :total
+
+    def initialize(expected, interval: 2.seconds)
+      expected = DataHelpers.estimate_row_count(expected) if expected.is_a?(Class)
+      @expected = expected
+      @interval = interval
+      @last_update = Time.now - @interval
+      @total = 0
+    end
+
+    def increment(amount = 1, log: nil)
+      @total += amount
+      log = Time.now - @last_update >= @interval if log.nil?
+      self.log if log
+    end
+
+    def log(end_line: false)
+      DataHelpers.log_progress(@total, @expected, end_line:)
+      @last_update = Time.now
+    end
+
+    def complete
+      log(end_line: true)
+    end
+  end
+
   # Log and rewrite a progress indicator like "  x/y completed"
   def self.log_progress(completed, total, description: 'completed', end_line: false)
     ending = if $stdout.isatty
@@ -77,7 +104,15 @@ module DataHelpers
       changes = yield item
       next if changes.nil? || changes.empty?
 
-      changes = changes.collect {|value| connection.quote(value)}
+      changes = changes.collect do |value|
+        # TODO: consider using model_type.attribute_types[field_name] to determine to to serialize
+        if value.is_a? Hash
+          "#{connection.quote(value.to_json)}::jsonb"
+        else
+          connection.quote(value)
+        end
+      end
+
       values << "('#{item.uuid}', #{changes.join(', ')})"
     end
 
@@ -98,5 +133,15 @@ module DataHelpers
           #{model_type.table_name}.uuid = valueset.uuid::uuid
       QUERY
     )
+
+    values.length
+  end
+
+  def self.estimate_row_count(model)
+    model.connection.select_value(
+      'SELECT reltuples FROM pg_class WHERE relname = $1',
+      'ROW ESTIMATE',
+      [model.table_name]
+    ).to_i
   end
 end

@@ -53,7 +53,10 @@ class Version < ApplicationRecord
            class_name: 'Change',
            foreign_key: 'uuid_to'
 
+  # HTTP header names are case-insensitive. Store them lower-case for easy lookups/comparisons.
+  normalizes :headers, with: ->(h) { h.transform_keys { |k| k.to_s.downcase } }
   before_create :derive_media_type
+  before_create :derive_content_length
   after_create :sync_page_title
   validates :status,
             allow_nil: true,
@@ -181,15 +184,10 @@ class Version < ApplicationRecord
   def derive_media_type(force: false, value: nil)
     return if self.media_type && !force
 
-    response_headers = headers || {}
-    meta = source_metadata || {}
-    # TODO: remove meta.dig('headers', ...) lines once data is migrated
-    # to have new top-level headers.
+    response_headers = headers
+    meta = source_metadata
     content_type = value ||
-                   response_headers['Content-Type'] ||
                    response_headers['content-type'] ||
-                   meta.dig('headers', 'Content-Type') ||
-                   meta.dig('headers', 'content-type') ||
                    meta['content_type'] ||
                    meta['media_type'] ||
                    meta['media'] ||
@@ -200,9 +198,36 @@ class Version < ApplicationRecord
     self.media_type = media if media
   end
 
+  def derive_content_length
+    return if self.content_length
+
+    length = headers['content-length']&.to_i
+    self.content_length = length if length
+  end
+
   def effective_status # rubocop:disable Metrics/PerceivedComplexity
     return 404 if network_error.present?
+
+    # Special case for 'greet.anl.gov', which seems to occasionally respond
+    # with a 500 status code even though it's definitely OK content.
+    # We've never seen a real 500 error there, so this is based on what we've
+    # seen with 404 errors.
+    return 200 if status == 500 && url&.include?('greet.anl.gov/') && !title&.include?('500')
+
+    # Otherwise we expect error statuses to really be errors.
     return status if status.present? && status >= 400
+
+    # Some pages redirect to a non-4xx response when they are removed.
+    redirected_to = redirects.last
+    if redirected_to
+      # Special case for the EPA "signpost" page, where they redirected hundreds
+      # of climate-related pages to instead of giving them 4xx status codes.
+      return 404 if redirected_to.ends_with?('epa.gov/sites/production/files/signpost/cc.html')
+
+      # We see a lot of redirects to the root of the same domain when a page is removed.
+      parsed_url = Addressable::URI.parse(url)
+      return 404 if parsed_url.path != '/' && Surt.surt(parsed_url.join('/')) == Surt.surt(redirected_to)
+    end
 
     # Simple heuristics to determine whether a page with an OK status code
     # actually represents an error.
@@ -224,6 +249,7 @@ class Version < ApplicationRecord
 
         # Other more special messages we've seen.
         return 404 if /\b(page|file)( was)? not found\b/.match?(t)
+        return 404 if /\bthis page isn['’]t available\b/.match?(t)
         return 403 if /\baccess denied\b/.match?(t)
         return 403 if /\brestricted access\b/.match?(t)
         return 500 if t == 'error'
@@ -234,11 +260,9 @@ class Version < ApplicationRecord
       end
     end
 
-    # Special case for the EPA "signpost" page, where they redirected hundreds
-    # of climate-related pages to instead of giving them 4xx status codes.
-    return 404 if
-      source_metadata &&
-      source_metadata['redirected_url']&.end_with?('epa.gov/sites/production/files/signpost/cc.html')
+    # Oracle APEX includes this header on errors. It's ambiguous about the
+    # kind of error, so only check this if the other heuristics didn't work.
+    return 500 if headers.fetch('apex-debug-id', '').downcase.include?('level=error')
 
     status || 200
   end
@@ -253,6 +277,25 @@ class Version < ApplicationRecord
 
   def domain
     url.present? ? Addressable::URI.parse(url).host : '<unknown>'
+  end
+
+  def redirects
+    urls = source_metadata['redirects'] || []
+    raise TypeError, "Unknown type for source_metadata.redirects on version: #{uuid}" unless urls.is_a?(Array)
+
+    # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
+    #  includes these.
+
+    urls.shift if urls.first == url
+    urls
+  end
+
+  def headers
+    super || {}
+  end
+
+  def source_metadata
+    super || {}
   end
 
   def sync_page_title
