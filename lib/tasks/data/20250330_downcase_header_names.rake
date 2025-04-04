@@ -6,10 +6,15 @@ namespace :data do
 
     ActiveRecord::Migration.say_with_time('Downcasing header names...') do
       DataHelpers.with_activerecord_log_level(:error) do
+        puts 'Progress is based on total table size; actual number of records handled will be smaller.'
         progress = DataHelpers::ProgressLogger.new(Version, interval: 10.seconds)
         changed = 0
 
-        version_batches(Version.where(capture_time: start_date...end_date), batch_size: 200) do |batch|
+        query = Version
+          .where(capture_time: start_date...end_date)
+          .where.not(headers: nil)
+          .where.not(headers: {})
+        version_batches(query, batch_size: 200) do |batch|
           changed += DataHelpers.bulk_update(batch, [:headers]) do |version|
             progress.increment
 
