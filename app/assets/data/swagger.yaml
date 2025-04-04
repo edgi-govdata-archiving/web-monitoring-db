@@ -1579,7 +1579,9 @@ definitions:
           difference is meaningful.
       headers:
         type: object
-        description: The headers from the version's original HTTP response.
+        description: >-
+          The headers from the version's final HTTP response as an object.
+          All keys (header names) are lower-case.
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
