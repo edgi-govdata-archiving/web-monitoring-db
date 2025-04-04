@@ -130,7 +130,9 @@ paths:
           type: string
           in: query
           description: >
-            Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
+            Only retrieve pages with observed differences (versions that differed in some way from the previous
+            version) during this time frame. Should be in the format `{start date}..{end date}`, where dates
+            are ISO 8601 formatted. Either date can be left out to make the query open-ended.
 
             **Examples…**
 
@@ -262,13 +264,6 @@ paths:
 
 
             🚫 You must be logged in to use this parameter!
-        - name: different
-          in: query
-          description: >-
-            If false, include all versions, not just ones that are different from their preceding version.
-          required: false
-          type: string
-          default: true
         - name: include_change_from_previous
           in: query
           type: boolean
@@ -389,7 +384,7 @@ paths:
         As with other list endpoints, results are chunked. Follow the
         `links.next` property of the response to get the next chunk of results.
         (You can also iterate by manually making requests with sequential
-        `capture_time` parameters, but the `links.next` property willskip past
+        `capture_time` parameters, but the `links.next` property will skip past
         empty time ranges automatically for more efficient querying.)
       consumes:
         - application/json
@@ -1576,12 +1571,31 @@ definitions:
       content_length:
         type: integer
         description: Number of bytes in the version's HTTP response body.
+      different:
+        type: boolean
+        description: >
+          Whether this version has a different `body_hash` from the previous
+          version of the same page. Note this does *not* necessarily mean the
+          difference is meaningful.
       headers:
         type: object
-        description: The headers from the version's original HTTP response.
+        description: >-
+          The headers from the version's final HTTP response as an object.
+          All keys (header names) are lower-case.
       media_type:
         type: string
         description: The media type of the version, e.g. `text/html`.
+      network_error:
+        type: string
+        description: >-
+          If the version represents a network error instead of a valid HTTP
+          response, this will be a string indicating the type of error. This
+          represents situations where a web server has SSL certificate issues,
+          is offline, or is otherwise unreachable.
+
+          We do our best to only record this when the server appears to be
+          legitimately unreachable and not when a crawler or recording tool
+          was blocked by the server.
       source_type:
         type: string
       source_metadata:
@@ -1591,6 +1605,15 @@ definitions:
           field is free-form, but the data will generally follow one of the
           formats documented under the models section that has a name
           starting with "source_metadata_."  For example: source_metadata_versionista
+      status:
+        type: integer
+        description: The HTTP status code of the version.
+      title:
+        type: string
+        description: >-
+          The title of the version, if one could be extracted. For example,
+          the `<title>` element of an HTML document or the metadata title for
+          a PDF file.
   Page:
     type: object
     properties:
@@ -1610,6 +1633,23 @@ definitions:
           http://crawler.archive.org/articles/user_manual/glossary.html#surt
       title:
         type: string
+        description: >-
+          The title of the page. This is based on the page’s most recent
+          non-error version.
+      status:
+        type: integer
+        description: >-
+          The current *effective* HTTP status of the page. This uses a number
+          of heuristics to come up with a reasonable estimation. It aims to
+          work across situations where recordings are intermittently showing
+          errors and where HTTP responses respond with inaccurate status
+          codes, e.g. a 200 status code for a what is really a 404 error
+          message (in this case, effective status will be `404`).
+      active:
+        type: boolean
+        description: >-
+          Whether this page is actively monitored and new versions should be
+          or are being recorded.
       created_at:
         type: string
         format: datetime

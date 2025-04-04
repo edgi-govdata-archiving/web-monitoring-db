@@ -38,7 +38,6 @@ class Api::V0::PagesController < Api::V0::ApiController
         results = Page
           .where(uuid: page_ids)
           .includes(:versions)
-          .where(versions: { different: true })
           .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
           .order('versions.capture_time DESC')
           .as_json(include: :versions)
@@ -91,7 +90,7 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     data = page.as_json(include: [:maintainers, :tags])
     if should_allow_versions
-      data['versions'] = page.versions.where(different: true).as_json
+      data['versions'] = page.versions.as_json
     end
     render json: { data: }
   end
@@ -150,14 +149,10 @@ class Api::V0::PagesController < Api::V0::ApiController
 
     if params.key?(:capture_time)
       collection = where_in_range_param(
-        collection,
+        collection.where(versions: { different: true }),
         :capture_time,
         'versions.capture_time'
       ) { |date_string| parse_date!(date_string) }
-
-      if boolean_param(:different, default: true)
-        collection = collection.where(versions: { different: true })
-      end
     end
 
     collection = where_in_interval_param(collection, :status)

@@ -379,25 +379,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test 'only lists versions that are different from the previous version' do
-    now = Time.now
-    page_versions = [
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
-    ].collect { |data| pages(:home_page).versions.create(data) }
-    page_versions.each(&:update_different_attribute)
-
-    sign_in users(:alice)
-    get(api_v0_versions_url)
-    assert_response(:success)
-    body = JSON.parse(@response.body)
-    uuids = body['data'].collect { |version| version['uuid'] }
-
-    assert_includes(uuids, page_versions[0].uuid)
-    assert_not_includes(uuids, page_versions[1].uuid)
-  end
-
-  test 'lists versions regardless if different from the previous version if ?different=false' do
+  test 'lists all versions regardless if different from the previous version' do
     now = Time.now
     page_versions = [
       { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
@@ -408,7 +390,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page_versions.each(&:update_different_attribute)
 
     sign_in users(:alice)
-    get(api_v0_versions_url(params: { different: false }))
+    get(api_v0_versions_url)
     assert_response(:success)
     body = JSON.parse(@response.body)
     uuids = body['data'].collect { |version| version['uuid'] }

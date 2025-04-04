@@ -48,10 +48,6 @@ class Version < ApplicationRecord
   # legitimate scenario.
   belongs_to :page, foreign_key: :page_uuid, optional: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
-  has_many :invalid_changes,
-           ->(version) { where.not(uuid_from: version.previous.uuid) },
-           class_name: 'Change',
-           foreign_key: 'uuid_to'
 
   # HTTP header names are case-insensitive. Store them lower-case for easy lookups/comparisons.
   normalizes :headers, with: ->(h) { h.transform_keys { |k| k.to_s.downcase } }
@@ -114,23 +110,23 @@ class Version < ApplicationRecord
     self.page.versions.reorder(capture_time: :asc).first
   end
 
-  def previous(different: true)
+  def previous(different: false)
     query = self.page.versions.where('capture_time < ?', self.capture_time)
     query = query.where(different: true) if different
     query.first
   end
 
-  def next(different: true)
+  def next(different: false)
     query = self.page.versions.where('capture_time > ?', self.capture_time)
     query = query.where(different: true) if different
     query.last
   end
 
-  def change_from_previous(different: true)
+  def change_from_previous(different: false)
     Change.between(from: previous(different:), to: self, create: nil)
   end
 
-  def change_from_next(different: true)
+  def change_from_next(different: false)
     Change.between(from: self, to: self.next(different:), create: nil)
   end
 
@@ -138,11 +134,11 @@ class Version < ApplicationRecord
     Change.between(from: earliest, to: self, create: nil)
   end
 
-  def ensure_change_from_previous(different: true)
+  def ensure_change_from_previous(different: false)
     Change.between(from: previous(different:), to: self, create: :new)
   end
 
-  def ensure_change_from_next(different: true)
+  def ensure_change_from_next(different: false)
     Change.between(from: self, to: self.next(different:), create: :new)
   end
 
