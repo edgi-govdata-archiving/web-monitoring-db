@@ -1,7 +1,6 @@
 desc 'Copy pages from another web-monitoring-db instance.'
-task :copy_page, [:page_uuid, :all_versions, :include_changes, :url, :username, :password] => [:environment] do |_t, args|
+task :copy_page, [:page_uuid, :include_changes, :url, :username, :password] => [:environment] do |_t, args|
   verbose = ENV.fetch('VERBOSE', nil)
-  different = !args[:all_versions].present?
   include_changes = args[:include_changes].present?
 
   begin
@@ -25,7 +24,7 @@ task :copy_page, [:page_uuid, :all_versions, :include_changes, :url, :username, 
   end
 
   page, page_count = copy_page_data(args[:page_uuid], options, verbose)
-  versions = copy_page_versions(page, options, different, verbose)
+  versions = copy_page_versions(page, options, verbose)
 
   changes = if include_changes
               copy_page_changes(page, options, verbose)
@@ -68,11 +67,10 @@ def copy_page_data(page_uuid, api_options, verbose)
   [page, page_count]
 end
 
-def copy_page_versions(page, api_options, different, verbose)
+def copy_page_versions(page, api_options, verbose)
   summary = { count: 0, skipped: 0, errors: [] }
 
   versions_path = "/api/v0/pages/#{page.uuid}/versions?chunk_size=1000&sort=capture_time:asc"
-  versions_path += '&different=false' unless different
   api_paginated_request(versions_path, api_options) do |version_data|
     version = Version.find_by(uuid: version_data['uuid'])
     if version

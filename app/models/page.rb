@@ -16,7 +16,7 @@ class Page < ApplicationRecord
            -> { order(capture_time: :desc) },
            foreign_key: 'page_uuid',
            inverse_of: :page,
-           # You must explcitly dissociate or move versions before destroying.
+           # You must explicitly dissociate or move versions before destroying.
            # It's OK for a version to be orphaned from all pages, but we want
            # to make sure that's an intentional action and not accidental.
            dependent: :restrict_with_error
@@ -40,11 +40,11 @@ class Page < ApplicationRecord
             # `DISTINCT ON` statement has to be at the start of the WHERE clause, but
             # all public methods append to the end.
             relation.select_values = ['DISTINCT ON (versions.page_uuid) versions.*']
-            relation.order('versions.capture_time DESC').where(different: true)
+            relation.order('versions.capture_time DESC')
           end),
           foreign_key: 'page_uuid',
           class_name: 'Version'
-  # This needs a funky name because `changes` is a an activerecord method
+  # This needs a funky name because `changes` is an activerecord method
   has_many :tracked_changes, through: :versions
   has_many :urls,
            class_name: 'PageUrl',

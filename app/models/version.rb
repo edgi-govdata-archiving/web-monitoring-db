@@ -114,23 +114,23 @@ class Version < ApplicationRecord
     self.page.versions.reorder(capture_time: :asc).first
   end
 
-  def previous(different: true)
+  def previous(different: false)
     query = self.page.versions.where('capture_time < ?', self.capture_time)
     query = query.where(different: true) if different
     query.first
   end
 
-  def next(different: true)
+  def next(different: false)
     query = self.page.versions.where('capture_time > ?', self.capture_time)
     query = query.where(different: true) if different
     query.last
   end
 
-  def change_from_previous(different: true)
+  def change_from_previous(different: false)
     Change.between(from: previous(different:), to: self, create: nil)
   end
 
-  def change_from_next(different: true)
+  def change_from_next(different: false)
     Change.between(from: self, to: self.next(different:), create: nil)
   end
 
@@ -138,11 +138,11 @@ class Version < ApplicationRecord
     Change.between(from: earliest, to: self, create: nil)
   end
 
-  def ensure_change_from_previous(different: true)
+  def ensure_change_from_previous(different: false)
     Change.between(from: previous(different:), to: self, create: :new)
   end
 
-  def ensure_change_from_next(different: true)
+  def ensure_change_from_next(different: false)
     Change.between(from: self, to: self.next(different:), create: :new)
   end
 
