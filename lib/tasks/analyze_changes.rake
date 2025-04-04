@@ -12,7 +12,7 @@ task :analyze_changes, [:start_date, :end_date] => [:environment] do |_t, args|
   queued_jobs = 0
   DataHelpers.iterate_each(versions, batch_size: 1000) do |version|
     found_versions += 1
-    unless version.change_from_previous
+    if version.different? && version.change_from_previous.nil?
       AnalyzeChangeJob.perform_later(version)
       queued_jobs += 1
     end

@@ -155,24 +155,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes ids, pages(:home_page_site2).uuid,
                         'Results should not include pages with no versions in the filtered date range'
     assert_not_includes ids, pages(:sub_page).uuid,
-                        'Results should not include pages with non-different versions in the filtered date range'
-  end
-
-  test 'includes pages with non-different captures when using capture_time AND different=false' do
-    sign_in users(:alice)
-    get api_v0_pages_url(
-      capture_time: '2017-03-04T00:00:00Z..',
-      different: false
-    )
-    body_json = JSON.parse @response.body
-    ids = body_json['data'].pluck 'uuid'
-
-    assert_includes ids, pages(:home_page).uuid,
-                    'Results should include pages with versions captured in the filtered date range'
-    assert_not_includes ids, pages(:home_page_site2).uuid,
-                        'Results should not include pages with no versions in the filtered date range'
-    assert_includes ids, pages(:sub_page).uuid,
-                    'Results should include pages with non-different versions in the filtered date range'
+                        'Results should not include pages with only non-different versions in the filtered date range'
   end
 
   test 'includes earliest version if include_earliest = true' do
@@ -651,76 +634,6 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       [['title'], ['url']],
       name: 'Pages'
     )
-  end
-
-  test 'only lists versions that are different from the previous version on page data' do
-    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
-    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
-    skip
-    now = Time.now
-    page_versions = [
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
-    ].collect {|data| pages(:home_page).versions.create(data)}
-    page_versions.each(&:update_different_attribute)
-
-    sign_in users(:alice)
-    get(api_v0_page_url(pages(:home_page)))
-    assert_response(:success)
-    body = JSON.parse(@response.body)
-    uuids = body['data']['versions'].collect {|version| version['uuid']}
-
-    assert_includes(uuids, page_versions[0].uuid)
-    assert_includes(uuids, page_versions[1].uuid)
-    assert_not_includes(uuids, page_versions[2].uuid)
-    assert_not_includes(uuids, page_versions[3].uuid)
-  end
-
-  test 'only lists versions that are different from the previous version on ?include_versions' do
-    # Temporarily skip because of https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/264
-    # until https://github.com/edgi-govdata-archiving/web-monitoring-db/issues/274
-    skip
-    now = Time.now
-    page_versions = [
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
-    ].collect {|data| pages(:home_page).versions.create(data)}
-    page_versions.each(&:update_different_attribute)
-
-    sign_in users(:alice)
-    get(api_v0_pages_url(params: { include_versions: true }))
-    assert_response(:success)
-    body = JSON.parse(@response.body)
-    uuids = body['data'].collect do |page|
-      page['versions'].collect {|version| version['uuid']}
-    end.flatten
-
-    assert_includes(uuids, page_versions[0].uuid)
-    assert_includes(uuids, page_versions[1].uuid)
-    assert_not_includes(uuids, page_versions[2].uuid)
-    assert_not_includes(uuids, page_versions[3].uuid)
-  end
-
-  test 'only lists versions that are different from the previous version on ?include_latest' do
-    now = Time.now
-    page_versions = [
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
-      { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days }
-    ].collect {|data| pages(:home_page).versions.create(data)}
-    page_versions.each(&:update_different_attribute)
-
-    sign_in users(:alice)
-    get(api_v0_pages_url(params: { include_latest: true }))
-    assert_response(:success)
-    body = JSON.parse(@response.body)
-    uuids = body['data'].collect {|page| page['latest'].try(:[], 'uuid')}
-
-    assert_includes(uuids, page_versions[0].uuid)
-    assert_not_includes(uuids, page_versions[1].uuid)
   end
 
   test 'includes active and inactive pages if ?active not present' do

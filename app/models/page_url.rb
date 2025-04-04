@@ -5,7 +5,7 @@
 #
 # Pages have many PageUrls, each representing a single URL associated with
 # the page. They can also store timeframe information and analyst-supplied
-# notes (both are human-managed, anecdocal information that should not be
+# notes (both are human-managed, anecdotal information that should not be
 # treated as mechanistic, measured, objective values -- for example, we can
 # never measure the true valid timeframe for a (page, URL) combination
 # because we only sample the responses from a web server on a regular basis

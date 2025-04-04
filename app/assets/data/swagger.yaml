@@ -130,7 +130,9 @@ paths:
           type: string
           in: query
           description: >
-            Only retrieve pages with versions captured during this time frame. Should be in the format `{start date}..{end date}`, where dates are ISO 8601 formatted. Either date can be left out to make the query open-ended.
+            Only retrieve pages with observed differences (versions that differed in some way from the previous
+            version) during this time frame. Should be in the format `{start date}..{end date}`, where dates
+            are ISO 8601 formatted. Either date can be left out to make the query open-ended.
 
             **Examples…**
 
@@ -262,13 +264,6 @@ paths:
 
 
             🚫 You must be logged in to use this parameter!
-        - name: different
-          in: query
-          description: >-
-            If false, include all versions, not just ones that are different from their preceding version.
-          required: false
-          type: string
-          default: true
         - name: include_change_from_previous
           in: query
           type: boolean
@@ -389,7 +384,7 @@ paths:
         As with other list endpoints, results are chunked. Follow the
         `links.next` property of the response to get the next chunk of results.
         (You can also iterate by manually making requests with sequential
-        `capture_time` parameters, but the `links.next` property willskip past
+        `capture_time` parameters, but the `links.next` property will skip past
         empty time ranges automatically for more efficient querying.)
       consumes:
         - application/json
