@@ -31,10 +31,11 @@ namespace :data do
   # parameter. This *really* matters given the size of this table.
   def version_batches(collection, batch_size: 1000, &)
     anchor = nil
-    while true
+    loop do
       batch = collection.ordered(:capture_time, point: anchor).limit(batch_size)
       anchor = batch.to_a.last
       break unless anchor
+
       yield batch
     end
   end
