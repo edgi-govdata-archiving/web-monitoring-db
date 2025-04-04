@@ -48,10 +48,6 @@ class Version < ApplicationRecord
   # legitimate scenario.
   belongs_to :page, foreign_key: :page_uuid, optional: true, inverse_of: :versions, touch: true
   has_many :tracked_changes, class_name: 'Change', foreign_key: 'uuid_to'
-  has_many :invalid_changes,
-           ->(version) { where.not(uuid_from: version.previous.uuid) },
-           class_name: 'Change',
-           foreign_key: 'uuid_to'
 
   # HTTP header names are case-insensitive. Store them lower-case for easy lookups/comparisons.
   normalizes :headers, with: ->(h) { h.transform_keys { |k| k.to_s.downcase } }
