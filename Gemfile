@@ -5,7 +5,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby '3.4.2'
+ruby '3.4.3'
 
 gem 'aws-sdk-s3', '~> 1.183'
 gem 'concurrent-ruby', '~> 1.3'
