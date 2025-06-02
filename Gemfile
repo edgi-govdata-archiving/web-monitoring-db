@@ -5,9 +5,9 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby '3.4.3'
+ruby '3.4.4'
 
-gem 'aws-sdk-s3', '~> 1.184'
+gem 'aws-sdk-s3', '~> 1.188'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
@@ -15,7 +15,7 @@ gem 'jwt', '~> 2.10'
 gem 'rails', '~> 8.0.2'
 gem 'pg', '~> 1.5'
 gem 'puma', '~> 6.6'
-gem 'rack-cors', '~> 2.0', :require => 'rack/cors'
+gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
 gem 'rack-brotli'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
@@ -32,8 +32,8 @@ gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.23.0'
-gem 'sentry-rails', '~> 5.23.0'
+gem 'sentry-ruby', '~> 5.24.0'
+gem 'sentry-rails', '~> 5.24.0'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -53,9 +53,9 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.75.5', require: false
+  gem 'rubocop', '~> 1.75.8', require: false
   gem 'rubocop-performance', '~> 1.25.0'
-  gem 'rubocop-rails', '~> 2.31.0'
+  gem 'rubocop-rails', '~> 2.32.0'
   gem 'dotenv'
 end
 
