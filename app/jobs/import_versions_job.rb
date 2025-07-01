@@ -229,7 +229,7 @@ class ImportVersionsJob < ApplicationJob
       'skip' => 'skipped'
     }.fetch(operation, operation)
 
-    Rails.logger.debug("[import=#{@import.id}]#{row ? "[row=#{row}]" : ''} #{conjugated_operation.capitalize} #{object_name} #{object_id}")
+    Rails.logger.debug("[import=#{@import.id}]#{"[row=#{row}]" if row} #{conjugated_operation.capitalize} #{object_name} #{object_id}")
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects

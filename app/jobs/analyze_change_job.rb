@@ -128,7 +128,7 @@ class AnalyzeChangeJob < ApplicationJob
     # TODO: relatedly, bump up priority for sustained 4xx errors
     priority = [0.1, priority].min if version_status(change.version) >= 500 ||
                                       version_status(change.from_version) >= 500 ||
-                                      looks_like_error(results[:text_diff_ratio], text_diff)
+                                      looks_like_error?(results[:text_diff_ratio], text_diff)
 
     results[:priority] = priority.round(4)
 
@@ -223,12 +223,12 @@ class AnalyzeChangeJob < ApplicationJob
 
   def require_media_type?
     if @require_media_type.nil?
-      @require_media_type = to_bool(ENV.fetch('ANALYSIS_REQUIRE_MEDIA_TYPE', nil))
+      @require_media_type = true_env?(ENV.fetch('ANALYSIS_REQUIRE_MEDIA_TYPE', nil))
     end
     @require_media_type
   end
 
-  def to_bool(text)
+  def true_env?(text)
     text = (text || '').downcase
     ['true', 't', '1'].include? text
   end
@@ -240,7 +240,7 @@ class AnalyzeChangeJob < ApplicationJob
   end
 
   # Heuristically identify versions that were errors, but had 2xx status codes
-  def looks_like_error(text_ratio, text_diff)
+  def looks_like_error?(text_ratio, text_diff)
     return false if text_ratio < 0.9
 
     texts = text_diff.each_with_object(old: '', new: '') do |operation, texts_memo|

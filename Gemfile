@@ -7,7 +7,7 @@ end
 
 ruby '3.4.4'
 
-gem 'aws-sdk-s3', '~> 1.188'
+gem 'aws-sdk-s3', '~> 1.191'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
@@ -25,15 +25,15 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-gem "good_job", "~> 4.10"
+gem "good_job", "~> 4.11"
 
 # Caching
 gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.24.0'
-gem 'sentry-rails', '~> 5.24.0'
+gem 'sentry-ruby', '~> 5.26.0'
+gem 'sentry-rails', '~> 5.26.0'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -53,7 +53,7 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.75.8', require: false
+  gem 'rubocop', '~> 1.77.0', require: false
   gem 'rubocop-performance', '~> 1.25.0'
   gem 'rubocop-rails', '~> 2.32.0'
   gem 'dotenv'
