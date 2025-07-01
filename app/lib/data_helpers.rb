@@ -58,7 +58,7 @@ module DataHelpers
     loop do
       items = collection.limit(batch_size).offset(offset)
       items.each(&)
-      break if items.count.zero?
+      break if items.none?
 
       offset += batch_size
     end
