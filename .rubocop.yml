@@ -52,6 +52,10 @@ Naming/MemoizedInstanceVariableName:
     # There are some good reasons not to apply this in Rails controllers
     - 'app/controllers/**/*'
 
+Naming/PredicateMethod:
+  AllowedPatterns:
+    - 'update_*'
+
 Naming/RescuedExceptionsVariableName:
   PreferredName: error
 
