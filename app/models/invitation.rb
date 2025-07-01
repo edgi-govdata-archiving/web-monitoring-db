@@ -18,12 +18,7 @@ class Invitation < ApplicationRecord
   end
 
   def send_email
-    if self.email.present?
-      InvitationMailer.invitation_email(self).deliver_later
-      true
-    else
-      false
-    end
+    InvitationMailer.invitation_email(self).deliver_later if self.email.present?
   end
 
   # Overriding this is not the best way to enforce extra constraints (see
