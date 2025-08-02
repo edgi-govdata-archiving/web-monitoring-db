@@ -5,6 +5,7 @@ class InvitationMailerTest < ActionMailer::TestCase
   # the action_mailer URL configuration.
   # NOTE: this is handled automatically in RSpec
   include Rails.application.routes.url_helpers
+
   def mail_url(route, options = nil)
     url_for([
               route,
