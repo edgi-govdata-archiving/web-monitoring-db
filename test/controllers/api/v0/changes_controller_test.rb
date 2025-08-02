@@ -2,6 +2,7 @@ require 'test_helper'
 
 class Api::V0::ChangesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+
   test 'can list changes' do
     page = pages(:home_page)
     sign_in users(:alice)

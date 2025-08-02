@@ -76,19 +76,20 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1123.0)
-    aws-sdk-core (3.226.1)
+    aws-partitions (1.1139.0)
+    aws-sdk-core (3.228.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
+      bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.106.0)
-      aws-sdk-core (~> 3, >= 3.225.0)
+    aws-sdk-kms (1.109.0)
+      aws-sdk-core (~> 3, >= 3.228.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.191.0)
-      aws-sdk-core (~> 3, >= 3.225.0)
+    aws-sdk-s3 (1.195.0)
+      aws-sdk-core (~> 3, >= 3.228.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
@@ -195,7 +196,7 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.12.2)
+    json (2.13.2)
     jwt (2.10.2)
       base64
     language_server-protocol (3.17.0.5)
@@ -245,10 +246,11 @@ GEM
     os (1.1.4)
     ostruct (0.6.1)
     parallel (1.27.0)
-    parser (3.3.8.0)
+    parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
-    pg (1.5.9)
+    pg (1.6.0-arm64-darwin)
+    pg (1.6.0-x86_64-linux)
     postmark (1.22.1)
       json
     postmark-rails (0.22.1)
@@ -267,7 +269,7 @@ GEM
       date
       stringio
     public_suffix (6.0.2)
-    puma (6.6.0)
+    puma (6.6.1)
       nio4r (~> 2.0)
     pundit (2.5.0)
       activesupport (>= 3.0.0)
@@ -324,9 +326,9 @@ GEM
     rdoc (6.14.1)
       erb
       psych (>= 4.0.0)
-    redis (5.4.0)
+    redis (5.4.1)
       redis-client (>= 0.22.0)
-    redis-client (0.24.0)
+    redis-client (0.25.1)
       connection_pool
     regexp_parser (2.10.0)
     reline (0.6.1)
@@ -340,7 +342,7 @@ GEM
       railties (>= 5.2)
     retriable (3.1.2)
     rexml (3.4.1)
-    rubocop (1.77.0)
+    rubocop (1.79.1)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -348,10 +350,10 @@ GEM
       parser (>= 3.3.0.2)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 2.9.3, < 3.0)
-      rubocop-ast (>= 1.45.1, < 2.0)
+      rubocop-ast (>= 1.46.0, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.45.1)
+    rubocop-ast (1.46.0)
       parser (>= 3.3.7.2)
       prism (~> 1.4)
     rubocop-performance (1.25.0)
@@ -400,7 +402,7 @@ GEM
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
     stringio (3.1.7)
-    thor (1.3.2)
+    thor (1.4.0)
     tilt (2.0.11)
     timeout (0.4.3)
     trailblazer-option (0.1.2)
@@ -442,7 +444,7 @@ PLATFORMS
 
 DEPENDENCIES
   addressable (~> 2.8)
-  aws-sdk-s3 (~> 1.191)
+  aws-sdk-s3 (~> 1.195)
   bootsnap (>= 1.4.5)
   byebug
   capybara
@@ -457,7 +459,7 @@ DEPENDENCIES
   jwt (~> 2.10)
   listen (~> 3.9)
   oj (~> 3.16)
-  pg (~> 1.5)
+  pg (~> 1.6)
   postmark-rails
   pry-rails
   puma (~> 6.6)
@@ -466,7 +468,7 @@ DEPENDENCIES
   rack-cors (~> 3.0)
   rails (~> 8.0.2)
   redis (~> 5.4)
-  rubocop (~> 1.77.0)
+  rubocop (~> 1.79.1)
   rubocop-performance (~> 1.25.0)
   rubocop-rails (~> 2.32.0)
   sassc-rails (~> 2.1.2)
