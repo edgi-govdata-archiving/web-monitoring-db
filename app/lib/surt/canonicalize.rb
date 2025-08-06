@@ -55,6 +55,7 @@ module Surt::Canonicalize
   #   {param_to_remove: /regex or string to match value/},
   #   {param_to_remove1: /regex for value/, param_to_remove2: /regex for value/}
   # ]
+  # TODO: should rename this -- it's not really just session IDs anymore.
   QUERY_SESSION_IDS = [
     /^(.*)(?:jsessionid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
     /^(.*)(?:phpsessid=[0-9a-zA-Z]{32})(?:&(.*))?$/i,
@@ -68,7 +69,8 @@ module Surt::Canonicalize
     /^(.*)(?:utm_campaign=[^&]+)(?:&(.*))?$/i,
     /^(.*)(?:sms_ss=[^&]+)(?:&(.*))?$/i,
     /^(.*)(?:awesm=[^&]+)(?:&(.*))?$/i,
-    /^(.*)(?:xtor=[^&]+)(?:&(.*))?$/i
+    /^(.*)(?:xtor=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:nrg_redirect=\d+)(?:&(.*))?$/i,
   ].freeze
 
   OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/
