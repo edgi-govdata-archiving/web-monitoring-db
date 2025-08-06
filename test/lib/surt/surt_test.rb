@@ -309,7 +309,7 @@ class SurtTest < ActiveSupport::TestCase
     )
     assert_canonicalized(
       'http://example.com/x',
-      'http://example.com/x?sms_ss=abc&awesm=def&xtor=hij',
+      'http://example.com/x?sms_ss=abc&awesm=def&xtor=hij&nrg_redirect=267439',
       'It failed to remove assorted tracking query params'
     )
   end
