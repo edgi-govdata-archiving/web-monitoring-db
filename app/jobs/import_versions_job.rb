@@ -71,7 +71,7 @@ class ImportVersionsJob < ApplicationJob
     record = normalize_record(record)
     page = page_for_record(record, create: @import.create_pages, row:)
     unless page
-      warn "Skipped unknown URL: #{record['page_url']}@#{record['capture_time']}"
+      warn "Skipped unknown URL: #{record['url']}@#{record['capture_time']}"
       return
     end
     unless page.active?
