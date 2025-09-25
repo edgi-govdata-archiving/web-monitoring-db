@@ -168,7 +168,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { 'priority' => 1.1 }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_not_equal(
       1.1,
       page.versions[0].change_from_previous.priority,
@@ -180,7 +180,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { 'priority' => -1 }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_not_equal(
       -1,
       page.versions[0].change_from_previous.priority,
@@ -197,7 +197,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { 'significance' => 1.1 }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_not_equal(
       1.1,
       page.versions[0].change_from_previous.priority,
@@ -209,7 +209,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { 'significance' => -1 }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_not_equal(
       -1,
       page.versions[0].change_from_previous.priority,
@@ -328,7 +328,7 @@ class Api::V0::AnnotationsControllerTest < ActionDispatch::IntegrationTest
       params: '{}'
     )
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     body = JSON.parse(@response.body)
     assert(body.key?('errors'), 'Response should have an "errors" property')
   end
