@@ -149,7 +149,7 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { page_url: { url: 'https://example.gov/some_new_url' } }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_equal 'application/json', @response.media_type
   end
 
@@ -178,7 +178,7 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
       as: :json,
       params: { page_url: { from_time: 'This is not a time' } }
     )
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_equal 'application/json', @response.media_type
   end
 
@@ -208,7 +208,7 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in users(:alice)
     delete(api_v0_page_url_path(pages(:home_page), page_url))
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     assert_equal 'application/json', @response.media_type
   end
 end
