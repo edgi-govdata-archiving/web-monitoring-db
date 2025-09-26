@@ -49,8 +49,6 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   end
 
   test 'imports a version' do
-    page_versions_count = pages(:home_page).versions.count
-
     raw_data = {
       url: pages(:home_page).url,
       capture_time: '2025-01-01T00:00:00Z',
@@ -64,12 +62,12 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       content_length: nil,
       media_type: nil,
       page_maintainers: ['The Federal Example Agency'],
-      page_tags: ['Some tag'],
+      page_tags: ['Some tag']
     }
 
     import = Import.create_with_data(
       { user: users(:alice) },
-      [ raw_data ].map(&:to_json).join("\n")
+      [raw_data].map(&:to_json).join("\n")
     )
 
     ImportVersionsJob.perform_now(import)
@@ -84,7 +82,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         'page_uuid' => page.uuid,
         'capture_time' => Time.parse(raw_data[:capture_time]),
         'headers' => raw_data[:headers].transform_keys(&:downcase),
-        'network_error' => nil,
+        'network_error' => nil
       }.sort.to_h,
       {
         **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
@@ -99,19 +97,17 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   end
 
   test 'imports an error version' do
-    page_versions_count = pages(:home_page).versions.count
-
     raw_data = {
       url: pages(:home_page).url,
       capture_time: '2025-01-01T00:00:00Z',
       network_error: 'net::ERR_NAME_NOT_RESOLVED',
       source_type: 'test-source',
-      source_metadata: { test_meta: 'data' },
+      source_metadata: { test_meta: 'data' }
     }
 
     import = Import.create_with_data(
       { user: users(:alice) },
-      [ raw_data ].map(&:to_json).join("\n")
+      [raw_data].map(&:to_json).join("\n")
     )
 
     ImportVersionsJob.perform_now(import)
@@ -131,7 +127,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         'content_length' => nil,
         'media_type' => nil,
         'status' => nil,
-        'title' => nil,
+        'title' => nil
       }.sort.to_h,
       {
         **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
