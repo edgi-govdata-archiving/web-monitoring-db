@@ -38,7 +38,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'authorizations' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
@@ -49,7 +49,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
@@ -83,7 +83,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'can import data' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
@@ -94,7 +94,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
@@ -145,14 +145,14 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
 
     versions = pages[0].versions
     assert_equal(2, versions.length)
-    assert_equal(import_data[0][:page_url], versions[1].url)
-    assert_equal(import_data[1][:page_url], versions[0].url)
+    assert_equal(import_data[0][:url], versions[1].url)
+    assert_equal(import_data[1][:url], versions[0].url)
   end
 
   test 'cannot import in read-only mode' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
@@ -163,7 +163,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
@@ -197,8 +197,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     original_data = versions(:page1_v1).as_json
     import_data = [
       {
-        page_url: pages(:home_page).url,
-        page_title: pages(:home_page).title,
+        url: pages(:home_page).url,
+        title: pages(:home_page).title,
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
@@ -230,8 +230,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     page_versions_count = pages(:home_page).versions.count
     import_data = [
       {
-        page_url: pages(:home_page).url,
-        page_title: pages(:home_page).title,
+        url: pages(:home_page).url,
+        title: pages(:home_page).title,
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
@@ -263,8 +263,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     original_data = versions(:page1_v1).as_json
     import_data = [
       {
-        page_url: pages(:home_page).url,
-        page_title: pages(:home_page).title,
+        url: pages(:home_page).url,
+        title: pages(:home_page).title,
         page_maintainers: ['The Federal Example Agency'],
         page_tags: pages(:home_page).tag_names,
         capture_time: versions(:page1_v1).capture_time,
@@ -295,7 +295,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'surfaces page validation errors' do
     import_data = [
       {
-        page_url: 'testsite',
+        url: 'testsite',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['site:Example Site'],
@@ -338,7 +338,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
 
     import_data = [
       {
-        page_url: 'http://testsite.com/',
+        url: 'http://testsite.com/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['site:Example Site'],
@@ -378,8 +378,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'can import `null` page_maintainers' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
-        page_title: 'Test Page',
+        url: 'http://testsite.com/',
+        title: 'Test Page',
         page_maintainers: nil,
         capture_time: versions(:page1_v1).capture_time,
         body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
@@ -412,8 +412,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'cannot import non-array page_maintainers' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
-        page_title: 'Test Page',
+        url: 'http://testsite.com/',
+        title: 'Test Page',
         page_maintainers: 5,
         capture_time: versions(:page1_v1).capture_time,
         body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
@@ -446,7 +446,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'matches pages by url_key if no exact url match' do
     import_data = [
       {
-        page_url: 'http://testSITE.com/whatever',
+        url: 'http://testSITE.com/whatever',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Example Site'],
@@ -457,7 +457,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: 'http://testsite.com/whatever/',
+        url: 'http://testsite.com/whatever/',
         title: 'Example Page',
         page_maintainers: ['The Federal Example Agency'],
         page_tags: ['Test', 'Home Page'],
@@ -485,8 +485,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'can import `null` page_tags' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
-        page_title: 'Test Page',
+        url: 'http://testsite.com/',
+        title: 'Test Page',
         page_tags: nil,
         capture_time: versions(:page1_v1).capture_time,
         body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
@@ -519,8 +519,8 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   test 'cannot import non-array page_tags' do
     import_data = [
       {
-        page_url: 'http://testsite.com/',
-        page_title: 'Test Page',
+        url: 'http://testsite.com/',
+        title: 'Test Page',
         page_tags: 5,
         capture_time: versions(:page1_v1).capture_time,
         body_url: 'https://test-bucket.s3.amazonaws.com/example-v1',
@@ -555,7 +555,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
 
     import_data = [
       {
-        page_url: 'http://whoa-there-betcha-this.com/is/not/in/the/database',
+        url: 'http://whoa-there-betcha-this.com/is/not/in/the/database',
         title: 'Heyooooo!',
         capture_time: '2017-05-01T12:33:01Z',
         body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
@@ -564,7 +564,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: pages(:home_page).url,
+        url: pages(:home_page).url,
         title: 'Example Page',
         capture_time: '2017-05-02T12:33:01Z',
         body_url: 'https://test-bucket.s3.amazonaws.com/example-v2',
@@ -609,7 +609,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
     # The first two here should get skipped
     import_data = [
       {
-        page_url: page.url,
+        url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 3.days).iso8601,
         body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
@@ -618,7 +618,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: page.url,
+        url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.9.days).iso8601,
         body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
@@ -627,7 +627,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: page.url,
+        url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.5.days).iso8601,
         body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
@@ -636,7 +636,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
         source_metadata: { test_meta: 'data' }
       },
       {
-        page_url: page.url,
+        url: page.url,
         title: 'Heyooooo!',
         capture_time: (now - 2.days).iso8601,
         body_url: 'https://test-bucket.s3.amazonaws.com/unknown-v1',
