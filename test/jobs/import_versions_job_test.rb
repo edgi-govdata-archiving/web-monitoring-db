@@ -146,8 +146,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v1).capture_time,
@@ -175,8 +175,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -219,8 +219,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -252,7 +252,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       [
         {
           # omitted url
-          page_title: pages(:home_page).title,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -277,8 +277,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:inactive_page).url,
-          page_title: pages(:inactive_page).title,
+          url: pages(:inactive_page).url,
+          title: pages(:inactive_page).title,
           capture_time: now,
           body_url: 'https://test-bucket.s3.amazonaws.com/inactive-v1',
           body_hash: 'abc',
@@ -307,7 +307,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           body_hash: 'abc',
@@ -336,7 +336,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           # Use an invalid hash to test that it was actually read and verified.
@@ -366,7 +366,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           # Use an invalid hash to test that it was actually read and verified.
@@ -399,13 +399,13 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         # Import two versions with the same hash to make sure we get the right
         # length regardless of whether we downloaded fresh content.
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now - 1.second,
           body_url: 'http://example.com',
           body_hash: hash
         },
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           body_hash: hash
@@ -429,7 +429,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now - 1.second,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc',
@@ -457,7 +457,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           uri: body_url,
           source_type: 'test_source',
@@ -480,7 +480,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       { user: users(:alice) },
       [
         {
-          page_url: url_b,
+          url: url_b,
           capture_time: Time.now - 1.second,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc'
