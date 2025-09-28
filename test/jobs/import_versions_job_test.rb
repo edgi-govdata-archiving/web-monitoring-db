@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class ImportVersionsJobTest < ActiveJob::TestCase
+  make_my_diffs_pretty!
+
   class FakeLogger
     def logs
       @logs ||= []
@@ -39,6 +41,99 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     if Archiver.store.is_a?(FileStorage::LocalFile)
       FileUtils.remove_dir(Archiver.store.directory, true)
     end
+  end
+
+  def assert_field(raw, version, name, expected: nil)
+    expected = raw[name] if expected.nil?
+    assert_equal(expected, version.send(name), "#{name} was not set")
+  end
+
+  test 'imports a version' do
+    raw_data = {
+      url: pages(:home_page).url,
+      capture_time: '2025-01-01T00:00:00Z',
+      body_url: 'https://test-bucket.s3.amazonaws.com/some-archived-copy.html',
+      body_hash: 'INVALID_HASH',
+      source_type: 'test-source',
+      source_metadata: { test_meta: 'data' },
+      status: 200,
+      headers: { 'Some-Header' => 'value' },
+      title: pages(:home_page).title,
+      content_length: nil,
+      media_type: nil,
+      page_maintainers: ['The Federal Example Agency'],
+      page_tags: ['Some tag']
+    }
+
+    import = Import.create_with_data(
+      { user: users(:alice) },
+      [raw_data].map(&:to_json).join("\n")
+    )
+
+    ImportVersionsJob.perform_now(import)
+    assert_equal([], import.processing_errors, 'There were processing errors')
+
+    page = Page.find(pages(:home_page).uuid)
+    version = Version.where(url: raw_data[:url], capture_time: raw_data[:capture_time]).first
+    assert_not_nil(version)
+    assert_equal(
+      {
+        **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
+        'page_uuid' => page.uuid,
+        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'headers' => raw_data[:headers].transform_keys(&:downcase),
+        'network_error' => nil
+      }.sort.to_h,
+      {
+        **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
+        'capture_time' => version.capture_time
+      }.sort.to_h
+    )
+
+    page_tags = page.tags.map(&:name)
+    raw_data[:page_tags].each { |name| assert_includes(page_tags, name) }
+    page_maintainers = page.maintainers.map(&:name)
+    raw_data[:page_maintainers].each { |name| assert_includes(page_maintainers, name) }
+  end
+
+  test 'imports an error version' do
+    raw_data = {
+      url: pages(:home_page).url,
+      capture_time: '2025-01-01T00:00:00Z',
+      network_error: 'net::ERR_NAME_NOT_RESOLVED',
+      source_type: 'test-source',
+      source_metadata: { test_meta: 'data' }
+    }
+
+    import = Import.create_with_data(
+      { user: users(:alice) },
+      [raw_data].map(&:to_json).join("\n")
+    )
+
+    ImportVersionsJob.perform_now(import)
+    assert_equal([], import.processing_errors, 'There were processing errors')
+
+    page = Page.find(pages(:home_page).uuid)
+    version = Version.where(url: raw_data[:url], capture_time: raw_data[:capture_time]).first
+    assert_not_nil(version)
+    assert_equal(
+      {
+        **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
+        'page_uuid' => page.uuid,
+        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'headers' => nil,
+        'body_url' => nil,
+        'body_hash' => nil,
+        'content_length' => nil,
+        'media_type' => nil,
+        'status' => nil,
+        'title' => nil
+      }.sort.to_h,
+      {
+        **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
+        'capture_time' => version.capture_time
+      }.sort.to_h
+    )
   end
 
   test 'does not add or modify a version if it already exists' do
