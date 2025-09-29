@@ -2,7 +2,7 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
 ### BASE ENVIRONMENT STAGE ###
-FROM ruby:3.4.5-slim AS base
+FROM ruby:3.4.6-slim AS base
 LABEL maintainer="enviroDGI@gmail.com"
 
 # Install apt based dependencies required to run Rails as
@@ -24,7 +24,7 @@ WORKDIR /app
 # the RubyGems. This is a separate step so the dependencies
 # will be cached unless changes to one of those two files
 # are made.
-COPY Gemfile Gemfile.lock ./
+COPY Gemfile Gemfile.lock .ruby-version ./
 RUN gem install bundler && bundle install --jobs 20 --retry 5
 
 # Copy the main application.

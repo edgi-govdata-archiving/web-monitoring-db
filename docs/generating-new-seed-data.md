@@ -49,13 +49,13 @@ for index, page in enumerate(sampled_pages):
 
     for version in versions:
         records.append({
+            "url": version['url'],
             "capture_time": version['capture_time'].isoformat().replace('+00:00', 'Z'),
             "body_url": version['body_url'],
             "body_hash": version['body_hash'],
             "source_type": version['source_type'],
             "source_metadata": version['source_metadata'],
-            "page_url": version['url'],
-            "page_title": version['title'],
+            "title": version['title'],
             "page_maintainers": [maintainer['name'] for maintainer in page['maintainers']],
             "page_tags": [tag['name'] for tag in page['tags']],
             "uuid": version['uuid']

@@ -1187,7 +1187,7 @@ paths:
           default: true
           required: false
           description: >-
-            If set to false, the importer will not create new page records. If the POSTed data contains a version with a `page_url` field that doesn’t match an known page, the version will be skipped and not imported at all.
+            If set to false, the importer will not create new page records. If the POSTed data contains a version with a `url` field that doesn’t match an known page, the version will be skipped and not imported at all.
         - name: skip_unchanged_versions
           in: query
           description: >-
@@ -2147,7 +2147,7 @@ definitions:
   ImportableVersion:
     type: object
     properties:
-      page_url:
+      url:
         type: string
         format: uri
         description: The original URL the version was captured from.

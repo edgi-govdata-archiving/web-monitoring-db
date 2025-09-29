@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class ImportVersionsJobTest < ActiveJob::TestCase
+  make_my_diffs_pretty!
+
   class FakeLogger
     def logs
       @logs ||= []
@@ -41,6 +43,99 @@ class ImportVersionsJobTest < ActiveJob::TestCase
     end
   end
 
+  def assert_field(raw, version, name, expected: nil)
+    expected = raw[name] if expected.nil?
+    assert_equal(expected, version.send(name), "#{name} was not set")
+  end
+
+  test 'imports a version' do
+    raw_data = {
+      url: pages(:home_page).url,
+      capture_time: '2025-01-01T00:00:00Z',
+      body_url: 'https://test-bucket.s3.amazonaws.com/some-archived-copy.html',
+      body_hash: 'INVALID_HASH',
+      source_type: 'test-source',
+      source_metadata: { test_meta: 'data' },
+      status: 200,
+      headers: { 'Some-Header' => 'value' },
+      title: pages(:home_page).title,
+      content_length: nil,
+      media_type: nil,
+      page_maintainers: ['The Federal Example Agency'],
+      page_tags: ['Some tag']
+    }
+
+    import = Import.create_with_data(
+      { user: users(:alice) },
+      [raw_data].map(&:to_json).join("\n")
+    )
+
+    ImportVersionsJob.perform_now(import)
+    assert_equal([], import.processing_errors, 'There were processing errors')
+
+    page = Page.find(pages(:home_page).uuid)
+    version = Version.where(url: raw_data[:url], capture_time: raw_data[:capture_time]).first
+    assert_not_nil(version)
+    assert_equal(
+      {
+        **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
+        'page_uuid' => page.uuid,
+        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'headers' => raw_data[:headers].transform_keys(&:downcase),
+        'network_error' => nil
+      }.sort.to_h,
+      {
+        **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
+        'capture_time' => version.capture_time
+      }.sort.to_h
+    )
+
+    page_tags = page.tags.map(&:name)
+    raw_data[:page_tags].each { |name| assert_includes(page_tags, name) }
+    page_maintainers = page.maintainers.map(&:name)
+    raw_data[:page_maintainers].each { |name| assert_includes(page_maintainers, name) }
+  end
+
+  test 'imports an error version' do
+    raw_data = {
+      url: pages(:home_page).url,
+      capture_time: '2025-01-01T00:00:00Z',
+      network_error: 'net::ERR_NAME_NOT_RESOLVED',
+      source_type: 'test-source',
+      source_metadata: { test_meta: 'data' }
+    }
+
+    import = Import.create_with_data(
+      { user: users(:alice) },
+      [raw_data].map(&:to_json).join("\n")
+    )
+
+    ImportVersionsJob.perform_now(import)
+    assert_equal([], import.processing_errors, 'There were processing errors')
+
+    page = Page.find(pages(:home_page).uuid)
+    version = Version.where(url: raw_data[:url], capture_time: raw_data[:capture_time]).first
+    assert_not_nil(version)
+    assert_equal(
+      {
+        **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
+        'page_uuid' => page.uuid,
+        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'headers' => nil,
+        'body_url' => nil,
+        'body_hash' => nil,
+        'content_length' => nil,
+        'media_type' => nil,
+        'status' => nil,
+        'title' => nil
+      }.sort.to_h,
+      {
+        **version.attributes.except('uuid', 'created_at', 'updated_at', 'different'),
+        'capture_time' => version.capture_time
+      }.sort.to_h
+    )
+  end
+
   test 'does not add or modify a version if it already exists' do
     page_versions_count = pages(:home_page).versions.count
     original_data = versions(:page1_v1).as_json
@@ -51,8 +146,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v1).capture_time,
@@ -80,8 +175,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -124,8 +219,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
-          page_title: pages(:home_page).title,
+          url: pages(:home_page).url,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -157,7 +252,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       [
         {
           # omitted url
-          page_title: pages(:home_page).title,
+          title: pages(:home_page).title,
           page_maintainers: ['The Federal Example Agency'],
           page_tags: pages(:home_page).tag_names,
           capture_time: versions(:page1_v5).capture_time,
@@ -182,8 +277,8 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:inactive_page).url,
-          page_title: pages(:inactive_page).title,
+          url: pages(:inactive_page).url,
+          title: pages(:inactive_page).title,
           capture_time: now,
           body_url: 'https://test-bucket.s3.amazonaws.com/inactive-v1',
           body_hash: 'abc',
@@ -212,7 +307,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           body_hash: 'abc',
@@ -241,7 +336,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           # Use an invalid hash to test that it was actually read and verified.
@@ -271,7 +366,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           # Use an invalid hash to test that it was actually read and verified.
@@ -304,13 +399,13 @@ class ImportVersionsJobTest < ActiveJob::TestCase
         # Import two versions with the same hash to make sure we get the right
         # length regardless of whether we downloaded fresh content.
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now - 1.second,
           body_url: 'http://example.com',
           body_hash: hash
         },
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           body_url: 'http://example.com',
           body_hash: hash
@@ -334,7 +429,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now - 1.second,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc',
@@ -362,7 +457,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       },
       [
         {
-          page_url: pages(:home_page).url,
+          url: pages(:home_page).url,
           capture_time: now,
           uri: body_url,
           source_type: 'test_source',
@@ -385,7 +480,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       { user: users(:alice) },
       [
         {
-          page_url: url_b,
+          url: url_b,
           capture_time: Time.now - 1.second,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc'
