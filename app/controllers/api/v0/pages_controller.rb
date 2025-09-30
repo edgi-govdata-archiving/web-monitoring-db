@@ -165,7 +165,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       }.compact)
     end
 
-    if params[:url]
+    if params[:url].present? && params[:url] != '*'
       query = params[:url]
       collection = collection.joins(:urls)
       if query.include? '*'
