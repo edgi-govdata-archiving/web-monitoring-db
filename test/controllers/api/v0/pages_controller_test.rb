@@ -120,23 +120,23 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
   test 'filtering URL with empty string is the same as no filter' do
     sign_in users(:alice)
     all_ids = Page.all.pluck(:uuid).sort
-    get "/api/v0/pages/?url="
+    get '/api/v0/pages/?url='
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck('uuid').sort
 
     assert_equal all_ids, ids
-    assert ids.length > 0
+    assert_not ids.empty?
   end
 
   test 'filtering URL with "*" is the same as no filter' do
     sign_in users(:alice)
     all_ids = Page.all.pluck(:uuid).sort
-    get "/api/v0/pages/?url=*"
+    get '/api/v0/pages/?url=*'
     body_json = JSON.parse @response.body
     ids = body_json['data'].pluck('uuid').sort
 
     assert_equal all_ids, ids
-    assert ids.length > 0
+    assert_not ids.empty?
   end
 
   test 'can filter pages by version source_type' do
