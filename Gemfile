@@ -54,7 +54,7 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 1.81.1', require: false
-  gem 'rubocop-performance', '~> 1.25.0'
+  gem 'rubocop-performance', '~> 1.26.0'
   gem 'rubocop-rails', '~> 2.33.3'
   gem 'dotenv'
 end
