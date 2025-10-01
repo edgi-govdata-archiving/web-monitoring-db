@@ -97,7 +97,7 @@ GEM
     base64 (0.3.0)
     bcrypt (3.1.20)
     benchmark (0.4.1)
-    bigdecimal (3.2.2)
+    bigdecimal (3.2.3)
     bindex (0.8.1)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
@@ -249,8 +249,8 @@ GEM
     parser (3.3.9.0)
       ast (~> 2.4.1)
       racc
-    pg (1.6.1-arm64-darwin)
-    pg (1.6.1-x86_64-linux)
+    pg (1.6.2-arm64-darwin)
+    pg (1.6.2-x86_64-linux)
     postmark (1.22.1)
       json
     postmark-rails (0.22.1)
@@ -271,7 +271,7 @@ GEM
     public_suffix (6.0.2)
     puma (6.6.1)
       nio4r (~> 2.0)
-    pundit (2.5.0)
+    pundit (2.5.2)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
     racc (1.8.1)
@@ -463,7 +463,7 @@ DEPENDENCIES
   postmark-rails
   pry-rails
   puma (~> 6.6)
-  pundit (~> 2.5.0)
+  pundit (~> 2.5.2)
   rack-brotli
   rack-cors (~> 3.0)
   rails (~> 8.0.2)
