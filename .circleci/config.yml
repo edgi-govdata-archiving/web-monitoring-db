@@ -13,7 +13,7 @@ executors:
           PGUSER: root
           HOST_URL: 'web-monitoring-db.test'
           ALLOWED_ARCHIVE_HOSTS: 'https://edgi-wm-archive.s3.amazonaws.com/ https://edgi-wm-versionista.s3.amazonaws.com/ https://test-bucket.s3.amazonaws.com/'
-      - image: cimg/postgres:9.6
+      - image: cimg/postgres:14.19
         environment:
           POSTGRES_USER: root
           POSTGRES_DB: circle-test_test
