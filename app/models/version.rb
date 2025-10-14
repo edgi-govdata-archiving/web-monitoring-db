@@ -220,6 +220,10 @@ class Version < ApplicationRecord
       # of climate-related pages to instead of giving them 4xx status codes.
       return 404 if redirected_to.ends_with?('epa.gov/sites/production/files/signpost/cc.html')
 
+      # Special case for climate.nasa.gov getting moved with bad redirects for all the sub-pages.
+      return 404 if /^https?:\/\/climate.nasa.gov\/.+$/i.match?(url) &&
+                    redirected_to.ends_with?('://science.nasa.gov/climate-change/')
+
       # We see a lot of redirects to the root of the same domain when a page is removed.
       parsed_url = Addressable::URI.parse(url)
       return 404 if parsed_url.path != '/' && Surt.surt(parsed_url.join('/')) == Surt.surt(redirected_to)
