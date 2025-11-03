@@ -475,7 +475,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(page.maintainers.first.uuid, maintainers.first['uuid'])
     assert_equal(page.maintainers.first.name, maintainers.first['name'])
     assert_equal(
-      page.maintainerships.first.created_at.iso8601,
+      page.maintainerships.order(:created_at).first.created_at.iso8601,
       maintainers.first['assigned_at'].sub(/\.\d+/, '')
     )
   end
@@ -509,7 +509,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal(page.tags.first.uuid, tags.first['uuid'])
     assert_equal(page.tags.first.name, tags.first['name'])
     assert_equal(
-      page.taggings.first.created_at.iso8601,
+      page.taggings.order(:created_at).first.created_at.iso8601,
       tags.first['assigned_at'].sub(/\.\d+/, '')
     )
   end

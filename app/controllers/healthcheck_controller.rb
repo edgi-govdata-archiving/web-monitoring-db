@@ -9,6 +9,6 @@ class HealthcheckController < ApplicationController
       db = error.to_s
     end
 
-    render json: { app: 'ok', db: }
+    render json: { timestamp: Time.current.iso8601, app: 'ok', db: }
   end
 end
