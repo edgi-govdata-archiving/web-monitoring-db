@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddCommonIndexesToVersions < ActiveRecord::Migration[5.2]
   # Add indexes to support some common queries we do that should be faster.
   def change

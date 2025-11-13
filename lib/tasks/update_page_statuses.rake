@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'Update the `status` field on all pages. The first parameter optionally sets what pages to update: "recent" (default, pages updated recently enough to change status), "unknown" (only pages with unknown status), "all" (all pages)'
 task :update_page_statuses, [:where, :at_time] => [:environment] do |_t, args|
   where_options = ['recent', 'unknown', 'all']

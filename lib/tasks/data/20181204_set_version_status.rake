@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Set the `status` field on all versions based on `source_metadata`.'
   task :'20181204_set_version_status', [] => [:environment] do |_t|

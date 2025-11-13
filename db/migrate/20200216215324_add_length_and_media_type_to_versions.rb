@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddLengthAndMediaTypeToVersions < ActiveRecord::Migration[6.0]
   def change
     add_column :versions, :content_length, :integer, null: true

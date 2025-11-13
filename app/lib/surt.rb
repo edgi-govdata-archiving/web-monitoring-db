@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'addressable/uri'
 
 # Tools for canonicalizing and formatting URLs according to the Internet

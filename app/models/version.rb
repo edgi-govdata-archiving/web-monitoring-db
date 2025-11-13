@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Version < ApplicationRecord
   include UuidPrimaryKey
   include SimpleTitle

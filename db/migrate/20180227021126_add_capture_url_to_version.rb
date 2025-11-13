@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddCaptureUrlToVersion < ActiveRecord::Migration[5.1]
   def change
     add_column :versions, :capture_url, :string

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # PageUrl is a critical part of each Page model. Pages do not represent a
 # single URL -- pages are often reachable from multiple URLs (sometimes at
 # the same time; sometimes because a page moves over time) and different

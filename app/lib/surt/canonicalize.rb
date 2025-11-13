@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'addressable/uri'
 
 module Surt::Canonicalize
@@ -83,7 +85,7 @@ module Surt::Canonicalize
   #  test fails if we just use Addressable's standard set. Maybe drop this?
   #  Also validate against the original Java version:
   #  https://github.com/iipc/webarchive-commons/blob/5fb641b7ff3c63ade0eb39782fc8b1982ea27330/src/main/java/org/archive/url/BasicURLCanonicalizer.java#L219-L275
-  URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'.freeze
+  URL_SPECIAL_CHARACTERS = '!"$&\'()*+,-./:;<=>?@[\]^_`{|}~'
   SAFE_CHARACTERS = "0-9a-zA-Z#{Regexp.escape(URL_SPECIAL_CHARACTERS)}".freeze
 
   # Canonicalize a URL. This is the normal entrypoint to this module.

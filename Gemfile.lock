@@ -268,6 +268,7 @@ GEM
       method_source (~> 1.0)
     pry-rails (0.3.11)
       pry (>= 0.13.0)
+    pstore (0.2.0)
     psych (5.2.6)
       date
       stringio
@@ -468,6 +469,7 @@ DEPENDENCIES
   pg (~> 1.6)
   postmark-rails
   pry-rails
+  pstore (~> 0.2.0)
   puma (~> 7.1)
   pundit (~> 2.5.2)
   rack-brotli

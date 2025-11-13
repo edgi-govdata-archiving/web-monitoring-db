@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # MergedPage keeps track of pages that were merged into others so we can
 # support old links by redirecting to the page they were merged into.
 # - The primary key is the ID of the page that was merged and removed

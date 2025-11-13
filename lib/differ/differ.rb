@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Differ
   # Register a differ instance to be used for a given diff type. If `type` is
   # nil, the differ will be treated as the constructor arguments for a differ

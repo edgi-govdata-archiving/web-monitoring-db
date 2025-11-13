@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V0::DiffController < Api::V0::ApiController
   def show
     ensure_diffable

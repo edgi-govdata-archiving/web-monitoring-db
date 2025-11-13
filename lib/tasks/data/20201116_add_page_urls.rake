@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Add default PageUrls to all pages.'
   task :'20201116_add_page_urls', [] => [:environment] do

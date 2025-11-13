@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V0::ChangesController < Api::V0::ApiController
   include SortingConcern
   include BlockedParamsConcern

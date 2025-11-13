@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Make sessions available only to requests from the same host as the server.
 #
 # This means sessions work for people browsing this site directly, but not for

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RenameVersionUrlUriHashLengthHeaders < ActiveRecord::Migration[6.1]
   def change
     change_table :versions do |t|

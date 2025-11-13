@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Tools for working with database data. These are mostly used in rake tasks and migrations.
 module DataHelpers
   class ProgressLogger

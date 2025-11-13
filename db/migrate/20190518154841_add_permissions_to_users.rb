@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddPermissionsToUsers < ActiveRecord::Migration[5.2]
   def up
     add_column :users, :permissions, :string, array: true, default: []

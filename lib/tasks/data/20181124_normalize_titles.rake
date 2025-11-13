@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Clean up and normalize badly formatted Page and Version titles.'
   task :'20181124_normalize_titles', [] => [:environment] do |_t|

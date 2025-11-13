@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveSimpleTimeIndexesOnVersions < ActiveRecord::Migration[7.0]
   def change
     # Drop indexes on Version time fields. These are now redundant since we
