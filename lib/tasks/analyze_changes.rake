@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'Queue up automated analysis for versions added in a given timeframe.'
 task :analyze_changes, [:start_date, :end_date] => [:environment] do |_t, args|
   start_date = args.key?(:start_date) ? Time.parse(args[:start_date]) : nil

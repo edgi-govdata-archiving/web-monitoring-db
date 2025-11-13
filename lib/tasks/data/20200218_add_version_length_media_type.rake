@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Set `content_length`, and `media_type` on all versions.'
   task :'20200218_add_version_length_media_type', [:force, :start_date, :end_date] => [:environment] do |_t, args|

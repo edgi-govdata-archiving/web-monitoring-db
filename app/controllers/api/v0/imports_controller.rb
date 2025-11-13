@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V0::ImportsController < Api::V0::ApiController
   before_action { authorize :api, :import? }
 

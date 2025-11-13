@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIndexesForImporting < ActiveRecord::Migration[5.0]
   def change
     add_index :versions, :capture_time

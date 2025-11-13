@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   # If the database is too big, use the date filters to break the work into
   # smaller, more time-constrained chunks.

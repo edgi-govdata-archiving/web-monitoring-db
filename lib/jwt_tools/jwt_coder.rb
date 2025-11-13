@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module JwtTools
   module JwtCoder
     def self.private_key=(new_key)

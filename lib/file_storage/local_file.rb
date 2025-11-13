@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FileStorage
   # Store and retrieve files from the local filesystem.
   class LocalFile

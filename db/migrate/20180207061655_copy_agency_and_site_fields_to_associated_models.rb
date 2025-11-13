@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CopyAgencyAndSiteFieldsToAssociatedModels < ActiveRecord::Migration[5.1]
   def up
     DataHelpers.iterate_each(Page.order(created_at: :asc)) do |page|

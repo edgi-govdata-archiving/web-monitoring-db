@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class HealthcheckController < ApplicationController
   def index
     # Succeed if the app is running, but provide additional

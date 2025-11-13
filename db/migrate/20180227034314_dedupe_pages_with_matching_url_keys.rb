@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DedupePagesWithMatchingUrlKeys < ActiveRecord::Migration[5.1]
   # Find all pages sharing the same `url_key` and de-duplicate them by copying
   # the maintainers, tags, and versions of all subsequent pages onto the one

@@ -152,6 +152,9 @@ Style/ExponentialNotation:
 Style/FormatStringToken:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: always_true
+
 Style/GuardClause:
   Enabled: false
 

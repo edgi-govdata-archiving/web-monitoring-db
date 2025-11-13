@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Maintainer represents an organization that maintains some web pages. It has
 # a name and an optional link to a parent maintainer so there can be a
 # hierarchical relationship (e.g. an office of a department of an organization)

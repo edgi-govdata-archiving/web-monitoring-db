@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Set `domain:` and `2l-domain` tags on all pages.'
   task :'20190112_add_page_domain_tags', [] => [:environment] do |_t|

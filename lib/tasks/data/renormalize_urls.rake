@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Re-normalize the `url` field of Pages and PageUrls`.'
   task :renormalize_urls, [] => [:environment] do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ContainsOnlyValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     unless value.is_a?(Array)

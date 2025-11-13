@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # NOTE: THIS JOB IS NOT IN ACTIVE USE.
 # The use cases it served were better solved by the task-sheets project
 # (https://github.com/edgi-govdata-archiving/web-monitoring-task-sheets).

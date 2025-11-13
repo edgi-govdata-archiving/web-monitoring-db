@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Set the `different` field on all versions.'
   task :'20181205_update_version_different', [] => [:environment] do |_t|

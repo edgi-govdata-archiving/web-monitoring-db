@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class NumericInterval
   attr_reader :start, :start_open
   attr_reader :end, :end_open

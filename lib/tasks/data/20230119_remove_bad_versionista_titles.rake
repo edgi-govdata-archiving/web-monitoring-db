@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Remove bad version titles from Versionista.'
   task :'20230119_remove_bad_versionista_titles', [] => [:environment] do |_t, _args|

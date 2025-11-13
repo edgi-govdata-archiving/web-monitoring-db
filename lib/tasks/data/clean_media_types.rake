@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Clean up the media_type field on Versions, remap non-canonical to canonical types.'
   task :clean_media_types, [] => [:environment] do

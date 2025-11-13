@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApiPolicy < ApplicationPolicy
   def view?
     Rails.configuration.allow_public_view || (user.present? && user.can_view?)

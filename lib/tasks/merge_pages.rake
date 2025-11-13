@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'Merge multiple pages together. Pages will be merged *into* the first listed.'
 task :merge_pages, [] => :environment do |_t, args|
   DataHelpers.with_activerecord_log_level(:error) do

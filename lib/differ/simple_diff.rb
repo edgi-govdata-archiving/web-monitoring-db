@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Differ
   class SimpleDiff
     MAXIMUM_TRIES = 3

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Block unauthenticated requests that use certain params with a 403 (Forbidden)
 # error. This can be used to prevent abuse of options that may cause expensive
 # operations.
