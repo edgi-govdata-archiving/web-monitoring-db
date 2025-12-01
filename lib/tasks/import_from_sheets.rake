@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'google/apis/sheets_v4'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
 
-IMPORT_TYPE = 'rake_task_v1'.freeze
-OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'.freeze
-APPLICATION_NAME = 'Web Monitoring DB Importer'.freeze
+IMPORT_TYPE = 'rake_task_v1'
+OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
+APPLICATION_NAME = 'Web Monitoring DB Importer'
 
 
 desc 'Create annotations from data in analysts’ Google sheets -- only sheet ID & user e-mail are required.'

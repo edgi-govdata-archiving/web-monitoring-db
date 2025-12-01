@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SetChangePriorityDefaultToNull < ActiveRecord::Migration[5.1]
   def do_sql(*args)
     expression = ActiveRecord::Base.send :sanitize_sql, args

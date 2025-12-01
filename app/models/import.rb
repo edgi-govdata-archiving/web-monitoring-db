@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Import < ApplicationRecord
   belongs_to :user
   enum :status, [:pending, :processing, :complete]

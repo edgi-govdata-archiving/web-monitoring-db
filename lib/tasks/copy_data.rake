@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'Copy pages from another web-monitoring-db instance.'
 task :copy_page, [:page_uuid, :include_changes, :url, :username, :password] => [:environment] do |_t, args|
   verbose = ENV.fetch('VERBOSE', nil)

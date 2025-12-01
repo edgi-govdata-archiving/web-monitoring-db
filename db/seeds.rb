@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Seed the DB with an admin user and a few version records
 if Archiver.allowed_hosts.empty?
   puts <<~WARN

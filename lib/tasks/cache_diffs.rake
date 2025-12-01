@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 DEFAULT_DIFF_TYPES = [
   'html_token?include=all',
   'html_token?include=combined',

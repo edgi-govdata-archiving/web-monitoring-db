@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class DedupePagesWithMultipleAgenciesOrSites < ActiveRecord::Migration[5.1]
   # Find all pages sharing the same URL and de-duplicate them by copying the
   # maintainers, tags, and versions of all subsequent pages onto the one that

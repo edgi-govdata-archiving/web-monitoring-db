@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Invitation < ApplicationRecord
   EXPIRATION_DAYS = 14
 

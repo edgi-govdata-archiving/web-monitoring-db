@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Reset the titles for all pages based on new logic.'
   task :'20230119_reset_page_titles', [] => [:environment] do

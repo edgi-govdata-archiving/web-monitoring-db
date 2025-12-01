@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddPageUrlModel < ActiveRecord::Migration[6.0]
   def change
     create_table :page_urls, id: false do |t|

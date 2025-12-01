@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module JwtTools
   class JwtAuthStrategy < Devise::Strategies::Base
     def valid?

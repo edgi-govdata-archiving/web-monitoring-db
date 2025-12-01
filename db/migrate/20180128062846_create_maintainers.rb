@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateMaintainers < ActiveRecord::Migration[5.1]
   def change
     enable_extension :citext

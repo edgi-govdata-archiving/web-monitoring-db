@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Surt::Format
   DEFAULT_OPTIONS = {
     include_scheme: false,

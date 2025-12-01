@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateNewDbSchemaWithGenericPageVersionChangeAnnotation < ActiveRecord::Migration[5.0]
   def change
     # Since 9.4, PostgreSQL recommends using `pgcrypto`'s `gen_random_uuid()`

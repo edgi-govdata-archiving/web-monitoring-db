@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Fill in `headers` on versions from `source_metadata.headers`.'
   task :'20210605_fill_version_headers_from_source_metadata', [:force, :start_date, :end_date] => [:environment] do |_t, args|

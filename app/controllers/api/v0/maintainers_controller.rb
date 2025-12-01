@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Api::V0::MaintainersController < Api::V0::ApiController
   include SortingConcern
 

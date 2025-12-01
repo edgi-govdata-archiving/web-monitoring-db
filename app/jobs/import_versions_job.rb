@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ImportVersionsJob < ApplicationJob
   queue_as :import
 

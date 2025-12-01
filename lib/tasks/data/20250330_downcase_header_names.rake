@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :data do
   desc 'Ensure the names of headers in Version records are downcased.'
   task :'20250330_downcase_header_names', [:start_date, :end_date] => [:environment] do |_t, args|

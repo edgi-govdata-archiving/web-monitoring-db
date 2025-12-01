@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeIntToBigintForPrimaryKeys < ActiveRecord::Migration[7.0]
   def change_serial_primary_key_type(table, key, key_type)
     change_column table, key, key_type

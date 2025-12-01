@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class User < ApplicationRecord
   PERMISSIONS = [
-    VIEW_PERMISSION = 'view'.freeze,
-    ANNOTATE_PERMISSION = 'annotate'.freeze,
-    IMPORT_PERMISSION = 'import'.freeze,
-    MANAGE_USERS_PERMISSION = 'manage_users'.freeze
+    VIEW_PERMISSION = 'view',
+    ANNOTATE_PERMISSION = 'annotate',
+    IMPORT_PERMISSION = 'import',
+    MANAGE_USERS_PERMISSION = 'manage_users'
   ].freeze
 
   PERMISSION_DESCRIPTIONS = {
