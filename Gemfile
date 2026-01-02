@@ -32,8 +32,8 @@ gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.26.0'
-gem 'sentry-rails', '~> 5.26.0'
+gem 'sentry-ruby', '~> 6.2.0'
+gem 'sentry-rails', '~> 6.2.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.0"
