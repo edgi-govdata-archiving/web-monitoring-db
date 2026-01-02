@@ -186,7 +186,7 @@ GEM
       signet (>= 0.16, < 2.a)
     hashdiff (1.2.1)
     hiredis (0.6.3)
-    httparty (0.23.2)
+    httparty (0.24.0)
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
