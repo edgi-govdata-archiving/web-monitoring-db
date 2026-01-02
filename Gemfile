@@ -7,7 +7,7 @@ end
 
 ruby file: ".ruby-version"
 
-gem 'aws-sdk-s3', '~> 1.208'
+gem 'aws-sdk-s3', '~> 1.209'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
@@ -25,15 +25,15 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.8'
 
 # Workers/Queuing
-gem "good_job", "~> 4.12"
+gem "good_job", "~> 4.13"
 
 # Caching
 gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 5.26.0'
-gem 'sentry-rails', '~> 5.26.0'
+gem 'sentry-ruby', '~> 6.2.0'
+gem 'sentry-rails', '~> 6.2.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.0"
@@ -56,7 +56,7 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.81.7', require: false
+  gem 'rubocop', '~> 1.82.1', require: false
   gem 'rubocop-performance', '~> 1.26.1'
   gem 'rubocop-rails', '~> 2.34.2'
   gem 'dotenv'
