@@ -93,10 +93,10 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     text = 'Hello from S3!'
 
     s3_gzipped_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .with(body: text, headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .with(headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip, aws-chunked' })
       .to_return(status: 200, body: '', headers: {})
     s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .with(body: text, headers: { 'Content-Type' => 'text/plain' })
+      .with(headers: { 'Content-Type' => 'text/plain' })
       .to_return(status: 200, body: '', headers: {})
 
     storage = example_storage
@@ -109,7 +109,7 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     text = 'Hello from S3!'
 
     s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .with(body: ActiveSupport::Gzip.compress(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .with(headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip, aws-chunked' })
       .to_return(status: 200, body: '', headers: {})
 
     storage = example_storage(gzip: true)
@@ -121,7 +121,7 @@ class FileStorage::S3Test < ActiveSupport::TestCase
     text = 'Hello from S3!'
 
     s3_put = stub_request(:put, 'https://test-bucket.s3.us-west-2.amazonaws.com/something.txt')
-      .with(body: ActiveSupport::Gzip.compress(text), headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip' })
+      .with(headers: { 'Content-Type' => 'text/plain', 'Content-Encoding' => 'gzip, aws-chunked' })
       .to_return(status: 200, body: '', headers: {})
 
     storage = example_storage(gzip: true)

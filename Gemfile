@@ -7,14 +7,14 @@ end
 
 ruby file: ".ruby-version"
 
-gem 'aws-sdk-s3', '~> 1.209'
+gem 'aws-sdk-s3', '~> 1.213'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 3.1'
-gem 'rails', '~> 8.1.1'
+gem 'rails', '~> 8.1.2'
 gem 'pg', '~> 1.6'
-gem 'puma', '~> 7.1'
+gem 'puma', '~> 7.2'
 gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
 gem 'rack-brotli'
 gem 'sassc-rails', '~> 2.1.2'
@@ -56,14 +56,14 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.82.1', require: false
+  gem 'rubocop', '~> 1.84.0', require: false
   gem 'rubocop-performance', '~> 1.26.1'
-  gem 'rubocop-rails', '~> 2.34.2'
+  gem 'rubocop-rails', '~> 2.34.3'
   gem 'dotenv'
 end
 
 group :development do
-  gem 'listen', '~> 3.9'
+  gem 'listen', '~> 3.10'
   gem 'pry-rails'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 4.0.2'
@@ -72,6 +72,7 @@ end
 group :test do
   gem 'capybara'
   gem 'capybara-email'
+  gem 'minitest-mock'
   gem 'webmock', '~> 3.26'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410

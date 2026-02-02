@@ -129,7 +129,7 @@ class UsersTest < ApplicationSystemTestCase
       fill_in 'Password', with: 'testpassword'
       click_on 'Log in'
 
-      assert page.has_content?('Invalid Email or password.'), 'User should not be able to log in'
+      assert page.has_content?('Invalid email or password.'), 'User should not be able to log in'
     end
   end
 end
