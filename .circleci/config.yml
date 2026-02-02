@@ -45,6 +45,7 @@ commands:
 jobs:
   install_dependencies:
     executor: rails_executor
+    resource_class: 'medium+'
     steps:
       - checkout
       - setup_bundler
