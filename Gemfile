@@ -36,7 +36,7 @@ gem 'sentry-ruby', '~> 6.2.0'
 gem 'sentry-rails', '~> 6.2.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
-gem "pstore", "~> 0.2.0"
+gem "pstore", "~> 0.2.1"
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
