@@ -9,7 +9,11 @@ class Api::V0::ApiController < ApplicationController
   before_action { authorize :api, :view? }
   before_action :set_environment_header
 
-  rescue_from StandardError, with: :render_errors
+  rescue_from StandardError do |error|
+    status = status_code_for(error)
+    Sentry.capture_exception(error) if status >= 500
+    render_errors(error, status)
+  end
   rescue_from Pundit::NotAuthorizedError, with: :pundit_auth_error
   rescue_from ActiveModel::ValidationError do |error|
     render_errors(error.model.errors.full_messages, 422)
