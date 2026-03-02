@@ -48,7 +48,8 @@ module Differ
         if response.request.format == :json || options['format'] == 'json'
           begin
             JSON.parse(response.body)
-          rescue JSON::ParserError
+          rescue JSON::ParserError => error
+            Sentry.capture_exception(error)
             response.body
           end
         else
