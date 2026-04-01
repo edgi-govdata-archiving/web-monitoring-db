@@ -32,7 +32,7 @@ gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 6.4.0'
+gem 'sentry-ruby', '~> 6.4.1'
 gem 'sentry-rails', '~> 6.4.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
