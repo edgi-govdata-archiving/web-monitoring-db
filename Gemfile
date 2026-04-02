@@ -12,7 +12,7 @@ gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 3.1'
-gem 'rails', '~> 8.1.2'
+gem 'rails', '~> 8.1.3'
 gem 'pg', '~> 1.6'
 gem 'puma', '~> 7.2'
 gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
@@ -32,8 +32,8 @@ gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 6.4.0'
-gem 'sentry-rails', '~> 6.4.1'
+gem 'sentry-ruby', '~> 6.5.0'
+gem 'sentry-rails', '~> 6.5.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.1"
