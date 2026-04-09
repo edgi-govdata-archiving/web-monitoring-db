@@ -75,7 +75,7 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    addressable (2.8.9)
+    addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
@@ -456,7 +456,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  addressable (~> 2.8)
+  addressable (~> 2.9)
   aws-sdk-s3 (~> 1.218)
   bootsnap (>= 1.4.5)
   byebug
