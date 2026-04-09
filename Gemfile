@@ -22,7 +22,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.16'
 gem 'pundit', '~> 2.5.2'
 gem 'google-apis-sheets_v4'
-gem 'addressable', '~> 2.8'
+gem 'addressable', '~> 2.9'
 
 # Workers/Queuing
 gem "good_job", "~> 4.14"
