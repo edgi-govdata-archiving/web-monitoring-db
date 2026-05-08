@@ -129,7 +129,7 @@ GEM
     csv (3.3.5)
     date (3.5.1)
     declarative (0.0.20)
-    devise (5.0.3)
+    devise (5.0.4)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
       railties (>= 7.0)
@@ -201,7 +201,7 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.19.4)
+    json (2.19.5)
     jwt (3.1.2)
       base64
     language_server-protocol (3.17.0.5)
