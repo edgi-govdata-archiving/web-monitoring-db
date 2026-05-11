@@ -167,4 +167,72 @@ class VersionTest < ActiveSupport::TestCase
     )
     assert_equal(10_342, version.content_length)
   end
+
+  test 'effective_status considers redirects to be ok' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      status: 200,
+      url: 'https://hazards.fema.gov/nri/take-action',
+      source_metadata: {
+        redirects: [
+          'https://hazards.fema.gov/nri/take-action',
+          'https://www.fema.gov/emergency-managers/practitioners/resilience-analysis-and-planning-tool'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(200, version.effective_status)
+  end
+
+  test 'effective_status considers redirects to root as 404' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://waterdata.usgs.gov/nwis',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://waterdata.usgs.gov/nwis',
+          'https://waterdata.usgs.gov/'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(404, version.effective_status)
+  end
+
+  test 'effective_status considers redirects to root-like paths as 404' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://eta.lbl.gov/justice-40',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://eta.lbl.gov/justice-40',
+          'https://eta.lbl.gov/home'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(404, version.effective_status)
+  end
+
+  test 'effective_status considers redirects to cross-domain root as ok' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://waterdata.usgs.gov/nwis',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://waterdata.usgs.gov/nwis',
+          'https://www.usgs.gov/'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(200, version.effective_status)
+  end
 end

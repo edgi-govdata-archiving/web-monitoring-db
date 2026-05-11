@@ -228,7 +228,11 @@ class Version < ApplicationRecord
 
       # We see a lot of redirects to the root of the same domain when a page is removed.
       parsed_url = Addressable::URI.parse(url)
-      return 404 if parsed_url.path != '/' && Surt.surt(parsed_url.join('/')) == Surt.surt(redirected_to)
+      unless home_path?(parsed_url.path)
+        redirect_host, redirect_path = Surt.surt(redirected_to).split(')', 2)
+        original_host = Surt.surt(url).split(')', 2)[0]
+        return 404 if home_path?(redirect_path) && redirect_host == original_host
+      end
     end
 
     # Simple heuristics to determine whether a page with an OK status code
@@ -316,5 +320,9 @@ class Version < ApplicationRecord
     return nil unless media.present? && media.match?(MEDIA_TYPE_PATTERN)
 
     normalize_media_type(media)
+  end
+
+  def home_path?(path)
+    path.match?(/^\/((index|home)(\.\w+)?)?$/)
   end
 end
