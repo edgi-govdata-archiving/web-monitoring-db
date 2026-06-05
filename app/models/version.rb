@@ -218,20 +218,27 @@ class Version < ApplicationRecord
     # Some pages redirect to a non-4xx response when they are removed.
     redirected_to = redirects.last
     if redirected_to
-      # Special case for the EPA "signpost" page, where they redirected hundreds
-      # of climate-related pages to instead of giving them 4xx status codes.
-      return 404 if redirected_to.ends_with?('epa.gov/sites/production/files/signpost/cc.html')
+      surt_url = Surt.surt(url)
+      surt_destination = Surt.surt(redirected_to)
 
-      # Special case for climate.nasa.gov getting moved with bad redirects for all the sub-pages.
-      return 404 if /^https?:\/\/climate.nasa.gov\/.+$/i.match?(url) &&
-                    redirected_to.ends_with?('://science.nasa.gov/climate-change/')
+      if surt_url != surt_destination
+        original_host, original_path = surt_url.split(')', 2)
+        redirect_host, redirect_path = surt_destination.split(')', 2)
 
-      # We see a lot of redirects to the root of the same domain when a page is removed.
-      parsed_url = Addressable::URI.parse(url)
-      unless home_path?(parsed_url.path)
-        redirect_host, redirect_path = Surt.surt(redirected_to).split(')', 2)
-        original_host = Surt.surt(url).split(')', 2)[0]
-        return 404 if home_path?(redirect_path) && redirect_host == original_host
+        # Special case for the EPA "signpost" page, where they redirected hundreds
+        # of climate-related pages to instead of giving them 4xx status codes.
+        return 404 if surt_destination == 'gov,epa)/sites/production/files/signpost/cc.html'
+
+        # Special case for climate.nasa.gov getting moved with bad redirects for all the sub-pages.
+        return 404 if original_host == 'gov,nasa,climate' &&
+                      surt_destination == 'gov,nasa,science)/climate-change'
+
+        return 429 if surt_destination == 'gov,federalregister,unblock)/'
+
+        # We see a lot of redirects to the root of the same domain when a page is removed.
+        return 404 if redirect_host == original_host &&
+                      !home_path?(original_path) &&
+                      home_path?(redirect_path)
       end
     end
 
