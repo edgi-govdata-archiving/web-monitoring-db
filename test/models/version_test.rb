@@ -235,4 +235,55 @@ class VersionTest < ActiveSupport::TestCase
     )
     assert_equal(200, version.effective_status)
   end
+
+  test 'effective_status considers redirects to EPA climate signpost page as 404' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://www3.epa.gov/climatechange/kids/solutions/index.html',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://www3.epa.gov/climatechange/kids/solutions/index.html',
+          'https://www.epa.gov/sites/production/files/signpost/cc.html'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(404, version.effective_status)
+  end
+
+  test 'effective_status considers redirects to climate.nasa.gov to science.nasa.gov/climage-change as 404' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://climate.nasa.gov/explore/ask-nasa-climate/183/the-year-without-a-summer/',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://climate.nasa.gov/explore/ask-nasa-climate/183/the-year-without-a-summer/',
+          'https://science.nasa.gov/climate-change/'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(404, version.effective_status)
+  end
+
+  test 'effective_status considers redirects to unblock.federalregister.gov as 429' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://www.federalregister.gov/documents/2021/07/27/2021-15122/national-oil-and-hazardous-substances-pollution-contingency-plan-monitoring-requirements-for-use-of',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://www.federalregister.gov/documents/2021/07/27/2021-15122/national-oil-and-hazardous-substances-pollution-contingency-plan-monitoring-requirements-for-use-of',
+          'https://unblock.federalregister.gov/'
+        ]
+      },
+      title: ''
+    )
+    assert_equal(429, version.effective_status)
+  end
 end
