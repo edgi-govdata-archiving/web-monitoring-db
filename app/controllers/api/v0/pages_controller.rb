@@ -25,7 +25,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       else
         [:updated_at]
       end
-    page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
+    page_ids = id_query.pluck(:uuid, *order_attributes).pluck(0)
 
     oj_mode = :strict
     result_data =

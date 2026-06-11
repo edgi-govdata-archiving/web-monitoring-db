@@ -385,7 +385,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
       include_versions: true,
       capture_time: "..#{now.iso8601}"
     )
-    found_ids = get_all_pages(base_url).collect {|page| page['uuid']}.sort
+    found_ids = get_all_pages(base_url).pluck('uuid').sort
     all_ids = Page
       .where_in_unbounded_range('versions.capture_time', [nil, now])
       .pluck(:uuid)

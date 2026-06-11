@@ -216,7 +216,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get api_v0_page_versions_url(pages(:home_page), source_type: 'pagefreezer')
 
     body_json = JSON.parse @response.body
-    types = body_json['data'].collect { |v| v['source_type'] }.uniq
+    types = body_json['data'].pluck('source_type').uniq
 
     assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
   end
@@ -395,7 +395,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_versions_url)
     assert_response(:success)
     body = JSON.parse(@response.body)
-    uuids = body['data'].collect { |version| version['uuid'] }
+    uuids = body['data'].pluck('uuid')
 
     assert_includes(uuids, page_versions[0].uuid)
     assert_includes(uuids, page_versions[1].uuid)
