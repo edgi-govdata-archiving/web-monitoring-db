@@ -8,9 +8,7 @@
 
 # Offense count: 16
 Metrics/AbcSize:
-  Max: 77
-  Exclude:
-    - 'app/controllers/api/v0/pages_controller.rb'
+  Max: 70
 
 # Offense count: 5
 # Configuration parameters: CountComments, ExcludedMethods.
