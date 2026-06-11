@@ -153,8 +153,9 @@ class Api::V0::PagesController < Api::V0::ApiController
       collection = where_in_range_param(
         collection.where(versions: { different: true }),
         :capture_time,
-        'versions.capture_time'
-      ) { |date_string| parse_date!(date_string) }
+        'versions.capture_time',
+        &method(:parse_timestamp!)
+      )
     end
 
     collection = where_in_interval_param(collection, :status)

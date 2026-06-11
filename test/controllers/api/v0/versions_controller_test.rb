@@ -144,12 +144,12 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       pages(:home_page),
       capture_time: 'ugh'
     )
-    assert_response :bad_request
+    assert_response :unprocessable_entity
 
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
-    assert_match(/date/i, body_json['errors'][0]['title'],
-                 'Error does not mention date')
+    assert_match(/timestamp/i, body_json['errors'][0]['title'],
+                 'Error does not mention timestamp')
   end
 
   test 'can filter versions by date range' do
@@ -203,12 +203,12 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       pages(:home_page),
       capture_time: 'ugh..2017-03-04'
     )
-    assert_response :bad_request
+    assert_response :unprocessable_entity
 
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
-    assert_match(/date/i, body_json['errors'][0]['title'],
-                 'Error does not mention date')
+    assert_match(/timestamp/i, body_json['errors'][0]['title'],
+                 'Error does not mention timestamp')
   end
 
   test 'can filter versions by source_type' do

@@ -188,7 +188,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def parse_sample_range
-    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
+    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_timestamp!(d).to_date } || []
 
     if time_range[0] && time_range[1]
       time_range[1] = time_range[1] + 1.day
@@ -241,7 +241,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
     end
 
-    collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
+    collection = where_in_range_param(collection, :capture_time, &method(:parse_timestamp!))
     where_in_interval_param(collection, :status)
   end
 
