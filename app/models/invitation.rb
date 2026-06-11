@@ -55,7 +55,7 @@ class Invitation < ApplicationRecord
   def assign_code
     self.code = loop do
       token = generate_code
-      break token unless Invitation.where(:code => token).exists?
+      break token unless Invitation.where(code: token).exists?
     end
   end
 

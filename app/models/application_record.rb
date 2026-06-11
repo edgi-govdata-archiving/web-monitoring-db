@@ -3,7 +3,7 @@
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
-  def self.where_in_unbounded_range(attribute, range, exact = true)
+  def self.where_in_unbounded_range(attribute, range, exact: true)
     result = self
 
     if attribute.is_a?(String) && attribute.include?('.')
