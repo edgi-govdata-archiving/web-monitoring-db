@@ -241,7 +241,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
     end
 
-    collection = where_in_range_param(collection, :capture_time, &method(:parse_timestamp!))
+    collection = where_in_range_param(collection, :capture_time) { |value| parse_timestamp!(value) }
     where_in_interval_param(collection, :status)
   end
 
