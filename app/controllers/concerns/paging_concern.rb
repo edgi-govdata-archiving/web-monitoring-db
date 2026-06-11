@@ -9,7 +9,7 @@ module PagingConcern
   protected
 
   def paging_path_for(model_type, *)
-    self.send(:"paging_path_for_#{model_type}", *)
+    send(:"paging_path_for_#{model_type}", *)
   end
 
   def paging_url_format
@@ -34,7 +34,7 @@ module PagingConcern
     is_last = query.length < chunk_size
 
     collection_type = collection.new.class.name.underscore.to_sym
-    format_type = self.paging_url_format
+    format_type = paging_url_format
 
     links = {
       first: path_resolver.call(

@@ -63,7 +63,7 @@ class AnalyzeChangeJob < ApplicationJob
       Differ.for_type('links_json').present?
   end
 
-  def perform(to_version, from_version = nil, compare_earliest = true)
+  def perform(to_version, from_version = nil, compare_earliest: true)
     # This is a very narrow-purpose prototype! Most of the work should probably
     # move to web-monitoring-processing.
     change = if from_version
