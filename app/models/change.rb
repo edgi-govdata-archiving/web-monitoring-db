@@ -72,11 +72,11 @@ class Change < ApplicationRecord
       return
     end
 
-    if !data.is_a?(Hash)
+    unless data.is_a?(Hash)
       raise 'Annotations must be objects, not arrays or other data.'
     end
 
-    if !self.persisted?
+    unless self.persisted?
       self.save!
     end
 
