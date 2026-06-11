@@ -38,7 +38,9 @@ class Api::V0::ChangesController < Api::V0::ApiController
   end
 
   def change
-    @change ||= Change.find_by_api_id(params[:id])
+    return @change if defined?(@change)
+
+    @change = Change.find_by_api_id(params[:id])
   end
 
   def paging_path_for_change(*)

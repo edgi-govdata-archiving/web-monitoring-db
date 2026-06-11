@@ -125,6 +125,12 @@ Performance/Squeeze:
 Performance/StringInclude:
   Enabled: true
 
+Rails/DynamicFindBy:
+  Enabled: true
+  AllowedMethods:
+    - find_by_api_id
+    - find_by_url
+
 Rails/I18nLocaleTexts:
   Enabled: false
 

@@ -70,7 +70,7 @@ class Invitation < ApplicationRecord
   end
 
   def not_for_existing_user
-    if email.present? && User.find_by_email(email)
+    if email.present? && User.find_by(email: email)
       errors.add(:email, 'is already a user')
     end
   end

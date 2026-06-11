@@ -71,7 +71,9 @@ class Api::V0::AnnotationsController < Api::V0::ApiController
   end
 
   def parent_change
-    @change ||= Change.find_by_api_id(params[:change_id])
+    return @change if defined?(@change)
+
+    @change = Change.find_by_api_id(params[:change_id])
   end
 
   def inclusions
