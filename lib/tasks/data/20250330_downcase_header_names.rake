@@ -20,7 +20,7 @@ namespace :data do
           changed += DataHelpers.bulk_update(batch, [:headers]) do |version|
             progress.increment
 
-            unless version.headers.blank?
+            if version.headers.present?
               normalized = Version.normalize_value_for(:headers, version.headers)
               [normalized] if normalized != version.headers
             end

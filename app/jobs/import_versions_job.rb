@@ -49,7 +49,7 @@ class ImportVersionsJob < ApplicationJob
         messages = error.record.errors.full_messages.join(', ')
         @import.processing_errors << "Row #{row}: #{messages}"
       rescue StandardError => error
-        @import.processing_errors << if Rails.env.development? || Rails.env.test?
+        @import.processing_errors << if Rails.env.local?
                                        "Row #{row}: #{error.message}"
                                      else
                                        "Row #{row}: Unknown error occurred"
@@ -231,7 +231,7 @@ class ImportVersionsJob < ApplicationJob
       'skip' => 'skipped'
     }.fetch(operation, operation)
 
-    Rails.logger.debug("[import=#{@import.id}]#{"[row=#{row}]" if row} #{conjugated_operation.capitalize} #{object_name} #{object_id}")
+    Rails.logger.debug { "[import=#{@import.id}]#{"[row=#{row}]" if row} #{conjugated_operation.capitalize} #{object_name} #{object_id}" }
   end
 
   # iterate through a JSON array or series of newline-delimited JSON objects

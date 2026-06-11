@@ -361,7 +361,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page = pages(:home_page)
 
     get(api_v0_page_versions_url(page, params: { include_total: true }))
-    assert_response(400)
+    assert_response(:bad_request)
     assert_equal('application/json', @response.media_type)
   end
 
@@ -386,7 +386,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page_versions = [
       { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
       { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.day },
       { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
     ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)

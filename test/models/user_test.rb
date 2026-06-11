@@ -38,18 +38,18 @@ class UserTest < ActiveSupport::TestCase
     assert user.valid?, 'Empty permissions array should be valid'
 
     user.permissions = ['blargle']
-    refute user.valid?, 'Invalid permission string should NOT be valid'
+    assert_not user.valid?, 'Invalid permission string should NOT be valid'
 
     user.permissions = nil
-    refute user.valid?, 'Permission value should be an array'
+    assert_not user.valid?, 'Permission value should be an array'
 
     user.permissions = false
-    refute user.valid?, 'Permission value should be an array'
+    assert_not user.valid?, 'Permission value should be an array'
   end
 
   test '#permission? describes whether use has permission' do
     user = users(:alice)
-    refute user.permission?(User::MANAGE_USERS_PERMISSION), 'User should not be an admin'
+    assert_not user.permission?(User::MANAGE_USERS_PERMISSION), 'User should not be an admin'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
     assert user.permission?(User::MANAGE_USERS_PERMISSION), 'User with manage_users should be admin'
@@ -57,7 +57,7 @@ class UserTest < ActiveSupport::TestCase
 
   test 'user has permission predicates' do
     user = users(:alice)
-    refute user.can_manage_users?, 'User should not be able to manage users'
+    assert_not user.can_manage_users?, 'User should not be able to manage users'
 
     user.permissions << User::MANAGE_USERS_PERMISSION
     assert user.can_manage_users?, 'User should be able to manage users'
@@ -72,6 +72,6 @@ class UserTest < ActiveSupport::TestCase
   test 'user default permissions do not override explicit permissions' do
     user = User.create(email: 'new-user@example.com', password: 'PASSWORD', permissions: [User::VIEW_PERMISSION])
     assert user.can_view?
-    assert !user.can_annotate?
+    assert_not user.can_annotate?
   end
 end

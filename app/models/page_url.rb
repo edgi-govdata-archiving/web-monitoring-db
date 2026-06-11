@@ -17,7 +17,7 @@
 class PageUrl < ApplicationRecord
   include UuidPrimaryKey
 
-  belongs_to :page, foreign_key: :page_uuid, required: true, inverse_of: :urls
+  belongs_to :page, foreign_key: :page_uuid, optional: false, inverse_of: :urls
 
   validates :url,
             allow_nil: false,

@@ -10,20 +10,20 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       @logs ||= []
     end
 
-    def debug(message)
-      logs.push(message)
+    def debug(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def info(message)
-      logs.push(message)
+    def info(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def warn(message)
-      logs.push(message)
+    def warn(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def error(message)
-      logs.push(message)
+    def error(message = nil)
+      logs.push(block_given? ? yield : message)
     end
   end
 

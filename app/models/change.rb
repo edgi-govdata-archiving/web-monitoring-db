@@ -3,8 +3,8 @@
 class Change < ApplicationRecord
   include UuidPrimaryKey
 
-  belongs_to :version, foreign_key: :uuid_to, required: true
-  belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, required: true
+  belongs_to :version, foreign_key: :uuid_to, optional: false
+  belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, optional: false
   has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
   validates :priority, allow_nil: true, numericality: {

@@ -44,7 +44,7 @@ namespace :data do
   end
 
   def update_version_headers(version, force: false)
-    return false if version.headers && !version.headers.empty? && !force
+    return false if version.headers.present? && !force
     return false unless version.source_metadata
 
     version.headers = version.source_metadata['headers']

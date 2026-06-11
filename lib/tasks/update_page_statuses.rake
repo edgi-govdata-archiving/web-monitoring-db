@@ -21,7 +21,7 @@ task :update_page_statuses, [:where, :at_time] => [:environment] do |_t, args|
         page_set = page_set
           .joins(:versions)
           .where('pages.status IS NULL')
-          .where('versions.status IS NOT NULL')
+          .where.not(versions: { status: nil })
       end
 
       last_update = Time.now

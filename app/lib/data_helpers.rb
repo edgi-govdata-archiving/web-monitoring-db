@@ -104,7 +104,7 @@ module DataHelpers
     values = []
     collection.each do |item|
       changes = yield item
-      next if changes.nil? || changes.empty?
+      next if changes.blank?
 
       changes = changes.collect do |value|
         # TODO: consider using model_type.attribute_types[field_name] to determine to to serialize

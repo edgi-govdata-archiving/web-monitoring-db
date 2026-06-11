@@ -40,14 +40,14 @@ class Api::V0::PagesController < Api::V0::ApiController
         results = Page
           .where(uuid: page_ids)
           .includes(:versions)
-          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .order(sorting_params.presence || 'pages.updated_at DESC')
           .order('versions.capture_time DESC')
           .as_json(include: :versions)
         # Tags and Maintainers
         additions = Page
           .where(uuid: page_ids)
           .includes(:tags, :maintainers)
-          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .order(sorting_params.presence || 'pages.updated_at DESC')
           .index_by(&:uuid)
         # Join them up!
         results.each do |page|
@@ -67,7 +67,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         relations << :latest if should_include_latest
         Page
           .where(uuid: page_ids)
-          .order(sorting_params.present? ? sorting_params : 'updated_at DESC')
+          .order(sorting_params.presence || 'updated_at DESC')
           .includes(*relations)
           .as_json(include: relations)
       end

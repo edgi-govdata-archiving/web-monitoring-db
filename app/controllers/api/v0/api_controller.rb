@@ -105,7 +105,7 @@ class Api::V0::ApiController < ApplicationController
   # querystring must explicitly set it. (`?param=true`, `?param=false`, etc.)
   def nullable_boolean_param(param)
     value = params[param]
-    return nil unless value.present?
+    return nil if value.blank?
 
     /^(true|t|1)$/i.match?(value.downcase.strip)
   end

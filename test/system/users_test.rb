@@ -101,7 +101,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     Capybara.using_session(:user) do
       visit root_path
-      refute page.has_link?('Admin'), 'User should not have admin permissions'
+      assert_not page.has_link?('Admin'), 'User should not have admin permissions'
     end
 
     #
@@ -121,7 +121,7 @@ class UsersTest < ApplicationSystemTestCase
     #
     Capybara.using_session(:user) do
       visit root_path
-      refute page.has_content?("Logged in as #{viewer_email}"), 'User should NOT have an active session'
+      assert_not page.has_content?("Logged in as #{viewer_email}"), 'User should NOT have an active session'
 
       click_on 'Login'
 
