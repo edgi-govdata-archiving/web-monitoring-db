@@ -59,14 +59,6 @@ Style/IfUnlessModifier:
     - 'app/models/page.rb'
     - 'app/models/user.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'db/migrate/20170314195641_populate_generic_models_from_versionista_models.rb'
-
 # Offense count: 33
 # Cop supports --auto-correct.
 Style/RedundantSelf:
