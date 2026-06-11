@@ -79,7 +79,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         params: { capture_time: "#{(next_to - SAMPLE_DAYS_DEFAULT.days).iso8601}..#{next_to.iso8601}" }
       )
     end
-    if time_range[1] < Time.now
+    if time_range[1] < Time.zone.now
       links[:prev] = api_v0_page_versions_sampled_url(
         page,
         params: { capture_time: "#{time_range[1].iso8601}..#{(time_range[1] + SAMPLE_DAYS_DEFAULT.days).iso8601}" }
@@ -118,7 +118,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     elsif @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     elsif Archiver.external_archive_url?(@version.body_url)
-      redirect_to @version.body_url, status: 301, allow_other_host: true
+      redirect_to @version.body_url, status: :moved_permanently, allow_other_host: true
     elsif Archiver.store.contains_url?(@version.body_url)
       # Get the file
       filename = File.basename(@version.body_url)
@@ -188,7 +188,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
   end
 
   def parse_sample_range
-    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_date!(d).to_date } || []
+    time_range = parse_unbounded_range!(params[:capture_time], 'capture_time') { |d| parse_timestamp!(d).to_date } || []
 
     if time_range[0] && time_range[1]
       time_range[1] = time_range[1] + 1.day
@@ -202,7 +202,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       from_time = time_range[0]
       time_range = [from_time, from_time + SAMPLE_DAYS_DEFAULT.days]
     else
-      to_time = Date.today + 1.day
+      to_time = Time.zone.today + 1.day
       time_range = [to_time - SAMPLE_DAYS_DEFAULT.days, to_time]
     end
 
@@ -241,7 +241,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
       end
     end
 
-    collection = where_in_range_param(collection, :capture_time) { |d| parse_date!(d) }
+    collection = where_in_range_param(collection, :capture_time) { |value| parse_timestamp!(value) }
     where_in_interval_param(collection, :status)
   end
 

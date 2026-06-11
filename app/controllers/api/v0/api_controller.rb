@@ -105,17 +105,20 @@ class Api::V0::ApiController < ApplicationController
   # querystring must explicitly set it. (`?param=true`, `?param=false`, etc.)
   def nullable_boolean_param(param)
     value = params[param]
-    return nil unless value.present?
+    return nil if value.blank?
 
     /^(true|t|1)$/i.match?(value.downcase.strip)
   end
 
-  def parse_date!(date)
-    raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|([+-]\d\d:?\d\d)))?$/)
+  # Parse an ISO 8601-style date or datetime.
+  def parse_timestamp!(value, name: 'timestamp')
+    raise 'Nope' unless value.match?(/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|([+-]\d\d:?\d\d)))?$/)
 
-    Time.parse date
+    # TODO: should probably be Time.zone.iso8601 or Time.zone.rfc3339, but
+    #  need to make sure everywhere we are sending we conform to those.
+    Time.zone.parse(value) || raise(ArgumentError, 'Nope')
   rescue StandardError => _error
-    raise Api::InputError, "Invalid date: '#{date}'"
+    raise Api::UnprocessableError, "Invalid #{name}: '#{value}'"
   end
 
   def parse_unbounded_range!(string_range, param = nil)
@@ -128,7 +131,7 @@ class Api::V0::ApiController < ApplicationController
 
       if from.nil? && to.nil?
         name = param ? "#{param} range" : 'Range'
-        raise Api::InputError, "#{name} must have a start or end"
+        raise Api::UnprocessableError, "#{name} must have a start or end"
       end
 
       [from, to]

@@ -10,11 +10,11 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'previous(different: false) should get the previous version regardless of its `different` value' do
     page = pages(:home_page)
-    v1 = page.versions.create!(capture_time: Time.now + 1.minute, body_hash: 'abc')
+    v1 = page.versions.create!(capture_time: 1.minute.from_now, body_hash: 'abc')
     v1.update_different_attribute
-    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, body_hash: 'abc')
+    v2 = page.versions.create!(capture_time: 2.minutes.from_now, body_hash: 'abc')
     v2.update_different_attribute
-    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, body_hash: 'abc')
+    v3 = page.versions.create!(capture_time: 3.minutes.from_now, body_hash: 'abc')
     v3.update_different_attribute
 
     assert_predicate(v1, :different?)
@@ -43,11 +43,11 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'next(different: false) should get the next version regardless of its `different` value' do
     page = pages(:home_page)
-    v1 = page.versions.create!(capture_time: Time.now + 1.minute, body_hash: 'abc')
+    v1 = page.versions.create!(capture_time: 1.minute.from_now, body_hash: 'abc')
     v1.update_different_attribute
-    v2 = page.versions.create!(capture_time: Time.now + 2.minutes, body_hash: 'abc')
+    v2 = page.versions.create!(capture_time: 2.minutes.from_now, body_hash: 'abc')
     v2.update_different_attribute
-    v3 = page.versions.create!(capture_time: Time.now + 3.minutes, body_hash: 'abc')
+    v3 = page.versions.create!(capture_time: 3.minutes.from_now, body_hash: 'abc')
     v3.update_different_attribute
 
     assert_predicate(v1, :different?)
@@ -69,14 +69,14 @@ class VersionTest < ActiveSupport::TestCase
 
   test 'update_different_attribute' do
     page = Page.create(url: 'http://somerandomsite.com/')
-    a1 = page.versions.create(source_type: 'a', body_hash: 'abc', capture_time: Time.now - 3.days)
-    b1 = page.versions.create(source_type: 'b', body_hash: 'abc', capture_time: Time.now - 2.days)
+    a1 = page.versions.create(source_type: 'a', body_hash: 'abc', capture_time: 3.days.ago)
+    b1 = page.versions.create(source_type: 'b', body_hash: 'abc', capture_time: 2.days.ago)
     a1.update_different_attribute
     b1.update_different_attribute
     assert(a1.different?, 'The first version should have been different')
     assert_not(b1.different?, 'The second version should not have been different')
 
-    a2 = page.versions.create(source_type: 'a', body_hash: 'def', capture_time: Time.now - 2.5.days)
+    a2 = page.versions.create(source_type: 'a', body_hash: 'def', capture_time: 2.5.days.ago)
     a2.update_different_attribute
     assert(a2.different?, 'A version with a different hash is different')
     assert(Version.find(b1.uuid).different?, 'Updating a version inserted before an existing version updates the existing version, too')

@@ -25,7 +25,7 @@ class Api::V0::PagesController < Api::V0::ApiController
       else
         [:updated_at]
       end
-    page_ids = id_query.pluck(:uuid, *order_attributes).collect {|data| data[0]}
+    page_ids = id_query.pluck(:uuid, *order_attributes).pluck(0)
 
     oj_mode = :strict
     result_data =
@@ -40,14 +40,14 @@ class Api::V0::PagesController < Api::V0::ApiController
         results = Page
           .where(uuid: page_ids)
           .includes(:versions)
-          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .order(sorting_params.presence || 'pages.updated_at DESC')
           .order('versions.capture_time DESC')
           .as_json(include: :versions)
         # Tags and Maintainers
         additions = Page
           .where(uuid: page_ids)
           .includes(:tags, :maintainers)
-          .order(sorting_params.present? ? sorting_params : 'pages.updated_at DESC')
+          .order(sorting_params.presence || 'pages.updated_at DESC')
           .index_by(&:uuid)
         # Join them up!
         results.each do |page|
@@ -67,7 +67,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         relations << :latest if should_include_latest
         Page
           .where(uuid: page_ids)
-          .order(sorting_params.present? ? sorting_params : 'updated_at DESC')
+          .order(sorting_params.presence || 'updated_at DESC')
           .includes(*relations)
           .as_json(include: relations)
       end
@@ -154,7 +154,7 @@ class Api::V0::PagesController < Api::V0::ApiController
         collection.where(versions: { different: true }),
         :capture_time,
         'versions.capture_time'
-      ) { |date_string| parse_date!(date_string) }
+      ) { |value| parse_timestamp!(value) }
     end
 
     collection = where_in_interval_param(collection, :status)

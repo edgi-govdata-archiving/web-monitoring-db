@@ -162,24 +162,24 @@ class AnalyzeChangeJob < ApplicationJob
 
   def analyzable?(change)
     unless change && change.version.uuid != change.from_version.uuid
-      Rails.logger.debug "Cannot analyze change #{change.try(:api_id)}; same versions"
+      Rails.logger.debug { "Cannot analyze change #{change.try(:api_id)}; same versions" }
       return false
     end
 
     unless fetchable?(change.version.body_url)
-      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.body_url})"
+      Rails.logger.debug { "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.version.body_url})" }
       return false
     end
 
     unless fetchable?(change.from_version.body_url)
-      Rails.logger.debug "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.body_url})"
+      Rails.logger.debug { "Cannot analyze with non-http(s) source: #{change.api_id} (#{change.from_version.body_url})" }
       return false
     end
 
     if diffable_media?(change.version) && diffable_media?(change.from_version)
       true
     else
-      Rails.logger.debug "Cannot analyze change #{change.api_id}; non-text media type"
+      Rails.logger.debug { "Cannot analyze change #{change.api_id}; non-text media type" }
       false
     end
   end

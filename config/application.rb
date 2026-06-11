@@ -14,6 +14,8 @@ module WebpageVersionsDb
     #  think segregating lib and app/lib on autoloading is better.)
     config.eager_load_paths << "#{Rails.root}/lib/api"
 
+    config.time_zone = 'UTC'
+
     # Re-instate secrets for simpler management of `secret_key_base`. We currently use other methods for managing
     # secrets in production, so it doesn't make a whole lot of sense to migrate to credentials (which replaces secrets)
     # just for secret_key_base (which then requires more complicated key management work).

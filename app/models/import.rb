@@ -2,8 +2,8 @@
 
 class Import < ApplicationRecord
   belongs_to :user
-  enum :status, [:pending, :processing, :complete]
-  enum :update_behavior, [:skip, :replace, :merge], suffix: :existing_records
+  enum :status, { pending: 0, processing: 1, complete: 2 }
+  enum :update_behavior, { skip: 0, replace: 1, merge: 2 }, suffix: :existing_records
   validates :file, presence: true
   after_initialize :ensure_processing_errors_and_warnings
 

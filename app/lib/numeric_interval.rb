@@ -8,8 +8,8 @@ class NumericInterval
     components = string_interval.match(/^\s*(\[|\()?\s*(\d*(?:\.\d+)?)\s*(?:,|\.\.)\s*(\d*(?:\.\d+)?)\s*(\]|\))?\s*$/)
     raise ArgumentError, "Invalid interval format: '#{string_interval}'" unless components
 
-    @start = components[2].present? ? components[2].to_f : nil
-    @end = components[3].present? ? components[3].to_f : nil
+    @start = components[2].presence&.to_f
+    @end = components[3].presence&.to_f
     @start_open = components[1] == '('
     @end_open = components[4] == ')'
     raise ArgumentError, 'An interval must have at least a start or end.' unless @start || @end

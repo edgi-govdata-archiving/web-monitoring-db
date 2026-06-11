@@ -6,6 +6,56 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+Rails/InverseOf:
+  Enabled: false
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+Rails/NegateInclude:
+  Enabled: false
+
+Rails/IndexWith:
+  Enabled: false
+
+Rails/RedundantActiveRecordAllMethod:
+  Enabled: false
+
+Rails/WhereEquals:
+  Enabled: false
+
+Rails/WhereExists:
+  Enabled: false
+
+Rails/WhereRange:
+  Enabled: false
+
+Rails/StrongParametersExpect:
+  Enabled: false
+
+Rails/Output:
+  Enabled: false
+
+Rails/ReversibleMigration:
+  Enabled: false
+
+Rails/ThreeStateBooleanColumn:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Style/CollectionQuerying:
+  Enabled: false
+
+Rails/FindEach:
+  Enabled: false
+
+# I'm not sure this is accurate with our weird customized primary keys (ugh,
+# was such a bad idea). Needs some research.
+Rails/RedundantForeignKey:
+  Enabled: false
+
 # Offense count: 16
 Metrics/AbcSize:
   Max: 70

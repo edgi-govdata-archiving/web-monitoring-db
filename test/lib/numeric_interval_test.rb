@@ -7,8 +7,8 @@ class NumericIntervalTest < ActiveSupport::TestCase
     interval = NumericInterval.new('[1.1,2]')
     assert_equal(1.1, interval.start, 'Incorrect start value')
     assert_equal(2, interval.end, 'Incorrect end value')
-    assert(!interval.start_open, 'Incorrect start_open value')
-    assert(!interval.end_open, 'Incorrect end_open value')
+    assert_not(interval.start_open, 'Incorrect start_open value')
+    assert_not(interval.end_open, 'Incorrect end_open value')
   end
 
   test 'it parses open intervals' do

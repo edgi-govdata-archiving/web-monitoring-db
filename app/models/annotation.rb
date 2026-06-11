@@ -3,8 +3,8 @@
 class Annotation < ApplicationRecord
   include UuidPrimaryKey
 
-  belongs_to :change, foreign_key: :change_uuid, required: true, inverse_of: :annotations
-  belongs_to :author, class_name: 'User', foreign_key: :author_id, required: true
+  belongs_to :change, foreign_key: :change_uuid, optional: false, inverse_of: :annotations
+  belongs_to :author, class_name: 'User', foreign_key: :author_id, optional: false
   validate :annotation_must_be_an_object
   validate :priority_in_range
   validate :significance_in_range

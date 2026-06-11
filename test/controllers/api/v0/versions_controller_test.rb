@@ -144,12 +144,12 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       pages(:home_page),
       capture_time: 'ugh'
     )
-    assert_response :bad_request
+    assert_response :unprocessable_entity
 
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
-    assert_match(/date/i, body_json['errors'][0]['title'],
-                 'Error does not mention date')
+    assert_match(/timestamp/i, body_json['errors'][0]['title'],
+                 'Error does not mention timestamp')
   end
 
   test 'can filter versions by date range' do
@@ -203,12 +203,12 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
       pages(:home_page),
       capture_time: 'ugh..2017-03-04'
     )
-    assert_response :bad_request
+    assert_response :unprocessable_entity
 
     body_json = JSON.parse @response.body
     assert body_json.key?('errors'), 'Response should have an "errors" property'
-    assert_match(/date/i, body_json['errors'][0]['title'],
-                 'Error does not mention date')
+    assert_match(/timestamp/i, body_json['errors'][0]['title'],
+                 'Error does not mention timestamp')
   end
 
   test 'can filter versions by source_type' do
@@ -216,7 +216,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get api_v0_page_versions_url(pages(:home_page), source_type: 'pagefreezer')
 
     body_json = JSON.parse @response.body
-    types = body_json['data'].collect { |v| v['source_type'] }.uniq
+    types = body_json['data'].pluck('source_type').uniq
 
     assert_equal ['pagefreezer'], types, 'Got versions with wrong source_type'
   end
@@ -292,7 +292,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can synthesize a raw response body for network errors' do
     page = pages(:home_page)
     version = page.versions.create(
-      capture_time: Time.now - 1.minute,
+      capture_time: 1.minute.ago,
       body_url: nil,
       body_hash: nil,
       source_type: 'edgi_statuscheck_v0',
@@ -361,7 +361,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     page = pages(:home_page)
 
     get(api_v0_page_versions_url(page, params: { include_total: true }))
-    assert_response(400)
+    assert_response(:bad_request)
     assert_equal('application/json', @response.media_type)
   end
 
@@ -382,11 +382,11 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'lists all versions regardless if different from the previous version' do
-    now = Time.now
+    now = Time.zone.now
     page_versions = [
       { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
       { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },
-      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.days },
+      { body_hash: 'abc', source_type: 'a', capture_time: now - 1.day },
       { body_hash: 'abc', source_type: 'b', capture_time: now - 0.9.days }
     ].collect { |data| pages(:home_page).versions.create(data) }
     page_versions.each(&:update_different_attribute)
@@ -395,7 +395,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_versions_url)
     assert_response(:success)
     body = JSON.parse(@response.body)
-    uuids = body['data'].collect { |version| version['uuid'] }
+    uuids = body['data'].pluck('uuid')
 
     assert_includes(uuids, page_versions[0].uuid)
     assert_includes(uuids, page_versions[1].uuid)

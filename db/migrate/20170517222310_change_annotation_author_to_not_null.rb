@@ -13,7 +13,7 @@ class ChangeAnnotationAuthorToNotNull < ActiveRecord::Migration[5.1]
 
     if default_author.nil?
       # create a default_author if one doesn't exist
-      default_author = User.create(email: 'someone@example.com', password: 'password', confirmed_at: Time.now)
+      default_author = User.create(email: 'someone@example.com', password: 'password', confirmed_at: Time.zone.now)
     end
 
     do_sql(

@@ -17,7 +17,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     @invitation = current_invitation
     @invitation_error =
       if params[:invitation].present?
-        'The invitation code you used is not valid.' unless @invitation.present?
+        'The invitation code you used is not valid.' if @invitation.blank?
       else
         'You must provide an invitation code.'
       end

@@ -73,7 +73,7 @@ task :import_annotations_from_sheet, [:sheet_id, :user_email, :tabs, :start_row,
 end
 
 def change_for_version_url(url)
-  return nil unless url.present?
+  return nil if url.blank?
 
   # Handle versionista URLs
   match = /versionista\.com\/\d+\/\d+\/(\d+):(\d+)/.match(url)

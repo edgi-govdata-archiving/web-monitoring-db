@@ -2,8 +2,8 @@
 
 desc 'Queue up automated analysis for versions added in a given timeframe.'
 task :analyze_changes, [:start_date, :end_date] => [:environment] do |_t, args|
-  start_date = args.key?(:start_date) ? Time.parse(args[:start_date]) : nil
-  end_date = args.key?(:end_date) ? Time.parse(args[:end_date]) : nil
+  start_date = args.key?(:start_date) ? Time.zone.iso8601(args[:start_date]) : nil
+  end_date = args.key?(:end_date) ? Time.zone.iso8601(args[:end_date]) : nil
   puts "Searching for versions between #{start_date || 'now'} and #{end_date || 'now'}"
 
   versions = Version

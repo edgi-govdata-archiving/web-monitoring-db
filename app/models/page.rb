@@ -69,8 +69,8 @@ class Page < ApplicationRecord
   end)
 
   normalizes :url, with: ->(url) { PageUrl.normalize_url(url) }
-  after_create :ensure_domain_and_news_tags
   before_save :derive_url_key
+  after_create :ensure_domain_and_news_tags
   after_save :ensure_page_urls
   validate :url_must_have_domain
   validates :status,
@@ -274,7 +274,7 @@ class Page < ApplicationRecord
   end
 
   def url_must_have_domain
-    unless domain.present?
+    if domain.blank?
       errors.add(:url, 'must have a domain')
     end
   end
@@ -284,7 +284,7 @@ class Page < ApplicationRecord
   # just take the latest status. Instead, we only treat failures as real
   # if they account for a certain percentage of the last N days.
   def calculate_status(relative_to: nil)
-    now = relative_to || Time.now
+    now = relative_to || Time.zone.now
     start_time = now - STATUS_TIMEFRAME
     last_time = now
     latest_error = nil
