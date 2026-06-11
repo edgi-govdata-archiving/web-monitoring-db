@@ -35,7 +35,7 @@ class ImportVersionsJob < ApplicationJob
   end
 
   def import_raw_data(raw_data)
-    last_update = Time.now
+    last_update = Time.zone.now
     each_json_line(raw_data) do |record, row, row_count|
       begin
         Rails.logger.info("Importing row #{row}/#{row_count}...") if Rails.env.development? && (row % 25).zero?
@@ -58,12 +58,12 @@ class ImportVersionsJob < ApplicationJob
       end
 
       # Jobs can be *long*, so make sure updates are persisted periodically.
-      next unless Time.now - last_update > 5
+      next unless Time.zone.now - last_update > 5
 
       # save! will set updated_at, but only if something else has changed.
       # Explicitly change updated_at so it always gets set, even if we don't
       # have any other messages to persist.
-      @import.updated_at = last_update = Time.now
+      @import.updated_at = last_update = Time.zone.now
       @import.save!
     end
     log(object: @import, operation: :finished)
@@ -177,7 +177,9 @@ class ImportVersionsJob < ApplicationJob
 
     url = record['url']
 
-    capture_time = Time.parse(record['capture_time'])
+    # TODO: should probably be Time.zone.iso8601 or Time.zone.rfc3339, but
+    #  need to make sure everywhere we are sending we conform to those.
+    capture_time = Time.zone.parse(record['capture_time']) || raise(ArgumentError, 'Invalid capture_time')
     existing_page = Page.find_by_url(url, at_time: capture_time)
     page = if existing_page
              log(object: existing_page, operation: :found, row:)

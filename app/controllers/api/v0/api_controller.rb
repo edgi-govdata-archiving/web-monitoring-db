@@ -113,7 +113,9 @@ class Api::V0::ApiController < ApplicationController
   def parse_date!(date)
     raise 'Nope' unless date.match?(/^\d{4}-\d\d-\d\d(T\d\d:\d\d(:\d\d(\.\d+)?)?(Z|([+-]\d\d:?\d\d)))?$/)
 
-    Time.parse date
+    # TODO: should probably be Time.zone.iso8601 or Time.zone.rfc3339, but
+    #  need to make sure everywhere we are sending we conform to those.
+    Time.zone.parse(date) || raise(ArgumentError, 'Nope')
   rescue StandardError => _error
     raise Api::InputError, "Invalid date: '#{date}'"
   end

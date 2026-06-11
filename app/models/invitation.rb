@@ -12,11 +12,11 @@ class Invitation < ApplicationRecord
   validates :email, format: { with: /\A[^@\s]+@([^@.\s]+\.)+[^@.\s]+\z/ }, allow_blank: true
 
   def self.expired
-    where('expires_on < ?', Time.now)
+    where('expires_on < ?', Time.zone.now)
   end
 
   def expired?
-    expires_on.present? && Time.now < expires_on
+    expires_on.present? && Time.zone.now < expires_on
   end
 
   def send_email
@@ -65,7 +65,7 @@ class Invitation < ApplicationRecord
 
   def ensure_expiration
     unless expires_on
-      self.expires_on = Time.now + EXPIRATION_DAYS.days
+      self.expires_on = Time.zone.now + EXPIRATION_DAYS.days
     end
   end
 

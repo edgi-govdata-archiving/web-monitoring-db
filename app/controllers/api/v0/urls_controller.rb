@@ -79,7 +79,9 @@ class Api::V0::UrlsController < Api::V0::ApiController
   def parse_time(field, time_input)
     return if time_input.nil?
 
-    Time.parse(time_input)
+    # TODO: should probably be Time.zone.iso8601 or Time.zone.rfc3339, but
+    #  need to make sure everywhere we are sending we conform to those.
+    Time.zone.parse(time_input) || raise(ArgumentError, 'Nope')
   rescue ArgumentError
     raise Api::UnprocessableError, "`#{field}` was not a valid time or `null`"
   end

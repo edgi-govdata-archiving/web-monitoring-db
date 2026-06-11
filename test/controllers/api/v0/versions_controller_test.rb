@@ -292,7 +292,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   test 'can synthesize a raw response body for network errors' do
     page = pages(:home_page)
     version = page.versions.create(
-      capture_time: Time.now - 1.minute,
+      capture_time: 1.minute.ago,
       body_url: nil,
       body_hash: nil,
       source_type: 'edgi_statuscheck_v0',
@@ -382,7 +382,7 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'lists all versions regardless if different from the previous version' do
-    now = Time.now
+    now = Time.zone.now
     page_versions = [
       { body_hash: 'abc', source_type: 'a', capture_time: now - 2.days },
       { body_hash: 'abc', source_type: 'b', capture_time: now - 1.9.days },

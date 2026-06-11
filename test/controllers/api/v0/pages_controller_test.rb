@@ -362,7 +362,7 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     # pages, so the actual page records on a given result page may not match up
     # with the full set.
     first_page = Page.first
-    now = Time.now
+    now = Time.zone.now
     Page.transaction do
       100.times {|i| first_page.versions.create(capture_time: now - i.days)}
 
@@ -402,16 +402,16 @@ class Api::V0::PagesControllerTest < ActionDispatch::IntegrationTest
     # Add some versions out of order
     sign_in users(:alice)
     page = Page.first
-    page.versions.create(capture_time: Time.now - 5.days)
-    page.versions.create(capture_time: Time.now)
-    page.versions.create(capture_time: Time.now - 1.day)
+    page.versions.create(capture_time: 5.days.ago)
+    page.versions.create(capture_time: Time.zone.now)
+    page.versions.create(capture_time: 1.day.ago)
     page = Page.last
-    page.versions.create(capture_time: Time.now - 5.days)
-    page.versions.create(capture_time: Time.now)
-    page.versions.create(capture_time: Time.now - 1.day)
+    page.versions.create(capture_time: 5.days.ago)
+    page.versions.create(capture_time: Time.zone.now)
+    page.versions.create(capture_time: 1.day.ago)
 
     get api_v0_pages_path(
-      capture_time: "..#{(Time.now - 1.day).iso8601}",
+      capture_time: "..#{1.day.ago.iso8601}",
       include_latest: true
     )
     assert_response(:success)

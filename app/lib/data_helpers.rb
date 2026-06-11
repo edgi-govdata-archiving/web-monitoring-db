@@ -9,19 +9,19 @@ module DataHelpers
       expected = DataHelpers.estimate_row_count(expected) if expected.is_a?(Class)
       @expected = expected
       @interval = interval
-      @last_update = Time.now - @interval
+      @last_update = Time.zone.now - @interval
       @total = 0
     end
 
     def increment(amount = 1, log: nil)
       @total += amount
-      log = Time.now - @last_update >= @interval if log.nil?
+      log = Time.zone.now - @last_update >= @interval if log.nil?
       self.log if log
     end
 
     def log(end_line: false)
       DataHelpers.log_progress(@total, @expected, end_line:)
-      @last_update = Time.now
+      @last_update = Time.zone.now
     end
 
     def complete
@@ -34,7 +34,7 @@ module DataHelpers
     ending = if $stdout.isatty
                end_line ? "\n" : ''
              else
-               " (#{Time.now})\n"
+               " (#{Time.zone.now})\n"
              end
     $stdout.write("\r   #{completed}/#{total} #{description}#{ending}")
   end
@@ -73,11 +73,11 @@ module DataHelpers
   # column, like :created_at, indexed).
   def self.iterate_time(collection, interval: nil, start_time: nil, end_time: nil, field: :created_at, &)
     interval ||= 15.days
-    start_time ||= Time.new(2016, 1, 1)
+    start_time ||= Time.zone.local(2016, 1, 1)
     batch_size = 500
     total = 0
 
-    while start_time < (end_time || Time.now)
+    while start_time < (end_time || Time.zone.now)
       iterable = collection.order({ field => :asc }).where_in_unbounded_range(
         field,
         [start_time, start_time + interval]
@@ -128,7 +128,7 @@ module DataHelpers
           #{model_type.table_name}
         SET
           #{setters},
-          updated_at = #{connection.quote(Time.now)}
+          updated_at = #{connection.quote(Time.zone.now)}
         FROM
           (values #{values.join(',')}) as valueset(uuid, #{fields.join(', ')})
         WHERE

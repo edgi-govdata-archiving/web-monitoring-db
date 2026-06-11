@@ -5,8 +5,8 @@ namespace :data do
   # smaller, more time-constrained chunks.
   desc 'Migrate raw Versionista data stored in S3 to new EDGI-owned bucket.'
   task :'20180926_move_versionista_s3_data', [:start_date, :end_date] => [:environment] do |_t, args|
-    start_date = args[:start_date] && Time.parse(args[:start_date])
-    end_date = args[:end_date] && Time.parse(args[:end_date])
+    start_date = args[:start_date] && Time.zone.iso8601(args[:start_date])
+    end_date = args[:end_date] && Time.zone.iso8601(args[:end_date])
 
     new_versionista_prefix = 'https://edgi-wm-versionista.s3.amazonaws.com/'
     old_versionista_prefixes = [
@@ -69,7 +69,7 @@ namespace :data do
             versions
           SET
             uri = valueset.uri,
-            updated_at = #{Version.connection.quote(Time.now)}
+            updated_at = #{Version.connection.quote(Time.zone.now)}
           FROM
             (values #{values.join(',')}) as valueset(uuid, uri)
           WHERE

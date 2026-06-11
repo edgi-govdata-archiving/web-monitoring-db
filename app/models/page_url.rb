@@ -63,7 +63,7 @@ class PageUrl < ApplicationRecord
   #   https://github.com/rails/rails/issues/39833
   # Then this can just be: `where('timeframe @> ?::timestamp', Time.now)`
   def self.current(at_time = nil)
-    at_time ||= Time.now
+    at_time ||= Time.zone.now
     where('from_time <= ?', at_time).where('to_time > ?', at_time)
   end
 

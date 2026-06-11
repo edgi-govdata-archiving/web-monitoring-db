@@ -284,7 +284,7 @@ class Page < ApplicationRecord
   # just take the latest status. Instead, we only treat failures as real
   # if they account for a certain percentage of the last N days.
   def calculate_status(relative_to: nil)
-    now = relative_to || Time.now
+    now = relative_to || Time.zone.now
     start_time = now - STATUS_TIMEFRAME
     last_time = now
     latest_error = nil

@@ -43,7 +43,7 @@ namespace :data do
             #{model_type.table_name}
           SET
             title = valueset.title,
-            updated_at = #{Version.connection.quote(Time.now)}
+            updated_at = #{Version.connection.quote(Time.zone.now)}
           FROM
             (values #{values.join(',')}) as valueset(uuid, title)
           WHERE

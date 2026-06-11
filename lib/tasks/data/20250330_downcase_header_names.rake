@@ -3,8 +3,8 @@
 namespace :data do
   desc 'Ensure the names of headers in Version records are downcased.'
   task :'20250330_downcase_header_names', [:start_date, :end_date] => [:environment] do |_t, args|
-    start_date = parse_time(args[:start_date], Time.new(2010, 1, 1))
-    end_date = parse_time(args[:end_date], Time.now + 1.day)
+    start_date = parse_time(args[:start_date], Time.zone.local(2010, 1, 1))
+    end_date = parse_time(args[:end_date], 1.day.from_now)
 
     ActiveRecord::Migration.say_with_time('Downcasing header names...') do
       DataHelpers.with_activerecord_log_level(:error) do
