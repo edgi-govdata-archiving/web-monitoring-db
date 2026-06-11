@@ -48,8 +48,8 @@ class User < ApplicationRecord
   protected
 
   def after_confirmation
-    if self.invitation
-      self.invitation.destroy
+    if invitation
+      invitation.destroy
       self.invitation = nil
     end
   end

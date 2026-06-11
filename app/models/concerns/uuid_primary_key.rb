@@ -11,7 +11,7 @@ module UuidPrimaryKey
   protected
 
   def generate_uuid
-    if self.uuid.blank?
+    if uuid.blank?
       self.uuid = SecureRandom.uuid
     end
   end

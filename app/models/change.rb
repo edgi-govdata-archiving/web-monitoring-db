@@ -27,8 +27,8 @@ class Change < ApplicationRecord
       uuid_to: to.is_a?(Version) ? to.uuid : to
     }
 
-    change = self.where(change_definition).first
-    change = self.send(create, change_definition) unless change || create.nil?
+    change = where(change_definition).first
+    change = send(create, change_definition) unless change || create.nil?
     change
   end
 
@@ -76,8 +76,8 @@ class Change < ApplicationRecord
       raise 'Annotations must be objects, not arrays or other data.'
     end
 
-    unless self.persisted?
-      self.save!
+    unless persisted?
+      save!
     end
 
     annotation = annotations.find_or_initialize_by(author:)
