@@ -10,20 +10,20 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       @logs ||= []
     end
 
-    def debug(message)
-      logs.push(message)
+    def debug(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def info(message)
-      logs.push(message)
+    def info(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def warn(message)
-      logs.push(message)
+    def warn(message = nil)
+      logs.push(block_given? ? yield : message)
     end
 
-    def error(message)
-      logs.push(message)
+    def error(message = nil)
+      logs.push(block_given? ? yield : message)
     end
   end
 
@@ -82,7 +82,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       {
         **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
         'page_uuid' => page.uuid,
-        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'capture_time' => Time.zone.iso8601(raw_data[:capture_time]),
         'headers' => raw_data[:headers].transform_keys(&:downcase),
         'network_error' => nil
       }.sort.to_h,
@@ -122,7 +122,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       {
         **raw_data.with_indifferent_access.except(:page_maintainers, :page_tags),
         'page_uuid' => page.uuid,
-        'capture_time' => Time.parse(raw_data[:capture_time]),
+        'capture_time' => Time.zone.iso8601(raw_data[:capture_time]),
         'headers' => nil,
         'body_url' => nil,
         'body_hash' => nil,
@@ -271,7 +271,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
   test 'does not import versions for inactive pages' do
     page_versions_count = pages(:inactive_page).versions.count
-    now = Time.now
+    now = Time.zone.now
 
     import = Import.create_with_data(
       {
@@ -298,7 +298,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
   test 'does not import versions if URL did not match body_hash' do
     page_versions_count = pages(:home_page).versions.count
-    now = Time.now
+    now = Time.zone.now
 
     stub_request(:any, 'http://example.com')
       .to_return(body: 'Hello!', status: 200)
@@ -327,7 +327,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
   test 'allows "hash" instead of "body_hash"' do
     page_versions_count = pages(:home_page).versions.count
-    now = Time.now
+    now = Time.zone.now
 
     stub_request(:any, 'http://example.com')
       .to_return(body: 'Hello!', status: 200)
@@ -357,7 +357,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
   test 'allows "version_hash" instead of "body_hash"' do
     page_versions_count = pages(:home_page).versions.count
-    now = Time.now
+    now = Time.zone.now
 
     stub_request(:any, 'http://example.com')
       .to_return(body: 'Hello!', status: 200)
@@ -387,7 +387,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
 
   test 'gets content_length from archiver' do
     page_versions_count = pages(:home_page).versions.count
-    now = Time.now
+    now = Time.zone.now
     hash = 'fd9b8b0e5e12450cae7c43aba3209ffc54bf5cbcb4bcaf70287d9201c6845d1d'
 
     stub_request(:any, 'http://example.com')
@@ -424,7 +424,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   end
 
   test 'normalizes media_type' do
-    now = Time.now
+    now = Time.zone.now
     import = Import.create_with_data(
       {
         user: users(:alice)
@@ -447,7 +447,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
   end
 
   test 'allows "uri" instead of "body_url" for backwards-compatibility' do
-    now = Time.now.round
+    now = Time.zone.now.round
     body_url = 'https://test-bucket.s3.amazonaws.com/example-v1'
 
     stub_request(:any, body_url)
@@ -483,7 +483,7 @@ class ImportVersionsJobTest < ActiveJob::TestCase
       [
         {
           url: url_b,
-          capture_time: Time.now - 1.second,
+          capture_time: 1.second.ago,
           body_url: 'https://test-bucket.s3.amazonaws.com/whatever',
           body_hash: 'abc'
         }

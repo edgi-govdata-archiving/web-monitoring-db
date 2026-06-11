@@ -139,7 +139,7 @@ class Api::V0::UrlsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal 'application/json', @response.media_type
     body = JSON.parse @response.body
-    assert_equal(new_from_time.round, Time.parse(body.dig('data', 'from_time')).round)
+    assert_equal(new_from_time.round, Time.zone.iso8601(body.dig('data', 'from_time')).round)
   end
 
   test 'cannot update url.url' do

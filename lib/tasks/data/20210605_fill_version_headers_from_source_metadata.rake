@@ -4,8 +4,8 @@ namespace :data do
   desc 'Fill in `headers` on versions from `source_metadata.headers`.'
   task :'20210605_fill_version_headers_from_source_metadata', [:force, :start_date, :end_date] => [:environment] do |_t, args|
     force = ['t', 'true', '1'].include? args.fetch(:force, '').downcase
-    start_date = parse_time(args[:start_date], Time.new(2016, 1, 1))
-    end_date = parse_time(args[:end_date], Time.now + 1.day)
+    start_date = parse_time(args[:start_date], Time.zone.local(2016, 1, 1))
+    end_date = parse_time(args[:end_date], 1.day.from_now)
 
     fill_version_headers(start_date, end_date, force:)
   end
@@ -17,7 +17,7 @@ namespace :data do
     ActiveRecord::Migration.say_with_time('Filling in headers on versions...') do
       DataHelpers.with_activerecord_log_level(:error) do
         query = Version
-        last_update = Time.now
+        last_update = Time.zone.now
         completed = 0
         fixed = 0
         total = query
@@ -29,10 +29,10 @@ namespace :data do
           changed = update_version_headers(version, force:)
           fixed += 1 if changed
           completed += 1
-          if Time.now - last_update > progress_interval
+          if Time.zone.now - last_update > progress_interval
             message = "#{fixed} updated, #{completed}"
             DataHelpers.log_progress(message, total, description: 'versions processed')
-            last_update = Time.now
+            last_update = Time.zone.now
           end
         end
 
@@ -44,7 +44,7 @@ namespace :data do
   end
 
   def update_version_headers(version, force: false)
-    return false if version.headers && !version.headers.empty? && !force
+    return false if version.headers.present? && !force
     return false unless version.source_metadata
 
     version.headers = version.source_metadata['headers']

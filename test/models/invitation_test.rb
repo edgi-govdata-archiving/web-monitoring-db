@@ -13,11 +13,11 @@ class InvitationTest < ActiveSupport::TestCase
     assert invitation.valid?
 
     invitation = Invitation.create(email: 'blahblahblah')
-    assert !invitation.valid?
+    assert_not invitation.valid?
   end
 
   test 'invitations for existing users are invalid' do
     invitation = Invitation.create(email: users(:alice).email)
-    assert !invitation.valid?
+    assert_not invitation.valid?
   end
 end

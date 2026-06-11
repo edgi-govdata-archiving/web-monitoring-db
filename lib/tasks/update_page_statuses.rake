@@ -8,7 +8,7 @@ task :update_page_statuses, [:where, :at_time] => [:environment] do |_t, args|
 
   at_time = args[:at_time]
   if at_time.present? && at_time != 'latest_version'
-    at_time = Time.parse(args[:at_time])
+    at_time = Time.zone.parse(args[:at_time]) || raise(ArgumentError, 'Nope')
   end
 
   ActiveRecord::Migration.say_with_time('Updating status codes on pages...') do
@@ -21,10 +21,10 @@ task :update_page_statuses, [:where, :at_time] => [:environment] do |_t, args|
         page_set = page_set
           .joins(:versions)
           .where('pages.status IS NULL')
-          .where('versions.status IS NOT NULL')
+          .where.not(versions: { status: nil })
       end
 
-      last_update = Time.now
+      last_update = Time.zone.now
       completed = 0
       total = page_set.size
 
@@ -37,9 +37,9 @@ task :update_page_statuses, [:where, :at_time] => [:environment] do |_t, args|
 
         page.update_status(relative_to:)
         completed += 1
-        if Time.now - last_update > 2
+        if Time.zone.now - last_update > 2
           DataHelpers.log_progress(completed, total)
-          last_update = Time.now
+          last_update = Time.zone.now
         end
       end
 

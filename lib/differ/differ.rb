@@ -34,7 +34,7 @@ module Differ
   # diffs when a diff algorithm is updated. Note that this is broad, though:
   # updating this date will expire all diff types.
   def self.cache_date
-    @cache_date ||= Time.new(2000, 1, 1)
+    @cache_date ||= Time.zone.local(2000, 1, 1)
   end
 
   def self.cache_date=(time)

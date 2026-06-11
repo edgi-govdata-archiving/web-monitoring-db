@@ -27,8 +27,8 @@ class PageUrlTest < ActiveSupport::TestCase
 
   test 'PageUrls.current returns only records with matching from_time and to_time' do
     page = Page.create(url: 'https://example.gov/')
-    page.urls.first.update(to_time: Time.now - 1.day)
-    page.urls.create(url: 'https://example.gov/2', from_time: Time.now - 1.day)
+    page.urls.first.update(to_time: 1.day.ago)
+    page.urls.create(url: 'https://example.gov/2', from_time: 1.day.ago)
     current = page.urls.current
     assert_equal(1, current.count)
     assert_equal('https://example.gov/2', current.first.url)
@@ -36,9 +36,9 @@ class PageUrlTest < ActiveSupport::TestCase
 
   test 'PageUrls.current works with specified times instead of the current time' do
     page = Page.create(url: 'https://example.gov/')
-    page.urls.first.update(to_time: Time.now - 1.day)
-    page.urls.create(url: 'https://example.gov/2', from_time: Time.now - 1.day)
-    current = page.urls.current(Time.now - 1.month)
+    page.urls.first.update(to_time: 1.day.ago)
+    page.urls.create(url: 'https://example.gov/2', from_time: 1.day.ago)
+    current = page.urls.current(1.month.ago)
     assert_equal(1, current.count)
     assert_equal('https://example.gov/', current.first.url)
   end

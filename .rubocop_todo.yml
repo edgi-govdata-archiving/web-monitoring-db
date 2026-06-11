@@ -6,20 +6,64 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+Rails/InverseOf:
+  Enabled: false
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+Rails/NegateInclude:
+  Enabled: false
+
+Rails/IndexWith:
+  Enabled: false
+
+Rails/RedundantActiveRecordAllMethod:
+  Enabled: false
+
+Rails/WhereEquals:
+  Enabled: false
+
+Rails/WhereExists:
+  Enabled: false
+
+Rails/WhereRange:
+  Enabled: false
+
+Rails/StrongParametersExpect:
+  Enabled: false
+
+Rails/Output:
+  Enabled: false
+
+Rails/ReversibleMigration:
+  Enabled: false
+
+Rails/ThreeStateBooleanColumn:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Style/CollectionQuerying:
+  Enabled: false
+
+Rails/FindEach:
+  Enabled: false
+
+# I'm not sure this is accurate with our weird customized primary keys (ugh,
+# was such a bad idea). Needs some research.
+Rails/RedundantForeignKey:
+  Enabled: false
+
 # Offense count: 16
 Metrics/AbcSize:
-  Max: 77
-  Exclude:
-    - 'app/controllers/api/v0/pages_controller.rb'
+  Max: 70
 
 # Offense count: 5
 # Configuration parameters: CountComments, ExcludedMethods.
 Metrics/BlockLength:
   Max: 69
-
-# Offense count: 4
-Metrics/CyclomaticComplexity:
-  Max: 10
 
 # Offense count: 95
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
@@ -43,21 +87,6 @@ Metrics/PerceivedComplexity:
 Style/Documentation:
   Enabled: false
 
-Style/OptionalBooleanParameter:
-  Enabled: true
-  Exclude:
-    - 'app/jobs/analyze_change_job.rb'
-    - 'app/models/application_record.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, UseHashRocketsWithSymbolValues, PreferHashRocketsForNonAlnumEndingSymbols.
-# SupportedStyles: ruby19, hash_rockets, no_mixed_keys, ruby19_no_mixed_keys
-Style/HashSyntax:
-  Exclude:
-    - 'Gemfile'
-    - 'app/models/invitation.rb'
-
 # Offense count: 18
 # Cop supports --auto-correct.
 # Configuration parameters: MaxLineLength.
@@ -73,60 +102,3 @@ Style/IfUnlessModifier:
     - 'app/models/invitation.rb'
     - 'app/models/page.rb'
     - 'app/models/user.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: line_count_dependent, lambda, literal
-Style/Lambda:
-  Exclude:
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/controllers/pages_controller.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles, IndentationWidth.
-# SupportedStyles: aligned, indented, indented_relative_to_receiver
-Layout/MultilineMethodCallIndentation:
-  Exclude:
-    - 'app/models/change.rb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Exclude:
-    - 'app/models/change.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength, SupportedStyles.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'db/migrate/20170314195641_populate_generic_models_from_versionista_models.rb'
-
-# Offense count: 33
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Exclude:
-    - 'app/controllers/api/v0/annotations_controller.rb'
-    - 'app/controllers/concerns/paging_concern.rb'
-    - 'app/controllers/pages_controller.rb'
-    - 'app/controllers/versions_controller.rb'
-    - 'app/models/annotation.rb'
-    - 'app/models/change.rb'
-    - 'app/models/concerns/uuid_primary_key.rb'
-    - 'app/models/invitation.rb'
-    - 'app/models/page.rb'
-    - 'app/models/user.rb'
-    - 'app/models/version.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'lib/tasks/invitations.rake'

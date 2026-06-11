@@ -69,8 +69,8 @@ class Page < ApplicationRecord
   end)
 
   normalizes :url, with: ->(url) { PageUrl.normalize_url(url) }
-  after_create :ensure_domain_and_news_tags
   before_save :derive_url_key
+  after_create :ensure_domain_and_news_tags
   after_save :ensure_page_urls
   validate :url_must_have_domain
   validates :status,
@@ -136,11 +136,11 @@ class Page < ApplicationRecord
     result = super.as_json(custom_options)
 
     if associations[:maintainers]
-      result['maintainers'] = self.maintainerships.as_json
+      result['maintainers'] = maintainerships.as_json
     end
 
     if associations[:tags]
-      result['tags'] = self.taggings.as_json
+      result['tags'] = taggings.as_json
     end
 
     result
@@ -151,9 +151,9 @@ class Page < ApplicationRecord
   end
 
   def ensure_domain_and_news_tags
-    self.add_tag("domain:#{domain}")
-    self.add_tag("2l-domain:#{second_level_domain}")
-    self.add_tag('news') if news?
+    add_tag("domain:#{domain}")
+    add_tag("2l-domain:#{second_level_domain}")
+    add_tag('news') if news?
   end
 
   # Keep page creation relatively simple by automatically creating a PageUrl
@@ -166,8 +166,8 @@ class Page < ApplicationRecord
 
   def update_status(relative_to: nil)
     new_status = calculate_status(relative_to:)
-    self.update(status: new_status) unless new_status.zero?
-    self.status
+    update(status: new_status) unless new_status.zero?
+    status
   end
 
   def merge(*other_pages)
@@ -178,7 +178,7 @@ class Page < ApplicationRecord
 
         # Move versions from other page.
         other.versions.to_a.each do |version|
-          self.versions << version
+          versions << version
           if first_version_time.nil? || first_version_time > version.capture_time
             first_version_time = version.capture_time
           end
@@ -216,7 +216,7 @@ class Page < ApplicationRecord
         MergedPage.create!(uuid: other.uuid, target: self, audit_data:)
         # If the page we're removing was previously a merge target, update
         # its references.
-        MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: self.uuid)
+        MergedPage.where(target_uuid: other.uuid).update_all(target_uuid: uuid)
         # And finally drop the merged page.
         other.destroy!
 
@@ -250,7 +250,7 @@ class Page < ApplicationRecord
     end
 
 
-    self.update(title: new_title) if new_title.present?
+    update(title: new_title) if new_title.present?
     new_title
   end
 
@@ -274,7 +274,7 @@ class Page < ApplicationRecord
   end
 
   def url_must_have_domain
-    unless domain.present?
+    if domain.blank?
       errors.add(:url, 'must have a domain')
     end
   end
@@ -284,7 +284,7 @@ class Page < ApplicationRecord
   # just take the latest status. Instead, we only treat failures as real
   # if they account for a certain percentage of the last N days.
   def calculate_status(relative_to: nil)
-    now = relative_to || Time.now
+    now = relative_to || Time.zone.now
     start_time = now - STATUS_TIMEFRAME
     last_time = now
     latest_error = nil

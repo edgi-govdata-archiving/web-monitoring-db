@@ -90,7 +90,7 @@ class Version < ApplicationRecord
   #   anchor = Version.find('<uuid>')
   #   Version.ordered(:capture_time, point: anchor, direction: :desc).limit(100)
   def self.ordered(field, point: nil, direction: :asc)
-    point = [point[field], point[self.primary_key]].compact if point.is_a?(Version)
+    point = [point[field], point[primary_key]].compact if point.is_a?(Version)
 
     raise Api::InputError, 'Invalid query sorting point' if point && point.length != 2
     # Only allow fields where there is an index on `(field, uuid)`.
@@ -98,9 +98,9 @@ class Version < ApplicationRecord
       raise Api::InputError, 'Versions can only be sorted by `capture_time` or `created_at`'
     end
 
-    query = self.reorder({ field => direction, uuid: direction })
+    query = reorder({ field => direction, uuid: direction })
     if point
-      fields = [field, self.primary_key].collect {|f| "#{self.table_name}.#{f}"}
+      fields = [field, primary_key].collect {|f| "#{table_name}.#{f}"}
       comparator = direction == :asc ? '>' : '<'
       query.where("(#{fields.join(',')}) #{comparator} (?, ?)", *point)
     else
@@ -109,17 +109,17 @@ class Version < ApplicationRecord
   end
 
   def earliest
-    self.page.versions.reorder(capture_time: :asc).first
+    page.versions.reorder(capture_time: :asc).first
   end
 
   def previous(different: false)
-    query = self.page.versions.where('capture_time < ?', self.capture_time)
+    query = page.versions.where('capture_time < ?', capture_time)
     query = query.where(different: true) if different
     query.first
   end
 
   def next(different: false)
-    query = self.page.versions.where('capture_time > ?', self.capture_time)
+    query = page.versions.where('capture_time > ?', capture_time)
     query = query.where(different: true) if different
     query.last
   end
@@ -151,7 +151,7 @@ class Version < ApplicationRecord
   def update_different_attribute(save: true)
     previous = self.previous
     self.different = previous.nil? || previous.body_hash != body_hash
-    self.save! if save
+    save! if save
 
     # NOTE: it would be nice to stop early here if we didn't make any changes,
     # but `different` defaults to `true` so if we just inserted this version
@@ -159,7 +159,7 @@ class Version < ApplicationRecord
     # we still need to update the next (because this was inserted before it).
     last_hash = body_hash
     following = page.versions
-      .where('capture_time > ?', self.capture_time)
+      .where('capture_time > ?', capture_time)
       .reorder(capture_time: :asc)
 
     following.each do |next_version|
@@ -180,7 +180,7 @@ class Version < ApplicationRecord
 
   # TODO: Consider falling back to sniffing the content at `body_url`?
   def derive_media_type(force: false, value: nil)
-    return if self.media_type && !force
+    return if media_type && !force
 
     response_headers = headers
     meta = source_metadata
@@ -197,7 +197,7 @@ class Version < ApplicationRecord
   end
 
   def derive_content_length
-    return if self.content_length
+    return if content_length
 
     length = headers['content-length']&.to_i
     self.content_length = length if length

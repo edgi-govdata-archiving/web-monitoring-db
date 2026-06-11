@@ -1,9 +1,12 @@
 inherit_from: .rubocop_todo.yml
-require: rubocop-performance
 inherit_mode:
   merge:
     - Exclude
     - Include
+
+plugins:
+  - rubocop-performance
+  - rubocop-rails
 
 AllCops:
   NewCops: enable
@@ -121,6 +124,15 @@ Performance/Squeeze:
 
 Performance/StringInclude:
   Enabled: true
+
+Rails/DynamicFindBy:
+  Enabled: true
+  AllowedMethods:
+    - find_by_api_id
+    - find_by_url
+
+Rails/I18nLocaleTexts:
+  Enabled: false
 
 Style/AccessorGrouping:
   Enabled: false

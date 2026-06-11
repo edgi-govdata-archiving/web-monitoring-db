@@ -12,15 +12,15 @@ class Invitation < ApplicationRecord
   validates :email, format: { with: /\A[^@\s]+@([^@.\s]+\.)+[^@.\s]+\z/ }, allow_blank: true
 
   def self.expired
-    self.where('expires_on < ?', Time.now)
+    where('expires_on < ?', Time.zone.now)
   end
 
   def expired?
-    self.expires_on.present? && Time.now < self.expires_on
+    expires_on.present? && Time.zone.now < expires_on
   end
 
   def send_email
-    InvitationMailer.invitation_email(self).deliver_later if self.email.present?
+    InvitationMailer.invitation_email(self).deliver_later if email.present?
   end
 
   # Overriding this is not the best way to enforce extra constraints (see
@@ -39,11 +39,11 @@ class Invitation < ApplicationRecord
   # because confirming a user destroys its invitation, but it's still
   # possible to wind up in this situation).
   def destroy_unconfirmed_redeemer!
-    if self.redeemer
-      if self.redeemer.active_for_authentication?
+    if redeemer
+      if redeemer.active_for_authentication?
         raise 'This invitation has already been redeemed and confirmed'
       else
-        old_redeemer = self.redeemer
+        old_redeemer = redeemer
         update_column(:redeemer_id, nil)
         old_redeemer.destroy
       end
@@ -55,7 +55,7 @@ class Invitation < ApplicationRecord
   def assign_code
     self.code = loop do
       token = generate_code
-      break token unless Invitation.where(:code => token).exists?
+      break token unless Invitation.where(code: token).exists?
     end
   end
 
@@ -64,13 +64,13 @@ class Invitation < ApplicationRecord
   end
 
   def ensure_expiration
-    unless self.expires_on
-      self.expires_on = Time.now + EXPIRATION_DAYS.days
+    unless expires_on
+      self.expires_on = Time.zone.now + EXPIRATION_DAYS.days
     end
   end
 
   def not_for_existing_user
-    if self.email.present? && User.find_by_email(self.email)
+    if email.present? && User.find_by(email: email)
       errors.add(:email, 'is already a user')
     end
   end

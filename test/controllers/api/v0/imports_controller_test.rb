@@ -603,7 +603,7 @@ class Api::V0::ImportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can skip versions that are the same as the previous version if ?skip_unchanged_versions=true' do
-    now = Time.now
+    now = Time.zone.now
     page = Page.create(url: 'http://thecoolest.com/for/reals')
     page.versions.create(capture_time: now - 5.days, body_hash: 'abc', source_type: 'a')
     page.versions.create(capture_time: now - 4.days, body_hash: 'def', source_type: 'b')

@@ -14,7 +14,7 @@ namespace :data do
     ordered_pages = Page.all.order(uuid: :asc)
     total_pages = ordered_pages.count
 
-    last_update = Time.now - 10
+    last_update = Time.zone.now - 10
     page_count = 0
     version_count = 0
     DataHelpers.iterate_each(ordered_pages, batch_size: 500) do |page|
@@ -39,10 +39,10 @@ namespace :data do
       end
 
       page_count += 1
-      if page_count == total_pages || Time.now - last_update > 2
+      if page_count == total_pages || Time.zone.now - last_update > 2
         print "  Updated #{page_count} of #{total_pages} pages (#{version_count} versions, date: #{page.created_at})\r"
         $stdout.flush
-        last_update = Time.now
+        last_update = Time.zone.now
       end
     end
 

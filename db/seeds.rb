@@ -25,7 +25,7 @@ unless admin
   password = 'PASSWORD'
   admin.email = 'seed-admin@example.com'
   admin.password = password
-  admin.confirmed_at = Time.now
+  admin.confirmed_at = Time.zone.now
   admin.permissions << 'manage_users'
   admin.save
 

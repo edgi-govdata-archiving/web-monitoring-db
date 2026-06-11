@@ -3,8 +3,8 @@
 class Change < ApplicationRecord
   include UuidPrimaryKey
 
-  belongs_to :version, foreign_key: :uuid_to, required: true
-  belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, required: true
+  belongs_to :version, foreign_key: :uuid_to, optional: false
+  belongs_to :from_version, class_name: 'Version', foreign_key: :uuid_from, optional: false
   has_many :annotations, -> { order(updated_at: :asc) }, foreign_key: 'change_uuid', inverse_of: :change
   validate :from_must_be_before_to_version
   validates :priority, allow_nil: true, numericality: {
@@ -27,8 +27,8 @@ class Change < ApplicationRecord
       uuid_to: to.is_a?(Version) ? to.uuid : to
     }
 
-    change = self.where(change_definition).first
-    change = self.send(create, change_definition) unless change || create.nil?
+    change = where(change_definition).first
+    change = send(create, change_definition) unless change || create.nil?
     change
   end
 
@@ -72,12 +72,12 @@ class Change < ApplicationRecord
       return
     end
 
-    if !data.is_a?(Hash)
+    unless data.is_a?(Hash)
       raise 'Annotations must be objects, not arrays or other data.'
     end
 
-    if !self.persisted?
-      self.save!
+    unless persisted?
+      save!
     end
 
     annotation = annotations.find_or_initialize_by(author:)

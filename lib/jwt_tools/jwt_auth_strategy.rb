@@ -12,7 +12,7 @@ module JwtTools
       user_id = claims['sub'].match(/^User:(\d+)$/).try(:[], 1)
       return pass unless user_id
 
-      user = User.find_by_id(user_id)
+      user = User.find_by(id: user_id)
       if user
         success! user
       else

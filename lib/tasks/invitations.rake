@@ -2,7 +2,5 @@
 
 desc 'Clean out expired invitations'
 task :remove_expired_invitations, [] => [:environment] do
-  Invitation.expired.each do |invitation|
-    invitation.destroy
-  end
+  Invitation.expired.each(&:destroy)
 end

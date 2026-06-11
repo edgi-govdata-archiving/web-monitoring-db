@@ -12,5 +12,5 @@ class MergedPage < ApplicationRecord
   belongs_to :target,
              class_name: 'Page',
              foreign_key: :target_uuid,
-             required: true
+             optional: false
 end

@@ -26,11 +26,11 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('Page One', page.title)
 
     page.versions.create(title: 'Newest Version', capture_time: '2017-03-05T00:00:00Z')
-    refute(page.changed?, 'The page was left with unsaved changes')
+    assert_not(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Newest Version', page.title, 'The page title should always sync against the title of the version with the most recent capture time')
     page.versions.create(title: 'Older Version', capture_time: '2017-03-01T00:00:00Z')
-    refute(page.changed?, 'The page was left with unsaved changes')
-    refute_equal('Older Version', page.title, 'The page title should not sync against the title of a newly created version with an older capture time')
+    assert_not(page.changed?, 'The page was left with unsaved changes')
+    assert_not_equal('Older Version', page.title, 'The page title should not sync against the title of a newly created version with an older capture time')
   end
 
   test "page title should not sync with a version's title if it's nil or blank" do
@@ -38,10 +38,10 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('Page One', page.title)
 
     page.versions.create(capture_time: '2017-03-05T00:00:00Z')
-    refute(page.changed?, 'The page was left with unsaved changes')
+    assert_not(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it has a nil title')
     page.versions.create(title: '', capture_time: '2017-03-05T00:00:00Z')
-    refute(page.changed?, 'The page was left with unsaved changes')
+    assert_not(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it has an empty title')
   end
 
@@ -50,7 +50,7 @@ class PageTest < ActiveSupport::TestCase
     assert_equal('Page One', page.title)
 
     page.versions.create(capture_time: '2017-03-05T00:00:00Z', status: 500, title: 'Page One v2')
-    refute(page.changed?, 'The page was left with unsaved changes')
+    assert_not(page.changed?, 'The page was left with unsaved changes')
     assert_equal('Page One', page.title, 'The page title should not sync with the incoming version if it is an error status')
   end
 
@@ -202,18 +202,18 @@ class PageTest < ActiveSupport::TestCase
 
   test 'pages can calculate their effective status code' do
     page = Page.create(url: 'https://example.gov/')
-    page.versions.create(capture_time: Time.now - 15.days, status: 200)
-    page.versions.create(capture_time: Time.now - 12.days, status: 500)
-    page.versions.create(capture_time: Time.now - 10.days, status: 200)
-    page.versions.create(capture_time: Time.now - 1.day, status: 404)
+    page.versions.create(capture_time: 15.days.ago, status: 200)
+    page.versions.create(capture_time: 12.days.ago, status: 500)
+    page.versions.create(capture_time: 10.days.ago, status: 200)
+    page.versions.create(capture_time: 1.day.ago, status: 404)
     assert_equal(page.update_status, 200, 'Status should be 200 when most of the timeframe was non-error versions')
   end
 
   test 'pages use the latest error code for their status when there is an error' do
     page = Page.create(url: 'https://example.gov/')
-    page.versions.create(capture_time: Time.now - 15.days, status: 200)
-    page.versions.create(capture_time: Time.now - 12.days, status: 500)
-    page.versions.create(capture_time: Time.now - 10.days, status: 403)
+    page.versions.create(capture_time: 15.days.ago, status: 200)
+    page.versions.create(capture_time: 12.days.ago, status: 500)
+    page.versions.create(capture_time: 10.days.ago, status: 403)
     assert_equal(page.update_status, 403, 'Status should match the latest error code')
 
     page.latest.update(status: 404)
@@ -222,19 +222,19 @@ class PageTest < ActiveSupport::TestCase
 
   test 'pages use version#effective_status, not raw status' do
     page = Page.create(url: 'https://example.gov/')
-    page.versions.create(capture_time: Time.now - 15.days, status: 200, title: '404 Not Found')
-    page.versions.create(capture_time: Time.now - 12.days, status: 200, title: '404 Not Found')
-    page.versions.create(capture_time: Time.now - 10.days, status: 200, title: '404 Not Found')
-    page.versions.create(capture_time: Time.now - 1.day, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: 15.days.ago, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: 12.days.ago, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: 10.days.ago, status: 200, title: '404 Not Found')
+    page.versions.create(capture_time: 1.day.ago, status: 200, title: '404 Not Found')
     assert_equal(page.update_status, 404, 'Status should be the effective_status of the versions')
   end
 
   test 'pages can calculate a status even when some versions have no status' do
     page = Page.create(url: 'https://example.gov/')
-    page.versions.create(capture_time: Time.now - 12.days)
+    page.versions.create(capture_time: 12.days.ago)
     assert_nil(page.update_status, 'Status should be nil if no versions have status')
 
-    page.versions.create(capture_time: Time.now - 15.days, status: 200)
+    page.versions.create(capture_time: 15.days.ago, status: 200)
     assert_equal(page.update_status, 200, 'Status should be based only on versions with status codes')
   end
 
@@ -273,13 +273,13 @@ class PageTest < ActiveSupport::TestCase
   test 'find_by_url prefers pages currently at the given URL' do
     url = 'https://example.gov/'
     old_page = Page.create(title: 'Old page', url:)
-    old_page.urls.first.update(to_time: Time.now - 5.days)
+    old_page.urls.first.update(to_time: 5.days.ago)
 
     new_page = Page.create(title: 'New Page', url:)
-    new_page.urls.first.update(from_time: Time.now - 5.days)
+    new_page.urls.first.update(from_time: 5.days.ago)
 
     older_page = Page.create(title: 'Ancient Page', url:)
-    older_page.urls.first.update(to_time: Time.now - 10.days)
+    older_page.urls.first.update(to_time: 10.days.ago)
 
     assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
   end
@@ -287,13 +287,13 @@ class PageTest < ActiveSupport::TestCase
   test 'find_by_url returns latest non-current page if no current match is found' do
     url = 'https://example.gov/'
     old_page = Page.create(title: 'Old page', url:)
-    old_page.urls.first.update(to_time: Time.now - 5.days)
+    old_page.urls.first.update(to_time: 5.days.ago)
 
     new_page = Page.create(title: 'New Page', url:)
-    new_page.urls.first.update(to_time: Time.now - 2.days)
+    new_page.urls.first.update(to_time: 2.days.ago)
 
     older_page = Page.create(title: 'Ancient Page', url:)
-    older_page.urls.first.update(to_time: Time.now - 10.days)
+    older_page.urls.first.update(to_time: 10.days.ago)
 
     assert_equal('New Page', Page.find_by_url('http://example.gov/').title)
   end
@@ -351,8 +351,8 @@ class PageTest < ActiveSupport::TestCase
     # Round the times, since precision seems to be lost in the DB.
     merge_audit = merge_record.audit_data
     merge_audit.update({
-      'created_at' => Time.zone.parse(merge_audit['created_at']).round.as_json,
-      'updated_at' => Time.zone.parse(merge_audit['updated_at']).round.as_json
+      'created_at' => Time.zone.iso8601(merge_audit['created_at']).round.as_json,
+      'updated_at' => Time.zone.iso8601(merge_audit['updated_at']).round.as_json
     })
     assert_equal(
       {

@@ -70,17 +70,9 @@ class Api::V0::UrlsController < Api::V0::ApiController
       .permit(:url, :from_time, :to_time, :notes)
 
     result.slice('from_time', 'to_time').each do |key, value|
-      result[key] = parse_time(key, value)
+      result[key] = value.nil? ? nil : parse_timestamp!(value, name: key)
     end
 
     result
-  end
-
-  def parse_time(field, time_input)
-    return if time_input.nil?
-
-    Time.parse(time_input)
-  rescue ArgumentError
-    raise Api::UnprocessableError, "`#{field}` was not a valid time or `null`"
   end
 end

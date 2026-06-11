@@ -33,7 +33,9 @@ class Api::V0::DiffController < Api::V0::ApiController
   protected
 
   def change
-    @change ||= Change.find_by_api_id(params[:id])
+    return @change if defined?(@change)
+
+    @change = Change.find_by_api_id(params[:id])
   end
 
   def ensure_diffable
