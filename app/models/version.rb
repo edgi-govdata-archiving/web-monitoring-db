@@ -341,7 +341,8 @@ class Version < ApplicationRecord
     # AWS WAF sends the `x-amzn-waf-action` header for a lot of blocking
     # actions. It can come from different servers, so should be handled on its
     # own as a clear, concrete signal.
-    if (waf_action = headers.fetch('x-amzn-waf-action', '').downcase)
+    waf_action = headers.fetch('x-amzn-waf-action', '').downcase
+    if waf_action.present?
       if ['challenge', 'captcha'].include?(waf_action)
         return 0.0
       else
@@ -349,7 +350,8 @@ class Version < ApplicationRecord
       end
     end
 
-    if (cf_mitigated = headers.fetch('cf-mitigated', '').downcase)
+    cf_mitigated = headers.fetch('cf-mitigated', '').downcase
+    if cf_mitigated.present?
       if server == 'cloudflare'
         if cf_mitigated == 'challenge'
           return 0.0
@@ -439,6 +441,10 @@ class Version < ApplicationRecord
     end
 
     1.0
+  end
+
+  def quality
+    @quality ||= estimate_quality
   end
 
   def headers

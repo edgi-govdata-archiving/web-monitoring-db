@@ -1596,6 +1596,16 @@ definitions:
           We do our best to only record this when the server appears to be
           legitimately unreachable and not when a crawler or recording tool
           was blocked by the server.
+      quality:
+        type: number
+        format: float
+        description: >-
+          A value between 0 and 1 indicating the estimated quality or validity
+          of the version. `0` indicates the crawler that captured this version
+          was blocked and that this version should be ignored for most
+          purposes, while `1` indicates this version should be an accurate
+          copy of `url` at `capture_time`. Values in between reflect
+          less-than-certain confidence.
       source_type:
         type: string
       source_metadata:

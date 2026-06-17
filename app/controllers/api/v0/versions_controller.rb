@@ -24,7 +24,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     render json: {
       links: paging[:links],
       meta: paging[:meta],
-      data: versions.collect {|version| serialize_version(version)}
+      data: versions.collect {|version| serialize_version(version, methods: [:quality])}
     }
   end
 
@@ -56,7 +56,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     samples.each_value do |sample|
-      sample[:version] = serialize_version(sample[:version])
+      sample[:version] = serialize_version(sample[:version], methods: [:quality])
     end
 
     next_version = page.versions.where('capture_time < ?', time_range[0]).select(:uuid, :capture_time).first
@@ -104,7 +104,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         previous: @version.previous && api_v0_version_url(@version.previous),
         next: @version.next && api_v0_version_url(@version.next)
       },
-      data: serialize_version(@version)
+      data: serialize_version(@version, methods: [:quality])
     }
   end
 
