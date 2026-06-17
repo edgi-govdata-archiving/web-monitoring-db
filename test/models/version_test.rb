@@ -286,4 +286,23 @@ class VersionTest < ActiveSupport::TestCase
     )
     assert_equal(429, version.effective_status)
   end
+
+  Pathname('../../fixtures/version_quality').expand_path(__FILE__).each_child do |child|
+    next if child.basename.to_s.starts_with? '.'
+
+    group, _, expected_str = child.basename.to_s.rpartition('-')
+    expected = expected_str.to_f
+
+    child.each_child do |version_file|
+      next if version_file.basename.to_s.starts_with? '.'
+
+      test "estimate_quality for #{group}/#{version_file.basename}" do
+        # This one needs to read the body for correct estimation, and we don't support that (yet?).
+        skip if version_file.basename.to_s == 'b47ca1d6-0f4e-4015-9940-dc666f755eb1.json'
+
+        version = Version.new(JSON.parse(version_file.read)['data'])
+        assert_equal(expected, version.estimate_quality)
+      end
+    end
+  end
 end

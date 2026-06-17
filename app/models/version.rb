@@ -303,6 +303,146 @@ class Version < ApplicationRecord
     urls
   end
 
+  # KEEP IN SYNC WITH estimate_snapshot_quality IN web-monitoring-processing!
+  # These two routines are meant to be equivalent. Ideally we need this code
+  # to be shared, but for now, make sure to copy any changes you make here
+  # to that repo and vice-versa.
+  def estimate_quality # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+    # Some ancient Versionista and PageFreezer data does not have status codes.
+    status = self.status || (network_error.present? ? 600 : 200)
+
+    # TODO: unify with derive_content_length, or drop this?
+    content_length = self.content_length || headers.fetch('content-length', '-1').to_i
+    status = 500 if status == 200 && content_length == 0
+    server = headers.fetch('server', '').downcase
+
+    no_cache = false
+    if headers.key?('cache-control')
+      cache_control = headers['cache-control'].downcase
+      no_cache = cache_control.include?('no-cache') || cache_control.include?('max-age=0')
+    end
+    if !no_cache && headers.key?('expires')
+      expires = Time.zone.parse(headers['expires'])
+      request_time = headers.key?('date') ? Time.zone.parse(headers['date']) : capture_time
+      no_cache = (expires - request_time) < 60
+    end
+
+    x_cache = headers.fetch('x-cache', '').downcase
+    cache_error = x_cache.include?('error') || x_cache.include?('n/a')
+
+    is_short_or_unknown = content_length < 1000
+    content_type = media_type.presence || headers.fetch('content-type', '')
+    is_html = content_type.starts_with?('text/html')
+
+    # AWS WAF sends the `x-amzn-waf-action` header for a lot of blocking
+    # actions. It can come from different servers, so should be handled on its
+    # own as a clear, concrete signal.
+    waf_action = headers.fetch('x-amzn-waf-action', '').downcase
+    if waf_action.present?
+      if ['challenge', 'captcha'].include?(waf_action)
+        return 0.0
+      else
+        Rails.logger.warn("Unknown value for x-amzn-waf-action header: '#{waf_action}'")
+      end
+    end
+
+    cf_mitigated = headers.fetch('cf-mitigated', '').downcase
+    if cf_mitigated.present?
+      if server == 'cloudflare'
+        if cf_mitigated == 'challenge'
+          return 0.0
+        else
+          Rails.logger.warn("Unknown value for cf-mitigated header: '#{cf_mitigated}'")
+        end
+      else
+        # We expect cf-mitigated to always come alongside a server header
+        # for Cloudflare, unlike with AWS WAF above.
+        Rails.logger.warn("Unknown `server` for cf-mitigated header: 'server: #{server}' 'cf-mitigated: #{cf_mitigated}' (expected 'server: cloudflare')")
+      end
+    end
+
+    if status >= 400 && server.starts_with?('awselb/')
+      # We assume that blocking-related status code coming from directly from
+      # an AWS ELB and not the origin server is really blocking.
+      if status == 429
+        return 0.0
+      elsif status == 403 && is_short_or_unknown
+        return 0.1
+      # Keeping these more fuzzy rules for other errors (e.g. 502/503/504
+      # gateway errors) that are more iffy (a gateway error could be
+      # intermittent, or it could be that the underlying origin server was
+      # shut down) separate from the more concrete ones above. We probably
+      # wouldn't want to fail to *record* these when importing even though we
+      # want to treat them as suspect for task sheets.
+      elsif is_short_or_unknown && is_html
+        return 0.5
+      end
+    elsif status >= 400 && server == 'akamaighost' && is_short_or_unknown && no_cache
+      return 0.0
+    elsif server == 'cloudfront'
+      # We're pretty confident CloudFront will never return a 404 as part of
+      # its own WAF (it will return a 403). 404s only come from the origin.
+      # Still... this is low confidence.
+      return 0.0 if cache_error && status >= 400 && status != 404
+    # elsif server == 'cloudflare'
+    #     # We don't have any special hints for Cloudlare beyond the cf-mitigated
+    #     # header, which is already handled above.
+    #     # NOTES: When Cloudflare provides `server-timing`, it will identify its
+    #     # time with `cfEdge` and origin time with `cfOrigin`. Having edge time
+    #     # but no record of origin time may also be a good hint of WAF behavior.
+    #     ...
+    elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
+      # Very lazy server-timing header parsing. We could parse out the
+      # description and the duration, but those don't matter too much here.
+      server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
+        key, value = item.split(';', 2)
+        result[key.downcase.strip] = value.strip
+      end
+
+      # Akamai Edgesuite doesn't explicitly identify itself, but it seems to
+      # always include recognizable server-timing features and a 4xx status.
+      #
+      # Example good capture:
+      #   server-timing: cdn-cache; desc=MISS, edge; dur=22, origin; dur=369, ak_p; desc="1776475897753_386075716_3264768070_38998_7536_11_0_255";dur=1
+      #
+      # Example bad capture:
+      #   server-timing: cdn-cache; desc=HIT, edge; dur=1, ak_p; desc="1775872487192_399532111_2052555389_12_6012_263_573_-";dur=1
+      #
+      # (Unfortunately, can't find any examples of good cache hits.)
+      if server_timing.key?('ak_p')
+         && server_timing.key?('cdn-cache')
+         # Expect no origin info (since WAF will have never hit the origin)
+         # and single-digit milliseconds at the edge.
+         && !server_timing.key?('origin')
+         && /(^|;)\s*dur=\d(\.|$)/.match?(server_timing.fetch('edge', ''))
+        return 0.25
+      end
+    # TODO: see if we have any Azure CDN examples?
+    elsif status == 429 && is_short_or_unknown
+      return 0.1
+    end
+    # TODO: More general heuristics?
+    # else:
+    #     content_type = media_type or headers.get('content-type', '')
+    #     x_cache = headers.get('x-cache', '').lower()
+    #     cache_miss = x_cache and not x_cache.startswith('hit')
+    #     return content_type.startswith('text/html') and is_short_or_unknown and cache_miss
+
+    # Special cases for redirects to known sinks that represent crawl blocking.
+    if status == 200 && redirects.present?
+      block_url = 'unblock.federalregister.gov/'
+      if redirects[-1].downcase.sub(/^https?:\/\//, '') == block_url && url.downcase.sub(/^https?:\/\//, '') != block_url
+        return 0.0
+      end
+    end
+
+    1.0
+  end
+
+  def quality
+    @quality ||= estimate_quality
+  end
+
   def headers
     super || {}
   end

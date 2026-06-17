@@ -24,11 +24,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
     render json: {
       links: paging[:links],
       meta: paging[:meta],
-      data: versions.collect {|version| serialize_version(version)}
+      data: versions.collect {|version| serialize_version(version, methods: [:quality])}
     }
   end
 
-  def sampled
+  def sampled # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     @sampling = true
     raise API::NotFoundError('You must provide a page to sample versions of.') unless page
 
@@ -43,7 +43,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       key = version.capture_time.to_date.iso8601
       if result.key?(key)
         result[key][:version_count] += 1
-        if version.different && !result[key][:version].different
+        chosen = result[key][:version]
+        if version.quality > chosen.quality || (version.quality == chosen.quality && version.different && !chosen.different)
           result[key][:version] = version
         end
       else
@@ -56,7 +57,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     end
 
     samples.each_value do |sample|
-      sample[:version] = serialize_version(sample[:version])
+      sample[:version] = serialize_version(sample[:version], methods: [:quality])
     end
 
     next_version = page.versions.where('capture_time < ?', time_range[0]).select(:uuid, :capture_time).first
@@ -104,7 +105,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
         previous: @version.previous && api_v0_version_url(@version.previous),
         next: @version.next && api_v0_version_url(@version.next)
       },
-      data: serialize_version(@version)
+      data: serialize_version(@version, methods: [:quality])
     }
   end
 
