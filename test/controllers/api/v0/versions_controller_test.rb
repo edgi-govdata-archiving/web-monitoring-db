@@ -71,17 +71,38 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     get(api_v0_page_versions_sampled_url(page, capture_time: '2021-12-01...2022-02-01'))
     assert_response(:success)
     assert_equal('application/json', @response.media_type)
+
     body_json = JSON.parse(@response.body)
     assert(body_json.key?('links'), 'Response should have a "links" property')
     assert(body_json.key?('data'), 'Response should have a "data" property')
     assert(body_json.key?('meta'), 'Response should have a "meta" property')
     assert(body_json['data'].is_a?(Array), 'Data should be an array')
 
-    # Ensure we got the right sample groups and right sampled version.
-    assert_equal(body_json['data'][0]['time'], '2022-01-02')
-    assert_equal(body_json['data'][0]['version_count'], 2)
+    assert_equal('2022-01-02', body_json['data'][0]['time'])
+    assert_equal(2, body_json['data'][0]['version_count'])
     # Should be the latest different version of the sample period.
-    assert_equal(body_json['data'][0]['version']['body_hash'], 'def')
+    assert_equal('def', body_json['data'][0]['version']['body_hash'])
+  end
+
+  test 'sample shows the highest quality version' do
+    page = pages(:home_page)
+    page.versions.create(body_hash: 'abc', source_type: 'a', capture_time: '2022-01-02T07:00:00Z', headers: {'server' => 'cloudflare', 'cf-mitigated' => 'challenge'})
+    page.versions.create(body_hash: 'def', source_type: 'a', capture_time: '2022-01-02T09:00:00Z', headers: {'server' => 'cloudflare'})
+    page.versions.create(body_hash: 'ghi', source_type: 'a', capture_time: '2022-01-02T12:00:00Z', headers: {'server' => 'cloudflare', 'cf-mitigated' => 'challenge'})
+    page.versions.each(&:update_different_attribute)
+
+    sign_in users(:alice)
+    get(api_v0_page_versions_sampled_url(page, capture_time: '2021-12-01...2022-02-01'))
+    assert_response(:success)
+    assert_equal('application/json', @response.media_type)
+
+    body_json = JSON.parse(@response.body)
+
+    # Ensure we got the right sample groups and right sampled version.
+    assert_equal('2022-01-02', body_json['data'][0]['time'])
+    assert_equal(3, body_json['data'][0]['version_count'])
+    # Should be the highest quality
+    assert_equal('def', body_json['data'][0]['version']['body_hash'])
   end
 
   test 'can post a new version' do

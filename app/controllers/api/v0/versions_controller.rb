@@ -43,7 +43,8 @@ class Api::V0::VersionsController < Api::V0::ApiController
       key = version.capture_time.to_date.iso8601
       if result.key?(key)
         result[key][:version_count] += 1
-        if version.different && !result[key][:version].different
+        chosen = result[key][:version]
+        if version.quality > chosen.quality || (version.quality == chosen.quality && version.different && !chosen.different)
           result[key][:version] = version
         end
       else
