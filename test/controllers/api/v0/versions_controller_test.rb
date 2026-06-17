@@ -86,9 +86,9 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
 
   test 'sample shows the highest quality version' do
     page = pages(:home_page)
-    page.versions.create(body_hash: 'abc', source_type: 'a', capture_time: '2022-01-02T07:00:00Z', headers: {'server' => 'cloudflare', 'cf-mitigated' => 'challenge'})
-    page.versions.create(body_hash: 'def', source_type: 'a', capture_time: '2022-01-02T09:00:00Z', headers: {'server' => 'cloudflare'})
-    page.versions.create(body_hash: 'ghi', source_type: 'a', capture_time: '2022-01-02T12:00:00Z', headers: {'server' => 'cloudflare', 'cf-mitigated' => 'challenge'})
+    page.versions.create(body_hash: 'abc', source_type: 'a', capture_time: '2022-01-02T07:00:00Z', headers: { 'server' => 'cloudflare', 'cf-mitigated' => 'challenge' })
+    page.versions.create(body_hash: 'def', source_type: 'a', capture_time: '2022-01-02T09:00:00Z', headers: { 'server' => 'cloudflare' })
+    page.versions.create(body_hash: 'ghi', source_type: 'a', capture_time: '2022-01-02T12:00:00Z', headers: { 'server' => 'cloudflare', 'cf-mitigated' => 'challenge' })
     page.versions.each(&:update_different_attribute)
 
     sign_in users(:alice)

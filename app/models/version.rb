@@ -307,9 +307,9 @@ class Version < ApplicationRecord
   # These two routines are meant to be equivalent. Ideally we need this code
   # to be shared, but for now, make sure to copy any changes you make here
   # to that repo and vice-versa.
-  def estimate_quality
+  def estimate_quality # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     # Some ancient Versionista and PageFreezer data does not have status codes.
-    status = self.status || (self.network_error.present? ? 600 : 200)
+    status = self.status || (network_error.present? ? 600 : 200)
 
     # TODO: unify with derive_content_length, or drop this?
     content_length = self.content_length || headers.fetch('content-length', '-1').to_i
@@ -319,11 +319,7 @@ class Version < ApplicationRecord
     no_cache = false
     if headers.key?('cache-control')
       cache_control = headers['cache-control'].downcase
-      if cache_control.include?('no-cache')
-        no_cache = true
-      elsif cache_control.include?('max-age=0')
-        no_cache = true
-      end
+      no_cache = cache_control.include?('no-cache') || cache_control.include?('max-age=0')
     end
     if !no_cache && headers.key?('expires')
       expires = Time.zone.parse(headers['expires'])
@@ -395,7 +391,7 @@ class Version < ApplicationRecord
     #     # time with `cfEdge` and origin time with `cfOrigin`. Having edge time
     #     # but no record of origin time may also be a good hint of WAF behavior.
     #     ...
-    elsif 400 <= status && status < 500 && server.blank? && is_short_or_unknown
+    elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
       # Very lazy server-timing header parsing. We could parse out the
       # description and the duration, but those don't matter too much here.
       server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
@@ -422,7 +418,7 @@ class Version < ApplicationRecord
         return 0.25
       end
     # TODO: see if we have any Azure CDN examples?
-    elsif status == 429 and is_short_or_unknown
+    elsif status == 429 && is_short_or_unknown
       return 0.1
     end
     # TODO: More general heuristics?
@@ -433,7 +429,7 @@ class Version < ApplicationRecord
     #     return content_type.startswith('text/html') and is_short_or_unknown and cache_miss
 
     # Special cases for redirects to known sinks that represent crawl blocking.
-    if status == 200 and redirects.present?
+    if status == 200 && redirects.present?
       block_url = 'unblock.federalregister.gov/'
       if redirects[-1].downcase.sub(/^https?:\/\//, '') == block_url && url.downcase.sub(/^https?:\/\//, '') != block_url
         return 0.0

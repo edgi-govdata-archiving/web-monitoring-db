@@ -28,7 +28,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     }
   end
 
-  def sampled
+  def sampled # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     @sampling = true
     raise API::NotFoundError('You must provide a page to sample versions of.') unless page
 
