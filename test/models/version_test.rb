@@ -168,6 +168,27 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal(10_342, version.content_length)
   end
 
+  test 'redirects removes requested URL from front of redirects if present' do
+    version = Version.create(
+      page: pages(:home_page),
+      url: pages(:home_page).url,
+      capture_time: '2017-03-01T00:00:00Z',
+      source_metadata: { 'redirects' => [pages(:home_page).url, 'https://somewhere.else/'] }
+    )
+    assert_equal(['https://somewhere.else/'], version.redirects)
+  end
+
+  test 'redirects does not remove more URLs on repeated calls' do
+    version = Version.create(
+      page: pages(:home_page),
+      url: pages(:home_page).url,
+      capture_time: '2017-03-01T00:00:00Z',
+      source_metadata: { 'redirects' => [pages(:home_page).url, pages(:home_page).url, 'https://somewhere.else/'] }
+    )
+    assert_equal([pages(:home_page).url, 'https://somewhere.else/'], version.redirects)
+    assert_equal([pages(:home_page).url, 'https://somewhere.else/'], version.redirects)
+  end
+
   test 'effective_status considers redirects to be ok' do
     version = Version.create(
       page: pages(:home_page),
