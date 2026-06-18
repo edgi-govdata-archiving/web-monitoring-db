@@ -294,7 +294,12 @@ class Version < ApplicationRecord
 
   def redirects
     urls = source_metadata['redirects'] || []
-    raise TypeError, "Unknown type for source_metadata.redirects on version: #{uuid}" unless urls.is_a?(Array)
+    unless urls.is_a?(Array)
+      message = "Invalid `source_metadata.redirects` for version #{uuid}"
+      Rails.logger.error(message)
+      Sentry.capture_message(message, level: :error)
+      urls = []
+    end
 
     # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
     #  includes these.
