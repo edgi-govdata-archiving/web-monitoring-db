@@ -293,7 +293,7 @@ class Version < ApplicationRecord
   end
 
   def redirects
-    urls = source_metadata['redirects'] || []
+    urls = source_metadata['redirects'].dup || []
     unless urls.is_a?(Array)
       message = "Invalid `source_metadata.redirects` for version #{uuid}"
       Rails.logger.error(message)
@@ -304,8 +304,7 @@ class Version < ApplicationRecord
     # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
     #  includes these.
 
-    # Some malformed data has the original URL repeated.
-    urls.shift while urls.first == url
+    urls.shift if urls.first == url
     urls
   end
 
