@@ -299,7 +299,8 @@ class Version < ApplicationRecord
     # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
     #  includes these.
 
-    urls.shift if urls.first == url
+    # Some malformed data has the original URL repeated.
+    urls.shift while urls.first == url
     urls
   end
 
