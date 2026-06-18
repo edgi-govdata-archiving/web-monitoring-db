@@ -436,7 +436,7 @@ class Version < ApplicationRecord
     # Special cases for redirects to known sinks that represent crawl blocking.
     if status == 200 && redirects.present?
       block_url = 'unblock.federalregister.gov/'
-      if redirects[-1].downcase.sub(/^https?:\/\//, '') == block_url && url.downcase.sub(/^https?:\/\//, '') != block_url
+      if redirects.last.downcase.sub(/^https?:\/\//, '') == block_url && url.downcase.sub(/^https?:\/\//, '') != block_url
         return 0.0
       end
     end
