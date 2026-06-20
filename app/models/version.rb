@@ -312,7 +312,7 @@ class Version < ApplicationRecord
   # These two routines are meant to be equivalent. Ideally we need this code
   # to be shared, but for now, make sure to copy any changes you make here
   # to that repo and vice-versa.
-  def estimate_quality # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     # Some ancient Versionista and PageFreezer data does not have status codes.
     status = self.status || (network_error.present? ? 600 : 200)
 
@@ -327,9 +327,13 @@ class Version < ApplicationRecord
       no_cache = cache_control.include?('no-cache') || cache_control.include?('max-age=0')
     end
     if !no_cache && headers.key?('expires')
-      expires = Time.zone.parse(headers['expires'])
-      request_time = headers.key?('date') ? Time.zone.parse(headers['date']) : capture_time
-      no_cache = (expires - request_time) < 60
+      begin
+        no_cache = Integer(headers['expires']) < 60
+      rescue ArgumentError
+        expires = Time.zone.parse(headers['expires']) || capture_time
+        request_time = (headers.key?('date') && Time.zone.parse(headers['date'])) || capture_time
+        no_cache = (expires - request_time) < 60
+      end
     end
 
     x_cache = headers.fetch('x-cache', '').downcase
@@ -441,6 +445,14 @@ class Version < ApplicationRecord
       end
     end
 
+    1.0
+  end
+
+  def estimate_quality
+    estimate_quality!
+  rescue StandardError => error
+    Rails.logger.error(error)
+    Sentry.capture_exception(error)
     1.0
   end
 
