@@ -333,10 +333,10 @@ class VersionTest < ActiveSupport::TestCase
       url: 'https://websoilsurver.sc.egov.usda.gov/',
       capture_time: Time.zone.parse('2026-03-10T01:31:00Z'),
       headers: {
-        "expires" => "-1",
-        "date" => "Tue, 10 Mar 2026 01:31:00 GMT",
-        "content-type" => "text/html; charset=utf-8",
-        "content-length" => "543681",
+        'expires' => '-1',
+        'date' => 'Tue, 10 Mar 2026 01:31:00 GMT',
+        'content-type' => 'text/html; charset=utf-8',
+        'content-length' => '543681'
       }
     )
 
@@ -348,10 +348,10 @@ class VersionTest < ActiveSupport::TestCase
       url: 'https://websoilsurver.sc.egov.usda.gov/',
       capture_time: Time.zone.parse('2026-03-10T01:31:00Z'),
       headers: {
-        "expires" => "Tue, 10 Mar 2026 01:31:00 GMT",
-        "date" => "Hey hello whats up this is wrong",
-        "content-type" => "text/html; charset=utf-8",
-        "content-length" => "543681",
+        'expires' => 'Tue, 10 Mar 2026 01:31:00 GMT',
+        'date' => 'Hey hello whats up this is wrong',
+        'content-type' => 'text/html; charset=utf-8',
+        'content-length' => '543681'
       }
     )
 

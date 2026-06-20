@@ -331,7 +331,7 @@ class Version < ApplicationRecord
         no_cache = Integer(headers['expires']) < 60
       rescue ArgumentError
         expires = Time.zone.parse(headers['expires']) || capture_time
-        request_time = headers.key?('date') && Time.zone.parse(headers['date']) || capture_time
+        request_time = (headers.key?('date') && Time.zone.parse(headers['date'])) || capture_time
         no_cache = (expires - request_time) < 60
       end
     end
