@@ -323,7 +323,7 @@ class VersionTest < ActiveSupport::TestCase
         skip if version_file.basename.to_s == 'b47ca1d6-0f4e-4015-9940-dc666f755eb1.json'
 
         version = Version.new(JSON.parse(version_file.read)['data'])
-        assert_equal(expected, version.estimate_quality)
+        assert_equal(expected, version.estimate_quality!)
       end
     end
   end
@@ -340,7 +340,7 @@ class VersionTest < ActiveSupport::TestCase
       }
     )
 
-    assert_equal(1.0, version.estimate_quality)
+    assert_equal(1.0, version.estimate_quality!)
   end
 
   test 'estimate_quality accepts invalid "date" header' do
@@ -355,6 +355,6 @@ class VersionTest < ActiveSupport::TestCase
       }
     )
 
-    assert_equal(1.0, version.estimate_quality)
+    assert_equal(1.0, version.estimate_quality!)
   end
 end
