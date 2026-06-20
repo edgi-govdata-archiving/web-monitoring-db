@@ -308,6 +308,7 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal(429, version.effective_status)
   end
 
+  # Test estimate_quality across some real-world examples.
   Pathname('../../fixtures/version_quality').expand_path(__FILE__).each_child do |child|
     next if child.basename.to_s.starts_with? '.'
 
@@ -322,8 +323,38 @@ class VersionTest < ActiveSupport::TestCase
         skip if version_file.basename.to_s == 'b47ca1d6-0f4e-4015-9940-dc666f755eb1.json'
 
         version = Version.new(JSON.parse(version_file.read)['data'])
-        assert_equal(expected, version.estimate_quality)
+        assert_equal(expected, version.estimate_quality!)
       end
     end
+  end
+
+  test 'estimate_quality accepts integer "expires" header' do
+    version = Version.new(
+      url: 'https://websoilsurver.sc.egov.usda.gov/',
+      capture_time: Time.zone.parse('2026-03-10T01:31:00Z'),
+      headers: {
+        'expires' => '-1',
+        'date' => 'Tue, 10 Mar 2026 01:31:00 GMT',
+        'content-type' => 'text/html; charset=utf-8',
+        'content-length' => '543681'
+      }
+    )
+
+    assert_equal(1.0, version.estimate_quality!)
+  end
+
+  test 'estimate_quality accepts invalid "date" header' do
+    version = Version.new(
+      url: 'https://websoilsurver.sc.egov.usda.gov/',
+      capture_time: Time.zone.parse('2026-03-10T01:31:00Z'),
+      headers: {
+        'expires' => 'Tue, 10 Mar 2026 01:31:00 GMT',
+        'date' => 'Hey hello whats up this is wrong',
+        'content-type' => 'text/html; charset=utf-8',
+        'content-length' => '543681'
+      }
+    )
+
+    assert_equal(1.0, version.estimate_quality!)
   end
 end
