@@ -423,7 +423,7 @@ class Version < ApplicationRecord
          # Expect no origin info (since WAF will have never hit the origin)
          # and single-digit milliseconds at the edge.
          && !server_timing.key?('origin')
-         && /(^|;)\s*dur=\d(\.|$)/.match?(server_timing.fetch('edge', ''))
+         && /(^|;)\s*dur=\d+(\.|$)/.match?(server_timing.fetch('edge', ''))
         return 0.25
       end
     # TODO: see if we have any Azure CDN examples?
