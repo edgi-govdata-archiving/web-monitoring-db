@@ -339,7 +339,7 @@ class Version < ApplicationRecord
     x_cache = headers.fetch('x-cache', '').downcase
     cache_error = x_cache.include?('error') || x_cache.include?('n/a')
 
-    is_short_or_unknown = content_length < 1000
+    is_short_or_unknown = content_length < 1024
     content_type = media_type.presence || headers.fetch('content-type', '')
     is_html = content_type.starts_with?('text/html')
 
@@ -393,13 +393,26 @@ class Version < ApplicationRecord
       # its own WAF (it will return a 403). 404s only come from the origin.
       # Still... this is low confidence.
       return 0.0 if cache_error && status >= 400 && status != 404
-    # elsif server == 'cloudflare'
-    #     # We don't have any special hints for Cloudlare beyond the cf-mitigated
-    #     # header, which is already handled above.
-    #     # NOTES: When Cloudflare provides `server-timing`, it will identify its
-    #     # time with `cfEdge` and origin time with `cfOrigin`. Having edge time
-    #     # but no record of origin time may also be a good hint of WAF behavior.
-    #     ...
+    elsif server == 'cloudflare'
+      # Note: Use of the cf-mitigated header (usually for challenges, not
+      # complete blockage) is already handled above. These are more fuzzy.
+
+      # Very lazy server-timing header parsing. We could parse out the
+      # description and the duration, but those don't matter too much here.
+      server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
+        key, value = item.split(';', 2)
+        result[key.downcase.strip] = value ? value.strip : ''
+      end
+
+      # Cloudflare's straight-up blocking (as opposed to challenges that a
+      # user can click through) does not always clearly identify itself except
+      # in the body. With just metadata we use more rough heuristics.
+      if content_length < 8192
+        && /(^|\s)cloudflare($|\s)/i.match?(title)
+        && server_timing.key?('cfedge')
+        && /(^|;)\s*dur=0(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
+        return 0.1
+      end
     elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
       # Very lazy server-timing header parsing. We could parse out the
       # description and the duration, but those don't matter too much here.
