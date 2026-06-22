@@ -394,17 +394,17 @@ class Version < ApplicationRecord
       # Still... this is low confidence.
       return 0.0 if cache_error && status >= 400 && status != 404
     elsif server == 'cloudflare'
-      # Note: Use of the cf-mitigated header (usually for challenges, not
-      # complete blockage) is already handled above. This is fuzzier.
-      #
-      # Cloudflare's straight-up blocking (as opposed to challenges that a
-      # user can click through) does not always clearly identify itself except
-      # in the body. With just metadata we use more rough heuristics.
+      # NOTE: Use of the cf-mitigated header (usually for challenges, not
+      # complete blockage) is already handled above. This uses fuzzier logic
+      # to cover cases where Cloudflare completely blocks a request and gives
+      # less clear information.
       server_timing = parse_server_timing_header(headers['server-timing'])
       if content_length < 8192
-        && /(^|\s)cloudflare($|\s)/i.match?(title)
-        && server_timing.key?('cfedge')
-        && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
+         && /(^|\s)cloudflare($|\s)/i.match?(title)
+         # Expect missing or 0 origin timing (since WAF will never hit the
+         # origin), and some edge timing.
+         && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
+         && server_timing.key?('cfedge')
         return 0.1
       end
     elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
@@ -421,10 +421,10 @@ class Version < ApplicationRecord
       server_timing = parse_server_timing_header(headers['server-timing'])
       if server_timing.key?('ak_p')
          && server_timing.key?('cdn-cache')
-         # Expect no origin info (since WAF will have never hit the origin)
-         # and single-digit milliseconds at the edge.
-         && !server_timing.key?('origin')
-         && /(^|;)\s*dur=\d+(\.|$)/.match?(server_timing.fetch('edge', ''))
+         # Expect missing or 0 origin timing (since WAF will never hit the
+         # origin), and some edge timing.
+         && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('origin', 'dur=0'))
+         && server_timing.key?('edge')
         return 0.25
       end
     # TODO: see if we have any Azure CDN examples?
