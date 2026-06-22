@@ -312,7 +312,7 @@ class Version < ApplicationRecord
   # These two routines are meant to be equivalent. Ideally we need this code
   # to be shared, but for now, make sure to copy any changes you make here
   # to that repo and vice-versa.
-  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/MethodLength
     # Some ancient Versionista and PageFreezer data does not have status codes.
     status = self.status || (network_error.present? ? 600 : 200)
 
@@ -339,7 +339,7 @@ class Version < ApplicationRecord
     x_cache = headers.fetch('x-cache', '').downcase
     cache_error = x_cache.include?('error') || x_cache.include?('n/a')
 
-    is_short_or_unknown = content_length < 1000
+    is_short_or_unknown = content_length < 1024
     content_type = media_type.presence || headers.fetch('content-type', '')
     is_html = content_type.starts_with?('text/html')
 
@@ -393,21 +393,21 @@ class Version < ApplicationRecord
       # its own WAF (it will return a 403). 404s only come from the origin.
       # Still... this is low confidence.
       return 0.0 if cache_error && status >= 400 && status != 404
-    # elsif server == 'cloudflare'
-    #     # We don't have any special hints for Cloudlare beyond the cf-mitigated
-    #     # header, which is already handled above.
-    #     # NOTES: When Cloudflare provides `server-timing`, it will identify its
-    #     # time with `cfEdge` and origin time with `cfOrigin`. Having edge time
-    #     # but no record of origin time may also be a good hint of WAF behavior.
-    #     ...
-    elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
-      # Very lazy server-timing header parsing. We could parse out the
-      # description and the duration, but those don't matter too much here.
-      server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
-        key, value = item.split(';', 2)
-        result[key.downcase.strip] = value.strip
+    elsif server == 'cloudflare'
+      # NOTE: Use of the cf-mitigated header (usually for challenges, not
+      # complete blockage) is already handled above. This uses fuzzier logic
+      # to cover cases where Cloudflare completely blocks a request and gives
+      # less clear information.
+      server_timing = parse_server_timing_header(headers['server-timing'])
+      if content_length < 8192
+         && /(^|\s)cloudflare($|\s)/i.match?(title)
+         # Expect missing or 0 origin timing (since WAF will never hit the
+         # origin), and some edge timing.
+         && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
+         && server_timing.key?('cfedge')
+        return 0.1
       end
-
+    elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
       # Akamai Edgesuite doesn't explicitly identify itself, but it seems to
       # always include recognizable server-timing features and a 4xx status.
       #
@@ -418,12 +418,13 @@ class Version < ApplicationRecord
       #   server-timing: cdn-cache; desc=HIT, edge; dur=1, ak_p; desc="1775872487192_399532111_2052555389_12_6012_263_573_-";dur=1
       #
       # (Unfortunately, can't find any examples of good cache hits.)
+      server_timing = parse_server_timing_header(headers['server-timing'])
       if server_timing.key?('ak_p')
          && server_timing.key?('cdn-cache')
-         # Expect no origin info (since WAF will have never hit the origin)
-         # and single-digit milliseconds at the edge.
-         && !server_timing.key?('origin')
-         && /(^|;)\s*dur=\d(\.|$)/.match?(server_timing.fetch('edge', ''))
+         # Expect missing or 0 origin timing (since WAF will never hit the
+         # origin), and some edge timing.
+         && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('origin', 'dur=0'))
+         && server_timing.key?('edge')
         return 0.25
       end
     # TODO: see if we have any Azure CDN examples?
@@ -488,5 +489,16 @@ class Version < ApplicationRecord
 
   def home_path?(path)
     path.match?(/^\/((index|home)(\.\w+)?)?$/)
+  end
+
+  # Very lazy server-timing header parsing. We could parse out the
+  # description and the duration, but those don't matter too much here.
+  def parse_server_timing_header(text)
+    return {} if text.blank?
+
+    text.split(',').each_with_object({}) do |item, result|
+      key, value = item.split(';', 2)
+      result[key.downcase.strip] = value ? value.strip : ''
+    end
   end
 end
