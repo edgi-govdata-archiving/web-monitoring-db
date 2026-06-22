@@ -395,32 +395,19 @@ class Version < ApplicationRecord
       return 0.0 if cache_error && status >= 400 && status != 404
     elsif server == 'cloudflare'
       # Note: Use of the cf-mitigated header (usually for challenges, not
-      # complete blockage) is already handled above. These are more fuzzy.
-
-      # Very lazy server-timing header parsing. We could parse out the
-      # description and the duration, but those don't matter too much here.
-      server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
-        key, value = item.split(';', 2)
-        result[key.downcase.strip] = value ? value.strip : ''
-      end
-
+      # complete blockage) is already handled above. This is fuzzier.
+      #
       # Cloudflare's straight-up blocking (as opposed to challenges that a
       # user can click through) does not always clearly identify itself except
       # in the body. With just metadata we use more rough heuristics.
+      server_timing = parse_server_timing_header(headers['server-timing'])
       if content_length < 8192
         && /(^|\s)cloudflare($|\s)/i.match?(title)
         && server_timing.key?('cfedge')
-        && /(^|;)\s*dur=0(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
+        && /(^|;)\s*dur=0\s*(;|$)/.match?(server_timing.fetch('cforigin', 'dur=0'))
         return 0.1
       end
     elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
-      # Very lazy server-timing header parsing. We could parse out the
-      # description and the duration, but those don't matter too much here.
-      server_timing = headers.fetch('server-timing', '').split(',').each_with_object({}) do |item, result|
-        key, value = item.split(';', 2)
-        result[key.downcase.strip] = value.strip
-      end
-
       # Akamai Edgesuite doesn't explicitly identify itself, but it seems to
       # always include recognizable server-timing features and a 4xx status.
       #
@@ -431,6 +418,7 @@ class Version < ApplicationRecord
       #   server-timing: cdn-cache; desc=HIT, edge; dur=1, ak_p; desc="1775872487192_399532111_2052555389_12_6012_263_573_-";dur=1
       #
       # (Unfortunately, can't find any examples of good cache hits.)
+      server_timing = parse_server_timing_header(headers['server-timing'])
       if server_timing.key?('ak_p')
          && server_timing.key?('cdn-cache')
          # Expect no origin info (since WAF will have never hit the origin)
@@ -501,5 +489,16 @@ class Version < ApplicationRecord
 
   def home_path?(path)
     path.match?(/^\/((index|home)(\.\w+)?)?$/)
+  end
+
+  # Very lazy server-timing header parsing. We could parse out the
+  # description and the duration, but those don't matter too much here.
+  def parse_server_timing_header(text)
+    return {} if text.blank?
+
+    text.split(',').each_with_object({}) do |item, result|
+      key, value = item.split(';', 2)
+      result[key.downcase.strip] = value ? value.strip : ''
+    end
   end
 end
