@@ -35,6 +35,7 @@ module WebpageVersionsDb
 
     config.middleware.use Rack::Deflater
     config.middleware.use Rack::Brotli
+    config.middleware.insert 0, Rack::UTF8Sanitizer, sanitize_null_bytes: true
 
     # Support CORS requests for everything outside /admin
     # TODO: maybe better to have `/api/*` routes and turn CORS on only for those?

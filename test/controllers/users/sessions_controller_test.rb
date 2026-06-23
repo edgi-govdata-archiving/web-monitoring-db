@@ -14,4 +14,24 @@ class Users::SessionsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse @response.body
     assert_equal ['view', 'annotate', 'import'], body['user']['permissions'], 'User JSON contains permissions'
   end
+
+  test 'handles null bytes in new session get' do
+    get(new_user_session_path, params: {
+      user: {
+        email: users(:alice).email,
+        password: "something\x00bad"
+      }
+    })
+    assert_response :success
+  end
+
+  test 'handles null bytes in new session post' do
+    post new_user_session_path, params: {
+      user: {
+        email: users(:alice).email,
+        password: "something\x00bad"
+      }
+    }
+    assert_response :unprocessable_content
+  end
 end

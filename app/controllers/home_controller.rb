@@ -2,6 +2,6 @@
 
 class HomeController < ApplicationController
   def index
-    render
+    respond_to(:html)
   end
 end
