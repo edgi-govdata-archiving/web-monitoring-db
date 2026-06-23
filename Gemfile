@@ -23,6 +23,7 @@ gem 'oj', '~> 3.17'
 gem 'pundit', '~> 2.5.2'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.9'
+gem 'rack-utf8_sanitizer', '~> 1.11'
 
 # Workers/Queuing
 gem "good_job", "~> 4.19"

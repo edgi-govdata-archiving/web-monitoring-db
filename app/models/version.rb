@@ -312,7 +312,7 @@ class Version < ApplicationRecord
   # These two routines are meant to be equivalent. Ideally we need this code
   # to be shared, but for now, make sure to copy any changes you make here
   # to that repo and vice-versa.
-  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/MethodLength
+  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
     # Some ancient Versionista and PageFreezer data does not have status codes.
     status = self.status || (network_error.present? ? 600 : 200)
 
@@ -327,13 +327,9 @@ class Version < ApplicationRecord
       no_cache = cache_control.include?('no-cache') || cache_control.include?('max-age=0')
     end
     if !no_cache && headers.key?('expires')
-      begin
-        no_cache = Integer(headers['expires']) < 60
-      rescue ArgumentError
-        expires = Time.zone.parse(headers['expires']) || capture_time
-        request_time = (headers.key?('date') && Time.zone.parse(headers['date'])) || capture_time
-        no_cache = (expires - request_time) < 60
-      end
+      expires = parse_http_date(headers['expires'], fallback: capture_time)
+      request_time = parse_http_date(headers['date'], fallback: capture_time)
+      no_cache = (expires - request_time) < 60
     end
 
     x_cache = headers.fetch('x-cache', '').downcase
@@ -393,7 +389,7 @@ class Version < ApplicationRecord
       # its own WAF (it will return a 403). 404s only come from the origin.
       # Still... this is low confidence.
       return 0.0 if cache_error && status >= 400 && status != 404
-    elsif server == 'cloudflare'
+    elsif status >= 400 && status < 500 && server == 'cloudflare'
       # NOTE: Use of the cf-mitigated header (usually for challenges, not
       # complete blockage) is already handled above. This uses fuzzier logic
       # to cover cases where Cloudflare completely blocks a request and gives
@@ -500,5 +496,29 @@ class Version < ApplicationRecord
       key, value = item.split(';', 2)
       result[key.downcase.strip] = value ? value.strip : ''
     end
+  end
+
+  # Parse an HTTP date string (e.g. from a `Date` or `Expires` header) into
+  # an `ActiveSupport::TimeWithZone`. If `fallback` is provided, that will
+  # be returned instead of raising an exception for invalid date strings.
+  def parse_http_date(text, fallback: nil)
+    # This *could* be much simpler, but we want to track whether this parsing
+    # routine is too strict in cases where we have a value worth parsing.
+    # Empty strings and integers get a pass, since they are common exceptional
+    # cases that we know should fail.
+    # TODO: clean up or remove specialized logging after 2026-07-15, once we've
+    #  had a few weeks to experience any interesting results.
+    if text.present? && !/^\s*[+-]?[0-9]+\s*/.match?(text)
+      begin
+        return DateTime.rfc2822(text).in_time_zone
+      rescue ArgumentError => error
+        Rails.logger.warn("Invalid HTTP date: '#{text}'")
+        Sentry.capture_exception(error, level: 'warning')
+      end
+    end
+
+    raise ArgumentError, "Invalid HTTP date: '#{text}'" unless fallback
+
+    fallback.in_time_zone
   end
 end
