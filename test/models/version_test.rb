@@ -308,6 +308,23 @@ class VersionTest < ActiveSupport::TestCase
     assert_equal(429, version.effective_status)
   end
 
+  test 'effective_status considers redirects ?aspxerrorpath as 500' do
+    version = Version.create(
+      page: pages(:home_page),
+      capture_time: '2017-03-01T00:00:00Z',
+      url: 'https://aedt.faa.gov/3g_information.aspx',
+      status: 200,
+      source_metadata: {
+        redirects: [
+          'https://aedt.faa.gov/3g_information.aspx',
+          'https://aedt.faa.gov/ErrorPage.aspx?aspxerrorpath=%252F3g_information.aspx'
+        ]
+      },
+      title: 'FAA: AEDT Support Website'
+    )
+    assert_equal(500, version.effective_status)
+  end
+
   # Test estimate_quality across some real-world examples.
   Pathname('../../fixtures/version_quality').expand_path(__FILE__).each_child do |child|
     next if child.basename.to_s.starts_with? '.'

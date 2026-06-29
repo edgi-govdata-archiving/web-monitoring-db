@@ -72,9 +72,12 @@ module Surt::Canonicalize
     /^(.*)(?:sms_ss=[^&]+)(?:&(.*))?$/i,
     /^(.*)(?:awesm=[^&]+)(?:&(.*))?$/i,
     /^(.*)(?:xtor=[^&]+)(?:&(.*))?$/i,
+    /^(.*)(?:AspxAutoDetectCookieSupport=[^&]+)(?:&(.*))?$/i,
     # TODO: At the moment, we only know `nrg_redirect` to exist on energy.gov.
     #  it would be nice to have a way to scope this by domain or hostname.
-    /^(.*)(?:nrg_redirect=\d+)(?:&(.*))?$/i
+    /^(.*)(?:nrg_redirect=\d+)(?:&(.*))?$/i,
+    # Same for `gsaredirect` on gsa.gov.
+    /^(.*)(?:gsaredirect=[^&]+)(?:&(.*))?$/i
   ].freeze
 
   OCTAL_IP = /^(0[0-7]*)(\.[0-7]+)?(\.[0-7]+)?(\.[0-7]+)?$/

@@ -277,6 +277,11 @@ class Version < ApplicationRecord
     # kind of error, so only check this if the other heuristics didn't work.
     return 500 if headers.fetch('apex-debug-id', '').downcase.include?('level=error')
 
+    # ASP.net servers that are configured to *redirect* to an error page
+    # include the `?aspxerrorpath=<path>` query param. Like the above, it's
+    # ambiguous about the actual type of error, so we check it last.
+    return 500 if redirected_to&.match?(/\?(.+&)?aspxerrorpath=/i)
+
     status || 200
   end
 
