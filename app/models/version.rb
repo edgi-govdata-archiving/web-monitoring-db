@@ -306,8 +306,7 @@ class Version < ApplicationRecord
       urls = []
     end
 
-    # TODO: add option to fetch raw body and look for client redirects? FWIW, data from the EDGI crawler already
-    #  includes these.
+    # TODO: add option to fetch raw body and look for client redirects?
 
     urls.shift if urls.first == url
     urls
