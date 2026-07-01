@@ -33,8 +33,8 @@ gem 'redis', '~> 5.4'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 6.6.0'
-gem 'sentry-rails', '~> 6.6.0'
+gem 'sentry-ruby', '~> 6.6.2'
+gem 'sentry-rails', '~> 6.6.2'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.1"
@@ -59,7 +59,7 @@ group :development, :test do
   gem 'byebug', platform: :mri
   gem 'rubocop', '~> 1.88.1', require: false
   gem 'rubocop-performance', '~> 1.26.1'
-  gem 'rubocop-rails', '~> 2.35.3'
+  gem 'rubocop-rails', '~> 2.35.5'
   gem 'dotenv'
 end
 
