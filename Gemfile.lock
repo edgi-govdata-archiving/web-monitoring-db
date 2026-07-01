@@ -191,7 +191,7 @@ GEM
       csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
-    i18n (1.14.8)
+    i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     io-console (0.8.2)
     irb (1.18.0)
@@ -200,7 +200,7 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jmespath (1.6.2)
-    json (2.19.9)
+    json (2.20.0)
     jwt (3.2.0)
       base64
     language_server-protocol (3.17.0.5)
@@ -367,7 +367,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.35.3)
+    rubocop-rails (2.35.5)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
@@ -480,7 +480,7 @@ DEPENDENCIES
   redis (~> 5.4)
   rubocop (~> 1.87.0)
   rubocop-performance (~> 1.26.1)
-  rubocop-rails (~> 2.35.3)
+  rubocop-rails (~> 2.35.5)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-rails (~> 6.6.0)
