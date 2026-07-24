@@ -370,7 +370,11 @@ class Version < ApplicationRecord
       end
     end
 
-    if status >= 400 && server.starts_with?('awselb/')
+    # rubocop:disable Lint/DuplicateBranch -- Keeping this conceptually
+    #  structured by type of block leads to some duplication, but that's ok.
+    if headers.fetch('rimon', '').downcase == 'rwc_block'
+      return 0.0
+    elsif status >= 400 && server.starts_with?('awselb/')
       # We assume that blocking-related status code coming from directly from
       # an AWS ELB and not the origin server is really blocking.
       if status == 429
@@ -431,6 +435,7 @@ class Version < ApplicationRecord
     elsif status == 429 && is_short_or_unknown
       return 0.1
     end
+
     # TODO: More general heuristics?
     # else:
     #     content_type = media_type or headers.get('content-type', '')
@@ -445,6 +450,7 @@ class Version < ApplicationRecord
         return 0.0
       end
     end
+    # rubocop:enable Lint/DuplicateBranch
 
     1.0
   end
