@@ -370,7 +370,9 @@ class Version < ApplicationRecord
       end
     end
 
-    if status >= 400 && server.starts_with?('awselb/')
+    if headers.fetch('rimon', '').downcase == 'rwc_block'
+      return 0.0
+    elsif status >= 400 && server.starts_with?('awselb/')
       # We assume that blocking-related status code coming from directly from
       # an AWS ELB and not the origin server is really blocking.
       if status == 429
