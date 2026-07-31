@@ -67,7 +67,7 @@ We maintain a publicly available *staging server* at https://api-staging.monitor
 7. Wherever you cloned the repo, go to that directory and install dependencies:
 
     ```sh
-    $ bundle install --without production
+    $ bundle install
     ```
 
 8. Copy the .env.example file to .env - this allows for easy configuration locally.
