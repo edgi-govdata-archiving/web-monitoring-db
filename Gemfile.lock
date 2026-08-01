@@ -374,7 +374,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.47.1, < 2.0)
-    rubocop-rails (2.35.5)
+    rubocop-rails (2.36.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
@@ -486,7 +486,7 @@ DEPENDENCIES
   redis (~> 5.4)
   rubocop (~> 1.88.2)
   rubocop-performance (~> 1.26.1)
-  rubocop-rails (~> 2.35.5)
+  rubocop-rails (~> 2.36.0)
   sassc-rails (~> 2.1.2)
   selenium-webdriver
   sentry-rails (~> 6.6.2)
