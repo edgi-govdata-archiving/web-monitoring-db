@@ -113,11 +113,11 @@ class Api::V0::VersionsController < Api::V0::ApiController
     @version ||= version_collection.find(params[:id])
 
     expires_in 1.year, public: true
-    # Allow this response to be embedded in frames.
-    # TODO: consider whether this should target specific hosts with
-    #  `Content-Security-Policy: frame-ancestors <origin>;`. For now we aren't
-    #  especially concerned about sensitive data here, but it may be a future
-    #  concern to handle better. Would need to be configurable.
+    # Web-monitoring-ui is usually on a different origin, but needs to be able
+    # to display archived version bodies. For now, allow any origin to embed,
+    # since we treat these as public archives and want to be flexible.
+    # TODO: consider whether this should be configurable to target specific
+    #  hosts instead with `Content-Security-Policy: frame-ancestors <origin>;`
     headers.delete('X-Frame-Options')
 
     if @version.network_error.present?
