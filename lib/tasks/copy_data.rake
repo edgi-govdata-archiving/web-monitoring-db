@@ -86,7 +86,7 @@ def copy_page_versions(page, api_options, verbose)
       next
     end
 
-    version = page.versions.create(version_data)
+    version = page.versions.create(version_data.slice(*Version.attribute_names))
     if version.valid?
       summary[:count] += 1
       puts "  Copied version #{version_data['uuid']}" if verbose
