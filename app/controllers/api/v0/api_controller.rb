@@ -66,7 +66,7 @@ class Api::V0::ApiController < ApplicationController
       errors: errors.collect do |error|
         formatted = {
           status: status_code,
-          title: message_for(error)
+          title: message_for(error, status: status_code)
         }
         formatted[:stack] = error.try(:backtrace) || [] if Rails.env.development?
         formatted
@@ -85,10 +85,16 @@ class Api::V0::ApiController < ApplicationController
     end
   end
 
-  def message_for(error)
-    error.try(:message) ||
-      (error.try(:has_key?, :message) && error.send(:[], :message)) ||
-      error.to_s
+  def message_for(error, status: nil)
+    status ||= status_code_for(error)
+
+    if Rails.env.development? || error.is_a?(Api::ApiError) || status < 500
+      error.try(:message) ||
+        (error.try(:has_key?, :message) && error.send(:[], :message)) ||
+        error.to_s
+    else
+      Rack::Utils::HTTP_STATUS_CODES[status] || 'Unknown error'
+    end
   end
 
   def boolean_param(param, presence_implies_true: true, default: false)
