@@ -121,7 +121,7 @@ class Api::V0::VersionsController < Api::V0::ApiController
     headers.delete('X-Frame-Options')
 
     if @version.network_error.present?
-      render :network_error, layout: nil
+      render :network_error, layout: nil, formats: [:html]
     elsif @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
     elsif Archiver.external_archive_url?(@version.body_url)
