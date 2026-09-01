@@ -316,7 +316,7 @@ class Version < ApplicationRecord
   # These two routines are meant to be equivalent. Ideally we need this code
   # to be shared, but for now, make sure to copy any changes you make here
   # to that repo and vice-versa.
-  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+  def estimate_quality! # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity, Metrics/MethodLength
     # Some ancient Versionista and PageFreezer data does not have status codes.
     status = self.status || (network_error.present? ? 600 : 200)
 
@@ -411,6 +411,14 @@ class Version < ApplicationRecord
          && server_timing.key?('cfedge')
         return 0.1
       end
+    elsif headers.key?('erddap-server') && status == 403
+      # NOTE: this is preserved as a comment in case we eventually support
+      # reading the body here like we do in the Python version.
+      # In theory, ERDDAP only uses 403 for blocking, but I'm a little
+      # worried about how future-proof that is. So we look for a more clear
+      # signal in the body.
+      # return 0.0 if body && /\bip address|bl[oa]cklist/i.match?(body[...(18 * 1024)])
+      return 0.25
     elsif status >= 400 && status < 500 && server.blank? && is_short_or_unknown
       # Akamai Edgesuite doesn't explicitly identify itself, but it seems to
       # always include recognizable server-timing features and a 4xx status.
