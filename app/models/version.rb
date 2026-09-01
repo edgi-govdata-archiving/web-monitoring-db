@@ -370,7 +370,7 @@ class Version < ApplicationRecord
       end
     end
 
-    # rubocop:disable Lint/DuplicateBranch -- Keeping this conceptually
+    # rubocop:disable-next Lint/DuplicateBranch -- Keeping this conceptually
     #  structured by type of block leads to some duplication, but that's ok.
     if headers.fetch('rimon', '').downcase == 'rwc_block'
       return 0.0
@@ -450,7 +450,6 @@ class Version < ApplicationRecord
         return 0.0
       end
     end
-    # rubocop:enable Lint/DuplicateBranch
 
     1.0
   end
