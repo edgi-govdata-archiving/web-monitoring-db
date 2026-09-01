@@ -29,7 +29,7 @@ gem 'rack-utf8_sanitizer', '~> 1.11'
 gem "good_job", "~> 4.19"
 
 # Caching
-gem 'redis', '~> 5.4'
+gem 'redis', '~> 6.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
