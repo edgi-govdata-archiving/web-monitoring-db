@@ -7,7 +7,7 @@ end
 
 ruby file: ".ruby-version"
 
-gem 'aws-sdk-s3', '~> 1.228'
+gem 'aws-sdk-s3', '~> 1.229'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
