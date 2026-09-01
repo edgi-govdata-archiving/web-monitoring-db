@@ -7,7 +7,7 @@ end
 
 ruby file: ".ruby-version"
 
-gem 'aws-sdk-s3', '~> 1.228'
+gem 'aws-sdk-s3', '~> 1.229'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
@@ -29,12 +29,12 @@ gem 'rack-utf8_sanitizer', '~> 1.11'
 gem "good_job", "~> 4.19"
 
 # Caching
-gem 'redis', '~> 5.4'
+gem 'redis', '~> 6.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 6.6.2'
-gem 'sentry-rails', '~> 6.6.2'
+gem 'sentry-ruby', '~> 6.7.0'
+gem 'sentry-rails', '~> 6.7.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.1"
@@ -57,7 +57,7 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.88.2', require: false
+  gem 'rubocop', '~> 1.90.0', require: false
   gem 'rubocop-performance', '~> 1.26.1'
   gem 'rubocop-rails', '~> 2.36.0'
   gem 'dotenv'
