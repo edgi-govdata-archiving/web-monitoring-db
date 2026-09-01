@@ -332,12 +332,14 @@ class VersionTest < ActiveSupport::TestCase
     group, _, expected_str = child.basename.to_s.rpartition('-')
     expected = expected_str.to_f
 
-    child.each_child do |version_file|
-      next if version_file.basename.to_s.starts_with? '.'
-
-      test "estimate_quality for #{group}/#{version_file.basename}" do
+    child.glob('*.json') do |version_file|
+      test "estimate_quality for #{group}-#{expected}/#{version_file.basename}" do
         # This one needs to read the body for correct estimation, and we don't support that (yet?).
         skip if version_file.basename.to_s == 'b47ca1d6-0f4e-4015-9940-dc666f755eb1.json'
+        # The Python version supports examining the body content because it is
+        # used in situations where that is locally available. Here, bodies are
+        # remote so we do not support it. Skip tests that depend on it.
+        skip if version_file.sub_ext('.body').exist?
 
         version = Version.new(JSON.parse(version_file.read)['data'])
         assert_equal(expected, version.estimate_quality!)
