@@ -8,6 +8,10 @@ module SortingConcern
   def sorting_params
     raw = params[:sort] || ''
     raw.split(',').collect do |param|
+      if param == ':'
+        raise Api::UnprocessableError, '":" is not a valid sort parameter. Values must be a field to sort by, optionally followed by a ":" and the direction.'
+      end
+
       field, direction = param.split(':')
       { sanitize_field_name!(field) => sanitize_direction!(direction) }
     end

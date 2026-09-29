@@ -457,4 +457,13 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(@response.body)
     assert(body['data'].all? { |item| item['status'] >= 400 && item['status'] < 500 })
   end
+
+  test 'sorting by ":" returns a useful error' do
+    sign_in users(:alice)
+    get(api_v0_versions_url(params: { sort: ':' }))
+    assert_response(:unprocessable_entity)
+    body = JSON.parse(@response.body)
+    assert(body.key?('errors'), 'Response should have an "errors" property')
+    assert_match(/sort/i, body['errors'][0]['title'])
+  end
 end
