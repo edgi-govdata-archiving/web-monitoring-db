@@ -204,7 +204,7 @@ GEM
       reline (>= 0.4.2)
     jmespath (1.6.2)
     json (3.0.2)
-    jwt (3.2.0)
+    jwt (3.3.0)
       base64
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
@@ -471,7 +471,7 @@ DEPENDENCIES
   google-apis-sheets_v4
   hiredis
   httparty
-  jwt (~> 3.1)
+  jwt (~> 3.3)
   listen (~> 3.10)
   minitest-mock
   oj (~> 3.17)
