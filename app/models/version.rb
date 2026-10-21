@@ -447,7 +447,7 @@ class Version < ApplicationRecord
     # (e.g. Cloudflare) left in place. We want to capture that because it is
     # effectively a 404, not a bad snapshot. But just as often these are
     # transient issues where a server is briefly down for maintenance.
-    elsif status == 502 || status == 504
+    elsif [502, 504].include?(status)
       return 0.5
     end
 
