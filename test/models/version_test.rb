@@ -341,7 +341,8 @@ class VersionTest < ActiveSupport::TestCase
         # remote so we do not support it. Skip tests that depend on it.
         skip if version_file.sub_ext('.body').exist?
 
-        version = Version.new(JSON.parse(version_file.read)['data'])
+        # `quality` is virtual (and is what we're testing!), so drop it when filling in a new model instance.
+        version = Version.new(JSON.parse(version_file.read)['data'].except('quality'))
         assert_equal(expected, version.estimate_quality!)
       end
     end

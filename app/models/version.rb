@@ -442,6 +442,13 @@ class Version < ApplicationRecord
     # TODO: see if we have any Azure CDN examples?
     elsif status == 429 && is_short_or_unknown
       return 0.1
+    # Generalized gateway errors. These are iffy. We've seen a lot of cases
+    # where an underlying service gets removed, but with a third-party proxy
+    # (e.g. Cloudflare) left in place. We want to capture that because it is
+    # effectively a 404, not a bad snapshot. But just as often these are
+    # transient issues where a server is briefly down for maintenance.
+    elsif [502, 504].include?(status)
+      return 0.5
     end
 
     # TODO: More general heuristics?
