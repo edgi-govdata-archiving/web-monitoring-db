@@ -9,12 +9,16 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
       interval: "monthly"
       time: "10:00"
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     groups:
       linters:
@@ -34,3 +38,11 @@ updates:
           - patch
         exclude-patterns:
           - rails
+
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+
