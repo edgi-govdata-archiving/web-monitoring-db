@@ -26,7 +26,7 @@ gem 'addressable', '~> 2.9'
 gem 'rack-utf8_sanitizer', '~> 1.11'
 
 # Workers/Queuing
-gem "good_job", "~> 4.19"
+gem "good_job", "~> 4.22"
 
 # Caching
 gem 'redis', '~> 6.0'
