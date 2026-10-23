@@ -7,13 +7,13 @@ end
 
 ruby file: ".ruby-version"
 
-gem 'aws-sdk-s3', '~> 1.232'
+gem 'aws-sdk-s3', '~> 1.233'
 gem 'concurrent-ruby', '~> 1.3'
 gem 'devise'
 gem 'httparty'
 gem 'jwt', '~> 3.3'
 gem 'rails', '~> 8.1.4'
-gem 'pg', '~> 1.6'
+gem 'pg', '~> 1.7'
 gem 'puma', '~> 8.0'
 gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
 gem 'rack-brotli'
@@ -26,15 +26,15 @@ gem 'addressable', '~> 2.9'
 gem 'rack-utf8_sanitizer', '~> 1.11'
 
 # Workers/Queuing
-gem "good_job", "~> 4.19"
+gem "good_job", "~> 4.22"
 
 # Caching
 gem 'redis', '~> 6.0'
 gem 'hiredis'
 
 # Monitoring & Telemetry
-gem 'sentry-ruby', '~> 6.7.0'
-gem 'sentry-rails', '~> 6.7.0'
+gem 'sentry-ruby', '~> 7.1.0'
+gem 'sentry-rails', '~> 7.1.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
 gem "pstore", "~> 0.2.1"
@@ -57,7 +57,7 @@ gem 'bootsnap', '>= 1.4.5', require: false
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
-  gem 'rubocop', '~> 1.91.0', require: false
+  gem 'rubocop', '~> 1.92.0', require: false
   gem 'rubocop-performance', '~> 1.27.0'
   gem 'rubocop-rails', '~> 2.38.0'
   gem 'dotenv'
@@ -73,7 +73,7 @@ group :test do
   gem 'capybara'
   gem 'capybara-email'
   gem 'minitest-mock'
-  gem 'webmock', '~> 3.26'
+  gem 'webmock', '~> 3.34'
   # NOTE: Rails requires Selenium Webdriver to be present in order to run system tests, regardless of what driver
   # you're actually using. See also https://github.com/rails/rails/issues/37410
   gem 'selenium-webdriver'
