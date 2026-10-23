@@ -261,9 +261,9 @@ GEM
     parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
-    pg (1.6.3-aarch64-linux)
-    pg (1.6.3-arm64-darwin)
-    pg (1.6.3-x86_64-linux)
+    pg (1.7.0-aarch64-linux)
+    pg (1.7.0-arm64-darwin)
+    pg (1.7.0-x86_64-linux)
     postmark (1.22.1)
       json
     postmark-rails (0.22.1)
@@ -475,7 +475,7 @@ DEPENDENCIES
   listen (~> 3.10)
   minitest-mock
   oj (~> 3.17)
-  pg (~> 1.6)
+  pg (~> 1.7)
   postmark-rails
   pstore (~> 0.2.1)
   puma (~> 8.0)
