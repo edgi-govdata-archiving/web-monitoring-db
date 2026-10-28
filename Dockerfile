@@ -2,8 +2,14 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
 ### BASE ENVIRONMENT STAGE ###
-FROM ruby:4.0.7-slim AS base
-LABEL maintainer="enviroDGI@gmail.com"
+FROM ruby:4.0.9-slim AS base
+
+LABEL org.opencontainers.image.title="web-monitoring-db" \
+      org.opencontainers.image.description="API server for EDGI Web Monitoring" \
+      org.opencontainers.image.authors="Environmental Data & Governance Initiative (EDGI)" \
+      org.opencontainers.image.url="https://envirodatagov.org/" \
+      org.opencontainers.image.source="https://github.com/edgi-govdata-archiving/web-monitoring-db" \
+      org.opencontainers.image.licenses="GPL-3.0"
 
 # Install apt based dependencies required to run Rails as
 # well as RubyGems. As the Ruby image itself is based on a
@@ -33,7 +39,6 @@ COPY . ./
 
 ### IMPORT WORKER TARGET ###
 FROM base AS import-worker
-LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
 CMD ["bundle", "exec", "good_job", "start"]
@@ -41,7 +46,6 @@ CMD ["bundle", "exec", "good_job", "start"]
 
 ### RAILS SERVER TARGET ###
 FROM base AS rails-server
-LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
 # Expose port 3000 to the Docker host, so we can access it
@@ -59,7 +63,6 @@ CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
 
 ### STATUS UPDATE JOB TARGET ###
 FROM base AS status-update-job
-LABEL maintainer="enviroDGI@gmail.com"
 WORKDIR /app
 
 CMD ["bundle", "exec", "rake", "update_page_statuses"]
