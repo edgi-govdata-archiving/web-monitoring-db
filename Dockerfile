@@ -2,7 +2,7 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build
 
 ### BASE ENVIRONMENT STAGE ###
-FROM ruby:4.0.7-slim AS base
+FROM ruby:4.0.9-slim AS base
 
 LABEL org.opencontainers.image.title="web-monitoring-db" \
       org.opencontainers.image.description="API server for EDGI Web Monitoring" \
