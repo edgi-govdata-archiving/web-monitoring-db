@@ -59,7 +59,7 @@ RUN gem update --system \
 # Copy the main application.
 COPY . ./
 
-# Precompile bootsnap code for faster boot times.
+# Precompile Ruby code with bootsnap for faster startup.
 RUN bundle exec bootsnap precompile --gemfile app/ lib/
 
 # Not ideal, but set development for now to avoid a mess of non-precompilation
