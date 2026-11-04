@@ -204,14 +204,18 @@ User.create(
 The Dockerfile runs the rails server on port 3000 in the container. To build
 and run:
 
-```
-docker build --target rails-server -t envirodgi/db-rails-server .
-docker build --target import-worker -t envirodgi/db-import-worker .
-docker run -p 3000:3000 envirodgi/db-rails-server -e <ENVIRONMENT VARIABLES> .
-docker run -p 6379:6379 envirodgi/db-import-worker -e <ENVIRONMENT VARIABLES> .
+```sh
+docker build --target app -t envirodgi/db-rails-server:dev .
+docker run -p 3000:3000 -e <ENVIRONMENT VARIABLES> envirodgi/db-rails-server:dev
 ```
 
 Point your browser or ``curl`` at ``http://localhost:3000``.
+
+Other commands (such as a job worker) can be run as the Docker command instead of the server:
+
+```sh
+docker run -e <ENVIRONMENT VARIABLES> envirodgi/db-rails-server:dev bundle exec good_job start
+```
 
 
 ## Data Model
@@ -274,7 +278,7 @@ At current, the application creates two `FileStorage` instances:
 
 ## Releases
 
-New releases of the app are published automatically as Docker images by CircleCI when someone pushes to the `release` branch. They are availble at https://hub.docker.com/r/envirodgi. See [web-monitoring-ops](https://github.com/edgi-govdata-archiving/web-monitoring-ops) for how we deploy releases to actual web servers.
+New releases of the app are published automatically as Docker images by CircleCI when someone pushes to the `release` branch. They are available at https://hub.docker.com/r/envirodgi. See [web-monitoring-ops](https://github.com/edgi-govdata-archiving/web-monitoring-ops) for how we deploy releases to actual web servers.
 
 Images are tagged with the SHA-1 of the git commit they were built from. For example, the image `envirodgi/db-rails-server:ddc246819a039465e7711a1abd61f67c14b7a320` was built from [commit `ddc246819a039465e7711a1abd61f67c14b7a320`](https://github.com/edgi-govdata-archiving/web-monitoring-db/commit/ddc246819a039465e7711a1abd61f67c14b7a320).
 
