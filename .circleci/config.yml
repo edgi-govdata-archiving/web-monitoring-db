@@ -94,18 +94,12 @@ jobs:
     steps:
       - checkout
       - run: |
-          docker build --target rails-server -t envirodgi/db-rails-server:$CIRCLE_SHA1 .
-      - run: |
-          docker build --target import-worker -t envirodgi/db-import-worker:$CIRCLE_SHA1 .
-      - run: |
-          docker build --target status-update-job -t envirodgi/db-status-update-job:$CIRCLE_SHA1 .
+          docker build --target app -t envirodgi/db-rails-server:$CIRCLE_SHA1 .
       - run:
           name: Save Images
           command: |
             mkdir /tmp/workspace
             docker save --output /tmp/workspace/docker-image-rails-server envirodgi/db-rails-server:$CIRCLE_SHA1
-            docker save --output /tmp/workspace/docker-image-import-worker envirodgi/db-import-worker:$CIRCLE_SHA1
-            docker save --output /tmp/workspace/docker-image-status-update-job envirodgi/db-status-update-job:$CIRCLE_SHA1
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
@@ -121,21 +115,13 @@ jobs:
           name: Load Built Docker Images
           command: |
             docker load --input /tmp/workspace/docker-image-rails-server
-            docker load --input /tmp/workspace/docker-image-import-worker
-            docker load --input /tmp/workspace/docker-image-status-update-job
       - run: |
           docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: |
           docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
-          docker image tag envirodgi/db-import-worker:$CIRCLE_SHA1 envirodgi/db-import-worker:latest
-          docker image tag envirodgi/db-status-update-job:$CIRCLE_SHA1 envirodgi/db-status-update-job:latest
       - run: |
           docker push envirodgi/db-rails-server:$CIRCLE_SHA1
           docker push envirodgi/db-rails-server:latest
-          docker push envirodgi/db-import-worker:$CIRCLE_SHA1
-          docker push envirodgi/db-import-worker:latest
-          docker push envirodgi/db-status-update-job:$CIRCLE_SHA1
-          docker push envirodgi/db-status-update-job:latest
 
 workflows:
   test:
