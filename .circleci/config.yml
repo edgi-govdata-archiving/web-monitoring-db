@@ -119,9 +119,8 @@ jobs:
           docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: |
           docker push envirodgi/db-rails-server:$CIRCLE_SHA1
-          # XXX: uncomment this!
-          # docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
-          # docker push envirodgi/db-rails-server:latest
+          docker image tag envirodgi/db-rails-server:$CIRCLE_SHA1 envirodgi/db-rails-server:latest
+          docker push envirodgi/db-rails-server:latest
 
 workflows:
   test:
@@ -160,8 +159,6 @@ workflows:
             branches:
               only:
                 - release
-                # XXX: Test deploy this. Remove before merging
-                - optimize-that-dockerfile-just-a-bit
       - build_docker:
           requires:
             - test
