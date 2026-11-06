@@ -124,8 +124,13 @@ class Api::V0::VersionsController < Api::V0::ApiController
       render :network_error, layout: nil, formats: [:html]
     elsif @version.body_url.nil?
       raise Api::NotFoundError, "No raw content for #{@version.uuid}."
-    elsif Archiver.external_archive_url?(@version.body_url)
-      redirect_to @version.body_url, status: :moved_permanently, allow_other_host: true
+    # TODO: re-enable redirecting to a dedicated server for the raw body.
+    #  For now, this is disabled in order to better control access to the
+    #  actual archive storage location. To fix, we need to have a way to provide
+    #  an alternate public URL for a given store so we can do things like put an
+    #  S3 bucket behind CloudFront.
+    # elsif Archiver.external_archive_url?(@version.body_url)
+    #   redirect_to @version.body_url, status: :moved_permanently, allow_other_host: true
     elsif Archiver.store.contains_url?(@version.body_url)
       # Get the file
       filename = File.basename(@version.body_url)

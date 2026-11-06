@@ -254,6 +254,8 @@ class Api::V0::VersionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'can redirect when the raw response body for a single version is in ALLOWED_ARCHIVE_HOSTS' do
+    skip 'This functionality is currently disabled!'
+
     Archiver.allowed_hosts = ['https://test-bucket.s3.amazonaws.com']
     sign_in users(:alice)
     version = versions(:page3_v1)
