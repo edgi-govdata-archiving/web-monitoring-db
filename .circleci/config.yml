@@ -123,7 +123,7 @@ jobs:
           docker push envirodgi/db-rails-server:latest
 
 workflows:
-  test:
+  ci:
     jobs:
       - install_dependencies:
           filters:
@@ -151,8 +151,18 @@ workflows:
           filters:
             branches:
               ignore: release
+      - publish_docker:
+          requires:
+            - lint
+            - test
+            - test_seed
+            - build_docker
+          filters:
+            branches:
+              only:
+                - main
 
-  build-and-publish:
+  publish-release:
     jobs:
       - test:
           filters:
