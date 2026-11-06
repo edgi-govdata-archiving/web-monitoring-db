@@ -8,9 +8,9 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
-        'b' => change.version.body_url,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => change.version.body_hash
       })
       .to_return(body: 'DIFF!', status: 200)
@@ -27,7 +27,7 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
         'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => ''
@@ -46,9 +46,9 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
-        'b' => change.version.body_url,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => change.version.body_hash,
         'something' => 'funky'
       })
@@ -64,9 +64,9 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
-        'b' => change.version.body_url,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => change.version.body_hash
       })
       .to_return(
@@ -86,9 +86,9 @@ class Differ::SimpleDiffTest < ActiveSupport::TestCase
 
     stub_request(:any, 'http://testdiff.com')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
-        'b' => change.version.body_url,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => change.version.body_hash
       })
       .to_timeout
