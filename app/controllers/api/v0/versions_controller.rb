@@ -263,11 +263,18 @@ class Api::V0::VersionsController < Api::V0::ApiController
     methods << :change_from_earliest if boolean_param(:include_change_from_earliest)
     options[:methods] = methods
 
-    # Don't expose the backend `body_url`, expose the 'raw' route instead.
     result = version.as_json(options)
-    unless version.body_url && Archiver.external_archive_url?(version.body_url)
-      result.update('body_url' => raw_api_v0_version_url(version))
-    end
+
+    # Don't expose the backend `body_url`, expose the 'raw' route instead.
+    # TODO: re-enable redirecting to a dedicated server for the raw body.
+    #  For now, this is disabled in order to better control access to the
+    #  actual archive storage location. To fix, we need to have a way to provide
+    #  an alternate public URL for a given store so we can do things like put an
+    #  S3 bucket behind CloudFront.
+    # unless version.body_url && Archiver.external_archive_url?(version.body_url)
+    #   result.update('body_url' => raw_api_v0_version_url(version))
+    # end
+    result.update('body_url' => raw_api_v0_version_url(version))
 
     result
   end
