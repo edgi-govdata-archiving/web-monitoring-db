@@ -32,9 +32,9 @@ module Differ
     def generate_diff(change, options)
       # TODO: should we be accessing url_helpers from here? Is there a better way to pass URLs in?
       query = options.merge(
-        a: change.from_version.body_url || Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
+        a: Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         a_hash: change.from_version.body_hash,
-        b: change.version.body_url || Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
+        b: Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         b_hash: change.version.body_hash
       )
 

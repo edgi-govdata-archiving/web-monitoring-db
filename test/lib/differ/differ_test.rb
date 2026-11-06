@@ -17,9 +17,9 @@ class Differ::DifferTest < ActiveSupport::TestCase
 
     expected_request = stub_request(:any, 'http://testdiff.com/unknown_type')
       .with(query: {
-        'a' => change.from_version.body_url,
+        'a' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.from_version),
         'a_hash' => change.from_version.body_hash,
-        'b' => change.version.body_url,
+        'b' => Rails.application.routes.url_helpers.raw_api_v0_version_url(change.version),
         'b_hash' => change.version.body_hash
       })
       .to_return(body: 'DIFF!', status: 200)
