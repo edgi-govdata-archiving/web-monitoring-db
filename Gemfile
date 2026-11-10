@@ -15,15 +15,16 @@ gem 'jwt', '~> 3.3'
 gem 'rails', '~> 8.1.4'
 gem 'pg', '~> 1.7'
 gem 'puma', '~> 8.0'
-gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
+gem "rack-attack", "~> 6.8"
 gem 'rack-brotli'
+gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
+gem 'rack-utf8_sanitizer', '~> 1.11'
 gem 'sassc-rails', '~> 2.1.2'
 gem 'uglifier', '>= 1.3.0'
 gem 'oj', '~> 3.17'
 gem 'pundit', '~> 2.5.2'
 gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.9'
-gem 'rack-utf8_sanitizer', '~> 1.11'
 
 # Workers/Queuing
 gem "good_job", "~> 4.22"
