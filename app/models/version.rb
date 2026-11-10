@@ -447,7 +447,9 @@ class Version < ApplicationRecord
     # (e.g. Cloudflare) left in place. We want to capture that because it is
     # effectively a 404, not a bad snapshot. But just as often these are
     # transient issues where a server is briefly down for maintenance.
-    elsif [502, 504].include?(status)
+    # This also covers 503, which is not technically a gateway error but tends
+    # to have similar behavior and usage.
+    elsif status.between?(502, 504)
       return 0.5
     end
 
