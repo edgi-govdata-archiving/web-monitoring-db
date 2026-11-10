@@ -5,7 +5,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby file: ".ruby-version"
+ruby file: '.ruby-version'
 
 gem 'aws-sdk-s3', '~> 1.235'
 gem 'concurrent-ruby', '~> 1.3'
@@ -15,7 +15,7 @@ gem 'jwt', '~> 3.3'
 gem 'rails', '~> 8.1.4'
 gem 'pg', '~> 1.7'
 gem 'puma', '~> 8.0'
-gem "rack-attack", "~> 6.8"
+gem 'rack-attack', '~> 6.8'
 gem 'rack-brotli'
 gem 'rack-cors', '~> 3.0', :require => 'rack/cors'
 gem 'rack-utf8_sanitizer', '~> 1.11'
@@ -27,7 +27,7 @@ gem 'google-apis-sheets_v4'
 gem 'addressable', '~> 2.9'
 
 # Workers/Queuing
-gem "good_job", "~> 4.22"
+gem 'good_job', '~> 4.22'
 
 # Caching
 gem 'redis', '~> 6.0'
@@ -38,7 +38,7 @@ gem 'sentry-ruby', '~> 7.1.0'
 gem 'sentry-rails', '~> 7.1.0'
 
 # We don't make direct use of this; it's really here to suppress a warning about upcoming changes to bundled gems.
-gem "pstore", "~> 0.2.1"
+gem 'pstore', '~> 0.2.1'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
